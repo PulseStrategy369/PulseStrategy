@@ -1,5 +1,5 @@
-# PulseStrategy  
-**Whitepaper & User Overview**  
+### PulseStrategy  
+Whitepaper & User Overview  
 
 ---
 
@@ -21,7 +21,7 @@ This whitepaper explains how PulseStrategy works, why it’s valuable, and how y
 PulseStrategy is made up of three interconnected tokens, each backed by a reserve of PulseChain assets. Let’s break them down:
 
 
-### xBond: The PLSX Reserve
+# xBond: The PLSX Reserve
 
   xBond is a PRC20 token that represents your share of the PLSX (PulseX’s native token) held in a decentralized smart contract. It’s like a ticket that proves you own a piece of the PLSX vault.  
 
@@ -48,7 +48,7 @@ PulseStrategy is made up of three interconnected tokens, each backed by a reserv
 
 
 
-### iBond: The INC Reserve
+# iBond: The INC Reserve
   
   iBond is similar to xBond but backed by INC, another key PulseChain asset. It’s your claim on a portion of the INC reserve held by the iBond smart contract.  
 
@@ -69,9 +69,10 @@ PulseStrategy is made up of three interconnected tokens, each backed by a reserv
 
 
 
-### PLStr: The vPLS Reward System
+# PLStr: The vPLS Reward System
 
   PLStr is a PRC20 token backed by vPLS (a staked version of PulseChain’s native token, PLS on average earning 10% yield in PLS). It’s designed to reward users who hold xBond, iBond, or provide liquidity to their DEX pools. Think of PLStr as a bonus for supporting PulseStrategy’s growth. 
+
 
 - **How to Get PLStr?**  
   
@@ -80,6 +81,16 @@ If you hold xBond, iBond, or their liquidity pool (LP) tokens (e.g., xBond/PLSX 
 
 - **Dynamic Weighting:**  
   The amount of PLStr you can claim depends on a formula that adjusts based on the ratio of PLSX to INC in the ecosystem. This keeps rewards fair and balanced. INC gets more Plstr because its supply is much smaller than plsx. but holding same value of inc and plsx should get similar amount of PLStr. 
+
+PLStr Weighted Reward Factors
+
+| Holding Asset      | Weight for PLStr Claims   |
+|--------------------|--------------------------|
+| xBond              | 1x                       |
+| iBond              | Dynamic (INC:PLSX ratio) |
+| xBond/PLSX LP      | 2x                       |
+| iBond/INC LP       | 2x * Dynamic             |
+
 
 
 - **Transfer Burn:**  
@@ -100,7 +111,7 @@ If you hold xBond, iBond, or their liquidity pool (LP) tokens (e.g., xBond/PLSX 
 ## How PulseStrategy Creates Value
 
 
-### Deflationary Mechanics
+# Deflationary Mechanics
 
 - **Burns Shrink Supply:** 
 Every time xBond, iBond, or PLStr is transferred, a portion is burned (0.25% for xBond/iBond, 0.5% for PLStr). This reduces the total supply, increasing each remaining tokens redeemable value.  
@@ -119,8 +130,45 @@ You don’t need to do anything to benefit. As others trade, your holdings autom
 As burns reduce supply and demand grows, each bond becomes scarcer and more valuable. This creates a self-reinforcing cycle that rewards long-term holders.
 
 
+```
+xBond/iBond Supply Over Time (due to Burns)
+|\
+| \
+|  \
+|   \______
+|         \
+|          \______________
++-------------------------> Time
 
-### Origin Address (OA) Role
+As users transfer bonds, supply shrinks due to burns.
+```
+
+```
+Backing per Bond (PLSX or INC) Over Time
+|
+|         /
+|        /
+|      _/  
+|   __/
+|_/
++-------------------------> Time
+
+As supply drops (burns), the contract PLSX/INC pool is split among fewer bonds, so each bond's backing increases.
+```
+
+
+Burn, Supply, and Backing
+
+| Event                | Total Supply | Reserve (PLSX/INC) | Backing per Bond | Description                          |
+|----------------------|-------------|--------------------|------------------|--------------------------------------|
+| Initial Mint         | 100,000     | 100,000            | 1.00             | Every bond backed 1:1                |
+| After Burns (5%)     | 95,000      | 100,000            | 1.05             | Supply shrunk, backing rises         |
+| After More Burns     | 90,000      | 100,000            | 1.11             | Backing per bond keeps increasing    |
+| After Redemptions    | 80,000      | 90,000             | 1.125            | Even after reserve drops, ratio up   |
+
+
+
+# Origin Address (OA) Role
 
 - **What is the OA?** 
 The Origin Address is the account that deploys the contracts. It receives 0.25% of every xBond/iBond transfer.  
@@ -136,8 +184,21 @@ If the OA chooses to act in the ecosystem’s interest, it could use its accumul
   Even if the OA does nothing, the burn mechanics alone ensure value growth for holder.
 
 
+OA Fee Flow (on Issuance & Transfer)
 
-### Arbitrage Opportunities
+| Event             | OA gets (PLSX/INC) | OA gets (xBond/iBond) | OA gets (PLStr) | User gets | Burned |
+|-------------------|--------------------|-----------------------|-----------------|-----------|--------|
+| Issuance          | 0.25% of deposit   | 0.25% of minted bonds | None            | 99.5%     | None   |
+| Transfer          | None               | 0.25% of transferred  | None            | 99.5%     | 0.25%  |
+| vPLS deposit      | None               | None                  | None            | None      | None   |
+| PLStr transfer    | None               | None                  | None            | 99.5%     | 0.5%   |
+
+
+
+
+
+
+# Arbitrage Opportunities
 
 - **Two Prices, One Asset:** 
 xBond and iBond have two active ratios:  
@@ -148,11 +209,21 @@ xBond and iBond have two active ratios:
  If xBond trades below its redemption value on a DEX, traders can buy it cheap, redeem it for PLSX, and profit. If it trades above, they can sell to the DEX and profit.  
 
 - **Win-Win:** 
-Every arbitrage trade involves transfers, which burn tokens and increase the value of remaining bonds. Traders profit, and holders benefit.  
+Every arbitrage trade involves transfers, which burn tokens and increase the value of remaining bonds. Traders profit, and holders benefit. 
+
+```
+        DEX Market
+        +--------+        xBond/iBond          +-------------------+
+        |        +<-------------------------->+                   |
+        |  DEX   |                            | PulseStrategy     |
+        |        +--------------------------->|   Contract        |
+        +--------+     PLSX/INC Redemption    +-------------------+
+  (Buy low, redeem, or sell high, repeat)
+```
 
 
 
-### Liquidity Providers benefits 
+# Liquidity Providers benefits 
 
 - **2x PLStr for LPs:**
 Liquidity Providers earn 2x the PLStr rewards on top of dex fees for supporting the protocol.
@@ -171,7 +242,7 @@ Liquidity Providers earn 2x the PLStr rewards on top of dex fees for supporting 
 ## Smart Contract Breakdown
 
 
-### Security & Trustlessness
+# Security & Trustlessness
 
 - **OpenZeppelin Foundation:**
  All contracts use OpenZeppelin’s battle-tested libraries for ERC20 tokens, safe transfers, and reentrancy protection. 
@@ -187,9 +258,9 @@ You always control your assets. The contracts only hold reserves to back the tok
 
 
 
-### Contract Logic Explained
+## Contract Logic Explained
 
-#### xBond & iBond Contracts
+# xBond & iBond Contracts
 
 - **Minting (180 Days):**  
   - Deposit PLSX/INC to mint xBond/iBond at a 1:1 ratio (minus 0.5% fee).  
@@ -209,7 +280,7 @@ You always control your assets. The contracts only hold reserves to back the tok
 
 
 
-#### PLStr Contract
+# PLStr Contract
 
 - **vPLS Deposits:**  
   - Anyone can deposit vPLS to grow the reward pool (minimum 100,000 vPLS).  
@@ -234,7 +305,7 @@ You always control your assets. The contracts only hold reserves to back the tok
 ---
 
 
-## Frequently Asked Questions (FAQs)
+# Frequently Asked Questions (FAQs)
 
 **Q: What happens if the Origin Address does nothing?**  
 A: The protocol doesn’t rely on the OA. Burns from transfers alone ensure that each xBond/iBond is backed by more PLSX/INC over time.  
@@ -254,7 +325,7 @@ A: Anyone, including the OA or community members. Depositing vPLS doesn’t mint
 ---
 
 
-## Conclusion
+# Conclusion
 
 PulseStrategy is a game-changer for PulseChain—a decentralized, trustless system that turns asset accumulation into a community-driven wealth engine. By combining deflationary mechanics, arbitrage incentives, and a rewarding PLStr system, it creates value for holders, traders, and liquidity providers alike. Whether you’re bullish on PLSX, INC, or PLS, PulseStrategy offers a dynamic way to maximize your returns while strengthening the PulseChain ecosystem.  
 
