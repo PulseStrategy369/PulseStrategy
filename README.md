@@ -9,7 +9,7 @@ PulseStrategy is a decentralized, community-driven protocol built on PulseChain,
 
 Inspired by MicroStrategy’s leveraged Bitcoin accumulation to create value for shareholders, PulseStrategy uses immutable smart contracts to create self-sustaining, community owned decentralized reserves with deflationary mechanics that benefit everyone involved. 
 
-Whether you’re a long-term holder looking for steady growth, a trader seeking profits, or a liquidity provider looking to earn rewards, PulseStrategy offers a unique opportunity for growth.    
+Whether you’re a long-term holder looking for steady growth, a trader seeking profits, or a liquidity provider looking to earn rewards, PulseStrategy offers a unique opportunity for you.    
 
 This whitepaper explains how PulseStrategy works, why it’s valuable, and how you can get involved. From its deflationary mechanics to its reward system, we’ll break it all down in simple terms while providing the technical details for those who want to dive deeper.
 
@@ -71,7 +71,7 @@ PulseStrategy is made up of three interconnected tokens, each backed by a reserv
 
 # PLStr: The vPLS Reward System
 
-  PLStr is a PRC20 token backed by vPLS (a staked version of PulseChain’s native token, PLS on average earning 10% yield in PLS). It’s designed to reward users who hold xBond, iBond, or provide liquidity to their DEX pools. Think of PLStr as a bonus for supporting PulseStrategy’s growth. 
+  PLStr is a PRC20 token backed by vPLS (a staked version of PulseChain’s native token PLS). It’s designed to reward users who hold xBond, iBond, or provide liquidity to their DEX pools. Think of PLStr as a bonus for supporting PulseStrategy’s growth. 
 
 
 - **How to Get PLStr?**  
@@ -80,7 +80,7 @@ PulseStrategy is made up of three interconnected tokens, each backed by a reserv
 If you hold xBond, iBond, or their liquidity pool (LP) tokens (e.g., xBond/PLSX or iBond/INC pairs on PulseX), you can claim PLStr. Rewards are weighted based on your holdings, and LP providers get a **2x boost** to encourage liquidity.  
 
 - **Dynamic Weighting:**  
-  The amount of PLStr you can claim depends on a formula that adjusts based on the ratio of PLSX to INC in the ecosystem. This keeps rewards fair and balanced. INC gets more Plstr because its supply is much smaller than plsx. but holding same value of inc and plsx should get similar amount of PLStr. 
+  The amount of PLStr you can claim depends on a formula that adjusts based on the ratio of PLSX to INC supply. This keeps rewards fair and balanced. INC gets more Plstr because its supply is much smaller than plsx. but holding same value of inc and plsx should get similar amount of PLStr. 
 
 PLStr Weighted Reward Factors
 
@@ -121,7 +121,6 @@ The PLSX, INC, and vPLS in the contracts can grow slowly over time while the ibo
 
 - **Passive Growth:** 
 You don’t need to do anything to benefit. As others trade, your holdings automatically become worth more.
-
 
 - **Limited Minting Window:**
  After 180 days, no new xBond or iBond can ever be minted. The only way to get them is to buy on a DEX, driving demand for a shrinking supply.  
@@ -232,7 +231,7 @@ Liquidity Providers earn 2x the PLStr rewards on top of dex fees for supporting 
  incentive to arbitrage could keep DEX prices in tight ranges since its value is tied to its redemption values, and liquidity providers could face lower impermanent loss.
 
 - **Arbitrage creates fees for LPs:**
- incentive to arbitrage could increase trading volume allowing lps to yield more dex lp fees.
+ incentive to arbitrage could increase trading volume allowing lps to yield more dex fees.
 
   
 ---
