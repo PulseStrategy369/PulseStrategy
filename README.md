@@ -111,7 +111,7 @@ PLStr Weighted Reward Factors
 ## How PulseStrategy Creates Value
 
 
-# Deflationary Mechanics
+**Deflationary Mechanics**
 
 - **Burns Shrink Supply:** 
 Every time xBond, iBond, or PLStr is transferred, a portion is burned (0.25% for xBond/iBond, 0.5% for PLStr). This reduces the total supply, increasing each remaining tokens redeemable value.  
@@ -168,7 +168,7 @@ Burn, Supply, and Backing
 
 
 
-# Origin Address (OA) Role
+**Origin Address (OA) Role**
 
 - **What is the OA?** 
 The Origin Address is the account that deploys the contracts. It receives 0.25% of every xBond/iBond transfer.  
@@ -198,7 +198,7 @@ OA Fee Flow (on Issuance & Transfer)
 
 
 
-# Arbitrage Opportunities
+**Arbitrage Opportunities**
 
 - **Two Prices, One Asset:** 
 xBond and iBond have two active ratios:  
@@ -223,7 +223,7 @@ Every arbitrage trade involves transfers, which burn tokens and increase the val
 
 
 
-# Liquidity Providers benefits 
+**Liquidity Providers benefits** 
 
 - **2x PLStr for LPs:**
 Liquidity Providers earn 2x the PLStr rewards on top of dex fees for supporting the protocol.
@@ -242,7 +242,7 @@ Liquidity Providers earn 2x the PLStr rewards on top of dex fees for supporting 
 ## Smart Contract Breakdown
 
 
-# Security & Trustlessness
+**Security & Trustlessness**
 
 - **OpenZeppelin Foundation:**
  All contracts use OpenZeppelin’s battle-tested libraries for ERC20 tokens, safe transfers, and reentrancy protection. 
@@ -260,7 +260,7 @@ You always control your assets. The contracts only hold reserves to back the tok
 
 ## Contract Logic Explained
 
-# xBond & iBond Contracts
+**xBond & iBond Contracts**
 
 - **Minting (180 Days):**  
   - Deposit PLSX/INC to mint xBond/iBond at a 1:1 ratio (minus 0.5% fee).  
@@ -280,7 +280,7 @@ You always control your assets. The contracts only hold reserves to back the tok
 
 
 
-# PLStr Contract
+**PLStr Contract**
 
 - **vPLS Deposits:**  
   - Anyone can deposit vPLS to grow the reward pool (minimum 100,000 vPLS).  
