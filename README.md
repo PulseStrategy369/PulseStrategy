@@ -229,7 +229,7 @@ Every arbitrage trade involves transfers, which burn tokens and increase the val
 Liquidity Providers earn 2x the PLStr rewards on top of dex fees for supporting the protocol.
 
 - **impermanent loss for LPs:**
- incentive to arbitragec could keep DEX prices in tight ranges simce its value is tied to its redemption values, and liquidity providers could face lower impermanent loss.
+ incentive to arbitrage could keep DEX prices in tight ranges since its value is tied to its redemption values, and liquidity providers could face lower impermanent loss.
 
 - **Arbitrage creates fees for LPs:**
  incentive to arbitrage could increase trading volume allowing lps to yield more dex lp fees.
