@@ -290,7 +290,7 @@ You always control your assets. The contracts only hold reserves to back the tok
   - Rewards are weighted by a formula that adjusts based on PLSX/INC ratios.  
   - LP providers get 2x rewards to incentivize liquidity.  
 
-- **Reward Expiry:**  
+- **Reward Expirations:**  
   - Unclaimed rewards expire after 90 days, resetting the reward pool.  
   - Expired rewards effectively burn PLStr, increasing vPLS backing for claimed PLStr.  
 
