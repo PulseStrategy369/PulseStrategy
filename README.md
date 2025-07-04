@@ -97,7 +97,7 @@ PLStr Weighted Reward Factors
   Every PLStr transfer (except for claims or redemptions) burns 0.5% of the amount, increasing holders redemption value.  
 
 
-- **Reward Expiry:**  
+- **Reward Expiration:**  
   PLStr rewards expire 90 days after the last vPLS deposit. This encourages active participation and ensures the system stays dynamic. Expired rewards are effectively burned, increasing the vPLS backing for remaining PLStr holders.  
 
 
