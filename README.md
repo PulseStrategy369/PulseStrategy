@@ -179,8 +179,8 @@ PulseStrategy doesn’t rely on the OA to do anything. It has no admin powers or
 If the OA chooses to act in the ecosystem’s interest, it could use its accumulated tokens to:  
   - Buy more PLSX, INC, or vPLS and deposit them into the contracts, growing the reserves.  
   - Fund marketing or community initiatives to boost adoption.  
-  - Provide liquidity to DEX pools, making trading easier.  
-  Even if the OA does nothing, the burn mechanics alone ensure value growth for holder.
+  - Provide liquidity to DEX pools.  
+  Even if the OA does nothing, the burn mechanics alone ensure value growth for holders.
 
 
 OA Fee Flow (on Issuance & Transfer)
@@ -201,11 +201,11 @@ OA Fee Flow (on Issuance & Transfer)
 
 - **Two Prices, One Asset:** 
 xBond and iBond have two active ratios:  
-  - **DEX Price:** What they trade for on a DEX like PulseX (market-driven).  
-  - **Redemption Value:** Their share of the PLSX/INC reserve (asset-backed).  
+  - **DEX Price:** the traded ratio on a DEX like PulseX (market-driven).  
+  - **Redemption Value:**  the redeemable ratio of PLSX/INC in reserve (asset-backed).  
 
 - **Profit from Price Gaps:**
- If xBond trades below its redemption value on a DEX, traders can buy it cheap, redeem it for PLSX, and profit. If it trades above, they can sell to the DEX and profit.  
+ If xBond trades below its redemption value on a DEX, buy cheap, redeem it for PLSX, and profit. If it trades above, they can sell to the DEX and profit.  
 
 - **Win-Win:** 
 Every arbitrage trade involves transfers, which burn tokens and increase the value of remaining bonds. Traders profit, and holders benefit. 
@@ -228,7 +228,7 @@ Every arbitrage trade involves transfers, which burn tokens and increase the val
 Liquidity Providers earn 2x the PLStr rewards on top of dex fees for supporting the protocol.
 
 - **impermanent loss for LPs:**
- incentive to arbitrage could keep DEX prices in tight ranges since its value is tied to its redemption values, and liquidity providers could face lower impermanent loss.
+ incentive to arbitrage could keep DEX prices in tight ranges since its value is tied to its redemption value, and liquidity providers could face lower impermanent loss.
 
 - **Arbitrage creates fees for LPs:**
  incentive to arbitrage could increase trading volume allowing lps to yield more dex fees.
