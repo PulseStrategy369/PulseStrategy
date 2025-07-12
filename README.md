@@ -26,10 +26,9 @@ PulseStrategy is made up of three interconnected tokens, each backed by a reserv
   xBond is a PRC20 token that represents your share of the PLSX (PulseX’s native token) held in a decentralized smart contract. It’s like a ticket that proves you own a piece of the PLSX vault.  
 
 - **How to Get xBond?**  
-  For the first 180 days after the contract is deployed, anyone can mint xBond by depositing PLSX. You get 1 xBond for every 1 PLSX you deposit, minus a small 0.5% fee.  
-  **Example:** Deposit 1,000 PLSX → receive 995 xBond (after the 0.5% fee).  
+  Anyone can mint xBond by depositing PLSX. issuance follows reserve ratio starting at 1 to 1.
 
- After 180 days, minting stops forever. The only way to get xBond is to buy it on a decentralized exchange (DEX) like PulseX.  
+  After supply reaches 3.69 Trillion, minting stops forever and The only way to get xBond is to buy it on a decentralized exchange (DEX) like PulseX.  
 
 
 - **Redemption Guarantee:**  
@@ -54,8 +53,9 @@ PulseStrategy is made up of three interconnected tokens, each backed by a reserv
 
 
 - **How to Get iBond?**  
-  Like xBond, you can mint iBond during the 180-day issuance period by depositing INC at a 1:1 ratio (minus a 0.5% fee). After 180 days, minting ends, and iBond can only be bought on a DEX.  
-  **Example:** Deposit 1,000 INC → receive 995 iBond.  
+  Anyone can mint iBond by depositing INC. issuance follows reserve ratio starting at 1 to 1.
+
+  After supply reaches 3.69 Million, minting stops forever and The only way to get iBond is to buy it on a decentralized exchange (DEX) like PulseX.
 
 
 - **Redemption Guarantee:**  
@@ -121,9 +121,7 @@ The PLSX, INC, and vPLS in the contracts can grow slowly over time while the ibo
 
 - **Passive Growth:** 
 You don’t need to do anything to benefit. As others trade, your holdings automatically become worth more.
-
-- **Limited Minting Window:**
- After 180 days, no new xBond or iBond can ever be minted. The only way to get them is to buy on a DEX, driving demand for a shrinking supply.  
+  
 
 - **Deflationary Flywheel:** 
 As burns reduce supply and demand grows, each bond becomes scarcer and more valuable. This creates a self-reinforcing cycle that rewards long-term holders.
@@ -261,9 +259,9 @@ You always control your assets. The contracts only hold reserves to back the tok
 
 **xBond & iBond Contracts**
 
-- **Minting (180 Days):**  
-  - Deposit PLSX/INC to mint xBond/iBond at a 1:1 ratio (minus 0.5% fee).  
-  - After 180 days, minting stops forever. 
+- **Minting (max supply):**  
+  - Deposit PLSX/INC to mint xBond/iBond(minus 0.5% fee).  
+  - After max supply(xBond 3.69 trillion, iBond 3.69 Million), minting stops forever. 
  
 - **Transfers:**  
   - 0.5% tax on every transfer (except to/from contract or OA):  
@@ -282,7 +280,7 @@ You always control your assets. The contracts only hold reserves to back the tok
 **PLStr Contract**
 
 - **vPLS Deposits:**  
-  - Anyone can deposit vPLS to grow the reward pool (minimum 100,000 vPLS).  
+  - Anyone can deposit vPLS to grow the reward pool (minimum 10000 vPLS).  
   - No PLStr is minted for depositors—it’s purely altruistic, fueling rewards for xBond/iBond/LP holders. 
  
 - **Reward Claims:**  
