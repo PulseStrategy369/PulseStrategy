@@ -313,7 +313,7 @@ A: Traders profit by arbitraging price differences between DEXs and the contract
 **Q: Can the contracts be upgraded or paused?**  
 A: No. They’re fully immutable, with no admin keys or backdoors. The code runs as written, forever.  
 
-**Q: What happens after the 180-day minting window?**  
+**Q: What happens after the max supply is reached and issuance stops?**  
 A: No new xBond/iBond can be minted. Supply can only shrink through burns, and demand must come from DEXs, driving scarcity and value.  
 
 **Q: Who can deposit vPLS for PLStr rewards?**  
