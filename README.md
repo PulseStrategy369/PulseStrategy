@@ -266,7 +266,7 @@ It funds hosting, development, and future vaults. It is hardcoded, immutable, an
 
 ## 10. The vault family
 
-Six vaults. **One audited codebase** — the five HEXstr contracts are logically identical to each other, and share their core with PLSstr. Same economics everywhere: 4.5% mint / 0.5% redeem / 7-day epochs / 10% quota / no admin.
+**One audited codebase** — the HEXstr contracts are logically identical to each other, and share their core with PLSstr. Same economics everywhere: 4.5% mint / 0.5% redeem / 7-day epochs / 10% quota / no admin.
 
 ### PLSstr — PulseStrategy
 
