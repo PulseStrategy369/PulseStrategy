@@ -8,7 +8,7 @@
 
 ## TL;DR
 
-PulseStrategy is a family of ownerless smart contracts. Each one holds a single yield-bearing asset in a vault and issues its own token against it.
+PulseStrategy is a family ownerless smart contracts. Each one holds a single yield-bearing asset in a vault and issues its own token against it.
 
 The rule that defines the entire system:
 
@@ -280,17 +280,18 @@ It funds hosting, development, and future vaults. It is hardcoded, immutable, an
 
 **Yield underneath:** vPLS is *value-accruing*. The vault's vPLS balance doesn't grow on its own — instead, **each vPLS becomes redeemable for more PLS over time** as Vouch's validators earn staking rewards. So PLSstr compounds on two independent layers: backing-per-token ratchets up in vPLS terms from premiums and fees, while every vPLS underneath grows in PLS terms. The second layer never has an "unfilled epoch" — it accrues through dead weeks, bear markets, everything.
 
-### HEXstr-3000 → 7000 — HEXStrategy
+### HEXstr-4000 → 8000 — HEXStrategy
 
-Five dated vaults backed by **Actuator Finance HTTs** — liquid, tradeable claims on staked HEX, redeemable 1:1 for HEX at their redemption day.
+Dated vaults backed by **Actuator Finance HTTs** — liquid, tradeable claims on staked HEX, redeemable 1:1 for HEX at their redemption day.
 
 | Vault | Asset | Asset address | Redemption day |
 |---|---|---|---|
+| `HEXstr-8000` | HTT-8000 | `0xA737EA6FF4094FeDEe5a762CA34116207f34B4c6` | Oct 27, 2041 |
 | `HEXstr-7000` | HTT-7000 | `0x47810bb3ECDc6b080CeB2d39E769F21Ff14AB7E9` | Jan 31, 2039 |
 | `HEXstr-6000` | HTT-6000 | `0xcdBFaf528c7CeA55d0AEbdB93C218D6f23B24af3` | May 6, 2036 |
 | `HEXstr-5000` | HTT-5000 | `0xE2D03779147A32064511dd2b9D37F66f3EeFAd7C` | Aug 10, 2033 |
 | `HEXstr-4000` | HTT-4000 | `0x3Cf372aA6aAa46eDc4B8da86294deC0DDecED632` | Nov 14, 2030 |
-| `HEXstr-3000` | HTT-3000 | `0xE9E1340A2b31d5D2a2dB28FB854a794E106b430a` | Feb 18, 2028 |
+
 
 All HTTs are 8-decimal (HEX-denominated); the vault tokens mirror that automatically.
 
@@ -403,7 +404,7 @@ Two practical notes: don't LP your entire position (LPing caps your upside on th
 
 The entire app is **one self-contained HTML file**. Scroll to the footer and tap **⬇ Download this app**.
 
-Open that file from your own device and it works completely — connect a wallet, read live data, mint, redeem. No server involved. It talks only to PulseChain's RPC nodes and your wallet.
+Open that file from your own device desktop or even mobile and it works completely — connect a wallet, read live data, mint, redeem. No server involved. It talks only to PulseChain's RPC nodes and your wallet.
 
 **Why this matters:** if pulsestrategy369.com ever goes down, is censored, or has its DNS hijacked, your local copy still works and cannot be tampered with. The contract has no admin key; now the interface has no mandatory middleman. Verify your copy against the **SHA-256 hash** shown in the footer and cross-checked against the one published on [@pulsestrategy](https://x.com/pulsestrategy) — a compromised server can fake the page, but it can't fake a hash you got somewhere else.
 
@@ -439,11 +440,13 @@ All on **PulseChain**. Verify every address on the block explorer before you int
 | Vault | Symbol | Backing asset |
 |---|---|---|
 | PulseStrategy | `PLSstr` | vPLS `0x79BB3A0Ee435f957ce4f54eE8c3CFADc7278da0C` |
+| HEXStrategy-8000 | `HEXstr-8000` | HTT-8000 
+`0xA737EA6FF4094FeDEe5a762CA34116207f34B4c6` |
 | HEXStrategy-7000 | `HEXstr-7000` | HTT-7000 `0x47810bb3ECDc6b080CeB2d39E769F21Ff14AB7E9` |
 | HEXStrategy-6000 | `HEXstr-6000` | HTT-6000 `0xcdBFaf528c7CeA55d0AEbdB93C218D6f23B24af3` |
 | HEXStrategy-5000 | `HEXstr-5000` | HTT-5000 `0xE2D03779147A32064511dd2b9D37F66f3EeFAd7C` |
 | HEXStrategy-4000 | `HEXstr-4000` | HTT-4000 `0x3Cf372aA6aAa46eDc4B8da86294deC0DDecED632` |
-| HEXStrategy-3000 | `HEXstr-3000` | HTT-3000 `0xE9E1340A2b31d5D2a2dB28FB854a794E106b430a` |
+
 
 **Protocol fee:** `0x3E5a5764EBd24d8142638366d4c5674D86c2EC64`
 
