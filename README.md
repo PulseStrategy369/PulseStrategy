@@ -8,7 +8,7 @@
 
 ## TL;DR
 
-PulseStrategy is a family of six ownerless smart contracts. Each one holds a single yield-bearing asset in a vault and issues its own token against it.
+PulseStrategy is a family of ownerless smart contracts. Each one holds a single yield-bearing asset in a vault and issues its own token against it.
 
 The rule that defines the entire system:
 
