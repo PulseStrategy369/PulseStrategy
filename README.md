@@ -16,6 +16,8 @@ The rule that defines the entire system:
 
 Not "shouldn't." Not "is unlikely to." *Cannot* — there is no function in any of these contracts that lowers it. Every mint adds proportionally more assets than tokens. Every redemption leaves value behind. Nobody can pause it, upgrade it, drain it, or change the rules, because no owner exists.
 
+Every round trip through the system leaves ~4.3% behind for the people who did nothing but hold. Traders churn; holders collect.
+
 You are not asked to trust a team. You are asked to read a contract.
 
 ---
@@ -58,7 +60,7 @@ Deposit the vault's asset, receive vault tokens priced at **backing + 4.5%**.
 
 That 4.5% premium doesn't go to a founder. **4.0 points stay in the vault**, which means the vault gains proportionally more assets than the tokens it just issued — so *every mint raises the floor for everyone who already held*. The remaining 0.5 points are the protocol fee (§8).
 
-Minting is capped: see §5.
+Minting is capped: see §6.
 
 ### Hold — the ratchet
 
@@ -104,9 +106,53 @@ There is no fifth case. No admin function, no rescue function, no fee-change fun
 
 **Worked example — you profit from the next person.** Continuing above: a second minter deposits 104.5. Vault holds 208.0, supply is ~195.6, backing rises to ~1.0632. Your original 100 tokens now redeem for ~105.8 units gross (~105.3 after fee) — more than the 104.5 you put in. **Their premium became your gain.** Then when *you* exit, your 0.5% fee becomes the next holder's gain.
 
-**Rate of growth.** If every epoch's mint quota fills completely, backing-per-token grows about **+0.36% per epoch ≈ +21% per year** from mint premiums alone — before redemption fees and before the underlying asset's own yield. That figure is a *ceiling*, not a forecast: it assumes perpetual saturated demand. Real growth comes in waves, with flat stretches. Every un-filled epoch is a week the ratchet only moves from fees and asset yield.
+## 5. Two paths to a rising floor
 
-## 5. The epoch quota
+There are two ways the ratchet turns, and they are wildly different in power. Understanding which one matters is the difference between an honest pitch and a fantasy.
+
+### Path one: growth (weak)
+
+If people mint and *hold*, the vault grows — but so does supply. Each mint adds 10.4% to the vault while adding 10% to supply. The net gain per unit of growth is small, and it obeys a strict law:
+
+> **B ∝ V^(1/26)** — backing grows *logarithmically* with vault size.
+
+| Vault grows | Backing gains |
+|---|---|
+| 10× | +9.3% |
+| 100× | +19.4% |
+| 1,000× | +30.4% |
+| 1,000,000× | +70.1% |
+| 67,000,000× | +100% |
+
+Every order of magnitude of vault growth buys only about **+9.5%** backing. To *double* backing through growth alone, the vault would have to grow **67 million times** (2²⁶). That is not a realistic path, and we will not pretend otherwise.
+
+At full saturation — every epoch's quota filled, everyone holding — backing grows about **+0.36% per epoch ≈ +21% per year**. That's a *ceiling*, not a forecast, and it can't persist: the quota compounds in absolute size, so sustained saturation eventually demands more of the asset than exists.
+
+### Path two: churn (strong)
+
+Now consider capital that enters and *leaves*. Supply returns to where it started, so there is no dilution — the fees are pure transfer.
+
+**Every round trip through the vault leaves ~4.3% of its size behind, permanently, for the people who did nothing but hold.**
+
+The difference is dramatic:
+
+| To double backing | Churn path | Growth path |
+|---|---|---|
+| Vault must grow | **2×** | 67,000,000× |
+| Cumulative volume needed | **~25× the vault size** | — |
+| Time at maximum rate | **~3.2 years** | unreachable |
+
+A 1M-asset vault doubles its backing after roughly **25M of cumulative round-trip volume** — no growth required, just traffic. Volume is the one thing crypto reliably produces.
+
+**Why churn beats growth:** a growth-minter pays the premium and then *stays* — their tokens dilute the very gain they funded. Capital that cycles through pays and leaves, taking zero supply with it. Pure transfer, no dilution. That single distinction is why one path needs 2× and the other needs 67 million×.
+
+So the honest summary of this system:
+
+> **The mint premium is a steady ratchet, not a doubling machine. Churn is the engine. The underlying asset's own yield is the multiplier.**
+
+Realistic expectations: mint premiums contribute perhaps +20–40% in asset terms over a vault's life. Churn can do far more, given years and real volume. And underneath both, vPLS accrues PLS staking rewards and HTTs pull toward HEX parity — that layer never has an idle week.
+
+## 6. The epoch quota
 
 Each **7-day epoch**, total minting is capped at **10% of the supply** that existed at the epoch's first mint. When the quota fills, `mint()` reverts until the next epoch opens.
 
@@ -119,7 +165,7 @@ Why throttle at all?
 - **It's a percentage, not a fixed number.** The quota grows with the vault. Sustained demand makes each epoch's capacity larger — the throttle relaxes exactly as the system matures.
 - **It suppresses runaway premiums.** Every epoch, fresh supply enters and pulls price back toward backing. This is deliberate: a token trading far above its floor has a distant floor, and the floor is the product. We chose holder protection over chart optics.
 
-## 6. Arbitrage — the engine
+## 7. Arbitrage — the engine
 
 **This is how the vault fills.** Understanding it is worth the two minutes.
 
@@ -140,7 +186,32 @@ Between them sits a **~5% band**. The market price does whatever it wants inside
 
 Notice what happens in **both** directions: **the vault gets fed and holders get richer.** Every time price leaves the band, someone profits by pushing it back — and pays the vault for the privilege.
 
-This is the elegant part. Arbitrageurs aren't a threat to be defended against; they're unpaid employees. They need no incentive program, no emissions, no partnership — just a profitable trade. Their self-interest *is* the mechanism. The traders extracting value from the market are, structurally, transferring a slice of it to holders on every crossing.
+This is the elegant part. Arbitrageurs aren't a threat to be defended against; they're unpaid employees. They need no incentive program, no emissions, no partnership — just a profitable trade. Their self-interest *is* the mechanism.
+
+### Who actually pays?
+
+It's worth being precise here, because the honest answer is better than the cynical one.
+
+**The arbitrageurs don't lose.** They never mint-then-redeem — that trade loses ~4.8% and nobody takes it deliberately. They mint and *sell*, or *buy* and redeem, capturing the DEX spread. They walk away profitable every time.
+
+So the vault's ~4.3% comes from the **counterparty who traded outside the band** — the buyer who paid above the ceiling, or the seller who dumped below the floor. The arbitrageur is just the pipe connecting that impatience to your vault.
+
+> **The vault taxes impatience, not participation.** Anyone who wants immediacy badly enough to trade outside the band pays for it — and that payment lands with the people who simply held.
+
+**And minters don't have to lose either.** You pay backing + 4.5% and exit at backing − 0.5%, so you break even once backing rises **5.03%**:
+
+| Activity level | Time to break even |
+|---|---|
+| Maximum churn | ~2.5 months |
+| Saturated growth | ~3.1 months |
+| Half speed | ~5 months |
+| Quarter speed | ~10 months |
+
+After that, every further epoch is pure profit in asset terms. The 4.5% isn't a punishment — it's a **time-preference toll**. Pay it, wait out the ratchet, keep everything after. Mint if you believe activity will follow; if you don't, buy on the DEX instead and let someone else pay the toll.
+
+Even the buyer who paid above the ceiling isn't a mark: they bought conviction and immediacy, and the floor then rises toward their entry.
+
+> **Nobody has to lose for holders to win. Patient capital gets paid by impatient capital — and impatient capital still gets what it came for.**
 
 And the ordinary buyer who never mints, never arbs, and just holds? **They're the beneficiary.** The mint race happening above their heads is what funds their rising floor.
 
@@ -153,7 +224,7 @@ And the ordinary buyer who never mints, never arbs, and just holds? **They're th
 - `mintQuotaRemaining()` tells you how much room is left before the ceiling closes.
 - The HEX vaults have an unusually clean loop: **HTT ↔ HEX liquidity already exists**, so both arb legs complete through an established pool.
 
-## 7. Liquidity providing
+## 8. Liquidity providing
 
 Providing liquidity to a PulseStrategy pool is structurally different from LPing a normal token pair, and it's worth being precise about why — and about what it doesn't fix.
 
@@ -175,7 +246,7 @@ So instead of a random walk across an unbounded range, you're LPing an asset tha
 
 The dashboard displays a **trailing realized fee APR** per pool once one exists: a backward-looking measurement of fees actually earned, not a projection, not a promise, and it excludes impermanent loss. We'd rather show you a real number that might be unimpressive than an advertised number that isn't real.
 
-## 8. Fees, in full
+## 9. Fees, in full
 
 There are exactly two, and one destination outside the vault.
 
@@ -193,7 +264,7 @@ It funds hosting, development, and future vaults. It is hardcoded, immutable, an
 
 **Protocol fee address:** `0x3E5a5764EBd24d8142638366d4c5674D86c2EC64`
 
-## 9. The vault family
+## 10. The vault family
 
 Six vaults. **One audited codebase** — the five HEXstr contracts are logically identical to each other, and share their core with PLSstr. Same economics everywhere: 4.5% mint / 0.5% redeem / 7-day epochs / 10% quota / no admin.
 
@@ -232,7 +303,7 @@ All HTTs are 8-decimal (HEX-denominated); the vault tokens mirror that automatic
 
 Do this **before and around the redemption day**, not years later. After maturity, HTT trading liquidity will thin out as everyone redeems, and Actuator's 1:1 guarantee applies within its redemption window. A HEXstr vault has a natural end of life; treat the redemption day as a real deadline on your calendar. The last-redeemer waiver means a full wind-down strands nothing in the vault.
 
-## 10. What is guaranteed, and what is not
+## 11. What is guaranteed, and what is not
 
 The credibility of everything above depends on being equally clear about both.
 
@@ -257,7 +328,7 @@ The credibility of everything above depends on being equally clear about both.
 
 **Nothing here is financial advice.** Verify every contract yourself before depositing.
 
-## 11. Governance
+## 12. Governance
 
 There is none, and there never will be.
 
@@ -324,7 +395,7 @@ Don't sleep past it. After maturity, HTT liquidity thins as everyone exits, and 
 
 The pools section shows every known pool per vault, with live depth and a **trailing realized fee APR**.
 
-Why LP here: arbitrage traffic is manufactured by the design — every band crossing routes through your pool. And your inventory risk is bounded, because price mean-reverts inside a ~5% band around a rising floor instead of wandering freely (§7).
+Why LP here: arbitrage traffic is manufactured by the design — every band crossing routes through your pool. And your inventory risk is bounded, because price mean-reverts inside a ~5% band around a rising floor instead of wandering freely (§8).
 
 Two practical notes: don't LP your entire position (LPing caps your upside on the LP'd portion when price runs), and remember the bounded-IL argument is about *token vs. asset* — it says nothing about the asset's own price.
 
@@ -346,6 +417,9 @@ From these contracts, it can't. From the layers below — a Vouch failure, an Ac
 
 **What if nobody uses it?**
 Then backing grows only from asset yield, and the token trades at its floor. You'd hold roughly what you'd hold anyway, minus your entry cost. That's the downside case: dull, not catastrophic — which is the entire point of the design.
+
+**Do traders lose so holders can win?**
+No. Arbitrageurs profit on every trade — they mint and sell, or buy and redeem, capturing the spread. Minters break even once backing rises ~5% (roughly 3 months at healthy activity) and profit after. The system taxes *impatience* — trading outside the band, or exiting before the ratchet catches up — not participation. See §7.
 
 **Why is the mint premium so high?**
 Because it's the ratchet. Every point of premium is a point that lands in the vault, permanently, for holders. It's a toll on entry that pays existing holders — and if you don't want to pay it, don't mint: buy on the DEX from an arbitrageur who did.
