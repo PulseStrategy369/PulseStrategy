@@ -280,7 +280,7 @@ It funds hosting, development, and future vaults. It is hardcoded, immutable, an
 
 **Yield underneath:** vPLS is *value-accruing*. The vault's vPLS balance doesn't grow on its own — instead, **each vPLS becomes redeemable for more PLS over time** as Vouch's validators earn staking rewards. So PLSstr compounds on two independent layers: backing-per-token ratchets up in vPLS terms from premiums and fees, while every vPLS underneath grows in PLS terms. The second layer never has an "unfilled epoch" — it accrues through dead weeks, bear markets, everything.
 
-### HEXstr-4000 → 8000 — HEXStrategy
+### HEXstr-3000 → 8000 — HEXStrategy
 
 Dated vaults backed by **Actuator Finance HTTs** — liquid, tradeable claims on staked HEX, redeemable 1:1 for HEX at their redemption day.
 
@@ -291,6 +291,7 @@ Dated vaults backed by **Actuator Finance HTTs** — liquid, tradeable claims on
 | `HEXstr-6000` | HTT-6000 | `0xcdBFaf528c7CeA55d0AEbdB93C218D6f23B24af3` | May 6, 2036 |
 | `HEXstr-5000` | HTT-5000 | `0xE2D03779147A32064511dd2b9D37F66f3EeFAd7C` | Aug 10, 2033 |
 | `HEXstr-4000` | HTT-4000 | `0x3Cf372aA6aAa46eDc4B8da86294deC0DDecED632` | Nov 14, 2030 |
+| `HEXstr-3000` | HTT-3000 | `0xE9E1340A2b31d5D2a2dB28FB854a794E106b430a` | Feb 18, 2028 |
 
 
 All HTTs are 8-decimal (HEX-denominated); the vault tokens mirror that automatically.
@@ -446,6 +447,8 @@ All on **PulseChain**. Verify every address on the block explorer before you int
 | HEXStrategy-6000 | `HEXstr-6000` | HTT-6000 `0xcdBFaf528c7CeA55d0AEbdB93C218D6f23B24af3` |
 | HEXStrategy-5000 | `HEXstr-5000` | HTT-5000 `0xE2D03779147A32064511dd2b9D37F66f3EeFAd7C` |
 | HEXStrategy-4000 | `HEXstr-4000` | HTT-4000 `0x3Cf372aA6aAa46eDc4B8da86294deC0DDecED632` |
+| `HEXstr-3000` | HTT-3000 | `0xE9E1340A2b31d5D2a2dB28FB854a794E106b430a` | Feb 18, 2028 |
+
 
 
 **Protocol fee:** `0x3E5a5764EBd24d8142638366d4c5674D86c2EC64`
