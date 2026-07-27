@@ -400,13 +400,93 @@ Why LP here: arbitrage traffic is manufactured by the design — every band cros
 
 Two practical notes: don't LP your entire position (LPing caps your upside on the LP'd portion when price runs), and remember the bounded-IL argument is about *token vs. asset* — it says nothing about the asset's own price.
 
-## Run the frontend yourself
+## Running PulseStrategy Locally
 
-The entire app is **one self-contained HTML file**. Scroll to the footer and tap **⬇ Download this app**.
+Both PulseStrategy front-ends — the vaults dapp and the PulseVerify explorer — are
+single HTML files. No server, no backend, no build step, no database. Each one reads
+PulseChain directly from your browser using public RPC endpoints.
 
-Open that file from your own device desktop or even mobile and it works completely — connect a wallet, read live data, mint, redeem. No server involved. It talks only to PulseChain's RPC nodes and your wallet.
+That is not a technical curiosity. It is the point. A protocol whose contracts are
+immutable and ownerless should not depend on a website that someone can take down. Anyone
+can download either file, keep it, share it, inspect it, and run it years from now — and it
+will keep working as long as PulseChain does.
 
-**Why this matters:** if pulsestrategy369.com ever goes down, is censored, or has its DNS hijacked, your local copy still works and cannot be tampered with. The contract has no admin key; now the interface has no mandatory middleman. Verify your copy against the **SHA-256 hash** shown in the footer and cross-checked against the one published on [@pulsestrategy](https://x.com/pulsestrategy) — a compromised server can fake the page, but it can't fake a hash you got somewhere else.
+Download and verify
+
+Each page has a Download button in its footer, next to the file's SHA-256 hash.
+Before trusting a copy you got from anywhere other than pulsestrategy369.com, compare its
+hash against the one published on our X account and GitHub. Matching hashes mean the file
+is byte-for-byte the one we published. This matters precisely because we encourage
+redistribution: the hash is what makes a copied file trustworthy without trusting whoever
+copied it.
+
+What works with no setup at all
+
+On every device, in every browser, straight from a downloaded file:
+
+• Live backing-per-token, supply, vault holdings, and epoch quota
+• Market price and premium/discount versus backing
+• The full PulseVerify explorer: blocks, transactions, addresses, token holdings,
+DEX prices, Sourcify verification status, Pulse Check safety scans, contract reads
+• Custom RPC — including your own node, so no third party sees what you look up
+
+Reading the chain never requires a wallet. If all you want is to verify what the protocol
+is doing, you are already done.
+
+Connecting a wallet to a local copy
+
+Minting and redeeming require a wallet signature, and this is the one area where running
+from a file behaves differently than running from a website. Browsers isolate local files
+for security: a file has no web address, and both wallet extensions and WalletConnect use
+the web address to decide whether to trust a page.
+
+There are three working paths.
+
+Desktop — browser wallet (simplest)
+
+Browser extensions are blocked from local files until you allow it:
+
+1. Open chrome://extensions (or brave://extensions)
+2. Find your wallet — MetaMask, Rabby, etc.
+3. Click Details
+4. Switch on Allow access to file URLs
+
+Reload the page and connect with the browser-wallet option.
+
+Android — a file manager that serves over http
+
+Most Android file managers hand the page to your browser as a content:// document, which
+WalletConnect will not accept because it is not a web address. A file manager that serves
+files over a local http address solves this. Cx File Explorer does — it is free on the
+official Google Play store:
+
+https://play.google.com/store/apps/details?id=com.cxinventor.file.explorer
+
+Open the downloaded file with it, and its Open-with list will show HTTP beside Chrome
+and Brave. Pick one of those and WalletConnect works normally.
+
+The page is served from 127.0.0.1 — the loopback address, meaning your device talking to
+itself. Nothing is exposed to your network or the internet; the file manager simply hands
+the page to your browser through a local pipe rather than as a raw file.
+
+iPhone
+
+iOS does not allow an equivalent app, so a downloaded copy on iOS is for reading only —
+which still covers backing, supply, prices, verification and every safety check. To connect
+a wallet on iOS, use the hosted pages at pulsestrategy369.com.
+
+Either platform — run a local web server
+
+Users comfortable with a terminal can serve the folder and get every feature, including
+WalletConnect, with no other configuration:
+
+python -m http.server 8000      # then open http://localhost:8000/vaults.html
+
+
+localhost is a legitimate web address, so wallets treat the page as they would any site.
+
+
+**Why this matters:** if pulsestrategy369.com ever goes down, is censored, or has its DNS hijacked, your local copy still works and cannot be tampered with. The contract has no admin key; now the interface has no mandatory middleman. Verify your copy against the **SHA-256 hash** shown in the footer and cross-checked against the one published on github or [@pulsestrategy](https://x.com/pulsestrategy) — a compromised server can fake the page, but it can't fake a hash you got somewhere else.
 
 ## FAQ
 
