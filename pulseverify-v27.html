@@ -1,0 +1,2071 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PulseStrategy — PulseVerify · trustless PulseChain explorer</title>
+<link rel="icon" type="image/png" href="data:image/png;base64,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">
+<link rel="alternate" type="application/json" href="https://pulsestrategy369.com/pulsestrategy.json" title="PulseStrategy protocol manifest">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Michroma&family=IBM+Plex+Mono:wght@400;500&family=Space+Grotesk:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#050507; --bg-2:#0c0c12; --panel:#111118; --panel-2:#181822; --line:#262633;
+  --text:#F2F3F6; --muted:#9398A8; --faint:#5e6272;
+  --pulse:#4E8FD9; --pulse-soft:#7BA7E8; --violet:#6FA8DC; --teal:#7FB3E8;
+  --amber:#D9A94E; --red:#FF6B5A; --green:#7FB3E8; --deep:#1E3A6E;
+  --mono:'IBM Plex Mono',ui-monospace,monospace;
+  --disp:'Michroma',sans-serif;
+  --body:'Space Grotesk',system-ui,sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scrollbar-color:var(--line) var(--bg)}
+body{background:var(--bg);color:var(--text);font-family:var(--body);font-size:15px;line-height:1.5;min-height:100vh;
+  background-image:radial-gradient(ellipse 80% 50% at 50% -10%,rgba(78,143,217,.14),transparent),
+                   radial-gradient(ellipse 60% 40% at 90% 0%,rgba(127,179,232,.06),transparent)}
+a{color:var(--teal);text-decoration:none;cursor:pointer}
+a:hover{text-decoration:underline}
+button{font-family:inherit;cursor:pointer}
+::selection{background:rgba(78,143,217,.4)}
+.wrap{max-width:1100px;margin:0 auto;padding:0 16px 64px}
+
+/* header */
+header{padding:20px 0 0}
+.brand-row{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.brand{font-family:var(--disp);font-weight:400;font-size:17px;letter-spacing:.02em;white-space:nowrap}
+.brand .p1{color:var(--text)}
+.brand .p2{background:linear-gradient(90deg,#7BA7E8,var(--pulse) 60%,#7FB3E8);-webkit-background-clip:text;background-clip:text;color:transparent}
+.brand small{display:block;font-family:var(--body);font-weight:400;font-size:11px;color:var(--faint);letter-spacing:.09em;text-transform:uppercase;white-space:normal;line-height:1.5;margin-top:2px}
+.brand>div{min-width:0}
+@media(max-width:560px){
+  .brand small{font-size:9px;letter-spacing:.05em;max-width:240px}
+  .brand .p1,.brand .p2{font-size:15px}
+}
+.ekg-box{flex:1;min-width:140px;height:44px;position:relative;overflow:hidden}
+.ekg-box svg{width:100%;height:100%}
+.ekg-path{fill:none;stroke:url(#ekgGrad);stroke-width:2;stroke-linecap:round;stroke-linejoin:round;filter:drop-shadow(0 0 6px rgba(78,143,217,.55))}
+.ekg-dot{fill:var(--pulse);filter:drop-shadow(0 0 8px var(--pulse))}
+@keyframes ekgBeat{0%{stroke-dashoffset:1000}100%{stroke-dashoffset:0}}
+.beat .ekg-path{stroke-dasharray:1000;animation:ekgBeat 1.4s ease-out 1}
+.net{display:flex;align-items:center;gap:8px;flex-wrap:wrap;position:relative}
+.wmenu{position:absolute;top:calc(100% + 6px);right:0;background:var(--panel-2);border:1px solid var(--line);border-radius:10px;padding:6px;z-index:50;display:flex;flex-direction:column;gap:4px;box-shadow:0 8px 24px rgba(0,0,0,.55)}
+.wmenu button{background:none;border:none;color:var(--text);font-size:13px;padding:9px 12px;border-radius:7px;text-align:left;white-space:nowrap}
+.wmenu button:hover{background:var(--panel)}
+.wmenu .dis{color:var(--red)}
+.net select{background:var(--panel);border:1px solid var(--line);color:var(--muted);border-radius:8px;padding:8px 10px;font-family:var(--mono);font-size:12px;max-width:200px}
+.dot{width:9px;height:9px;border-radius:50%;background:var(--faint);flex:none;transition:background .3s}
+.dot.ok{background:var(--teal);box-shadow:0 0 8px rgba(127,179,232,.7)}
+.dot.err{background:var(--red);box-shadow:0 0 8px rgba(255,107,90,.7)}
+.wallet-btn{background:var(--panel);border:1px solid var(--line);color:var(--muted);border-radius:8px;padding:8px 12px;font-family:var(--mono);font-size:12px}
+.wallet-btn.on{border-color:rgba(127,179,232,.45);color:var(--teal)}
+.wallet-btn:hover{border-color:var(--violet)}
+
+/* search */
+.search{margin-top:22px;display:flex;gap:10px}
+.search input{flex:1;background:var(--panel);border:1px solid var(--line);border-radius:12px;color:var(--text);padding:14px 16px;font-family:var(--mono);font-size:13px;outline:none;transition:border-color .2s,box-shadow .2s;min-width:0}
+.search input::placeholder{color:var(--faint)}
+.search input:focus{border-color:var(--pulse);box-shadow:0 0 0 3px rgba(78,143,217,.22)}
+.btn-grad{background:linear-gradient(135deg,#6FA8DC,var(--pulse) 45%,var(--deep));border:none;border-radius:12px;color:#fff;font-family:var(--disp);font-weight:400;font-size:12px;padding:12px 22px;letter-spacing:.05em}
+.btn-grad:hover{filter:brightness(1.12)}
+.btn-grad:disabled{opacity:.5;cursor:wait}
+.btn-ghost{background:var(--panel);border:1px solid var(--line);border-radius:10px;color:var(--muted);padding:9px 16px;font-size:13px}
+.btn-ghost:hover{border-color:var(--violet);color:var(--text)}
+button:focus-visible,select:focus-visible,input:focus-visible,textarea:focus-visible,a:focus-visible{outline:2px solid var(--teal);outline-offset:2px}
+.hint{margin-top:8px;font-size:12px;color:var(--faint)}
+.toolbar{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
+
+/* stats */
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-top:18px}
+.stat{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px 14px}
+.stat .k{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--faint)}
+.stat .v{font-family:var(--mono);font-size:17px;margin-top:4px;color:var(--text);overflow-wrap:break-word}
+.stat .v .unit{white-space:nowrap;display:inline-block}
+.stat .v .unit{font-size:11px;color:var(--muted)}
+
+/* layout */
+.cols{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);gap:16px;margin-top:24px;align-items:start}
+@media(max-width:860px){.cols{grid-template-columns:1fr}}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.panel h2{font-family:var(--disp);font-size:11px;font-weight:400;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);padding:14px 16px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.panel h2 .live{width:7px;height:7px;border-radius:50%;background:var(--pulse);animation:blink 2s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+
+/* feed */
+.blocks{max-height:560px;overflow-y:auto}
+.blk{display:flex;justify-content:space-between;gap:10px;padding:12px 16px;border-bottom:1px solid var(--line);transition:background .2s}
+.blk:hover{background:var(--panel-2)}
+.blk:last-child{border-bottom:none}
+.blk .n a{font-family:var(--mono);font-size:14px;color:var(--pulse-soft)}
+.blk .meta{font-size:12px;color:var(--faint);margin-top:2px}
+.blk .right{text-align:right;font-family:var(--mono);font-size:12px;color:var(--muted);flex:none}
+@keyframes slideIn{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:none}}
+.blk.new{animation:slideIn .4s ease-out}
+@media(prefers-reduced-motion:reduce){.blk.new,.beat .ekg-path,.panel h2 .live,.spin{animation:none}}
+
+/* detail */
+.detail{min-height:200px}
+.detail .body{padding:16px}
+.empty{color:var(--faint);text-align:center;padding:48px 20px;font-size:14px}
+.empty .big{font-family:var(--disp);font-size:13px;color:var(--muted);margin-bottom:6px}
+.kv{display:grid;grid-template-columns:130px 1fr;border:1px solid var(--line);border-radius:10px;overflow:hidden}
+.kv>div{padding:10px 12px;border-bottom:1px solid var(--line);font-size:13px;word-break:break-all}
+.kv>div:nth-last-child(-n+2){border-bottom:none}
+.kv .k{background:var(--bg-2);color:var(--faint);font-size:11px;letter-spacing:.08em;text-transform:uppercase;font-family:var(--body)}
+.kv .v{font-family:var(--mono);color:var(--text)}
+.badge{display:inline-block;padding:2px 10px;border-radius:99px;font-size:11px;font-family:var(--disp);letter-spacing:.06em;vertical-align:middle}
+.badge.ok{background:rgba(127,179,232,.12);color:var(--teal);border:1px solid rgba(127,179,232,.4)}
+.badge.fail{background:rgba(255,107,90,.12);color:var(--red);border:1px solid rgba(255,107,90,.4)}
+.badge.info{background:rgba(78,143,217,.15);color:var(--violet);border:1px solid rgba(78,143,217,.45)}
+.badge.warn{background:rgba(217,169,78,.12);color:var(--amber);border:1px solid rgba(217,169,78,.4)}
+.copy{background:none;border:none;color:var(--faint);font-size:11px;margin-left:6px;padding:2px}
+.copy:hover{color:var(--teal)}
+.txlist{margin-top:14px}
+.txlist h3,.sub-h{font-family:var(--disp);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin:14px 0 8px}
+.txrow{display:flex;justify-content:space-between;gap:10px;padding:8px 10px;border:1px solid var(--line);border-radius:8px;margin-bottom:6px;font-family:var(--mono);font-size:12px;flex-wrap:wrap}
+.txrow:hover{background:var(--panel-2)}
+.txrow .val{color:var(--muted);flex:none}
+.loading{padding:40px;text-align:center;color:var(--faint)}
+.spin{display:inline-block;width:22px;height:22px;border:2px solid var(--line);border-top-color:var(--pulse);border-radius:50%;animation:spin .8s linear infinite;margin-bottom:10px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.errbox{margin-top:12px;padding:14px;border:1px solid rgba(255,107,90,.45);background:rgba(255,107,90,.08);border-radius:10px;color:var(--red);font-size:13px;word-break:break-word}
+.okbox{margin-top:12px;padding:14px;border:1px solid rgba(127,179,232,.45);background:rgba(127,179,232,.07);border-radius:10px;color:var(--teal);font-size:13px}
+.warnbox{margin-top:12px;padding:14px;border:1px solid rgba(217,169,78,.45);background:rgba(217,169,78,.07);border-radius:10px;color:var(--amber);font-size:13px}
+
+/* tabs */
+.tabs{display:flex;gap:4px;padding:10px 12px 0;border-bottom:1px solid var(--line);background:var(--bg-2);flex-wrap:wrap}
+.tab{background:none;border:none;border-bottom:2px solid transparent;color:var(--faint);font-family:var(--disp);font-size:10px;letter-spacing:.08em;text-transform:uppercase;padding:8px 10px}
+.tab:hover{color:var(--muted)}
+.tab.on{color:var(--pulse-soft);border-bottom-color:var(--pulse)}
+
+/* forms */
+.field{margin-bottom:10px}
+.field label{display:block;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--faint);margin-bottom:4px}
+.field input,.field select,.field textarea{width:100%;background:var(--bg-2);border:1px solid var(--line);border-radius:8px;color:var(--text);padding:9px 11px;font-family:var(--mono);font-size:12px}
+.field textarea{min-height:140px;resize:vertical;line-height:1.5}
+.field input:focus,.field textarea:focus,.field select:focus{border-color:var(--violet)}
+.frow{display:flex;gap:10px}
+.frow .field{flex:1}
+.inline-check{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--muted)}
+.inline-check input{width:auto}
+
+/* safety */
+.score-ring{display:flex;align-items:center;gap:16px;padding:14px;border:1px solid var(--line);border-radius:12px;background:var(--bg-2);margin-bottom:12px}
+.score-num{font-family:var(--disp);font-size:36px;font-weight:400;line-height:1}
+.score-grade{font-family:var(--disp);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.chk{display:flex;gap:10px;align-items:flex-start;padding:9px 11px;border:1px solid var(--line);border-radius:8px;margin-bottom:6px;font-size:13px}
+.chk .ico{flex:none;font-family:var(--mono);width:18px;text-align:center}
+.chk .lbl{color:var(--text)}
+.chk .det{color:var(--faint);font-size:12px}
+.chk.pass{border-color:rgba(127,179,232,.3)}.chk.pass .ico{color:var(--green)}
+.chk.warn{border-color:rgba(217,169,78,.35)}.chk.warn .ico{color:var(--amber)}
+.chk.fail{border-color:rgba(255,107,90,.4)}.chk.fail .ico{color:var(--red)}
+.chk.na .ico{color:var(--faint)}
+.fn-row{border:1px solid var(--line);border-radius:8px;margin-bottom:8px;overflow:hidden}
+.fn-head{padding:9px 12px;font-family:var(--mono);font-size:12px;color:var(--pulse-soft);cursor:pointer;background:var(--bg-2)}
+.fn-body{padding:10px 12px;border-top:1px solid var(--line);display:none}
+.fn-row.open .fn-body{display:block}
+.fn-out{font-family:var(--mono);font-size:12px;color:var(--teal);margin-top:8px;word-break:break-all;white-space:pre-wrap}
+canvas.chart{width:100%;height:120px;border:1px solid var(--line);border-radius:10px;background:var(--bg-2)}
+.small-note{font-size:11px;color:var(--faint);margin-top:10px;line-height:1.5}
+code.mini{background:var(--bg-2);border:1px solid var(--line);border-radius:4px;padding:1px 5px;font-size:11px}
+
+/* ---- PulseStrategy promo ---- */
+.psbar{margin-top:14px;display:flex;align-items:center;gap:12px;padding:11px 16px;border:1px solid var(--line);
+  border-radius:12px;background:linear-gradient(90deg,rgba(30,58,110,.35),rgba(17,17,24,.6) 70%);font-size:13px;color:var(--muted);flex-wrap:wrap}
+.psbar b{color:var(--text);font-family:var(--disp);font-weight:400;font-size:11px;letter-spacing:.06em}
+.psbar a{white-space:nowrap}
+.promo{margin-top:16px;border:1px solid var(--line);border-radius:14px;overflow:hidden;
+  background:linear-gradient(160deg,rgba(30,58,110,.30),var(--panel) 55%)}
+.promo .inner{padding:20px}
+.promo h3{font-family:var(--disp);font-weight:400;font-size:15px;letter-spacing:.04em;line-height:1.5;
+  background:linear-gradient(90deg,#7BA7E8,#4E8FD9 55%,#7FB3E8);-webkit-background-clip:text;background-clip:text;color:transparent}
+.promo .sub{color:var(--muted);font-size:13px;margin-top:8px;max-width:640px}
+.promo ul{list-style:none;margin:14px 0 0;display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:8px}
+.promo li{font-size:13px;color:var(--muted);padding:9px 12px;border:1px solid var(--line);border-radius:9px;background:rgba(5,5,7,.5)}
+.promo li b{color:var(--text);font-weight:600}
+.promo .cta{display:flex;gap:10px;margin-top:16px;flex-wrap:wrap;align-items:center}
+.promo .tie{font-size:12px;color:var(--faint);margin-top:14px;border-top:1px solid var(--line);padding-top:12px}
+.promo .tie a{color:var(--teal)}
+
+.colL{display:flex;flex-direction:column;gap:16px;min-width:0}
+.srcview{max-height:340px;overflow:auto;background:var(--bg-2);border:1px solid var(--line);border-radius:10px;padding:12px;font-family:var(--mono);font-size:11px;line-height:1.55;white-space:pre;color:var(--muted);tab-size:2}
+.pslive{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+.chip{display:inline-block;padding:7px 12px;border:1px solid var(--line);border-radius:99px;background:rgba(5,5,7,.5);font-size:12px;color:var(--muted);font-family:var(--mono)}
+.chip b{color:var(--pulse-soft)}
+.selrow{display:flex;gap:10px;align-items:baseline;padding:7px 10px;border:1px solid var(--line);border-radius:8px;margin-bottom:5px;font-family:var(--mono);font-size:12px;flex-wrap:wrap}
+.selrow .sig{color:var(--text)}
+.selrow .unk{color:var(--faint);font-style:italic}
+details summary{outline:none}
+.brand{display:flex;align-items:center;gap:12px}
+.brandlogo{display:block;flex:none;filter:drop-shadow(0 2px 8px rgba(78,143,217,.45))}
+.navtabs{display:flex;gap:8px;margin-top:16px;flex-wrap:wrap}
+.navtab{font-family:var(--disp);font-size:12px;letter-spacing:.04em;padding:11px 20px;border-radius:11px;border:1px solid var(--line);background:var(--panel);color:var(--muted);text-decoration:none;display:inline-flex;align-items:center;cursor:pointer}
+.navtab:hover{border-color:var(--violet);color:var(--text);text-decoration:none}
+.navtab.on{background:linear-gradient(90deg,#6FA8DC,var(--pulse));color:#fff;border-color:transparent}
+.navtab.on:hover{filter:brightness(1.12);color:#fff}
+footer{margin-top:36px;text-align:center;font-size:12px;color:var(--faint)}
+footer a{color:var(--muted)}
+.dl-cta{display:inline-block;padding:12px 22px;border:1px solid rgba(127,179,232,.5);border-radius:11px;background:rgba(78,143,217,.12);color:var(--teal) !important;font-family:var(--disp);font-size:13px;letter-spacing:.04em;margin-top:4px}
+.dl-cta:hover{background:rgba(78,143,217,.22);text-decoration:none}
+.dlnote{margin-top:12px;text-align:left;max-width:680px;margin-left:auto;margin-right:auto;
+  padding:12px 14px;border:1px solid var(--line);border-radius:10px;font-size:12px;line-height:1.6;opacity:.9}
+.dlnote b{color:var(--text)}
+.hashline{margin:12px auto;max-width:680px;color:var(--muted)}
+.hashline span{font-family:var(--mono);word-break:break-all;color:var(--teal);font-size:12px}
+footer a.vaultlink{color:var(--teal);font-weight:600}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <div class="brand-row">
+    <div class="brand">
+      <img class="brandlogo" src="data:image/png;base64,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" alt="" width="40" height="34">
+      <div>
+        <span class="p1">PULSE</span><span class="p2">STRATEGY</span>
+        <small>PulseVerify explorer · verify it yourself</small>
+      </div>
+    </div>
+    <div class="ekg-box" id="ekg">
+      <svg viewBox="0 0 400 44" preserveAspectRatio="none" aria-hidden="true">
+        <defs>
+          <linearGradient id="ekgGrad" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0" stop-color="#7BA7E8"/><stop offset=".55" stop-color="#4E8FD9"/><stop offset="1" stop-color="#7FB3E8"/>
+          </linearGradient>
+        </defs>
+        <path class="ekg-path" d="M0 22 H120 L138 22 148 8 158 36 168 14 176 22 H250 L262 22 270 12 278 32 286 22 H400"/>
+        <circle class="ekg-dot" cx="168" cy="14" r="3"/>
+      </svg>
+    </div>
+    <div class="net">
+      <button class="wallet-btn" id="walletbtn" onclick="connectWallet()">Connect wallet</button>
+      <span class="dot" id="netdot" title="RPC status"></span>
+      <label for="rpcsel" style="position:absolute;left:-9999px">RPC endpoint</label>
+      <select id="rpcsel">
+        <option value="https://rpc.pulsechain.com">rpc.pulsechain.com</option>
+        <option value="https://pulsechain-rpc.publicnode.com">publicnode.com</option>
+        <option value="https://rpc.pulsechainstats.com">pulsechainstats.com</option>
+        <option value="https://rpc-pulsechain.g4mm4.io">g4mm4.io</option>
+        <option value="__custom">⚙ Custom RPC…</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="search">
+    <input id="q" spellcheck="false" autocomplete="off" placeholder="Search by tx hash / address / block number…" aria-label="Search the chain">
+    <button class="btn-grad" id="go">Search</button>
+  </div>
+  <div class="navtabs">
+    <a class="navtab on vaultlink" href="https://pulsestrategy369.com/vaults">◆ PulseStrategy Vaults →</a>
+  </div>
+  <div class="toolbar">
+    <button class="btn-ghost" onclick="showTools()">🧰 Tools</button>
+    <span class="hint" style="margin:6px 0 0 auto">Paste any contract → Verify · Safety · Read · Write tabs appear</span>
+  </div>
+</header>
+
+<div class="stats">
+  <div class="stat"><div class="k">Latest block</div><div class="v" id="s-block">—</div></div>
+  <div class="stat"><div class="k">Gas price</div><div class="v" id="s-gas">—</div></div>
+  <div class="stat"><div class="k">Block time</div><div class="v" id="s-time">—</div></div>
+  <div class="stat"><div class="k">PLS price</div><div class="v" id="s-pls">—</div></div>
+  <div class="stat"><div class="k">HEX price</div><div class="v" id="s-hex">—</div></div>
+</div>
+
+<div class="psbar">
+  <b>PULSESTRATEGY</b>
+  <span>Immutable vault tokens on PulseChain — backing per token that mathematically cannot go down.</span>
+  <span style="margin-left:auto"><a href="https://pulsestrategy369.com" target="_blank" rel="noopener">pulsestrategy369.com ↗</a> · <a href="https://x.com/pulsestrategy" target="_blank" rel="noopener">@pulsestrategy</a></span>
+</div>
+
+<div class="cols">
+  <div class="colL">
+  <section class="panel">
+    <h2><span class="live"></span> Latest blocks</h2>
+    <div class="blocks" id="blocks"><div class="loading"><span class="spin"></span><br>Connecting to PulseChain…</div></div>
+  </section>
+  </div>
+
+  <section class="panel detail" id="detailpanel">
+    <h2 id="d-title">Details</h2>
+    <div id="d-tabs"></div>
+    <div id="d-body" class="body">
+      <div class="empty">
+        <div class="big">Nothing selected yet</div>
+        Click a block, search anything above, or open 🧰 Tools.<br><br>
+        Paste a <b>contract address</b> to unlock per-contract verification, a safety scan, and read/write panels.
+      </div>
+    </div>
+  </section>
+</div>
+
+<section class="promo">
+  <div class="inner">
+    <h3>THE FLOOR ONLY RISES.</h3>
+    <div class="sub">PulseVerify is free, open, and serverless — built and given away by <b>PulseStrategy</b>, a family of ownerless vault tokens designed around one rule: the amount of backing behind each token can never go down. Not "shouldn't." <i>Cannot.</i></div>
+    <div id="ps-live" class="pslive"></div>
+    <ul>
+      <li><b>No owner. No admin keys.</b> No pause switch, no upgrades, no governance — the rules can never change.</li>
+      <li><b>The floor ratchets up.</b> Every mint adds more backing than tokens; every redemption leaves value behind.</li>
+      <li><b>100% publicly minted.</b> Zero team allocation, zero pre-mine, zero emissions.</li>
+      <li><b>Holders collect the churn.</b> Every round trip through a vault leaves ~4.3% behind for people who simply hold.</li>
+    </ul>
+    <div class="cta">
+      <a class="btn-grad vaultlink" style="text-decoration:none" href="https://pulsestrategy369.com/vaults">Launch the vaults ↗</a>
+      <a class="btn-ghost" style="text-decoration:none" href="https://x.com/pulsestrategy" target="_blank" rel="noopener">Follow @pulsestrategy</a>
+    </div>
+    <div class="tie">Don't take our word for any of it — that's the point of this explorer. Paste a PulseStrategy vault address into the search bar above, and <b>Verify</b> shows its Sourcify status with a link to the full source, <b>Pulse Check</b> runs a live on-chain safety scan — it even simulates a token transfer out of the liquidity pool to catch honeypots — and <b>Read</b> queries the vault's backing straight from the chain. We built the tool that audits us.</div>
+  </div>
+</section>
+
+<footer>
+  <div style="margin-bottom:18px">
+    <a href="#" id="dlLink" class="dl-cta">⬇ Download this explorer</a>
+    <div style="margin-top:10px">Run it locally on desktop or mobile — it works with no server, reading PulseChain directly from your browser.</div>
+    <div class="dlnote">
+      <b>Using a downloaded copy</b><br>
+      Everything here works as soon as you open it — blocks, prices, verification and safety scans need no wallet at all. Connecting a wallet is only for signing, and takes one extra step because browsers keep downloaded files separate from websites.<br><br>
+      <b>On a computer</b> — let your wallet see local files: open <span class="mono">chrome://extensions</span> (or <span class="mono">brave://extensions</span>), find your wallet, click <b>Details</b>, and turn on <b>Allow access to file URLs</b>. Then connect with <b>Browser wallet</b>.<br><br>
+      <b>On Android</b> — open the file using <b>Cx File Explorer</b>, a free app on the official Google Play store (<a href="https://play.google.com/store/apps/details?id=com.cxinventor.file.explorer" target="_blank" rel="noopener">get it here</a>). In its Open-with list, choose Chrome or Brave — the ones marked <b>HTTP</b>. WalletConnect then works normally.<br><br>
+      <b>On iPhone or iPad</b> — a downloaded copy is fine for reading, but iOS gives no equivalent way to serve it, so use <b>pulsestrategy369.com</b> to connect a wallet.
+    </div>
+    <div class="hashline">SHA-256 of this file:<br><span id="fileHash">computing…</span></div>
+    <div style="opacity:.85">Cross-check the hash against the one published on our <a href="https://x.com/pulsestrategy" target="_blank" rel="noopener">X</a> / GitHub before trusting a downloaded copy.</div>
+  </div>
+  <div style="margin-bottom:14px;opacity:.85">
+    The <b>explorer</b> and the <b>vaults dapp</b> are two separate pages — download each from its own page: grab the explorer here, then open the <a class="vaultlink" href="https://pulsestrategy369.com/vaults">PulseStrategy Vaults</a> tab and download the vaults app from there.
+  </div>
+  PulseVerify reads public PulseChain RPC directly from your browser — no server, no database, no tracking. Sourcify verification status, DEX prices, safety checks, and contract reads are all computed live on your device from public on-chain data.<br><br>
+  Free tool from <a href="https://pulsestrategy369.com" target="_blank" rel="noopener">PulseStrategy</a> · <a href="https://x.com/pulsestrategy" target="_blank" rel="noopener">@pulsestrategy</a> · the floor only rises · <span id="buildTag" style="font-family:var(--mono)"></span>
+</footer>
+</div>
+<script>
+"use strict";
+var BUILD = 'v27 · 2026-08-02';
+var VAULTS_URL = 'https://pulsestrategy369.com/vaults'; /* ★ EDIT HERE: the one place that controls every 'Vaults' link on this page */
+/* ================= RPC core ================= */
+let RPC = document.getElementById('rpcsel').value;
+let rpcId = 1;
+async function rpc(method, params=[]) {
+  const res = await fetch(RPC, {method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({jsonrpc:'2.0', id:rpcId++, method, params})});
+  if(!res.ok) throw new Error('RPC HTTP '+res.status);
+  const j = await res.json();
+  if(j.error) throw new Error(j.error.message || 'RPC error');
+  return j.result;
+}
+const call = (to, data, from) => rpc('eth_call', [{to, data, ...(from?{from}:{})}, 'latest']);
+
+/* ================= constants ================= */
+const WPLS = '0xA1077a294dDE1B09bB078844df40758a5D0f9a27';
+/* PulseX factories (v1, v2). Editable — if wrong or new versions launch, update here. */
+const FACTORIES = [
+  {name:'PulseX v1', addr:'0x1715a3E4A142d8b698131108995174F37aEBA10D'},
+  {name:'PulseX v2', addr:'0x29eA7545DEf87022BAdc76323F373EA1e707C523'}
+];
+const DEAD = '0x000000000000000000000000000000000000dEaD';
+const ZERO = '0x0000000000000000000000000000000000000000';
+const TRANSFER_TOPIC = '0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef';
+const ERC20_ABI = '["function name() view returns (string)","function symbol() view returns (string)","function decimals() view returns (uint8)","function totalSupply() view returns (uint256)","function balanceOf(address) view returns (uint256)","function transfer(address,uint256) returns (bool)","function allowance(address,address) view returns (uint256)","function approve(address,uint256) returns (bool)","function transferFrom(address,address,uint256) returns (bool)"]';
+
+/* ================= helpers ================= */
+const $ = id => document.getElementById(id);
+const hexToBig = h => (h==null||h==='0x'||h==='') ? 0n : BigInt(h);
+const hexToNum = h => Number(hexToBig(h));
+const padA = a => a.toLowerCase().replace('0x','').padStart(64,'0');
+const padN = n => BigInt(n).toString(16).padStart(64,'0');
+const wordAddr = w => '0x' + w.slice(-40);
+function fmtUnits(wei, dec=18, dp=6){
+  wei = BigInt(wei); const neg = wei < 0n; if(neg) wei = -wei;
+  const base = 10n ** BigInt(dec);
+  const whole = wei / base;
+  let frac = (wei % base).toString().padStart(dec,'0').slice(0,dp).replace(/0+$/,'');
+  return (neg?'-':'') + whole.toLocaleString('en-US') + (frac ? '.'+frac : '');
+}
+const fmtPLS = (wei,dp=6) => fmtUnits(wei,18,dp);
+const fmtGwei = wei => (Number(wei)/1e9).toLocaleString('en-US',{maximumFractionDigits:2});
+const short = (h,n=8) => h ? h.slice(0,n+2)+'…'+h.slice(-n) : '';
+function ago(ts){
+  const s = Math.max(0, Math.floor(Date.now()/1000 - ts));
+  if(s<60) return s+'s ago'; if(s<3600) return Math.floor(s/60)+'m ago';
+  if(s<86400) return Math.floor(s/3600)+'h ago'; return Math.floor(s/86400)+'d ago';
+}
+function esc(s){ return String(s).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function copyBtn(text){ return `<button class="copy" title="Copy" onclick="navigator.clipboard.writeText('${esc(text)}');this.textContent='✓';setTimeout(()=>this.textContent='⧉',900)">⧉</button>`; }
+const linkAddr = a => `<a onclick="loadAddress('${esc(a)}')">${short(a,10)}</a>${copyBtn(a)}`;
+const linkTx   = h => `<a onclick="loadTx('${esc(h)}')">${short(h,10)}</a>${copyBtn(h)}`;
+const linkBlk  = n => `<a onclick="loadBlock(${Number(n)})">${Number(n).toLocaleString('en-US')}</a>`;
+function decodeAbiString(hex){
+  try{
+    const h = hex.replace(/^0x/,'');
+    if(h.length === 64){ // bytes32-style
+      let s=''; for(let i=0;i<64;i+=2){const c=parseInt(h.slice(i,i+2),16); if(c) s+=String.fromCharCode(c);} return s;
+    }
+    const len = parseInt(h.slice(64,128),16);
+    const bytes = h.slice(128,128+len*2);
+    let out=''; for(let i=0;i<bytes.length;i+=2) out += '%'+bytes.slice(i,i+2);
+    return decodeURIComponent(out);
+  }catch(e){ return null; }
+}
+
+/* ================= live feed ================= */
+let lastBlockNum=0, lastBlockTs=0, prevBlockTs=0;
+const seen = new Set();
+const recentBlocks = []; // {n, base, gasUsed, txs, ts} for gas chart
+function beat(){ const e=$('ekg'); e.classList.remove('beat'); void e.offsetWidth; e.classList.add('beat'); }
+function setNet(ok){ $('netdot').className = 'dot ' + (ok===null?'':(ok?'ok':'err')); }
+const getBlock = (n, full=false) => rpc('eth_getBlockByNumber', ['0x'+n.toString(16), full]);
+
+async function refreshFeed(tip){
+  const feed = $('blocks');
+  const want = [];
+  for(let n=tip; n>tip-12 && n>=0; n--) if(!seen.has(n)) want.push(n);
+  if(!want.length) return;
+  const results = await Promise.all(want.map(n => getBlock(n).catch(()=>null)));
+  if(feed.querySelector('.loading')) feed.innerHTML='';
+  results.filter(Boolean).sort((a,b)=>hexToNum(a.number)-hexToNum(b.number)).forEach(b=>{
+    const n = hexToNum(b.number);
+    if(seen.has(n)) return;
+    seen.add(n);
+    const ts = hexToNum(b.timestamp);
+    recentBlocks.push({n, base:b.baseFeePerGas?Number(hexToBig(b.baseFeePerGas))/1e9:0, gasUsed:hexToNum(b.gasUsed), txs:b.transactions.length, ts});
+    if(recentBlocks.length>60) recentBlocks.shift();
+    if(n===tip){ prevBlockTs=lastBlockTs; lastBlockTs=ts; }
+    const div = document.createElement('div');
+    div.className='blk new';
+    div.innerHTML = `
+      <div class="n"><a onclick="loadBlock(${n})">#${n.toLocaleString('en-US')}</a>
+        <div class="meta">${b.transactions.length} txs · ${(hexToNum(b.gasUsed)/1e6).toFixed(2)}M gas</div></div>
+      <div class="right">${ago(ts)}<br><span title="fee recipient">⛏ ${short(b.miner,4)}</span></div>`;
+    feed.prepend(div);
+  });
+  while(feed.children.length>30) feed.lastChild.remove();
+  if(prevBlockTs && lastBlockTs>prevBlockTs) $('s-time').innerHTML = (lastBlockTs-prevBlockTs)+' <span class="unit">sec</span>';
+}
+
+async function tick(){
+  try{
+    const [bnHex, gasHex] = await Promise.all([rpc('eth_blockNumber'), rpc('eth_gasPrice')]);
+    setNet(true);
+    $('s-gas').innerHTML = fmtGwei(hexToBig(gasHex)) + ' <span class="unit">gwei</span>';
+    const bn = hexToNum(bnHex);
+    if(bn > lastBlockNum){
+      const isFirst = lastBlockNum===0;
+      lastBlockNum = bn;
+      $('s-block').textContent = bn.toLocaleString('en-US');
+      if(!isFirst) beat();
+      await refreshFeed(bn);
+    }
+  }catch(e){
+    setNet(false);
+    if($('blocks').querySelector('.loading'))
+      $('blocks').innerHTML = `<div class="errbox" style="margin:16px">Couldn't reach the RPC endpoint. Try switching endpoints (top right) — public nodes rate-limit sometimes. If you're viewing this inside a chat-app preview, the sandbox blocks network access: download the file and open it in a normal browser, or deploy it to GitHub Pages.</div>`;
+  }
+}
+
+/* ================= detail shell ================= */
+function setDetail(title, html, tabsHtml=''){
+  $('d-title').textContent = title;
+  $('d-tabs').innerHTML = tabsHtml;
+  $('d-body').innerHTML = html;
+  if(window.innerWidth<861) $('detailpanel').scrollIntoView({behavior:'smooth'});
+}
+function showLoading(title){ setDetail(title, '<div class="loading"><span class="spin"></span><br>Fetching from chain…</div>'); }
+function bodyLoading(msg){ $('d-body').innerHTML = `<div class="loading"><span class="spin"></span><br>${esc(msg)}</div>`; }
+function showErr(msg){ $('d-body').innerHTML = `<div class="errbox">${esc(msg)}</div>`; }
+
+/* ================= block & tx views ================= */
+async function loadBlock(n){
+  setHash('b='+n);
+  showLoading('Block #' + n.toLocaleString('en-US'));
+  try{
+    const b = await getBlock(n, true);
+    if(!b) return showErr('Block not found on this endpoint yet.');
+    const ts = hexToNum(b.timestamp);
+    const txs = b.transactions.slice(0,25).map(t=>`
+      <div class="txrow"><span>${linkTx(t.hash)}</span>
+        <span class="val">${fmtPLS(hexToBig(t.value),4)} PLS</span></div>`).join('');
+    const more = b.transactions.length>25 ? `<div class="hint">Showing 25 of ${b.transactions.length} transactions.</div>` : '';
+    setDetail('Block #'+n.toLocaleString('en-US'), `
+      <div class="kv">
+        <div class="k">Height</div><div class="v">${n.toLocaleString('en-US')} <span class="badge info">${b.transactions.length} txs</span></div>
+        <div class="k">Time</div><div class="v">${new Date(ts*1000).toLocaleString()} · ${ago(ts)}</div>
+        <div class="k">Hash</div><div class="v">${short(b.hash,12)}${copyBtn(b.hash)}</div>
+        <div class="k">Parent</div><div class="v"><a onclick="loadBlock(${n-1})">${short(b.parentHash,12)}</a></div>
+        <div class="k">Fee recipient</div><div class="v">${linkAddr(b.miner)}</div>
+        <div class="k">Gas used</div><div class="v">${hexToNum(b.gasUsed).toLocaleString('en-US')} / ${hexToNum(b.gasLimit).toLocaleString('en-US')} (${(hexToNum(b.gasUsed)/hexToNum(b.gasLimit)*100).toFixed(1)}%)</div>
+        <div class="k">Base fee</div><div class="v">${b.baseFeePerGas ? fmtGwei(hexToBig(b.baseFeePerGas))+' gwei' : '—'}</div>
+        <div class="k">Size</div><div class="v">${hexToNum(b.size).toLocaleString('en-US')} bytes</div>
+      </div>
+      ${b.transactions.length ? `<div class="txlist"><h3>Transactions</h3>${txs}${more}</div>` : ''}`);
+  }catch(e){ showErr('Could not load block: '+e.message); }
+}
+
+async function loadTx(hash){
+  setHash('tx='+hash);
+  showLoading('Transaction');
+  try{
+    const [t, r] = await Promise.all([rpc('eth_getTransactionByHash',[hash]), rpc('eth_getTransactionReceipt',[hash])]);
+    if(!t) return showErr('Transaction not found. It may be pending propagation, or on a different network.');
+    const status = r ? (hexToNum(r.status)===1 ? '<span class="badge ok">Success</span>' : '<span class="badge fail">Failed</span>') : '<span class="badge info">Pending</span>';
+    const gasPrice = hexToBig(r?.effectiveGasPrice ?? t.gasPrice ?? '0x0');
+    const fee = r ? gasPrice * hexToBig(r.gasUsed) : null;
+    const isCall = t.input && t.input !== '0x';
+    setDetail('Transaction', `
+      <div class="kv">
+        <div class="k">Hash</div><div class="v">${short(hash,12)}${copyBtn(hash)}</div>
+        <div class="k">Status</div><div class="v">${status}</div>
+        <div class="k">Block</div><div class="v">${t.blockNumber ? linkBlk(hexToNum(t.blockNumber)) : 'pending'}</div>
+        <div class="k">From</div><div class="v">${linkAddr(t.from)}</div>
+        <div class="k">To</div><div class="v">${t.to ? linkAddr(t.to) : '<span class="badge info">Contract creation</span>'+(r&&r.contractAddress?'<br>'+linkAddr(r.contractAddress):'')}</div>
+        <div class="k">Value</div><div class="v">${fmtPLS(hexToBig(t.value))} PLS</div>
+        <div class="k">Tx fee</div><div class="v">${fee!=null ? fmtPLS(fee)+' PLS' : '—'}</div>
+        <div class="k">Gas price</div><div class="v">${fmtGwei(gasPrice)} gwei</div>
+        <div class="k">Gas used</div><div class="v">${r ? hexToNum(r.gasUsed).toLocaleString('en-US')+' / '+hexToNum(t.gas).toLocaleString('en-US') : '—'}</div>
+        <div class="k">Nonce</div><div class="v">${hexToNum(t.nonce)}</div>
+        <div class="k">Type</div><div class="v">${isCall ? 'Contract interaction' : 'PLS transfer'} <span class="badge ok" id="tx-mname" style="display:none"></span>${r&&r.logs.length?` · <span class="badge info">${r.logs.length} events</span>`:''}</div>
+        ${isCall ? `<div class="k">Method ID</div><div class="v">${esc(t.input.slice(0,10))} <a onclick="openDecoder('${esc(t.input)}')">decode ↗</a></div>
+        <div class="k">Input data</div><div class="v" style="max-height:90px;overflow:auto">${esc(t.input.slice(0,400))}${t.input.length>400?'…':''}</div>` : ''}
+      </div>
+      ${r && r.logs.length ? '<div class="sub-h">Events</div><div id="tx-events"><div class="hint">Decoding\u2026</div></div>' : ''}`);
+    if(isCall) lookupMethodName(t.input.slice(0,10)).then(sig=>{
+      const el = document.getElementById('tx-mname');
+      if(el && sig){ el.textContent = sig.split('(')[0]; el.title = sig; el.style.display = 'inline-block'; }
+    });
+    if(r && r.logs.length) renderEvents(r.logs);
+  }catch(e){ showErr('Could not load transaction: '+e.message); }
+}
+
+
+
+/* ══════════ Token approvals ═════════════════════════════════════════════════
+   Every `approve` a wallet has ever signed leaves an Approval event. Those
+   events tell us which (token, spender) pairs to look at; the *current*
+   allowance is then read live with allowance(), because an old event says
+   nothing about whether the permission is still open. Revoking is a normal
+   approve(spender, 0) signed by the user's own wallet. */
+const APPROVAL_TOPIC = '0x8c5be1e5ebec7d5bd14f71427d1e84f3dd0314c0f7b2291e5b200ac8c7c3b925';
+const UNLIMITED_HINT = (1n << 255n);
+
+async function renderApprovals(){
+  const addr = cur.addr;
+  $('d-body').innerHTML = `
+    <div class="warnbox" style="margin:0 0 12px">A token approval lets another contract move that token out of this wallet — for as long as it stays open. Old approvals from dapps you no longer use are one of the most common ways funds get drained.</div>
+    <div id="appr-rows"><div class="loading" style="padding:20px"><span class="spin"></span><br>Scanning approval history\u2026</div></div>
+    <div class="sub-h">Check a specific token</div>
+    <div class="frow">
+      <div class="field"><input id="appr-tok" placeholder="token contract 0x\u2026"></div>
+      <div class="field"><input id="appr-spd" placeholder="spender 0x\u2026"></div>
+    </div>
+    <button class="btn-ghost" onclick="checkOneApproval()">Check allowance</button>
+    <div id="appr-one"></div>
+    <div class="small-note">Approvals are found by scanning recent blocks for this address \u2014 without an indexing database an explorer can't reach all the way back, so treat this as a strong sweep rather than a complete audit, and use the box above for anything specific. Revoking sends a normal transaction from your own wallet and costs gas.</div>`;
+  const box = $('appr-rows');
+  try{
+    let range = 200000, logs = null;
+    while(range >= 1000 && logs === null){
+      try{
+        logs = await rpc('eth_getLogs', [{
+          topics: [APPROVAL_TOPIC, '0x' + padA(addr)],
+          fromBlock: '0x' + Math.max(0, lastBlockNum - range).toString(16), toBlock: 'latest'
+        }]);
+      }catch(e){ range = Math.floor(range / 2); }
+    }
+    if(!logs) throw new Error('this RPC limits log queries too tightly');
+    if(cur.addr !== addr) return;
+    const pairs = new Map();
+    for(const l of logs){
+      if(!l.topics || l.topics.length < 3) continue;
+      pairs.set(l.address.toLowerCase() + '|' + wordAddr(l.topics[2]), {
+        token: l.address, spender: wordAddr(l.topics[2])
+      });
+    }
+    if(!pairs.size){ box.innerHTML = '<div class="okbox">No approvals found in the scanned window \u2014 nothing to revoke here.</div>'; return; }
+    box.innerHTML = '<div class="hint">Checking ' + pairs.size + ' approval' + (pairs.size>1?'s':'') + ' live\u2026</div>';
+    const live = [];
+    for(const p of pairs.values()){
+      try{
+        const [alw, dec, sym] = await Promise.all([
+          call(p.token, '0xdd62ed3e' + padA(addr) + padA(p.spender)),
+          call(p.token, '0x313ce567').catch(()=>null),
+          call(p.token, '0x95d89b41').catch(()=>null)
+        ]);
+        const v = hexToBig(alw);
+        if(v > 0n) live.push({ ...p, v, dec: dec ? hexToNum(dec) : 18, sym: (sym && decodeAbiString(sym)) || short(p.token,4) });
+      }catch(e){}
+    }
+    if(cur.addr !== addr) return;
+    if(!live.length){ box.innerHTML = '<div class="okbox">Every approval found in the scanned window is already at zero \u2014 nothing open.</div>'; return; }
+    live.sort((a,b) => (b.v > a.v ? 1 : -1));
+    box.innerHTML = live.map((a,i) => {
+      const unlimited = a.v >= UNLIMITED_HINT;
+      const amt = unlimited ? '<span class="badge fail">UNLIMITED</span>' : fmtUnits(a.v, a.dec, 4) + ' ' + esc(a.sym);
+      return `<div class="txrow" id="appr-row-${i}">
+        <span><a onclick="loadAddress('${esc(a.token)}')">${esc(a.sym)}</a> \u2192 spender ${linkAddr(a.spender)}<br>
+        <span style="color:var(--faint)">can move ${amt}</span></span>
+        <span class="val"><button class="btn-ghost" onclick="revokeApproval('${esc(a.token)}','${esc(a.spender)}',${i})">Revoke</button></span></div>`;
+    }).join('');
+  }catch(e){
+    box.innerHTML = '<div class="errbox">Couldn\'t scan approvals: ' + esc(e.message) + '. Try another RPC endpoint, or check a specific token below.</div>';
+  }
+}
+async function checkOneApproval(){
+  const tok = $('appr-tok').value.trim(), spd = $('appr-spd').value.trim(), out = $('appr-one');
+  if(!/^0x[0-9a-fA-F]{40}$/.test(tok) || !/^0x[0-9a-fA-F]{40}$/.test(spd))
+    return out.innerHTML = '<div class="errbox">Enter both a token address and a spender address.</div>';
+  try{
+    const [alw, dec, sym] = await Promise.all([
+      call(tok, '0xdd62ed3e' + padA(cur.addr) + padA(spd)),
+      call(tok, '0x313ce567').catch(()=>null),
+      call(tok, '0x95d89b41').catch(()=>null)
+    ]);
+    const v = hexToBig(alw), d = dec ? hexToNum(dec) : 18, s = (sym && decodeAbiString(sym)) || 'tokens';
+    if(v === 0n) return out.innerHTML = '<div class="okbox">No allowance \u2014 that spender cannot move this token.</div>';
+    const unlimited = v >= UNLIMITED_HINT;
+    out.innerHTML = `<div class="warnbox">Open approval: that spender can move ${unlimited ? '<b>an unlimited amount</b>' : fmtUnits(v,d,4) + ' ' + esc(s)}.
+      <div class="toolbar" style="margin-top:8px"><button class="btn-ghost" onclick="revokeApproval('${esc(tok)}','${esc(spd)}',-1)">Revoke this approval</button></div></div>`;
+  }catch(e){ out.innerHTML = '<div class="errbox">' + esc(e.message) + '</div>'; }
+}
+async function revokeApproval(token, spender, idx){
+  const target = idx >= 0 ? document.getElementById('appr-row-' + idx) : $('appr-one');
+  try{
+    if(!activeProvider) throw new Error('Connect a wallet first (top right).');
+    if(!walletAddr || walletAddr.toLowerCase() !== cur.addr.toLowerCase())
+      throw new Error('Connect the wallet that owns this address to revoke its approvals.');
+    const ethers = await loadEthers();
+    await ensureChain();
+    const signer = await new ethers.BrowserProvider(activeProvider).getSigner();
+    const c = new ethers.Contract(token, ['function approve(address,uint256) returns (bool)'], signer);
+    const tx = await c.approve(spender, 0n);
+    if(target) target.insertAdjacentHTML('beforeend', '<div class="hint" style="width:100%">Revoking\u2026 ' + linkTx(tx.hash) + '</div>');
+    await tx.wait();
+    if(target) target.insertAdjacentHTML('beforeend', '<div class="okbox" style="width:100%">\u2713 Revoked.</div>');
+  }catch(e){
+    alert('Revoke failed: ' + (e.shortMessage || e.message));
+  }
+}
+
+/* ══════════ Event log decoding ══════════════════════════════════════════════
+   The chain stores each event as topic hashes + raw data. topic[0] is the
+   keccak of the event signature, so the public signature dictionary turns it
+   back into a name and parameter types. Indexed parameters live in the
+   remaining topics, the rest sit in `data`; the count of topics tells us how
+   many were indexed, and in practice those are the leading parameters. */
+const _evCache = new Map();
+async function lookupEventSig(topic0){
+  if(_evCache.has(topic0)) return _evCache.get(topic0);
+  let sig = null;
+  try{
+    const r = await fetch('https://api.openchain.xyz/signature-database/v1/lookup?filter=true&event=' + topic0);
+    const j = await r.json();
+    const hit = j.result && j.result.event && j.result.event[topic0];
+    if(hit && hit[0] && hit[0].name) sig = hit[0].name;
+  }catch(e){}
+  _evCache.set(topic0, sig);
+  return sig;
+}
+/* Exact fragments for the events people actually meet. The topic-count
+   heuristic gets Transfer/Approval right but misdeclares things like Uniswap
+   V2's Swap, whose *last* parameter is the indexed one. */
+const KNOWN_EVENTS = {
+  'Transfer(address,address,uint256)':   'event Transfer(address indexed from, address indexed to, uint256 value)',
+  'Approval(address,address,uint256)':   'event Approval(address indexed owner, address indexed spender, uint256 value)',
+  'Deposit(address,uint256)':            'event Deposit(address indexed dst, uint256 wad)',
+  'Withdrawal(address,uint256)':         'event Withdrawal(address indexed src, uint256 wad)',
+  'Sync(uint112,uint112)':               'event Sync(uint112 reserve0, uint112 reserve1)',
+  'Mint(address,uint256,uint256)':       'event Mint(address indexed sender, uint256 amount0, uint256 amount1)',
+  'Burn(address,uint256,uint256,address)':'event Burn(address indexed sender, uint256 amount0, uint256 amount1, address indexed to)',
+  'Swap(address,uint256,uint256,uint256,uint256,address)':
+    'event Swap(address indexed sender, uint256 amount0In, uint256 amount1In, uint256 amount0Out, uint256 amount1Out, address indexed to)',
+  'OwnershipTransferred(address,address)':'event OwnershipTransferred(address indexed previousOwner, address indexed newOwner)'
+};
+function fmtEventArg(type, val){
+  if(val === null || val === undefined) return '';
+  if(/^address$/.test(type)) return linkAddr(String(val));
+  if(/^u?int/.test(type)){
+    const b = BigInt(val);
+    let s = b.toLocaleString('en-US');
+    if(b >= 10n**15n) s += ' <span style="color:var(--faint)">(' + fmtUnits(b,18,4) + ' @18dec)</span>';
+    return s;
+  }
+  if(/^bool$/.test(type)) return String(val);
+  const s = String(val);
+  return esc(s.length > 66 ? s.slice(0,66) + '\u2026' : s);
+}
+async function renderEvents(logs){
+  const box = document.getElementById('tx-events'); if(!box) return;
+  let ethers = null; try{ ethers = await loadEthers(); }catch(e){}
+  const sigs = await Promise.all(logs.map(l => l.topics && l.topics[0] ? lookupEventSig(l.topics[0]) : null));
+  const rows = logs.map((l, i) => {
+    const sig = sigs[i];
+    const from = '<div style="color:var(--faint);font-size:11px;margin-top:4px">from ' + linkAddr(l.address) + '</div>';
+    if(!sig){
+      return '<div class="selrow" style="display:block"><span class="unk">unknown event</span> ' +
+             '<span style="color:var(--faint)">' + esc((l.topics && l.topics[0] ? l.topics[0] : '').slice(0,18)) + '\u2026</span>' + from + '</div>';
+    }
+    const name = sig.split('(')[0];
+    const types = (sig.match(/\((.*)\)$/) || [,''])[1];
+    const list = types ? types.split(',').map(s => s.trim()).filter(Boolean) : [];
+    let body = '';
+    try{
+      if(!ethers) throw new Error('no ethers');
+      const nIdx = Math.max(0, (l.topics ? l.topics.length : 1) - 1);
+      const frag = KNOWN_EVENTS[sig] ||
+        'event ' + name + '(' + list.map((t, k) => t + (k < nIdx ? ' indexed' : '') + ' a' + k).join(', ') + ')';
+      const iface = new ethers.Interface([frag]);
+      const parsed = iface.parseLog({ topics: l.topics, data: l.data });
+      body = list.map((t, k) => '<div style="margin-top:3px"><span style="color:var(--faint)">' + esc(t) +
+             '</span> ' + fmtEventArg(t, parsed.args[k]) + '</div>').join('');
+    }catch(e){
+      body = '<div style="color:var(--faint);margin-top:3px">' + esc(list.join(', ')) + ' \u2014 raw data not decodable here</div>';
+    }
+    return '<div class="selrow" style="display:block"><span class="sig" style="color:var(--pulse-soft)">' +
+           esc(name) + '</span><span style="color:var(--faint)"> (' + esc(list.join(', ')) + ')</span>' +
+           body + from + '</div>';
+  });
+  box.innerHTML = rows.join('') +
+    '<div class="small-note">Standard events (Transfer, Approval, Swap, Sync, Mint, Burn\u2026) are decoded from exact known definitions. Anything else is named via the public signature dictionary with parameter positions inferred \u2014 accurate in most cases, but treat unusual events as a hint rather than proof.</div>';
+}
+
+/* method-name lookup via the public openchain.xyz signature dictionary (cached) */
+const _sigCache = new Map();
+async function lookupMethodName(sel){
+  if(_sigCache.has(sel)) return _sigCache.get(sel);
+  let name = null;
+  try{
+    const r = await fetch('https://api.openchain.xyz/signature-database/v1/lookup?filter=true&function=' + sel);
+    const j = await r.json();
+    const hit = j.result && j.result.function && j.result.function[sel];
+    if(hit && hit[0] && hit[0].name) name = hit[0].name;
+  }catch(e){}
+  _sigCache.set(sel, name);
+  return name;
+}
+
+/* ================= address view + tabs ================= */
+let cur = null; // {addr, isContract, code, token}
+function tabsFor(){
+  if(!cur) return '';
+  const t = (id,lbl)=>`<button class="tab" id="tab-${id}" onclick="openTab('${id}')">${lbl}</button>`;
+  if(!cur.isContract) return `<div class="tabs">${t('over','Overview')}${t('held','Holdings')}${t('appr','Approvals')}</div>`;
+  return `<div class="tabs">${t('over','Overview')}${cur.token?t('token','Token'):''}${t('held','Holdings')}${t('appr','Approvals')}${t('safety','Pulse Check™')}${t('verify','Verify')}${t('read','Read')}${t('write','Write')}</div>`;
+}
+function markTab(id){ document.querySelectorAll('.tab').forEach(el=>el.classList.toggle('on', el.id==='tab-'+id)); }
+
+async function loadAddress(addr){
+  setHash('a='+addr);
+  showLoading('Address');
+  cur = null;
+  try{
+    const [balHex, nonceHex, code] = await Promise.all([
+      rpc('eth_getBalance',[addr,'latest']),
+      rpc('eth_getTransactionCount',[addr,'latest']),
+      rpc('eth_getCode',[addr,'latest'])
+    ]);
+    const isContract = code && code !== '0x';
+    cur = {addr, isContract, code, bal:hexToBig(balHex), nonce:hexToNum(nonceHex), token:null};
+    if(isContract){
+      // token probe
+      try{
+        const [nm, sym, dec, sup] = await Promise.all([
+          call(addr,'0x06fdde03').catch(()=>null), call(addr,'0x95d89b41').catch(()=>null),
+          call(addr,'0x313ce567').catch(()=>null), call(addr,'0x18160ddd').catch(()=>null)
+        ]);
+        if(sym && dec !== null && sup !== null){
+          cur.token = {name:nm?decodeAbiString(nm):'', symbol:decodeAbiString(sym)||'?', decimals:hexToNum(dec), supply:hexToBig(sup)};
+        }
+      }catch(e){}
+    }
+    setDetail(isContract ? 'Contract' : 'Address', '', tabsFor());
+    openTab('over');
+  }catch(e){ showErr('Could not load address: '+e.message); }
+}
+
+function openTab(id){
+  markTab(id);
+  if(id==='over') return renderOverview();
+  if(id==='token') return renderToken();
+  if(id==='held') return renderHoldings();
+  if(id==='appr') return renderApprovals();
+  if(id==='safety') return runSafety();
+  if(id==='verify') return renderVerify();
+  if(id==='read') return renderAbiPanel(false);
+  if(id==='write') return renderAbiPanel(true);
+}
+
+function renderOverview(){
+  const c = cur;
+  if(c.isContract) fillSourcifyBadge(c.addr);
+  $('d-body').innerHTML = `
+    <div class="kv">
+      <div class="k">Address</div><div class="v">${short(c.addr,12)}${copyBtn(c.addr)} ${c.isContract?'<span class="badge info">Contract</span>':'<span class="badge ok">Wallet</span>'} ${c.token?`<span class="badge ok">${esc(c.token.symbol)} token</span>`:''} ${c.isContract?'<span class="badge info" id="srcfy-badge">Sourcify: checking…</span>':''}</div>
+      <div class="k">Balance</div><div class="v">${fmtPLS(c.bal)} PLS</div>
+      <div class="k">Tx count</div><div class="v">${c.nonce.toLocaleString('en-US')} <span class="unit">(outgoing nonce)</span></div>
+      ${c.isContract?`<div class="k">Bytecode</div><div class="v">${((c.code.length-2)/2).toLocaleString('en-US')} bytes deployed</div>`:''}
+    </div>
+    <div class="toolbar" style="margin-top:12px">
+      <button class="btn-ghost" onclick="shareLink(event)">🔗 Copy link</button>
+    </div>
+    ${c.isContract ? `<div class="warnbox">This is a contract. Use <b>Verify</b> to check source code against the deployed bytecode yourself, and <b>Pulse Check™</b> to run a live on-chain safety scan.</div>` : ''}
+    <div class="sub-h">Recent transactions</div>
+    <div id="recent-txs"><div class="loading" style="padding:20px"><span class="spin"></span><br>Fetching latest transactions…</div></div>
+    <div class="small-note">Showing the last 10 via PulseChain Scan's public index — transaction history is the one thing that needs an indexer; everything else on this page reads the chain directly. Full history:
+    <a href="https://ipfs.scan.pulsechain.com/address/${esc(c.addr)}" target="_blank" rel="noopener">PulseChain Scan ↗</a>.</div>`;
+  loadRecentTxs(c.addr);
+}
+
+async function loadRecentTxs(addr){
+  const el = $('recent-txs'); if(!el) return;
+  const render = rows => { if(!cur || cur.addr === addr) el.innerHTML = rows; };
+  const row = (hash, out, other, tsSec, failed, valWei) => `<div class="txrow">
+      <span><span class="badge ${out ? 'warn' : 'ok'}">${out ? 'OUT' : 'IN'}</span> ${linkTx(hash)}${failed ? ' <span class="badge fail">failed</span>' : ''}<br>
+      <span style="color:var(--faint)">${out ? 'to' : 'from'} ${other ? `<a onclick="loadAddress('${esc(other)}')">${short(other,6)}</a>` : 'contract creation'} · ${ago(tsSec)}</span></span>
+      <span class="val">${fmtPLS(valWei,4)} PLS</span></div>`;
+  const notes = [];
+  /* Layer A: RPC-style txlist (documented at api.scan.pulsechain.com/api-docs) */
+  try{
+    const r = await fetch(SCAN_API + '?module=account&action=txlist&address=' + addr + '&page=1&offset=10');
+    if(r.ok){
+      const j = await r.json();
+      if(Array.isArray(j.result)){
+        if(!j.result.length) return render('<div class="hint">No transactions found for this address yet.</div>');
+        return render(j.result.slice(0,10).map(t=>{
+          const out = t.from && t.from.toLowerCase() === addr.toLowerCase();
+          let v = 0n; try{ v = BigInt(t.value || '0'); }catch(e){}
+          return row(t.hash, out, out ? t.to : t.from, parseInt(t.timeStamp,10), t.isError === '1' || t.txreceipt_status === '0', v);
+        }).join(''));
+      }
+      notes.push('txlist: ' + esc(String(j.message || 'unexpected shape')));
+    } else notes.push('txlist: HTTP ' + r.status);
+  }catch(e){ notes.push('txlist: unreachable'); }
+  /* Layer B: Blockscout REST v2 */
+  try{
+    const r = await fetch('https://api.scan.pulsechain.com/api/v2/addresses/' + addr + '/transactions');
+    if(r.ok){
+      const j = await r.json();
+      const items = j.items || [];
+      if(!items.length) return render('<div class="hint">No transactions found for this address yet.</div>');
+      return render(items.slice(0,10).map(t=>{
+        const fromH = t.from && (t.from.hash || t.from);
+        const toH = t.to && (t.to.hash || t.to);
+        const out = fromH && String(fromH).toLowerCase() === addr.toLowerCase();
+        let v = 0n; try{ v = BigInt(t.value || '0'); }catch(e){}
+        const ts = t.timestamp ? Math.floor(new Date(t.timestamp).getTime()/1000) : 0;
+        const failed = t.status ? t.status !== 'ok' : (t.result ? t.result !== 'success' : false);
+        return row(t.hash, out, out ? toH : fromH, ts, failed, v);
+      }).join(''));
+    }
+    notes.push('api v2: HTTP ' + r.status);
+  }catch(e){ notes.push('api v2: unreachable'); }
+  render(`<div class="hint">History unavailable right now (${notes.join(' · ')}) — view it on
+    <a href="https://ipfs.scan.pulsechain.com/address/${esc(addr)}" target="_blank" rel="noopener">PulseChain Scan ↗</a>.</div>`);
+}
+
+/* ================= search ================= */
+function runSearch(){
+  const q = $('q').value.trim();
+  if(!q) return;
+  if(/^0x[0-9a-fA-F]{64}$/.test(q)) return loadTx(q);
+  if(/^0x[0-9a-fA-F]{40}$/.test(q)) return loadAddress(q);
+  if(/^[\d,]+$/.test(q)) return loadBlock(parseInt(q.replace(/,/g,''),10));
+  showErr('Unrecognized format. Paste a 66-character tx hash, a 42-character address, or a block number.');
+}
+$('go').onclick = runSearch;
+$('q').addEventListener('keydown', e => { if(e.key==='Enter') runSearch(); });
+
+/* ================= boot ================= */
+function applyRpc(url, remember){
+  RPC = url;
+  if(remember){ try{ localStorage.setItem('pv_rpc', url); }catch(e){} }
+  seen.clear(); recentBlocks.length=0; lastBlockNum=0; lastBlockTs=0; prevBlockTs=0;
+  $('blocks').innerHTML = '<div class="loading"><span class="spin"></span><br>Reconnecting…</div>';
+  setNet(null); tick();
+}
+function addCustomOption(url){
+  const sel = $('rpcsel');
+  let opt = sel.querySelector('option[data-custom]');
+  if(!opt){
+    opt = document.createElement('option');
+    opt.setAttribute('data-custom','1');
+    sel.insertBefore(opt, sel.querySelector('option[value="__custom"]'));
+  }
+  opt.value = url;
+  try{ opt.textContent = '⚙ ' + new URL(url).host; }catch(e){ opt.textContent = '⚙ custom'; }
+  sel.value = url;
+}
+$('rpcsel').onchange = e => {
+  if(e.target.value === '__custom'){
+    const isLocalCopy = location.protocol !== 'https:';
+    const url = (prompt('Enter your PulseChain RPC URL:\n\nExamples:\n  https://rpc.mynode.example\n  http://127.0.0.1:8545  (works on downloaded/local copies)\n\nSaved in your browser only — never sent anywhere else.') || '').trim();
+    if(!/^https?:\/\/.+/.test(url)){
+      if(url) alert('RPC must start with https:// or http://');
+      e.target.value = RPC; return;
+    }
+    if(!isLocalCopy && /^http:\/\//.test(url)){
+      alert('Browsers block http:// RPCs on an https website (mixed content) — this is a browser rule, not ours.\n\nTo use an http:// RPC like a home node: tap "Download this explorer" in the footer and open the downloaded file — local copies accept http:// RPCs.\n\nOr expose your node over https.');
+      e.target.value = RPC; return;
+    }
+    addCustomOption(url);
+    applyRpc(url, true);
+    return;
+  }
+  applyRpc(e.target.value, true);
+};
+/* restore remembered RPC (defaults or custom) */
+try{
+  const saved = localStorage.getItem('pv_rpc');
+  if(saved && (/^https:\/\/.+/.test(saved) || (location.protocol !== 'https:' && /^http:\/\/.+/.test(saved)))){
+    const sel = $('rpcsel');
+    if([...sel.options].some(o=>o.value===saved)) sel.value = saved;
+    else addCustomOption(saved);
+    RPC = saved;
+  }
+}catch(e){}
+(async function boot(){
+  try{
+    const cid = hexToNum(await rpc('eth_chainId'));
+    const dot = $('netdot');
+    if(dot) dot.title = cid === 369 ? 'Connected to PulseChain (chain 369)' : 'WARNING: this RPC reports chain ' + cid + ', not PulseChain (369)';
+    if(cid !== 369) document.querySelector('.psbar').insertAdjacentHTML('afterbegin',
+      '<span class="badge fail">Wrong chain: ' + cid + '</span> ');
+  }catch(e){}
+  tick(); setInterval(tick, 6000); setInterval(()=>{refreshPls();refreshHex();}, 60000);
+  loadVaultStats(); refreshPls(); refreshHex();
+  routeFromUrl();
+  window.addEventListener('hashchange', routeFromUrl);
+})();
+
+/* ---- URL routing: supports wallet-style PATHS and hash links ----
+   Path forms a wallet appends:  /address/0x..  /tx/0x..  /token/0x..  /block/123
+   Hash forms this app writes:   #a=0x..  #tx=0x..  #b=123
+   This lets someone set pulsestrategy369.com as their wallet's block explorer. */
+function routeFromUrl(){
+  try{
+    const p = location.pathname.replace(/\/+$/,'');
+    let m;
+    if((m = p.match(/\/(address|account)\/(0x[0-9a-fA-F]{40})/))) return loadAddress(m[2]);
+    if((m = p.match(/\/(tx|transaction)\/(0x[0-9a-fA-F]{64})/))) return loadTx(m[2]);
+    if((m = p.match(/\/(token|contract)\/(0x[0-9a-fA-F]{40})/))) return loadAddress(m[2]);
+    if((m = p.match(/\/block\/(\d+)/))) return loadBlock(parseInt(m[1],10));
+    const hh = location.hash.match(/^#(a|tx|b)=(.+)$/);
+    if(hh){
+      const v = decodeURIComponent(hh[2]);
+      if(hh[1]==='a') loadAddress(v); else if(hh[1]==='tx') loadTx(v); else loadBlock(parseInt(v,10));
+    }
+  }catch(e){}
+}
+
+/* ================= token tab ================= */
+async function renderToken(){
+  const t = cur.token, addr = cur.addr;
+  $('d-body').innerHTML = `
+    <div class="kv">
+      <div class="k">Token</div><div class="v">${esc(t.name||'')} (${esc(t.symbol)})</div>
+      <div class="k">Decimals</div><div class="v">${t.decimals}</div>
+      <div class="k">Total supply</div><div class="v">${fmtUnits(t.supply,t.decimals,4)} ${esc(t.symbol)}</div>
+      <div class="k">DEX price</div><div class="v" id="tok-price">checking PulseX pairs…</div>
+    </div>
+    <div class="sub-h">Check a wallet's balance</div>
+    <div class="frow"><div class="field"><input id="tok-holder" placeholder="0x… wallet address"></div>
+    <button class="btn-ghost" onclick="tokBalance()">Check</button></div>
+    <div id="tok-bal"></div>
+    <div class="sub-h">Recent transfers <span style="text-transform:none;letter-spacing:0">(last ~5,000 blocks — live from RPC logs, no indexer)</span></div>
+    <div id="tok-logs"><div class="loading"><span class="spin"></span><br>Scanning logs…</div></div>`;
+  fillTokenPrice(addr, t.decimals);
+  try{
+    let range = 5000, logs = null;
+    while(range >= 500 && logs === null){
+      try{
+        logs = await rpc('eth_getLogs',[{address:addr, topics:[TRANSFER_TOPIC],
+          fromBlock:'0x'+Math.max(0,lastBlockNum-range).toString(16), toBlock:'latest'}]);
+      }catch(e){ range = Math.floor(range/2); }
+    }
+    if(!logs) throw new Error('log range too large for this RPC');
+    const rows = logs.slice(-25).reverse().map(l=>{
+      const from = wordAddr(l.topics[1]||''), to = wordAddr(l.topics[2]||'');
+      const amt = hexToBig(l.data==='0x'?'0x0':l.data);
+      return `<div class="txrow">
+        <span>${linkAddr(from)} → ${linkAddr(to)}</span>
+        <span class="val">${fmtUnits(amt,t.decimals,4)} ${esc(t.symbol)}</span></div>`;
+    }).join('');
+    $('tok-logs').innerHTML = rows || '<div class="hint">No transfers in the scanned window.</div>';
+  }catch(e){ $('tok-logs').innerHTML = `<div class="errbox">Couldn't fetch logs: ${esc(e.message)}. Public RPCs limit log ranges — try another endpoint.</div>`; }
+}
+async function tokBalance(){
+  const holder = $('tok-holder').value.trim();
+  if(!/^0x[0-9a-fA-F]{40}$/.test(holder)) return $('tok-bal').innerHTML='<div class="errbox">Enter a valid 0x address.</div>';
+  try{
+    const b = await call(cur.addr, '0x70a08231'+padA(holder));
+    $('tok-bal').innerHTML = `<div class="okbox">${fmtUnits(hexToBig(b),cur.token.decimals,6)} ${esc(cur.token.symbol)}</div>`;
+  }catch(e){ $('tok-bal').innerHTML = `<div class="errbox">${esc(e.message)}</div>`; }
+}
+
+/* ================= Pulse Check™ safety scan ================= */
+const IMPL_SLOT = '0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc';
+const RISK_SELECTORS = [
+  {sel:'40c10f19', lbl:'mint(address,uint256)', why:'supply can be inflated', pen:15},
+  {sel:'8456cb59', lbl:'pause()', why:'trading can be frozen', pen:10},
+  {sel:'f9f92be4', lbl:'blacklist(address)', why:'wallets can be blocked', pen:15},
+  {sel:'47e7ef24', lbl:'deposit-style admin fn', why:'', pen:0},
+];
+function chkRow(state, lbl, det){
+  const ico = state==='pass'?'✔':state==='warn'?'▲':state==='fail'?'✖':'·';
+  return `<div class="chk ${state}"><span class="ico">${ico}</span><div><div class="lbl">${lbl}</div><div class="det">${det}</div></div></div>`;
+}
+async function runSafety(){
+  const addr = cur.addr, code = cur.code.toLowerCase();
+  bodyLoading('Running live on-chain checks…');
+  let score = 100; const rows = [];
+  const push = (state,lbl,det,pen=0)=>{ rows.push(chkRow(state,lbl,det)); score -= pen; };
+
+  /* 1. owner / renounced */
+  try{
+    let o = await call(addr,'0x8da5cb5b').catch(()=>null) || await call(addr,'0x893d20e8').catch(()=>null);
+    if(o===null) push('pass','No owner() function','No standard ownership hook detected — likely immutable or non-Ownable.');
+    else{
+      const owner = wordAddr(o);
+      if(owner===ZERO.toLowerCase()||owner===DEAD.toLowerCase()) push('pass','Ownership renounced','owner() returns the zero/dead address.');
+      else push('warn','Active owner', `owner() = ${short(owner,6)} — owner-only functions are live.`, 15);
+    }
+  }catch(e){ push('na','Ownership check skipped', e.message); }
+
+  /* 2. upgradeable proxy */
+  try{
+    const impl = await rpc('eth_getStorageAt',[addr, IMPL_SLOT,'latest']);
+    if(impl && hexToBig(impl)!==0n) push('fail','Upgradeable proxy (EIP-1967)', `Logic can be swapped at any time → points to ${short(wordAddr(impl),6)}.`, 25);
+    else push('pass','Not an EIP-1967 proxy','Deployed bytecode is what runs. Code cannot be swapped via the standard proxy slot.');
+  }catch(e){ push('na','Proxy check skipped', e.message); }
+
+  /* 3. bytecode selector scan */
+  const hits = RISK_SELECTORS.filter(r=>r.pen && code.includes(r.sel));
+  if(hits.length) hits.forEach(h=>push('warn',`Selector found: ${h.lbl}`, `Bytecode contains this function signature — ${h.why}.`, h.pen));
+  else push('pass','No mint / pause / blacklist selectors','None of the common admin-risk signatures appear in the bytecode. (Heuristic — custom names evade this.)');
+
+  /* 4-6. DEX pair, honeypot sim, LP burned — token contracts only */
+  if(cur.token){
+    let pair=null, pairDex='';
+    for(const f of FACTORIES){
+      try{
+        const p = await call(f.addr, '0xe6a43905'+padA(addr)+padA(WPLS));
+        if(p && hexToBig(p)!==0n){ pair = wordAddr(p); pairDex=f.name; break; }
+      }catch(e){}
+    }
+    if(pair){
+      /* honeypot: impersonate the LP pair itself via eth_call and try to move 1 unit out */
+      try{
+        await call(addr, '0xa9059cbb'+padA(DEAD)+padN(1n), pair);
+        push('pass','Transfer simulation passed', `Simulated transfer *as the ${pairDex} pair* succeeded — transfers out of the LP are not blocked.`);
+      }catch(e){
+        push('fail','Transfer simulation REVERTED', `Impersonating the LP pair, transfer() reverts (${esc(e.message.slice(0,80))}). Honeypot-style restriction likely.`, 50);
+      }
+      /* LP burned % */
+      try{
+        const [supHex, dB, zB] = await Promise.all([
+          call(pair,'0x18160ddd'), call(pair,'0x70a08231'+padA(DEAD)), call(pair,'0x70a08231'+padA(ZERO))
+        ]);
+        const sup=hexToBig(supHex), burned=hexToBig(dB)+hexToBig(zB);
+        const pct = sup>0n ? Number(burned*10000n/sup)/100 : 0;
+        if(pct>=90) push('pass',`LP ${pct.toFixed(1)}% burned`, `${pairDex} LP tokens sent to dead/zero — liquidity can't be pulled by anyone.`);
+        else push('warn',`LP ${pct.toFixed(1)}% burned`, `Remaining LP may be locked in a locker contract (needs a database to know) or held by a wallet that can pull liquidity.`, 10);
+      }catch(e){ push('na','LP check skipped', e.message); }
+      /* liquidity depth */
+      try{
+        const [resHex, t0Hex] = await Promise.all([call(pair,'0x0902f1ac'), call(pair,'0x0dfe1681')]);
+        const h = resHex.replace(/^0x/,''); const r0=hexToBig('0x'+h.slice(0,64)), r1=hexToBig('0x'+h.slice(64,128));
+        const wplsIs0 = wordAddr(t0Hex)===WPLS.toLowerCase();
+        const wplsRes = wplsIs0?r0:r1;
+        const depth = Number(wplsRes/10n**18n);
+        if(depth<1e6) push('warn','Thin liquidity', `~${depth.toLocaleString('en-US')} PLS in the ${pairDex} pair — large trades will slip hard, easy to rug perception-wise.`, 5);
+        else push('pass','Liquidity depth', `~${depth.toLocaleString('en-US')} PLS paired in ${pairDex}.`);
+      }catch(e){}
+    }else{
+      push('warn','No WPLS pair found on PulseX v1/v2', 'No standard liquidity pair — token may be pre-launch, use a different pairing, or be untradeable.', 10);
+    }
+  }
+  score = Math.max(0, score);
+  const grade = score>=85?['A','var(--green)']:score>=70?['B','var(--teal)']:score>=55?['C','var(--amber)']:score>=40?['D','var(--amber)']:['F','var(--red)'];
+  $('d-body').innerHTML = `
+    <div class="score-ring">
+      <div class="score-num" style="color:${grade[1]}">${score}</div>
+      <div><div class="score-grade">Pulse Check™ grade: ${grade[0]}</div>
+      <div class="det" style="font-size:12px;color:var(--faint)">Live heuristic scan run by your browser against the chain — not stored, not a rating service, not financial advice.</div></div>
+    </div>
+    ${rows.join('')}
+    <div class="toolbar"><button class="btn-ghost" onclick="shareLink(event)">🔗 Share this scan</button></div>
+    <div class="small-note"><b>What this can't see without an indexer:</b> holder concentration, deployer wallet history, exact buy/sell tax %, and whether unburned LP sits in a time-lock. A clean score here means "no on-chain red flags found," not "safe."</div>`;
+}
+
+/* ============ contract source & verification (client-side proof) ============ */
+let fetchedMeta = null;
+const SCAN_API = 'https://api.scan.pulsechain.com/api';
+const SOURCIFY = 'https://sourcify.dev/server';
+
+let _srcfyCache = {}, _regNotes = [];
+
+/* ---------- Sourcify + Scan retrieval: five independent layers ----------
+   1) Sourcify API v2      GET /v2/contract/369/{addr}?fields=…
+   2) Sourcify repository  GET repo.sourcify.dev/contracts/{full|partial}_match/369/{addr}/metadata.json  (+ /sources/{path})
+   3) Sourcify legacy      GET /files/any/369/{addr}
+   4) Scan RPC-style       GET api?module=contract&action=getsourcecode
+   5) Scan REST v2         GET /api/v2/smart-contracts/{addr}
+   A failure in any layer only adds a note and moves on. */
+const SOURCIFY_REPO = 'https://repo.sourcify.dev/contracts';
+
+async function addrForms(addr){
+  const out = [addr];
+  try{ const ethers = await loadEthers(); const cs = ethers.getAddress(addr); if(!out.includes(cs)) out.unshift(cs); }catch(e){}
+  const lo = addr.toLowerCase(); if(!out.includes(lo)) out.push(lo);
+  return out;
+}
+async function sourcifyStatus(addr){
+  const k = addr.toLowerCase();
+  if(k in _srcfyCache) return _srcfyCache[k];
+  let st;
+  try{
+    const r = await fetch(SOURCIFY + '/v2/contract/369/' + addr);
+    if(r.ok){ const j = await r.json(); st = j.match === 'exact_match' ? 'full' : (j.match ? 'partial' : null); }
+    else if(r.status === 404) st = null;
+  }catch(e){}
+  if(st === undefined){
+    try{
+      for(const kind of ['full_match','partial_match']){
+        for(const a of await addrForms(addr)){
+          const r = await fetch(`${SOURCIFY_REPO}/${kind}/369/${a}/metadata.json`);
+          if(r.ok){ st = kind==='full_match' ? 'full' : 'partial'; break; }
+        }
+        if(st !== undefined) break;
+      }
+      if(st === undefined) st = null;
+    }catch(e){}
+  }
+  if(st === undefined){
+    try{
+      const r = await fetch(SOURCIFY + '/check-all-by-addresses?addresses=' + addr + '&chainIds=369');
+      if(r.ok){
+        const j = await r.json();
+        const en = Array.isArray(j) ? j[0] : null;
+        const c = en && Array.isArray(en.chainIds) ? en.chainIds.find(x=>String(x.chainId)==='369') : null;
+        st = c ? ((c.status==='perfect'||c.status==='full') ? 'full' : 'partial')
+               : (en && en.status && en.status !== 'false' ? 'partial' : null);
+      }
+    }catch(e){}
+  }
+  _srcfyCache[k] = st;
+  window._regNotes = _regNotes;
+  return st;
+}
+async function fillSourcifyBadge(addr){
+  const st = await sourcifyStatus(addr);
+  const el = document.getElementById('srcfy-badge');
+  if(!el) return;
+  if(st === 'full'){ el.className = 'badge ok'; el.textContent = 'Sourcify ✓ exact match'; }
+  else if(st){ el.className = 'badge warn'; el.textContent = 'Sourcify: partial match'; }
+  else if(st === undefined){ el.className = 'badge info'; el.textContent = 'Sourcify unreachable'; }
+  else { el.className = 'badge info'; el.textContent = 'not on Sourcify'; }
+}
+function _mdToMeta(addr, md, sources, matchLabel){
+  if(!md || !md.compiler || !md.compiler.version || !Object.keys(sources).length) return null;
+  const settings = JSON.parse(JSON.stringify(md.settings || {}));
+  delete settings.compilationTarget; delete settings.outputSelection;
+  const target = (md.settings && md.settings.compilationTarget) || {};
+  return {
+    addr, registry:'Sourcify', match: matchLabel,
+    name: Object.values(target)[0] || '',
+    ver: 'v' + md.compiler.version, verFile: 'soljson-v' + md.compiler.version + '.js',
+    abi: (md.output && md.output.abi) || null,
+    standardInput: {language: md.language || 'Solidity', sources, settings}
+  };
+}
+async function fetchVerifiedMeta(addr){
+  _regNotes = [];
+  /* --- 1) Sourcify API v2 (two response shapes handled) --- */
+  for(const fields of ['sources,compilation,abi','sources,metadata']){
+    try{
+      const r = await fetch(SOURCIFY + '/v2/contract/369/' + addr + '?fields=' + fields);
+      if(r.status === 404){ _regNotes.push('Sourcify v2: not verified there'); break; }
+      if(!r.ok){ _regNotes.push('Sourcify v2 (' + fields + '): HTTP ' + r.status); continue; }
+      const j = await r.json();
+      const sources = {};
+      if(j.sources) for(const [p,s] of Object.entries(j.sources)){
+        const c = (s && typeof s === 'object') ? s.content : s;
+        if(typeof c === 'string') sources[p] = {content: c};
+      }
+      const matchLabel = j.match === 'exact_match' ? 'exact match' : 'partial match';
+      if(j.compilation && j.compilation.compilerVersion && Object.keys(sources).length){
+        const settings = JSON.parse(JSON.stringify(j.compilation.compilerSettings || {}));
+        delete settings.compilationTarget; delete settings.outputSelection;
+        let ver = j.compilation.compilerVersion; if(!ver.startsWith('v')) ver = 'v' + ver;
+        _regNotes.push('Sourcify v2: ' + (j.match||'match') + ' ✓');
+        _srcfyCache[addr.toLowerCase()] = j.match === 'exact_match' ? 'full' : 'partial';
+        return {addr, registry:'Sourcify', match: matchLabel,
+          name: j.compilation.name || ((j.compilation.fullyQualifiedName||'').split(':').pop()) || '',
+          ver, verFile: 'soljson-' + ver + '.js', abi: j.abi || null,
+          standardInput: {language: j.compilation.language || 'Solidity', sources, settings}};
+      }
+      if(j.metadata){
+        for(const k of Object.keys(j.metadata.sources || {}))
+          if(!sources[k] && j.metadata.sources[k].content) sources[k] = {content: j.metadata.sources[k].content};
+        const meta = _mdToMeta(addr, j.metadata, sources, matchLabel);
+        if(meta){
+          _regNotes.push('Sourcify v2 (metadata): ' + (j.match||'match') + ' ✓');
+          _srcfyCache[addr.toLowerCase()] = j.match === 'exact_match' ? 'full' : 'partial';
+          return meta;
+        }
+      }
+      _regNotes.push('Sourcify v2 (' + fields + '): response incomplete');
+    }catch(e){ _regNotes.push('Sourcify v2 unreachable'); break; }
+  }
+  /* --- 2) Sourcify repository (static ground truth) --- */
+  try{
+    outer:
+    for(const kind of ['full_match','partial_match']){
+      for(const a of await addrForms(addr)){
+        const r = await fetch(`${SOURCIFY_REPO}/${kind}/369/${a}/metadata.json`);
+        if(!r.ok) continue;
+        const md = await r.json();
+        const sources = {};
+        for(const key of Object.keys(md.sources || {})){
+          if(md.sources[key].content){ sources[key] = {content: md.sources[key].content}; continue; }
+          try{
+            const sr = await fetch(`${SOURCIFY_REPO}/${kind}/369/${a}/sources/` + key.split('/').map(encodeURIComponent).join('/'));
+            if(sr.ok) sources[key] = {content: await sr.text()};
+          }catch(e){}
+        }
+        const meta = _mdToMeta(addr, md, sources, kind==='full_match' ? 'exact match' : 'partial match');
+        if(meta){
+          _regNotes.push('Sourcify repository: ' + kind.replace('_',' ') + ' ✓');
+          _srcfyCache[addr.toLowerCase()] = kind==='full_match' ? 'full' : 'partial';
+          return meta;
+        }
+        break outer;
+      }
+    }
+    _regNotes.push('Sourcify repository: not found');
+  }catch(e){ _regNotes.push('Sourcify repository unreachable'); }
+  /* --- 3) Sourcify legacy files API --- */
+  try{
+    const r = await fetch(SOURCIFY + '/files/any/369/' + addr);
+    if(r.ok){
+      const j = await r.json();
+      const files = Array.isArray(j) ? j : (j.files || []);
+      const metaF = files.find(f=>f.name === 'metadata.json');
+      if(metaF){
+        const md = JSON.parse(metaF.content);
+        const sources = {};
+        for(const key of Object.keys(md.sources || {})){
+          const f = files.find(x=>x.path && x.path.split('/sources/')[1] === key)
+                 || files.find(x=>x.name === key.split('/').pop() && x.name !== 'metadata.json');
+          if(f) sources[key] = {content: f.content};
+          else if(md.sources[key].content) sources[key] = {content: md.sources[key].content};
+        }
+        const full = j.status === 'full' || j.status === 'perfect';
+        const meta = _mdToMeta(addr, md, sources, full ? 'exact match' : 'partial match');
+        if(meta){
+          _regNotes.push('Sourcify legacy files: ✓');
+          _srcfyCache[addr.toLowerCase()] = full ? 'full' : 'partial';
+          return meta;
+        }
+        _regNotes.push('Sourcify legacy: sources incomplete');
+      } else _regNotes.push('Sourcify legacy: no metadata.json');
+    } else _regNotes.push('Sourcify legacy: HTTP ' + r.status);
+  }catch(e){ _regNotes.push('Sourcify legacy unreachable'); }
+  /* --- 4) PulseChain Scan RPC-style API --- */
+  try{
+    const r = await fetch(SCAN_API + '?module=contract&action=getsourcecode&address=' + addr);
+    if(r.ok){
+      const j = await r.json();
+      const it = j.result && j.result[0];
+      if(it && it.SourceCode){
+        _regNotes.push('PulseChain Scan: found ✓');
+        let ver = it.CompilerVersion || '';
+        if(ver && !ver.startsWith('v')) ver = 'v' + ver;
+        let sources = null, standardInput = null;
+        let src = it.SourceCode.trim();
+        if(src.startsWith('{{')) src = src.slice(1, -1).trim();
+        if(src.startsWith('{')){
+          try{
+            const parsed = JSON.parse(src);
+            if(parsed.sources) standardInput = parsed;
+            else sources = {'contract.sol':{content: it.SourceCode}};
+          }catch(e){ sources = {'contract.sol':{content: it.SourceCode}}; }
+        } else sources = {'contract.sol':{content: src}};
+        let abi = null; try{ abi = JSON.parse(it.ABI); }catch(e){}
+        return {
+          addr, registry:'PulseChain Scan', match:'published',
+          name: it.ContractName || '', ver, verFile: 'soljson-' + ver + '.js',
+          optimized: it.OptimizationUsed === '1' || it.OptimizationUsed === 'true',
+          runs: parseInt(it.Runs || it.OptimizationRuns || '200', 10) || 200,
+          evm: (it.EVMVersion && it.EVMVersion.toLowerCase() !== 'default') ? it.EVMVersion.toLowerCase() : '',
+          abi, sources, standardInput
+        };
+      }
+      _regNotes.push('Scan RPC API: no published source');
+    } else _regNotes.push('Scan RPC API: HTTP ' + r.status);
+  }catch(e){ _regNotes.push('Scan RPC API unreachable'); }
+  /* --- 5) PulseChain Scan REST v2 --- */
+  try{
+    const r = await fetch('https://api.scan.pulsechain.com/api/v2/smart-contracts/' + addr);
+    if(r.ok){
+      const j = await r.json();
+      if(j.source_code){
+        _regNotes.push('Scan REST v2: found ✓');
+        let ver = j.compiler_version || '';
+        if(ver && !ver.startsWith('v')) ver = 'v' + ver;
+        const sources = {[j.file_path || 'contract.sol']: {content: j.source_code}};
+        for(const s of (j.additional_sources || [])) sources[s.file_path] = {content: s.source_code};
+        const settings = j.compiler_settings ? JSON.parse(JSON.stringify(j.compiler_settings)) : 
+          {optimizer:{enabled: !!j.optimization_enabled, runs: j.optimization_runs || 200},
+           ...(j.evm_version && j.evm_version!=='default' ? {evmVersion: j.evm_version} : {})};
+        delete settings.compilationTarget; delete settings.outputSelection;
+        return {addr, registry:'PulseChain Scan', match:'published', name: j.name || '',
+          ver, verFile: 'soljson-' + ver + '.js', abi: j.abi || null,
+          standardInput: {language:'Solidity', sources, settings}};
+      }
+      _regNotes.push('Scan REST v2: not verified');
+    } else _regNotes.push('Scan REST v2: HTTP ' + r.status);
+  }catch(e){ _regNotes.push('Scan REST v2 unreachable'); }
+  return null;
+}
+
+function renderVerify(){
+  $('d-body').innerHTML = `
+    <div id="v-status"><div class="loading"><span class="spin"></span><br>Checking Sourcify…</div></div>
+    <div class="toolbar" style="margin-top:12px">
+      <button class="btn-ghost" onclick="inspectBytecode()">🔬 Inspect raw bytecode</button>
+    </div>
+    <div class="hint">The inspector reads every function this contract exposes straight from its on-chain bytecode — works even for contracts nobody has verified anywhere.</div>
+    <div id="v-out"></div>
+    <div class="small-note"><b>What "verified" means:</b> the developer published the original Solidity source to <a href="https://sourcify.dev" target="_blank" rel="noopener">Sourcify</a>, the open source repository, and Sourcify recompiled it and confirmed it produces the exact bytecode deployed here. An <b>exact match</b> means even the metadata lines up; a <b>partial match</b> means the runtime code matches but metadata (like comments) may differ. Not being on Sourcify isn't proof of anything bad — many safe contracts are only verified elsewhere.</div>`;
+  showSourcifyVerdict(cur.addr);
+}
+async function showSourcifyVerdict(addr){
+  const box = $('v-status'); if(!box) return;
+  let st;
+  try{ st = await sourcifyStatus(addr); }catch(e){ st = undefined; }
+  const repoLink = `https://repo.sourcify.dev/369/${addr}`;
+  if(st === 'full'){
+    box.innerHTML = `<div class="okbox"><div style="font-family:var(--disp);font-size:15px;margin-bottom:6px">✓ VERIFIED ON SOURCIFY — EXACT MATCH</div>
+      The source published to Sourcify recompiles to <i>exactly</i> the bytecode deployed at ${short(addr,8)}, metadata included. This is the strongest verification Sourcify gives.
+      <div style="margin-top:10px"><a href="${repoLink}" target="_blank" rel="noopener">View full source &amp; files on Sourcify ↗</a></div></div>`;
+  } else if(st === 'partial'){
+    box.innerHTML = `<div class="warnbox"><div style="font-family:var(--disp);font-size:15px;margin-bottom:6px">✓ VERIFIED ON SOURCIFY — PARTIAL MATCH</div>
+      The deployed runtime bytecode matches the published source, but the metadata differs slightly (often just comments, variable names, or a different source path). The logic is verified; the packaging isn't identical.
+      <div style="margin-top:10px"><a href="${repoLink}" target="_blank" rel="noopener">View full source &amp; files on Sourcify ↗</a></div></div>`;
+  } else if(st === undefined){
+    box.innerHTML = `<div class="errbox">Couldn't reach Sourcify right now. <a onclick="showSourcifyVerdict('${addr}')">Retry</a> — or check directly at <a href="${repoLink}" target="_blank" rel="noopener">Sourcify ↗</a>. Registry checks: ${esc((window._regNotes||[]).join(' · ')||'—')}</div>`;
+  } else {
+    box.innerHTML = `<div class="warnbox"><div style="font-family:var(--disp);font-size:15px;margin-bottom:6px">NOT VERIFIED ON SOURCIFY</div>
+      No published source for this contract on Sourcify. That doesn't mean it's unsafe — it may be verified on a block explorer instead, or simply never submitted to Sourcify. Use the bytecode inspector below to see what it can actually do, and run <b>Pulse Check</b>.
+      <div style="margin-top:10px"><a href="https://sourcify.dev/#/lookup/${addr}" target="_blank" rel="noopener">Double-check on Sourcify ↗</a></div></div>`;
+  }
+}
+/* ---- bytecode inspector: what can this contract DO? ---- */
+const RISK_NAMES = {'40c10f19':'can mint new supply','8456cb59':'can pause','f9f92be4':'can blacklist',
+  '3f4ba83a':'can unpause','f2fde38b':'ownership transferable','3659cfe6':'UPGRADEABLE (upgradeTo)',
+  '4f1ef286':'UPGRADEABLE (upgradeToAndCall)','8f283970':'admin changeable'};
+async function inspectBytecode(){
+  const out = $('v-out') || $('d-body');
+  out.innerHTML = '<div class="loading"><span class="spin"></span><br>Extracting function selectors from bytecode…</div>';
+  const code = cur.code.toLowerCase().replace(/^0x/,'');
+  const sels = [...new Set([...code.matchAll(/63([0-9a-f]{8})/g)].map(m=>m[1]))].filter(s=>!/^(f{8}|0{8})$/.test(s));
+  let names = {};
+  try{
+    for(let i=0;i<sels.length;i+=50){
+      const q = sels.slice(i,i+50).map(s=>'0x'+s).join(',');
+      const r = await fetch('https://api.openchain.xyz/signature-database/v1/lookup?filter=true&function='+q);
+      const j = await r.json();
+      Object.assign(names, (j.result && j.result.function) || {});
+    }
+  }catch(e){}
+  const discovered = [];
+  const rows = sels.map(s=>{
+    const hit = names['0x'+s];
+    const sig = hit && hit[0] && hit[0].name;
+    if(sig) discovered.push('function '+sig);
+    const risk = RISK_NAMES[s];
+    return {s, sig, risk};
+  }).sort((a,b)=> (b.risk?1:0)-(a.risk?1:0) || (b.sig?1:0)-(a.sig?1:0));
+  window._discovered = discovered;
+  out.innerHTML = `
+    <div class="okbox" style="margin-top:0">Found <b>${sels.length}</b> function selectors baked into the dispatcher of this bytecode — this is the contract's actual public surface, read straight from the chain. Names come from the public signature dictionary (openchain.xyz); unnamed ones are still real, just unlabeled.</div>
+    ${discovered.length ? `<div class="toolbar"><button class="btn-grad" onclick="useDiscoveredAbi()">Load ${discovered.length} named functions into Read/Write</button></div>` : ''}
+    ${rows.map(r=>`<div class="selrow"><span style="color:var(--faint)">0x${r.s}</span>
+      <span class="${r.sig?'sig':'unk'}">${r.sig?esc(r.sig):'unknown signature'}</span>
+      ${r.risk?`<span class="badge ${r.risk.includes('UPGRADE')?'fail':'warn'}">${r.risk}</span>`:''}</div>`).join('')}
+    <div class="small-note">Heuristic: selectors are pulled from PUSH4 opcodes, which can very rarely include non-function constants. Return types of discovered functions are unknown — reads will show raw + best-guess decoding. Absence of a risky selector here is <i>not</i> proof of safety (custom names evade dictionaries) — combine with Pulse Check and, ideally, verified source.</div>`;
+}
+function useDiscoveredAbi(){
+  abiCache[cur.addr] = JSON.stringify(window._discovered || []);
+  openTab('read');
+  setTimeout(()=>renderFns(false), 50);
+}
+async function autoAbi(write){
+  try{
+    const meta = (fetchedMeta && fetchedMeta.addr === cur.addr) ? fetchedMeta : await fetchVerifiedMeta(cur.addr);
+    if(meta) fetchedMeta = meta;
+    if(meta && meta.abi){
+      abiCache[cur.addr] = JSON.stringify(meta.abi);
+      openTab(write?'write':'read');
+      setTimeout(()=>renderFns(!!write), 50);
+    } else {
+      alert('No published ABI found for this contract — use the bytecode inspector in the Verify tab instead.');
+    }
+  }catch(e){ alert('Registry unreachable: '+e.message); }
+}
+
+/* ================= read / write (ethers, lazy) ================= */
+let ethersP = null;
+function loadEthers(){
+  return ethersP ??= new Promise((ok,er)=>{
+    if(window.ethers) return ok(window.ethers);
+    const s = document.createElement('script');
+    s.src = 'https://cdnjs.cloudflare.com/ajax/libs/ethers/6.13.2/ethers.umd.min.js';
+    s.onload = ()=>ok(window.ethers); s.onerror = ()=>er(new Error('Failed to load ethers.js from CDN'));
+    document.head.appendChild(s);
+  });
+}
+let abiCache = {};
+async function renderAbiPanel(write){
+  const key = write?'write':'read';
+  $('d-body').innerHTML = `
+    <div class="field"><label>Contract ABI (JSON, or human-readable ethers format)</label>
+      <textarea id="abi-in" spellcheck="false" placeholder='[{"inputs":[],"name":"totalSupply", …}]  — Remix: compile → copy ABI'>${esc(abiCache[cur.addr]||(cur.token?ERC20_ABI:''))}</textarea></div>
+    <div class="toolbar" style="margin:0 0 12px">
+      <button class="btn-ghost" onclick="autoAbi(${write})">⬇ Fetch verified ABI</button>
+      ${cur.token?`<button class="btn-ghost" onclick="$('abi-in').value=ERC20_ABI;renderFns(${write})">Use ERC-20 ABI</button>`:''}
+      <button class="btn-grad" onclick="renderFns(${write})">Load ${write?'write':'read'} functions</button>
+    </div>
+    <div id="fns"></div>
+    ${write?'<div class="small-note">Write calls are sent through your connected wallet (browser extension or WalletConnect) — you sign, you pay gas, this page never touches keys.</div>':''}`;
+}
+async function renderFns(write){
+  const box = $('fns');
+  box.innerHTML = '<div class="loading"><span class="spin"></span></div>';
+  try{
+    const ethers = await loadEthers();
+    abiCache[cur.addr] = $('abi-in').value;
+    const iface = new ethers.Interface(JSON.parse($('abi-in').value));
+    const fns = iface.fragments.filter(f=>f.type==='function' &&
+      (write ? !['view','pure'].includes(f.stateMutability) : ['view','pure'].includes(f.stateMutability)));
+    if(!fns.length) return box.innerHTML = `<div class="hint">No ${write?'write':'read'} functions in this ABI.</div>`;
+    box.innerHTML = fns.map((f,i)=>`
+      <div class="fn-row" id="fn-${i}">
+        <div class="fn-head" onclick="this.parentElement.classList.toggle('open')">${esc(f.name)}(${f.inputs.map(x=>esc(x.type)).join(', ')})${write&&f.payable?' <span class="badge warn">payable</span>':''}</div>
+        <div class="fn-body">
+          ${f.inputs.map((x,k)=>`<div class="field"><label>${esc(x.name||'arg'+k)} · ${esc(x.type)}</label><input id="fn-${i}-a${k}"></div>`).join('')}
+          ${write&&f.payable?`<div class="field"><label>PLS value to send</label><input id="fn-${i}-val" value="0"></div>`:''}
+          <button class="btn-ghost" onclick="execFn(${i},${write})">${write?'Send transaction':'Query'}</button>
+          <div class="fn-out" id="fn-${i}-out"></div>
+        </div>
+      </div>`).join('');
+    window._fns = fns; window._iface = iface;
+  }catch(e){ box.innerHTML = `<div class="errbox">ABI parse failed: ${esc(e.message)}</div>`; }
+}
+async function execFn(i, write){
+  const outEl = $(`fn-${i}-out`);
+  outEl.textContent = '…';
+  try{
+    const ethers = await loadEthers();
+    const f = window._fns[i];
+    const args = f.inputs.map((x,k)=>{
+      let v = $(`fn-${i}-a${k}`).value.trim();
+      if(x.type.endsWith(']')) v = JSON.parse(v);
+      else if(x.type==='bool') v = (v==='true'||v==='1');
+      return v;
+    });
+    if(!write){
+      const data = window._iface.encodeFunctionData(f, args);
+      const raw = await rpc('eth_call', [{to:cur.addr, data}, 'latest']);
+      let shown = null;
+      try{ const dec = window._iface.decodeFunctionResult(f, raw); if(dec.length) shown = formatResult(dec.length===1?dec[0]:dec); }catch(e){}
+      outEl.textContent = shown ?? ('raw: ' + raw + hexGuess(raw));
+    }else{
+      await ensureChain();
+      const provider = new ethers.BrowserProvider(activeProvider);
+      const signer = await provider.getSigner();
+      const c = new ethers.Contract(cur.addr, window._iface, signer);
+      const overrides = {};
+      const valEl = $(`fn-${i}-val`);
+      if(valEl && valEl.value && valEl.value!=='0') overrides.value = ethers.parseEther(valEl.value);
+      const tx = await c[f.name](...args, overrides);
+      outEl.innerHTML = `Sent: ${linkTx(tx.hash)} — waiting…`;
+      const rc = await tx.wait();
+      outEl.innerHTML = `${rc.status===1?'✔ Confirmed':'✖ Reverted'} in block ${linkBlk(rc.blockNumber)} · ${linkTx(tx.hash)}`;
+    }
+  }catch(e){ outEl.textContent = '✖ ' + (e.shortMessage || e.message); }
+}
+function formatResult(r){
+  const fmt = v => typeof v==='bigint' ? v.toString() : Array.isArray(v) ? '['+v.map(fmt).join(', ')+']' : String(v);
+  return fmt(r);
+}
+
+/* ================= wallet (injected + WalletConnect) ================= */
+const WC_PROJECT_ID = 'dfa53b26ebcaa8d274b2a7f6ddc66cb0';
+let walletAddr = null, activeProvider = null, wcProvider = null;
+
+function connectWallet(){ /* header button: menu, or open own address once connected */
+  const old = document.getElementById('wmenu');
+  if(old) return old.remove();
+  const m = document.createElement('div');
+  m.id = 'wmenu'; m.className = 'wmenu';
+  m.innerHTML = walletAddr ? `
+    <button onclick="document.getElementById('wmenu').remove();loadAddress(walletAddr)">👁 View my address</button>
+    <button class="dis" onclick="disconnectWallet()">✕ Disconnect</button>` : `
+    <button onclick="connectInjected()">🦊 Browser wallet (MetaMask etc.)</button>
+    <button onclick="connectWC()">🔗 WalletConnect — mobile / QR</button>`;
+  document.querySelector('.net').appendChild(m);
+  setTimeout(()=>document.addEventListener('click', function h(e){
+    if(!m.contains(e.target) && e.target.id!=='walletbtn'){ m.remove(); document.removeEventListener('click',h); }
+  }),0);
+}
+async function afterConnect(a){
+  walletAddr = a;
+  const btn = $('walletbtn');
+  btn.classList.add('on');
+  try{ const bal = await rpc('eth_getBalance',[a,'latest']); btn.textContent = short(a,4)+' · '+fmtPLS(hexToBig(bal),2)+' PLS'; }
+  catch(e){ btn.textContent = short(a,4); }
+  document.getElementById('wmenu')?.remove();
+}
+function disconnectWallet(){
+  try{ wcProvider?.disconnect?.(); }catch(e){}
+  walletAddr = null; activeProvider = null;
+  const btn = $('walletbtn'); btn.classList.remove('on'); btn.textContent = 'Connect wallet';
+  document.getElementById('wmenu')?.remove();
+}
+async function connectInjected(){
+  if(!window.ethereum) return alert('No browser wallet detected. Use the WalletConnect option instead, or install MetaMask.');
+  try{
+    const [a] = await window.ethereum.request({method:'eth_requestAccounts'});
+    activeProvider = window.ethereum;
+    afterConnect(a);
+    window.ethereum.on?.('accountsChanged', acc => acc.length ? afterConnect(acc[0]) : disconnectWallet());
+  }catch(e){}
+}
+async function connectWC(){
+  const btn = $('walletbtn'); const prev = btn.textContent; btn.textContent = 'Loading…';
+  try{
+    if(!wcProvider){
+      const { EthereumProvider } = await import('https://esm.sh/@walletconnect/ethereum-provider@2.21.1');
+      wcProvider = await EthereumProvider.init({
+        projectId: WC_PROJECT_ID,
+        chains: [369],
+        showQrModal: true,
+        rpcMap: {369: RPC},
+        metadata: {
+          name: 'PulseStrategy — PulseVerify',
+          description: 'Trustless PulseChain explorer — verify it yourself',
+          url: (location.origin && location.origin!=='null') ? location.origin : 'https://pulsestrategy369.com',
+          icons: []
+        }
+      });
+      wcProvider.on('disconnect', disconnectWallet);
+      wcProvider.on('accountsChanged', acc => acc.length ? afterConnect(acc[0]) : disconnectWallet());
+    }
+    await wcProvider.connect();
+    activeProvider = wcProvider;
+    afterConnect(wcProvider.accounts[0]);
+  }catch(e){
+    btn.textContent = walletAddr ? prev : 'Connect wallet';
+    if(!/reject|cancel|closed/i.test(String(e && e.message))) alert('WalletConnect failed: '+(e&&e.message)+'\n\nNote: WalletConnect needs the page served over https (GitHub Pages is fine) — it cannot run from a file:// open.');
+  }
+}
+async function ensureChain(){
+  if(!activeProvider) throw new Error('Connect a wallet first (top right) — browser extension or WalletConnect.');
+  const cid = await activeProvider.request({method:'eth_chainId'});
+  if(parseInt(cid,16) !== 369){
+    try{ await activeProvider.request({method:'wallet_switchEthereumChain', params:[{chainId:'0x171'}]}); }
+    catch(e){ await addChainTo(activeProvider); }
+  }
+}
+async function addChain(){
+  const p = activeProvider || window.ethereum;
+  if(!p) return alert('Connect a wallet first (top right) — the browser-extension or WalletConnect option both work — then tap this again.');
+  await addChainTo(p);
+}
+async function addChainTo(p){
+  await p.request({method:'wallet_addEthereumChain', params:[{
+    chainId:'0x171', chainName:'PulseChain',
+    nativeCurrency:{name:'Pulse',symbol:'PLS',decimals:18},
+    rpcUrls:['https://rpc.pulsechain.com'],
+    blockExplorerUrls:['https://pulsestrategy369.com']
+  }]});
+}
+
+/* ================= tools: converter, decoder, gas chart ================= */
+function showTools(){
+  cur = null;
+  setDetail('Tools', `
+    <div class="sub-h" style="margin-top:0">Unit converter</div>
+    <div class="frow">
+      <div class="field"><label>Wei</label><input id="u-wei" oninput="conv('wei')"></div>
+      <div class="field"><label>Gwei (beats)</label><input id="u-gwei" oninput="conv('gwei')"></div>
+      <div class="field"><label>PLS</label><input id="u-pls" oninput="conv('pls')"></div>
+    </div>
+    <div class="sub-h">Calldata decoder</div>
+    <div class="field"><label>Calldata (0x…)</label><input id="dec-data" placeholder="0xa9059cbb000000…"></div>
+    <div class="field"><label>ABI (optional — decodes names &amp; args if given)</label><textarea id="dec-abi" style="min-height:70px"></textarea></div>
+    <button class="btn-ghost" onclick="decodeCalldata()">Decode</button>
+    <div id="dec-out"></div>
+    <div class="sub-h">Base fee — last ${recentBlocks.length} blocks</div>
+    <canvas class="chart" id="gaschart" width="800" height="240"></canvas>
+    <div class="sub-h">Tx watcher</div>
+    <div class="frow"><div class="field"><input id="watch-hash" placeholder="0x… pending tx hash"></div>
+    <button class="btn-ghost" onclick="watchTx()">Watch</button></div>
+    <div id="watch-out"></div>
+    <div class="sub-h">Sign / verify a message</div>
+    <div class="field"><label>Message</label><textarea id="sig-msg" style="min-height:60px" placeholder="I control this address — signed via PulseVerify"></textarea></div>
+    <div class="toolbar" style="margin:0 0 10px"><button class="btn-ghost" onclick="signMsg()">✍ Sign with wallet</button>
+    <button class="btn-ghost" onclick="verifyMsg()">✔ Verify signature</button></div>
+    <div class="field"><label>Signature</label><input id="sig-sig" placeholder="0x…"></div>
+    <div id="sig-out"></div>
+    <div class="small-note">Signing proves you control an address without any transaction or gas — useful for OTC deals, airdrop claims, and support requests. Verify recovers the signer address from any message + signature pair.</div>`);
+  drawGas();
+}
+function conv(src){
+  try{
+    let wei;
+    if(src==='wei') wei = BigInt($('u-wei').value.replace(/[,\s]/g,'')||'0');
+    if(src==='gwei') wei = BigInt(Math.round(parseFloat($('u-gwei').value||'0')*1e9));
+    if(src==='pls'){
+      const [w,f=''] = ($('u-pls').value||'0').replace(/,/g,'').split('.');
+      wei = BigInt(w||'0')*10n**18n + BigInt((f+'0'.repeat(18)).slice(0,18));
+    }
+    if(src!=='wei') $('u-wei').value = wei.toString();
+    if(src!=='gwei') $('u-gwei').value = (Number(wei)/1e9).toString();
+    if(src!=='pls') $('u-pls').value = fmtUnits(wei,18,18).replace(/,/g,'');
+  }catch(e){}
+}
+async function openDecoder(data){
+  showTools();
+  $('dec-data').value = data;
+  decodeCalldata();
+}
+async function decodeCalldata(){
+  const data = $('dec-data').value.trim(), abi = $('dec-abi').value.trim();
+  const out = $('dec-out');
+  if(!/^0x[0-9a-fA-F]*$/.test(data) || data.length<10) return out.innerHTML='<div class="errbox">Paste hex calldata starting with 0x (at least a 4-byte selector).</div>';
+  let html = `<div class="kv" style="margin-top:10px"><div class="k">Selector</div><div class="v">${esc(data.slice(0,10))}</div>`;
+  if(abi){
+    try{
+      const ethers = await loadEthers();
+      const iface = new ethers.Interface(JSON.parse(abi));
+      const parsed = iface.parseTransaction({data});
+      if(parsed){
+        html += `<div class="k">Function</div><div class="v">${esc(parsed.signature)}</div>`;
+        parsed.fragment.inputs.forEach((inp,i)=>{
+          html += `<div class="k">${esc(inp.name||'arg'+i)}</div><div class="v">${esc(formatResult(parsed.args[i]))}</div>`;
+        });
+      } else html += `<div class="k">Match</div><div class="v">Selector not found in that ABI</div>`;
+    }catch(e){ html += `<div class="k">ABI error</div><div class="v">${esc(e.message)}</div>`; }
+  }else{
+    const body = data.slice(10);
+    for(let i=0;i<body.length && i<64*12;i+=64)
+      html += `<div class="k">word ${i/64}</div><div class="v">0x${esc(body.slice(i,i+64))}</div>`;
+  }
+  out.innerHTML = html + '</div>';
+}
+function drawGas(){
+  const cv = $('gaschart'); if(!cv) return;
+  const ctx = cv.getContext('2d');
+  ctx.clearRect(0,0,cv.width,cv.height);
+  const pts = recentBlocks.filter(b=>b.base>0);
+  if(pts.length<2){ ctx.fillStyle='#6b5f8a'; ctx.font='14px sans-serif'; ctx.fillText('Collecting blocks… reopen Tools in a minute.', 20, 40); return; }
+  const max = Math.max(...pts.map(p=>p.base))*1.15, min = Math.min(...pts.map(p=>p.base))*0.85;
+  const X = i => 10 + i*(cv.width-20)/(pts.length-1);
+  const Y = v => cv.height-14 - (v-min)/(max-min||1)*(cv.height-28);
+  const grad = ctx.createLinearGradient(0,0,cv.width,0);
+  grad.addColorStop(0,'#7BA7E8'); grad.addColorStop(.55,'#4E8FD9'); grad.addColorStop(1,'#7FB3E8');
+  ctx.strokeStyle = grad; ctx.lineWidth = 2; ctx.beginPath();
+  pts.forEach((p,i)=> i?ctx.lineTo(X(i),Y(p.base)):ctx.moveTo(X(i),Y(p.base)));
+  ctx.stroke();
+  ctx.fillStyle='#9a8fb8'; ctx.font='12px monospace';
+  ctx.fillText(max.toFixed(0)+' gwei', 12, 14);
+  ctx.fillText(min.toFixed(0)+' gwei', 12, cv.height-4);
+}
+
+/* ================= deep links & sharing ================= */
+function setHash(v){ try{ history.replaceState(null, '', '#'+v); }catch(e){} }
+function shareLink(ev){
+  navigator.clipboard.writeText(location.href);
+  const b = ev && ev.target;
+  if(b){ const t = b.textContent; b.textContent = '✓ Copied'; setTimeout(()=>b.textContent = t, 1200); }
+}
+
+/* ================= DEX price engine (PulseX reserves, pure eth_call) =================
+   These are SPOT prices computed from AMM reserves — thin pairs distort them.
+   Editable token/stable addresses below; wrong entries fail gracefully. */
+const STABLES = [
+  {sym:'DAI',  addr:'0xefD766cCb38EaF1dfd701853BFCe31359239F305', dec:18},
+  {sym:'USDC', addr:'0x15D38573d2feeb82e7ad5187aB8c1D52810B1f07', dec:6}
+];
+const TOKEN_LIST = [
+  {sym:'WPLS',        addr: WPLS},
+  {sym:'PLSX',        addr:'0x95B303987A60C71504D99Aa1b13B4DA07b0790ab'},
+  {sym:'HEX',         addr:'0x2b591e99afE9f32eAA6214f7B7629768c40Eeb39'},
+  {sym:'INC',         addr:'0x2fa878Ab3F87CC1C9737Fc071108F904c0B0C95d'},
+  {sym:'vPLS',        addr:'0x79BB3A0Ee435f957ce4f54eE8c3CFADc7278da0C'},
+  {sym:'PLSstr',      addr:'0x71ff5C9C9938E39E819246ef939FFb5Fd228922d'},
+  {sym:'HEXstr-3000', addr:'0xd992b901474715accB07C5e933EDb8992715b4c2'},
+  {sym:'DAI',         addr:'0xefD766cCb38EaF1dfd701853BFCe31359239F305'},
+  {sym:'USDC',        addr:'0x15D38573d2feeb82e7ad5187aB8c1D52810B1f07'},
+  {sym:'USDT',        addr:'0x0Cb6F5a34ad42ec934882A05265A7d5F59b51A2f'},
+  {sym:'WETH',        addr:'0x02DcdD04e3F455D838cd1249292C58f3B79e3C3C'},
+  {sym:'HDRN',        addr:'0x3819f64f282bf135d62168C1e513280dAF905e06'},
+];
+async function pairFor(a,b){
+  for(const f of FACTORIES){
+    try{
+      const p = await call(f.addr, '0xe6a43905'+padA(a)+padA(b));
+      if(p && hexToBig(p)!==0n) return {pair: wordAddr(p), dex: f.name};
+    }catch(e){}
+  }
+  return null;
+}
+async function reservesOf(pair){
+  const [resHex, t0Hex] = await Promise.all([call(pair,'0x0902f1ac'), call(pair,'0x0dfe1681')]);
+  const s = resHex.replace(/^0x/,'');
+  return {r0: hexToBig('0x'+s.slice(0,64)), r1: hexToBig('0x'+s.slice(64,128)), t0: wordAddr(t0Hex)};
+}
+let _plsUsd = null, _plsUsdAt = 0;
+async function plsUsd(){
+  if(_plsUsd && Date.now()-_plsUsdAt < 60000) return _plsUsd;
+  for(const st of STABLES){
+    try{
+      const pf = await pairFor(WPLS, st.addr); if(!pf) continue;
+      const {r0,r1,t0} = await reservesOf(pf.pair);
+      const wplsIs0 = t0 === WPLS.toLowerCase();
+      const wRes = Number(wplsIs0?r0:r1)/1e18, sRes = Number(wplsIs0?r1:r0)/10**st.dec;
+      if(wRes>0 && sRes>0){ _plsUsd = sRes/wRes; _plsUsdAt = Date.now(); return _plsUsd; }
+    }catch(e){}
+  }
+  return null;
+}
+const _priceCache = new Map();
+/* Tokens that themselves have deep WPLS pools, usable as routing hops for
+   anything not paired directly against WPLS — e.g. a HEXstr/HEX pool. */
+const PRICE_BRIDGES = [
+  {sym:'HEX', addr:'0x2b591e99afE9f32eAA6214f7B7629768c40Eeb39', dec:8},
+  {sym:'DAI', addr:'0xefD766cCb38EaF1dfd701853BFCe31359239F305', dec:18}
+];
+async function tokenPriceWPLS(addr, dec, depth){
+  addr = addr.toLowerCase();
+  if(addr === WPLS.toLowerCase()) return {inPls:1, dex:'', liqPls:null};
+  const c = _priceCache.get(addr);
+  if(c && Date.now()-c.at < 60000) return c.v;
+  let v = null;
+  const pf = await pairFor(addr, WPLS);
+  if(pf){
+    const {r0,r1,t0} = await reservesOf(pf.pair);
+    const tIs0 = t0 === addr;
+    const tRes = Number(tIs0?r0:r1)/10**dec, wRes = Number(tIs0?r1:r0)/1e18;
+    if(tRes>0 && wRes>0) v = {inPls: wRes/tRes, dex: pf.dex, liqPls: wRes};
+  }
+  if(!v && !depth){                       /* no WPLS pool: hop via HEX or DAI */
+    for(const b of PRICE_BRIDGES){
+      if(b.addr.toLowerCase() === addr) continue;
+      const bp = await pairFor(addr, b.addr);
+      if(!bp) continue;
+      try{
+        const {r0,r1,t0} = await reservesOf(bp.pair);
+        const tIs0 = t0 === addr;
+        const tRes = Number(tIs0?r0:r1)/10**dec, bRes = Number(tIs0?r1:r0)/10**b.dec;
+        if(!(tRes>0 && bRes>0)) continue;
+        const bridge = await tokenPriceWPLS(b.addr, b.dec, 1);   /* depth-capped */
+        if(bridge && bridge.inPls > 0){
+          v = {inPls: (bRes/tRes) * bridge.inPls, dex: bp.dex + ' via ' + b.sym,
+               liqPls: bRes * bridge.inPls};
+          break;
+        }
+      }catch(e){}
+    }
+  }
+  _priceCache.set(addr, {v, at: Date.now()});
+  return v;
+}
+const fmtUsd = n => n>=0.01 ? '$'+n.toLocaleString('en-US',{maximumFractionDigits:2})
+  : '$'+n.toLocaleString('en-US',{maximumSignificantDigits:3});
+const HEX_ADDR = '0x2b591e99afE9f32eAA6214f7B7629768c40Eeb39';
+async function refreshHex(){
+  try{
+    const [p, u] = await Promise.all([tokenPriceWPLS(HEX_ADDR, 8), plsUsd()]);
+    const el = $('s-hex'); if(!el) return;
+    if(p && u){
+      const usd = p.inPls * u;
+      el.innerHTML = fmtUsd(usd) + ' <span class="unit">PulseX spot</span>';
+      change24(HEX_ADDR).then(d => { if(d !== null && $('s-hex')) $('s-hex').innerHTML = fmtUsd(usd) + deltaHtml(d); });
+    }
+    else if(p) el.innerHTML = p.inPls.toLocaleString('en-US',{maximumSignificantDigits:4}) + ' <span class="unit">PLS</span>';
+    else el.textContent = '—';
+  }catch(e){}
+}
+/* 24h price change.
+   The prices shown are computed from PulseX reserves (on-chain, trustless).
+   A % change needs yesterday's price, which no plain RPC can serve, so that
+   one number is read from DexScreener's public API. If it's unreachable the
+   delta is simply omitted — the on-chain price never depends on it. */
+const _d24 = new Map();
+async function change24(addr){
+  const k = addr.toLowerCase();
+  if(_d24.has(k) && Date.now() - _d24.get(k).at < 300000) return _d24.get(k).v;
+  let v = null;
+  try{
+    const r = await fetch('https://api.dexscreener.com/latest/dex/tokens/' + addr);
+    const j = await r.json();
+    const pairs = (j.pairs || []).filter(p => (p.chainId || '').toLowerCase() === 'pulsechain');
+    pairs.sort((a,b) => ((b.liquidity && b.liquidity.usd) || 0) - ((a.liquidity && a.liquidity.usd) || 0));
+    const top = pairs[0];
+    if(top && top.priceChange && top.priceChange.h24 !== undefined && top.priceChange.h24 !== null)
+      v = Number(top.priceChange.h24);
+  }catch(e){}
+  if(!isFinite(v)) v = null;
+  _d24.set(k, {v, at: Date.now()});
+  return v;
+}
+function deltaHtml(pct){
+  if(pct === null || pct === undefined) return '';
+  const up = pct >= 0;
+  return ' <span class="unit" style="color:' + (up ? 'var(--teal)' : 'var(--red)') + '">'
+       + (up ? '\u25b2' : '\u25bc') + ' ' + Math.abs(pct).toFixed(2) + '% 24h</span>';
+}
+async function refreshPls(){
+  try{
+    const u = await plsUsd();
+    const el = $('s-pls');
+    if(el && u){
+      el.innerHTML = fmtUsd(u) + ' <span class="unit">PulseX spot</span>';
+      change24(WPLS).then(d => { if(d !== null && $('s-pls')) $('s-pls').innerHTML = fmtUsd(u) + deltaHtml(d); });
+    } else if(el) el.innerHTML = '—';
+  }catch(e){}
+}
+async function fillTokenPrice(addr, dec){
+  const el = $('tok-price'); if(!el) return;
+  try{
+    const [p, u] = await Promise.all([tokenPriceWPLS(addr, dec), plsUsd()]);
+    if(!p){ el.textContent = 'no WPLS pair found on PulseX'; return; }
+    const usd = u ? ' · ' + fmtUsd(p.inPls*u) : '';
+    el.innerHTML = `${p.inPls.toLocaleString('en-US',{maximumSignificantDigits:6})} PLS${usd}
+      <span class="unit">· ${esc(p.dex)} spot${p.liqPls?' · ~'+Math.round(p.liqPls).toLocaleString('en-US')+' PLS liquidity':''}</span>`;
+  }catch(e){ el.textContent = '—'; }
+}
+
+/* ================= holdings: what tokens does this address hold? ================= */
+async function renderHoldings(){
+  const addr = cur.addr;
+  $('d-body').innerHTML = `
+    <div id="hold-rows"><div class="loading"><span class="spin"></span><br>Checking balances against known PulseChain tokens…</div></div>
+    <div class="toolbar"><button class="btn-ghost" id="disc-btn" onclick="discoverTokens()">🔎 Scan recent activity for more tokens</button></div>
+    <div class="small-note">Without an indexing database no explorer page can list every token an address has <i>ever</i> touched — so PulseVerify checks a curated list of major PulseChain tokens live via RPC, and the scan button discovers anything else the address moved in roughly the last day of blocks. USD values are PulseX spot estimates, not oracle prices.</div>`;
+  const u = await plsUsd().catch(()=>null);
+  let rows = '';
+  try{
+    const plsBal = hexToBig(await rpc('eth_getBalance',[addr,'latest']));
+    rows += holdRow('PLS', null, Number(plsBal)/1e18, u ? Number(plsBal)/1e18*u : null, 'native');
+  }catch(e){}
+  const checks = await Promise.all(TOKEN_LIST.map(async t=>{
+    try{
+      const [balHex, decHex] = await Promise.all([
+        call(t.addr, '0x70a08231'+padA(addr)),
+        call(t.addr, '0x313ce567')
+      ]);
+      const dec = hexToNum(decHex) || 18;
+      const bal = Number(hexToBig(balHex))/10**dec;
+      return bal > 0 ? {...t, dec, bal} : null;
+    }catch(e){ return null; }
+  }));
+  for(const t of checks.filter(Boolean)){
+    let usd = null;
+    try{ const p = await tokenPriceWPLS(t.addr, t.dec); if(p && u) usd = t.bal * p.inPls * u; }catch(e){}
+    rows += holdRow(t.sym, t.addr, t.bal, usd);
+  }
+  $('hold-rows').innerHTML = rows || '<div class="hint">No balances found among the known token list — try the activity scan below.</div>';
+}
+function holdRow(sym, addr, bal, usd, tag){
+  return `<div class="txrow">
+    <span>${addr?`<a onclick="loadAddress('${esc(addr)}')">${esc(sym)}</a>`:`<b>${esc(sym)}</b>`}${tag?` <span class="badge info">${tag}</span>`:''}</span>
+    <span class="val">${bal.toLocaleString('en-US',{maximumFractionDigits:4})}${usd!=null?' · '+fmtUsd(usd):''}</span></div>`;
+}
+async function discoverTokens(){
+  const btn = $('disc-btn'); btn.disabled = true; btn.textContent = 'Scanning logs…';
+  const addr = cur.addr;
+  const known = new Set(TOKEN_LIST.map(t=>t.addr.toLowerCase()));
+  const found = new Set();
+  try{
+    let range = 5000;
+    const topicAddr = '0x' + padA(addr);
+    const tryLogs = async (topics) => {
+      let r = range;
+      while(r >= 500){
+        try{ return await rpc('eth_getLogs', [{topics, fromBlock:'0x'+Math.max(0,lastBlockNum-r).toString(16), toBlock:'latest'}]); }
+        catch(e){ r = Math.floor(r/2); }
+      }
+      return [];
+    };
+    const [outs, ins] = await Promise.all([
+      tryLogs([TRANSFER_TOPIC, topicAddr]),
+      tryLogs([TRANSFER_TOPIC, null, topicAddr])
+    ]);
+    for(const l of [...outs, ...ins]){
+      const a = l.address.toLowerCase();
+      if(!known.has(a)) found.add(a);
+    }
+    const u = await plsUsd().catch(()=>null);
+    let added = 0;
+    for(const a of [...found].slice(0,20)){
+      try{
+        const [symHex, decHex, balHex] = await Promise.all([
+          call(a,'0x95d89b41'), call(a,'0x313ce567'), call(a,'0x70a08231'+padA(addr))
+        ]);
+        const bal = Number(hexToBig(balHex))/10**(hexToNum(decHex)||18);
+        if(bal <= 0) continue;
+        let usd = null;
+        try{ const p = await tokenPriceWPLS(a, hexToNum(decHex)||18); if(p && u) usd = bal*p.inPls*u; }catch(e){}
+        $('hold-rows').insertAdjacentHTML('beforeend', holdRow(decodeAbiString(symHex)||short(a,4), a, bal, usd, 'discovered'));
+        added++;
+      }catch(e){}
+    }
+    btn.textContent = added ? `✓ Found ${added} more token${added>1?'s':''} in recent activity` : '✓ Scan done — nothing new in the recent window';
+  }catch(e){ btn.textContent = 'Scan failed — RPC log limits'; btn.disabled = false; }
+}
+
+/* ================= PulseStrategy live vault stats =================
+   Add each vault here as it deploys — the promo card picks it up automatically.
+   Only the vault address is needed: asset, symbol, decimals are read from chain. */
+const PS_VAULTS = [
+  {symbol:'PLSstr',      vault:'0x71ff5C9C9938E39E819246ef939FFb5Fd228922d'},
+  {symbol:'HEXstr-3000', vault:'0xd992b901474715accB07C5e933EDb8992715b4c2'},
+  {symbol:'HEXstr-4000', vault:'0x26E1C36F8fcd4fFD6cBf047E91be8E5E8829f61e'},
+  {symbol:'HEXstr-5000', vault:'0xa82d3b19929f412A72B5711d97b302d40B14f4F4'},
+  {symbol:'HEXstr-6000', vault:'0x369206C9566F9982Ba14fd86897D512b6dBC6602'},
+  {symbol:'HEXstr-7000', vault:'0x9DeE9ee99228931AE9bF579407ff3608aFe231D3'},
+  /* {symbol:'HEXstr-8000', vault:'0x'}, */
+];
+async function loadVaultStats(){
+  const el = $('ps-live'); if(!el) return;
+  if(!PS_VAULTS.length){
+    el.innerHTML = '<span class="chip"><b>PulseStrategy</b> launches soon — live backing-per-token, read straight from the vault contracts, will appear here automatically.</span>';
+    return;
+  }
+  el.innerHTML = PS_VAULTS.map((v,i)=>`<span class="chip" id="psv-${i}"><b>${esc(v.symbol)}</b> · loading…</span>`).join('');
+  PS_VAULTS.forEach(async (v,i)=>{
+    const chip = $('psv-'+i); if(!chip) return;
+    try{
+      const [bptHex, supHex, decHex, assetHex] = await Promise.all([
+        call(v.vault,'0x1521843e'),  /* backingPerToken() — always 1e18-scaled */
+        call(v.vault,'0x18160ddd'),  /* totalSupply() */
+        call(v.vault,'0x313ce567'),  /* decimals() — mirrors the asset */
+        call(v.vault,'0x38d52e0f')   /* asset() */
+      ]);
+      let aSym = '';
+      try{ const s = await call(wordAddr(assetHex),'0x95d89b41'); aSym = decodeAbiString(s)||''; }catch(e){}
+      const dec = hexToNum(decHex);
+      chip.innerHTML = `<b>${esc(v.symbol)}</b> · backing ${fmtUnits(hexToBig(bptHex),18,6)} ${esc(aSym)}/token · ${fmtUnits(hexToBig(supHex),dec,2)} minted · <span class="psprice"></span><a onclick="loadAddress('${v.vault}')">verify it yourself ↗</a>`;
+      /* market price, from PulseX reserves — appears only once a pool exists */
+      (async () => {
+        try{
+          const [p, u] = await Promise.all([tokenPriceWPLS(v.vault, dec), plsUsd()]);
+          if(!p || !u) return;
+          const slot = chip.querySelector('.psprice'); if(!slot) return;
+          const d = await change24(v.vault);
+          slot.innerHTML = fmtUsd(p.inPls * u) + deltaHtml(d) + ' · ';
+        }catch(e){}
+      })();
+    }catch(e){ chip.innerHTML = `<b>${esc(v.symbol)}</b> · deploying soon`; }
+  });
+}
+
+/* ================= tx watcher ================= */
+let watchTimer = null;
+async function watchTx(){
+  const hsh = $('watch-hash').value.trim(), out = $('watch-out');
+  if(!/^0x[0-9a-fA-F]{64}$/.test(hsh)) return out.innerHTML = '<div class="errbox">Paste a valid 66-character tx hash.</div>';
+  clearInterval(watchTimer);
+  try{ if(window.Notification && Notification.permission==='default') Notification.requestPermission(); }catch(e){}
+  out.innerHTML = '<div class="warnbox">Watching '+short(hsh,6)+' — checking every 6 seconds. Keep this page open; you\'ll get a browser notification if allowed.</div>';
+  const check = async ()=>{
+    try{
+      const r = await rpc('eth_getTransactionReceipt',[hsh]);
+      if(r){
+        clearInterval(watchTimer);
+        const okk = hexToNum(r.status)===1;
+        out.innerHTML = `<div class="${okk?'okbox':'errbox'}">${okk?'✔ Confirmed':'✖ Reverted'} in block ${linkBlk(hexToNum(r.blockNumber))} · ${linkTx(hsh)}</div>`;
+        try{ if(window.Notification && Notification.permission==='granted') new Notification('PulseVerify: transaction '+(okk?'confirmed ✔':'reverted ✖'), {body: short(hsh,8)}); }catch(e){}
+      }
+    }catch(e){}
+  };
+  watchTimer = setInterval(check, 6000); check();
+}
+
+/* ================= sign / verify message ================= */
+async function signMsg(){
+  const msg = $('sig-msg').value, out = $('sig-out');
+  if(!msg) return out.innerHTML = '<div class="errbox">Write a message first.</div>';
+  if(!activeProvider) return out.innerHTML = '<div class="errbox">Connect a wallet first (top right) — extension or WalletConnect.</div>';
+  try{
+    const ethers = await loadEthers();
+    const signer = await new ethers.BrowserProvider(activeProvider).getSigner();
+    const sig = await signer.signMessage(msg);
+    $('sig-sig').value = sig;
+    out.innerHTML = `<div class="okbox">Signed by ${short(await signer.getAddress(),6)}${copyBtn(sig)} — signature placed in the field above.</div>`;
+  }catch(e){ out.innerHTML = `<div class="errbox">${esc(e.shortMessage||e.message)}</div>`; }
+}
+async function verifyMsg(){
+  const msg = $('sig-msg').value, sig = $('sig-sig').value.trim(), out = $('sig-out');
+  if(!msg || !sig) return out.innerHTML = '<div class="errbox">Need both a message and a signature.</div>';
+  try{
+    const ethers = await loadEthers();
+    const who = ethers.verifyMessage(msg, sig);
+    out.innerHTML = `<div class="okbox">✔ Signature is valid. Signed by ${linkAddr(who)}</div>`;
+  }catch(e){ out.innerHTML = `<div class="errbox">Invalid signature: ${esc(e.shortMessage||e.message)}</div>`; }
+}
+
+/* ================= misc ================= */
+function hexGuess(hh){
+  if(!hh || hh === '0x') return '  (no data returned)';
+  const s = hh.replace(/^0x/,'');
+  let g = '';
+  if(s.length === 64){
+    try{ g += '\n≈ uint: ' + BigInt(hh).toString(); }catch(e){}
+    if(/^0{24}/.test(s)) g += '\n≈ address: 0x' + s.slice(-40);
+  }
+  const t = decodeAbiString(hh);
+  if(t && /^[\x20-\x7e]+$/.test(t)) g += '\n≈ string: ' + t;
+  return g;
+}
+
+/* ---- build tag + download-this-page (additive; fully fenced) ---- */
+try{
+  (function(){
+    var bt = document.getElementById('buildTag'); if(bt) bt.textContent = 'build ' + BUILD;
+    /* every vaults link on the page follows the single VAULTS_URL setting at the top of this file */
+    document.querySelectorAll('a.vaultlink').forEach(function(a){ a.href = VAULTS_URL; });
+    var dl = document.getElementById('dlLink'), hashEl = document.getElementById('fileHash');
+    var _isLocal = location.protocol === 'file:' ||
+      /^(localhost|127\.0\.0\.1|\[::1\])$/.test(location.hostname);
+    if(_isLocal && hashEl){
+      hashEl.parentElement.innerHTML = '<span style="color:var(--teal)">✓ You are running a local copy — no server trust required.</span>';
+      if(dl) dl.style.display='none';
+      return;
+    }
+    fetch(location.href, {cache:'no-store'}).then(function(res){ return res.arrayBuffer(); }).then(function(buf){
+      return crypto.subtle.digest('SHA-256', buf).then(function(digest){
+        var hex = Array.prototype.map.call(new Uint8Array(digest), function(b){ return b.toString(16).padStart(2,'0'); }).join('');
+        if(hashEl) hashEl.textContent = hex;
+        if(dl) dl.onclick = function(e){
+          e.preventDefault();
+          var a = document.createElement('a');
+          a.href = URL.createObjectURL(new Blob([buf], {type:'text/html'}));
+          a.download = 'pulseverify-v25.html';
+          a.click(); URL.revokeObjectURL(a.href);
+        };
+      });
+    }).catch(function(){ if(hashEl) hashEl.textContent = 'unavailable (fetch blocked in this view)'; });
+  })();
+}catch(e){}
+
+/* explicit globals for inline handlers (defensive for strict environments) */
+Object.assign(window,{$,rpc,renderEvents,renderApprovals,checkOneApproval,revokeApproval,loadBlock,loadTx,loadAddress,routeFromUrl,loadRecentTxs,openTab,showTools,addChain,connectWallet,connectInjected,connectWC,disconnectWallet,showSourcifyVerdict,inspectBytecode,useDiscoveredAbi,autoAbi,shareLink,fillSourcifyBadge,sourcifyStatus,renderHoldings,discoverTokens,refreshPls,refreshHex,watchTx,signMsg,verifyMsg,loadVaultStats,
+  tokBalance,decodeCalldata,openDecoder,execFn,renderFns,runSafety,conv,ERC20_ABI});
+</script>
+</body>
+</html>
