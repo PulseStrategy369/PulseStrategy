@@ -70,6 +70,9 @@ header{display:flex;justify-content:space-between;align-items:center;padding:20p
   width:100%;background:transparent;border:none;outline:none;color:var(--text);
   font-family:'IBM Plex Mono',monospace;font-size:16px;
 }
+.amt-row{display:flex;align-items:center;gap:10px}
+.amt-row input{flex:1 1 auto;min-width:88px;width:auto;background:transparent;border:none;outline:none;color:var(--text);font-family:'IBM Plex Mono';font-size:22px}
+.amt-row select,.amt-row select.paysel{flex:0 0 auto;width:auto;max-width:38%;}
 .assets{display:flex;flex-wrap:wrap;gap:8px}
 .apill{border:1px solid var(--line);background:var(--panel2);color:var(--mut);border-radius:99px;padding:8px 12px;cursor:pointer;font-family:'Michroma';font-size:11px}
 .apill.on{border-color:var(--pulse);color:var(--text);box-shadow:0 0 0 1px var(--pulse) inset}
@@ -93,8 +96,6 @@ header{display:flex;justify-content:space-between;align-items:center;padding:20p
 .tabs{display:flex;gap:6px;margin-bottom:16px}
 .tab{flex:1;font-family:'Michroma';font-size:12px;letter-spacing:.05em;padding:12px 0;border-radius:11px;border:1px solid transparent;background:transparent;color:var(--mut);cursor:pointer}
 .tab.on{background:var(--panel2);color:var(--text);border-color:var(--line)}
-.amt-row{display:flex;align-items:center;gap:10px}
-.amt-row input{flex:1;min-width:0;background:transparent;border:none;outline:none;color:var(--text);font-family:'IBM Plex Mono';font-size:22px}
 .maxbtn{background:transparent;border:1px solid var(--line);color:var(--violet);border-radius:8px;font-size:11px;font-weight:600;padding:6px 10px;cursor:pointer}
 .preview{padding:6px 2px 12px;font-size:13px;color:var(--mut)}
 .preview .row{display:flex;justify-content:space-between;padding:4px 0}
@@ -116,7 +117,26 @@ header{display:flex;justify-content:space-between;align-items:center;padding:20p
 .disc,.note{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px;font-size:13px;color:var(--mut);line-height:1.65;margin-top:14px}
 .disc b,.note b{color:var(--text)}
 a.chip{color:var(--mut);text-decoration:none}
-a.chip:hover{text-decoration:none;color:var(--text);border-color:var(--pulse)}
+.paysel{
+  appearance:none;-webkit-appearance:none;
+  background:transparent url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='8' height='6' viewBox='0 0 8 6'><path fill='%239398A8' d='M0 0l4 6 4-6z'/></svg>") no-repeat right 2px center;
+  border:none;color:var(--mut);font-family:'IBM Plex Mono',monospace;font-size:13px;
+  padding:4px 14px 4px 4px;cursor:pointer;min-width:58px;
+}
+.paysel:focus{outline:none;color:var(--text)}
+.paysel option{background:var(--panel);color:var(--text)}
+.slipchips{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
+.slipchip{background:transparent;border:1px solid var(--line);color:var(--mut);border-radius:8px;font-size:11px;padding:5px 8px;cursor:pointer;font-family:'IBM Plex Mono'}
+.slipchip.on{border-color:var(--pulse);color:var(--text)}
+.pctrow{display:flex;gap:8px;margin:4px 0 10px}
+.pctrow button{flex:1;background:transparent;border:1px solid var(--line);color:var(--mut);border-radius:10px;font-size:13px;padding:10px 8px;cursor:pointer;font-family:'Space Grotesk';font-weight:600}
+.pctrow button.on{border-color:var(--pulse);color:var(--text);box-shadow:0 0 0 1px var(--pulse) inset}
+.lp-range{width:100%;accent-color:var(--pulse);margin:2px 0 10px}
+.warn-ok{color:var(--mint)!important}
+.warn-mid{color:var(--gold)!important}
+.warn-bad{color:var(--danger)!important}
+.px-head{font-family:'Michroma';font-size:12px;letter-spacing:.1em;text-transform:uppercase;margin:0 0 8px}
+.px-lead{font-size:13px;color:var(--mut);margin:0 0 14px;line-height:1.55}
 .created{background:rgba(78,143,217,.10);border:1px solid rgba(127,179,232,.5);border-radius:16px;padding:18px;margin-top:14px}
 .created .kicker{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--mint);margin-bottom:6px}
 .created .nm{font-family:'Michroma';font-size:14px;letter-spacing:.04em;margin-bottom:10px}
@@ -205,7 +225,6 @@ pre.json{background:var(--panel2);border:1px solid var(--line);border-radius:12p
     </div>
     <div style="height:14px"></div>
     <p style="color:var(--mut);font-size:12px;line-height:1.6;margin:0 2px 12px">Launch costs <b style="color:var(--text)">10,000 PLS</b> plus at least <b style="color:var(--text)">10</b> of the backing asset (and a little gas). Empty vaults cannot be created. Immutable — no switch, no waiver.</p>
-
     <button class="action wide" id="createBtn">Connect wallet to launch</button>
     <div class="status" id="createStatus"></div>
     <div id="createdBox" class="created" style="display:none">
@@ -215,21 +234,21 @@ pre.json{background:var(--panel2);border:1px solid var(--line);border-radius:12p
       <div class="row">
         <button class="chip chipbtn" id="createdCopy">Copy address</button>
         <button class="chip chipbtn" id="createdOpen">Open this vault</button>
-        <a class="chip chipbtn" id="createdScan" target="_blank" rel="noopener">View on PulseScan ↗</a>
+        <a class="chip chipbtn" id="createdScan" target="_blank" rel="noopener">View on PulseVerify ↗</a>
         <a class="chip chipbtn" id="createdTx" target="_blank" rel="noopener">Your transaction ↗</a>
       </div>
-      <p style="margin:12px 0 0;font-size:12px;color:var(--mut)" id="createdNote">This page remembers it on this device. The token is already in this wallet from the first mint. It is also in the <b>VaultCreated</b> event of your transaction on PulseScan.</p>
+      <p style="margin:12px 0 0;font-size:12px;color:var(--mut)" id="createdNote">This page remembers it on this device. The token is already in this wallet from the first mint. It is also in the <b>VaultCreated</b> event of your transaction.</p>
     </div>
   </div>
 
-  <h2>How it works <small>Three moving parts.</small></h2>
+  <h2>How it works <small>Three moving parts. No graduation.</small></h2>
   <div class="how">
     <div class="step"><h3><span>Mint</span> — the ceiling</h3><p>Deposit the backing asset, receive vault tokens at backing <b>+4.5%</b>. 3.5% stays in the vault. 0.5% protocol fee. 0.5% to the creator. Minting is capped per 7-day epoch; when the quota fills, the DEX is the only source until reset.</p></div>
     <div class="step"><h3><span>Hold</span> — the ratchet</h3><p>Backing per token can only rise. Premiums, the redeem fee, and donations feed it. There is no admin key and no pause switch.</p></div>
     <div class="step"><h3><span>Redeem</span> — the floor</h3><p>Burn vault tokens any time for your pro-rata share minus <b>0.5%</b> that stays behind. Never gated. Last redeemer pays nothing so the vault cannot trap dust.</p></div>
   </div>
   <div class="disc">
-    <p><b>Not a PulseX launch.</b> Nothing here seeds a pool, locks LP, or "graduates." You get a vault token contract. If you want a market, you add PulseX liquidity yourself. The board ranks vault TVL plus whatever PulseX depth it can see.</p>
+    <p><b>Not a pump launch.</b> Nothing here seeds a pool, locks LP, or "graduates." You get a vault contract, and you already hold its token from the required first mint (min 10 of the backing asset) plus a 10,000 PLS create fee. Empty vaults cannot be created. Want a market? Open the vault tab and create a PulseX v2 pool from this file. The board ranks vault TVL plus whatever PulseX depth it can see.</p>
     <p><b>What is guaranteed:</b> backing-per-token in the vault's asset never decreases from any operation of these contracts. <b>What is not:</b> market price, the price of the backing asset, or anything below that asset.</p>
   </div>
 </section>
@@ -290,12 +309,117 @@ pre.json{background:var(--panel2);border:1px solid var(--line);border-radius:12p
     <button class="action wide" id="actionBtn" disabled>Connect wallet</button>
     <div class="status" id="status"></div>
   </section>
+
+  <section class="card" id="pxBox" style="display:none">
+    <div class="px-head">PulseX v2 · this vault token</div>
+    <p class="px-lead">Start a v2 pool, add or remove liquidity, or swap. PulseStrategy is not PulseX. Default is PLS when that pool exists; otherwise this vault’s live pair among the allowlisted assets. First pool is priced from vault backing so you don’t seed an arb.</p>
+    <div class="note" id="pxPoolLine" style="margin:0 0 14px">No pool loaded.</div>
+    <div class="tabs">
+      <button class="tab" id="pxTabSwap" style="display:none">Swap</button>
+      <button class="tab on" id="pxTabAdd">Add LP</button>
+      <button class="tab" id="pxTabRem">Remove LP</button>
+    </div>
+
+    <div id="pxPaneSwap" style="display:none">
+      <div class="field">
+        <label for="pxPayAmt">You pay</label>
+        <div class="amt-row">
+          <input id="pxPayAmt" inputmode="decimal" placeholder="0.0" autocomplete="off">
+          <select id="pxPaySel" class="paysel" aria-label="Pay with"></select>
+          <button type="button" class="maxbtn" id="pxPayMax">MAX</button>
+        </div>
+        <div id="pxPayBal" style="font-size:12px;color:var(--mut);margin-top:8px"></div>
+      </div>
+      <div class="field" style="margin-top:10px">
+        <label for="pxGotAmt">You receive</label>
+        <div class="amt-row">
+          <input id="pxGotAmt" inputmode="decimal" placeholder="0.0" autocomplete="off" readonly>
+          <select id="pxGotSel" class="paysel" aria-label="Receive"></select>
+        </div>
+      </div>
+      <div class="preview">
+        <div class="row"><span>Route</span><span id="pxVia">—</span></div>
+        <div class="row"><span>Pool</span><span id="pxPool">—</span></div>
+        <div class="row"><span>Spot</span><span id="pxSpot">—</span></div>
+        <div class="row"><span>This swap</span><span id="pxExec">—</span></div>
+        <div class="row"><span>Price impact</span><span id="pxImp">—</span></div>
+        <div class="row"><span>Of pool (in)</span><span id="pxShare">—</span></div>
+        <div class="row"><span>Vs vault</span><span id="pxVs">—</span></div>
+        <div class="row"><span>~2% impact size</span><span id="pxSafe">—</span></div>
+        <div class="row"><span>Max slippage</span><span class="slipchips" id="pxSlip"></span></div>
+        <div class="row"><span>Min received</span><span id="pxMin">—</span></div>
+      </div>
+      <p class="px-lead" id="pxWarn" style="margin:8px 0 12px">New launch pools are often thin. Check impact before you sign.</p>
+      <button class="action wide" id="pxSwapBtn">Swap on PulseX</button>
+    </div>
+
+    <div id="pxPaneAdd">
+      <div class="rec-card" id="pxFairBox" style="background:var(--panel2);border:1px solid var(--line);border-radius:14px;padding:12px;margin:0 0 12px">
+        <div style="font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--mint);margin-bottom:6px">Fair start price</div>
+        <div id="pxFairT" style="font-size:14px;font-weight:600;margin-bottom:4px">Reading vault backing…</div>
+        <div id="pxFairD" style="font-size:13px;color:var(--mut);line-height:1.5">1 vault token should be seeded at backing, converted into the pair asset. That keeps the pool in line with the vault so it isn’t an arb.</div>
+      </div>
+      <div class="field">
+        <label for="pxTokAmt">Vault token</label>
+        <div class="amt-row">
+          <input id="pxTokAmt" inputmode="decimal" placeholder="0.0" autocomplete="off">
+          <span id="pxTokSym" style="color:var(--mut);font-family:'IBM Plex Mono';font-size:13px">TOKEN</span>
+          <button type="button" class="maxbtn" id="pxTokMax">MAX</button>
+        </div>
+        <div id="pxTokBal" style="font-size:12px;color:var(--mut);margin-top:8px"></div>
+      </div>
+      <div class="field" style="margin-top:10px">
+        <label for="pxQuoteAmt">Paired with</label>
+        <div class="amt-row">
+          <input id="pxQuoteAmt" inputmode="decimal" placeholder="0.0" autocomplete="off">
+          <select id="pxQuoteSel" class="paysel" aria-label="Pair asset"></select>
+          <button type="button" class="maxbtn" id="pxQuoteMax">MAX</button>
+        </div>
+        <div id="pxQuoteBal" style="font-size:12px;color:var(--mut);margin-top:8px"></div>
+      </div>
+      <div class="preview">
+        <div class="row"><span>Pool</span><span id="pxAddPool">—</span></div>
+        <div class="row"><span>You deposit</span><span id="pxAddPrev">—</span></div>
+        <div class="row"><span>Vs backing</span><span id="pxAddSkew">—</span></div>
+      </div>
+      <button class="action wide" id="pxAddBtn">Add liquidity</button>
+    </div>
+
+    <div id="pxPaneRem" style="display:none">
+      <div class="field">
+        <label>Pair asset</label>
+        <div class="amt-row">
+          <select id="pxRemSel" class="paysel" aria-label="Pair asset"></select>
+        </div>
+        <div id="pxLpBal" style="font-size:12px;color:var(--mut);margin-top:8px"></div>
+      </div>
+      <div class="pctrow" id="pxPctRow" style="margin-top:12px">
+        <button type="button" data-p="25">25%</button>
+        <button type="button" data-p="50">50%</button>
+        <button type="button" data-p="75">75%</button>
+        <button type="button" data-p="100">Max</button>
+      </div>
+      <input type="range" id="pxPctRange" min="0" max="100" value="0" class="lp-range" aria-label="Percent of LP to remove">
+      <div class="preview">
+        <div class="row"><span>Removing</span><span id="pxPctLab">0%</span></div>
+        <div class="row"><span>LP burned</span><span id="pxRemLp">—</span></div>
+        <div class="row"><span>Pool share</span><span id="pxRemShare">—</span></div>
+        <div class="row"><span>You receive</span><span id="pxRemPrev">—</span></div>
+        <div class="row"><span></span><span id="pxRemTok">—</span></div>
+        <div class="row"><span></span><span id="pxRemQuote">—</span></div>
+      </div>
+      <button class="action wide" id="pxRemBtn">Remove liquidity</button>
+    </div>
+    <div class="status" id="pxStatus"></div>
+    <p class="px-lead" style="margin:12px 0 0">Router <span class="mono">0x165C3410fC91EF562C50559f7d2289fEbed552d9</span> · factory v2. 1% slippage. New pools are PulseX v2.</p>
+  </section>
+
   <div class="note" id="vaultMeta">Vault: not open</div>
 </section>
 
 <footer>
   <div>Factory: <span class="mono" id="factoryLink">not configured — set FACTORY_ADDR</span></div>
-  <div style="margin-top:10px">Launch fee: 10,000 PLS + Protocol fee (0.5%): <span class="mono">0x3E5a5764EBd24d8142638366d4c5674D86c2EC64</span></div>
+  <div style="margin-top:10px">Launch fee: 10,000 PLS + min 10 of the backing asset · Protocol mint cut (0.5%): <span class="mono">0x3E5a5764EBd24d8142638366d4c5674D86c2EC64</span></div>
   <div style="margin-top:16px" id="verifyBlock">
     <a href="#" id="dlLink" class="dl-cta">⬇ Download this app</a>
     <div style="margin-top:10px">Run it locally on desktop or mobile — it works with no server, reading PulseChain directly from your browser.</div>
@@ -313,7 +437,7 @@ pre.json{background:var(--panel2);border:1px solid var(--line);border-radius:12p
     <a href="https://pulsestrategy369.com" rel="noopener">PulseVerify</a> is the front page. The <a href="https://pulsestrategy369.com/whitepaper" rel="noopener">whitepaper</a> covers this launcher too — overview and how to. Download each page from its own footer.
   </div>
   <div>The contracts live on PulseChain and work without this page. This dapp reads the chain directly from your browser — no server, no database, no tracking.</div>
-  <div style="margin-top:10px"><a href="https://x.com/pulsestrategy" target="_blank" rel="noopener">@pulsestrategy</a> · the floor only rises · <span class="mono" id="buildTag">launcher v13 · 2026-09-10</span></div>
+  <div style="margin-top:10px"><a href="https://x.com/pulsestrategy" target="_blank" rel="noopener">@pulsestrategy</a> · the floor only rises · <span class="mono" id="buildTag">launcher v22 · 2026-09-15</span></div>
 </footer>
 </div>
 
@@ -334,8 +458,8 @@ const FEATURED = {
   name: "Launch",
   token: "LAUNCH",
   vault: "0x97d528ab0bA2dAa63F794548EE517ba7eCf14975",
-  assetSym: "PLSX",
-  assetAddr: "0x95B303987A60C71504D99Aa1b13B4DA07b0790ab"
+  assetSym: "PLSstr",
+  assetAddr: "0x71ff5C9C9938E39E819246ef939FFb5Fd228922d"
 };
 const INDEX_URL = "";   // optional hosted leaderboard.json cache
 const EXPLORER_URL   = "https://pulsestrategy369.com";
@@ -354,6 +478,7 @@ const CHAIN = {
     "https://rpc-pulsechain.g4mm4.io"
   ],
   explorer: "https://pulsestrategy369.com/address/",
+  txExplorer: "https://pulsestrategy369.com/tx/",
   nativeCurrency: { name:"Pulse", symbol:"PLS", decimals:18 },
   blockTimeSec: 10
 };
@@ -369,10 +494,12 @@ try{
 
 const WC_PROJECT_ID = "dfa53b26ebcaa8d274b2a7f6ddc66cb0";
 const WPLS = "0xA1077a294dDE1B09bB078844df40758a5D0f9a27";
-const PULSEX_FACTORIES = [
-  "0x1715a3E4A142d8b698131108995174F37aEBA10D",
-  "0x29eA7545DEf87022BAdc76323F373EA1e707C523"
-];
+const HEX_ADDR = "0x2b591e99afE9f32eAA6214f7B7629768c40Eeb39";
+const PULSEX_V1_FACTORY = "0x1715a3E4A142d8b698131108995174F37aEBA10D";
+const PULSEX_V2_FACTORY = "0x29eA7545DEf87022BAdc76323F373EA1e707C523";
+const PULSEX_V1_ROUTER = "0x98bf93ebf5c380C0e6Ae8e192A7e2AE08edAcc02";
+const PULSEX_V2_ROUTER = "0x165C3410fC91EF562C50559f7d2289fEbed552d9";
+const PULSEX_FACTORIES = [PULSEX_V1_FACTORY, PULSEX_V2_FACTORY];
 const ASSETS = [
   { sym:"PLSX",   addr:"0x95B303987A60C71504D99Aa1b13B4DA07b0790ab", dec:18 },
   { sym:"PLSstr", addr:"0x71ff5C9C9938E39E819246ef939FFb5Fd228922d", dec:18 },
@@ -440,7 +567,26 @@ const FACTORY_ABI = [
 const PAIR_ABI = [
   "function getReserves() view returns (uint112,uint112,uint32)",
   "function token0() view returns (address)",
-  "function token1() view returns (address)"
+  "function token1() view returns (address)",
+  "function totalSupply() view returns (uint256)",
+  "function balanceOf(address) view returns (uint256)",
+  "function allowance(address,address) view returns (uint256)",
+  "function approve(address,uint256) returns (bool)"
+];
+const ROUTER_ABI = [
+  "function getAmountsOut(uint256,address[]) view returns (uint256[])",
+  "function addLiquidity(address,address,uint256,uint256,uint256,uint256,address,uint256) returns (uint256,uint256,uint256)",
+  "function addLiquidityETH(address,uint256,uint256,uint256,address,uint256) payable returns (uint256,uint256,uint256)",
+  "function removeLiquidity(address,address,uint256,uint256,uint256,address,uint256) returns (uint256,uint256)",
+  "function removeLiquidityETH(address,uint256,uint256,uint256,address,uint256) returns (uint256,uint256)",
+  "function swapExactTokensForTokens(uint256,uint256,address[],address,uint256) returns (uint256[])",
+  "function swapExactETHForTokens(uint256,address[],address,uint256) payable returns (uint256[])",
+  "function swapExactTokensForETH(uint256,uint256,address[],address,uint256) returns (uint256[])"
+];
+const WPLS_ABI = [
+  "function deposit() payable",
+  "function withdraw(uint256)",
+  "function balanceOf(address) view returns (uint256)"
 ];
 const FACT_PAIR_ABI = ["function getPair(address,address) view returns (address)"];
 const ERC20_ABI = [
@@ -461,6 +607,58 @@ const fmt = (bn, dec, dp=4) => {
   return n.toLocaleString("en-US",{maximumFractionDigits:dp});
 };
 const short = a => a ? a.slice(0,6)+"…"+a.slice(-4) : "";
+function cleanNum(v){ return String(v||"").replace(/,/g,"").trim(); }
+function commaNum(v, dp=4){
+  const t=cleanNum(v);
+  if(!t) return "";
+  const n=Number(t);
+  if(!isFinite(n)) return String(v);
+  return n.toLocaleString("en-US",{maximumFractionDigits:dp});
+}
+function fmtLp(bn){
+  if(bn===null||bn===undefined) return "—";
+  if(bn===0n) return "0";
+  const n=Number(ethers.formatUnits(bn, 18));
+  if(!isFinite(n)) return "—";
+  if(n>0 && n<0.001) return n.toLocaleString("en-US",{maximumFractionDigits:12, minimumFractionDigits:6});
+  return n.toLocaleString("en-US",{maximumFractionDigits:6});
+}
+function sharePct(part, whole){
+  if(!whole || whole===0n) return "0.000";
+  return (Number(part * 100000n / whole)/1000).toFixed(3);
+}
+function liveComma(el){
+  if(!el || el.readOnly) return;
+  const old=el.value;
+  const sel=el.selectionStart ?? old.length;
+  const leftKept=old.slice(0, sel).replace(/,/g,"");
+  let s=old.replace(/,/g,"");
+  const hadDot=s.includes(".");
+  if(hadDot){
+    const i=s.indexOf(".");
+    s=s.slice(0,i).replace(/\D/g,"")+"."+s.slice(i+1).replace(/\D/g,"");
+  }else s=s.replace(/\D/g,"");
+  let intp=s, frac=null;
+  if(hadDot){ const i=s.indexOf("."); intp=s.slice(0,i); frac=s.slice(i+1); }
+  intp=intp.replace(/^0+(?=\d)/,"");
+  if(intp==="") intp=hadDot?"0":"";
+  const intFmt=intp.replace(/\B(?=(\d{3})+(?!\d))/g,",");
+  const formatted=hadDot?intFmt+"."+frac:intFmt;
+  if(formatted===old) return;
+  el.value=formatted;
+  let pos=formatted.length;
+  if(sel<old.length){
+    const target=leftKept.length;
+    let seen=0;
+    pos=formatted.length;
+    for(let i=0;i<formatted.length;i++){
+      if(formatted[i]===",") continue;
+      seen++;
+      if(seen>=target){ pos=i+1; break; }
+    }
+  }
+  try{ el.setSelectionRange(pos, pos); }catch(_){}
+}
 function esc(s){return String(s||"").replace(/&/g,"\u0026amp;").replace(/</g,"\u0026lt;").replace(/>/g,"\u0026gt;").replace(/"/g,"\u0026quot;").replace(/'/g,"\u0026#39;");}
 const assetSym = a => (ASSETS.find(x=>x.addr.toLowerCase()===String(a).toLowerCase())||{}).sym || "ASSET";
 
@@ -652,7 +850,7 @@ function paintCreated(entry){
   $("createdScan").href = CHAIN.explorer + entry.addr;
   if(entry.tx){
     $("createdTx").style.display = "";
-    $("createdTx").href = "https://scan.pulsechain.com/tx/" + entry.tx;
+    $("createdTx").href = (CHAIN.txExplorer||"https://pulsestrategy369.com/tx/") + entry.tx;
   }else{
     $("createdTx").style.display = "none";
   }
@@ -860,7 +1058,7 @@ $("optInjected").onclick=async()=>{
     catch(sw){
       if(sw.code===4902) await window.ethereum.request({method:"wallet_addEthereumChain",params:[{
         chainId:CHAIN.hex, chainName:CHAIN.name, nativeCurrency:CHAIN.nativeCurrency,
-        rpcUrls:CHAIN.publicRpcs, blockExplorerUrls:["https://scan.pulsechain.com"]
+        rpcUrls:CHAIN.publicRpcs, blockExplorerUrls:["https://pulsestrategy369.com"]
       }]});
       else throw sw;
     }
@@ -947,7 +1145,11 @@ async function openVault(addr, switchTab){
   $("railNote").textContent="The ratchet only moves right. 3.5% of every mint and 0.5% of every redeem stay in "+aSym+".";
   $("vaultMeta").innerHTML='Vault <span class="mono">'+addr+'</span><br>Creator <span class="mono">'+creator+'</span> · backing '+aSym+' · start quota '+(Number(iq)/100)+'%';
   setMode(mode);
+  pxHasPool=false; pxTab="add";
+  $("pxBox").style.display="";
   await refresh();
+  await fillPxSelects();
+  paintPx();
 }
 
 /* reads */
@@ -983,6 +1185,7 @@ async function refresh(){
     }
     setStatus("");
     updatePreview();
+    paintPx();
   }catch(e){ rpcHealthy=false; }
 }
 function tickEpoch(){
@@ -1015,7 +1218,7 @@ $("maxBtn").onclick=()=>{
 $("amt").addEventListener("input",updatePreview);
 
 async function updatePreview(){
-  const v=$("amt").value.trim(); previewOut=0n;
+  const v=cleanNum($("amt").value); previewOut=0n;
   if(!cur||!v||!(parseFloat(v)>0)){ $("outAmt").textContent="—"; $("feeAmt").textContent="—"; updateActionState(); return; }
   try{
     if(mode==="mint"){
@@ -1044,7 +1247,7 @@ async function updateActionState(){
   const btn=$("actionBtn"); btn.classList.remove("approve");
   if(!cur){ btn.textContent="Open a vault"; btn.disabled=true; return; }
   if(!account){ btn.textContent="Connect wallet"; btn.disabled=false; btn.onclick=openSheet; return; }
-  const v=$("amt").value.trim();
+  const v=cleanNum($("amt").value);
   if(!v||!(parseFloat(v)>0)){ btn.textContent=mode==="mint"?"Mint "+cur.cfg.token:"Redeem for "+cur.cfg.assetSym; btn.disabled=true; return; }
   if(mode==="mint"){
     const amt=ethers.parseUnits(v,cur.aDec);
@@ -1069,7 +1272,7 @@ async function doAction(){
       cur.assetW=new ethers.Contract(cur.cfg.assetAddr, ERC20_ABI, signer);
     }
     if(mode==="mint"){
-      const amt=ethers.parseUnits($("amt").value.trim(),cur.aDec);
+      const amt=ethers.parseUnits(cleanNum($("amt").value),cur.aDec);
       if(needsApproval){
         setStatus("Approving…");
         const tx=await cur.assetW.approve(cur.cfg.vault, amt); await tx.wait();
@@ -1079,7 +1282,7 @@ async function doAction(){
       const tx=await cur.vault.mint(amt, previewOut*995n/1000n); await tx.wait();
       setStatus("Minted. The ratchet moved.","ok");
     }else{
-      const amt=ethers.parseUnits($("amt").value.trim(),cur.tDec);
+      const amt=ethers.parseUnits(cleanNum($("amt").value),cur.tDec);
       setStatus("Redeeming…");
       const tx=await cur.vault.redeem(amt, previewOut*995n/1000n); await tx.wait();
       setStatus("Redeemed.","ok");
@@ -1094,7 +1297,632 @@ async function doAction(){
   btn.disabled=false; updateActionState();
 }
 
+/* PulseX v2 on the open vault */
+let pxTab="add", pxLastLp="tok", pxHasPool=false, pxSlipBps=100, pxRemPct=0;
+function setPxStatus(m,c=""){ const s=$("pxStatus"); if(s){ s.textContent=m||""; s.className="status "+(c||""); } }
+function quoteAssets(){
+  const out=[{sym:"PLS", addr:WPLS, dec:18, native:true}];
+  ASSETS.forEach(a=>{
+    if(a.addr.toLowerCase()===WPLS.toLowerCase()) out.push({sym:"WPLS", addr:WPLS, dec:18, native:false});
+    else out.push({sym:a.sym, addr:a.addr, dec:a.dec, native:false});
+  });
+  return out;
+}
+function pxSpec(sym){
+  if(!sym) return null;
+  if(cur && sym===cur.cfg.token) return {sym, addr:cur.cfg.vault, dec:cur.tDec, native:false, vault:true};
+  return quoteAssets().find(q=>q.sym===sym)||null;
+}
+function pxOptHtml(selected, includeVault){
+  const rows=[];
+  if(includeVault && cur) rows.push({sym:cur.cfg.token});
+  quoteAssets().forEach(q=>rows.push(q));
+  const seen=new Set();
+  return rows.filter(r=>{ if(seen.has(r.sym)) return false; seen.add(r.sym); return true; })
+    .map(r=>'<option value="'+esc(r.sym)+'"'+(r.sym===selected?" selected":"")+'>'+esc(r.sym)+'</option>').join("");
+}
+async function detectPxQuote(){
+  if(!cur) return null;
+  const vault=cur.cfg.vault;
+  try{
+    const pls=await pxPair(PULSEX_V2_FACTORY, vault, WPLS);
+    if(pls) return quoteAssets().find(q=>q.sym==="PLS")||null;
+  }catch(_){}
+  let best=null, bestL=-1n;
+  for(const q of quoteAssets()){
+    if(q.addr.toLowerCase()===WPLS.toLowerCase()) continue;
+    try{
+      const p=await pxPair(PULSEX_V2_FACTORY, vault, q.addr);
+      if(!p) continue;
+      const {r0,r1}=await pairReserves(p);
+      const L=r0*r1;
+      if(L>bestL){ bestL=L; best=q; }
+    }catch(_){}
+  }
+  return best;
+}
+async function fillPxSelects(){
+  if(!cur) return;
+  const tok=cur.cfg.token;
+  const detected=await detectPxQuote();
+  const def=detected ? (detected.sym==="WPLS"?"PLS":detected.sym) : "PLS";
+  const pay=$("pxPaySel"), got=$("pxGotSel"), q=$("pxQuoteSel"), rem=$("pxRemSel");
+  if(pay){ pay.innerHTML=pxOptHtml(def, true); pay.value=def; }
+  if(got){ got.innerHTML=pxOptHtml(tok, true); got.value=tok; }
+  if(q){ q.innerHTML=pxOptHtml(def, false); q.value=def; }
+  if(rem){ rem.innerHTML=pxOptHtml(def, false); rem.value=def; }
+  if($("pxTokSym")) $("pxTokSym").textContent=tok;
+}
+function setPxTab(t){
+  if(t==="wrap") t="swap";
+  if(t==="swap" && !pxHasPool) t="add";
+  pxTab=t;
+  [["pxTabSwap","swap","pxPaneSwap"],["pxTabAdd","add","pxPaneAdd"],["pxTabRem","rem","pxPaneRem"]].forEach(([b,k,p])=>{
+    if($(b)) $(b).classList.toggle("on", t===k);
+    if($(p)) $(p).style.display=t===k?"":"none";
+  });
+  if($("pxTabSwap")) $("pxTabSwap").style.display=pxHasPool?"":"none";
+  paintPx();
+}
+async function pxPair(factory, a, b){
+  try{
+    const p=await new ethers.Contract(factory, FACT_PAIR_ABI, readProvider).getPair(a,b);
+    if(p && p!==ethers.ZeroAddress) return p;
+  }catch(_){}
+  return null;
+}
+async function pxPairDeep(a,b){
+  let best=null, liq=-1n;
+  for(const f of [PULSEX_V2_FACTORY, PULSEX_V1_FACTORY]){
+    const p=await pxPair(f,a,b);
+    if(!p) continue;
+    try{
+      const {r0,r1}=await pairReserves(p);
+      const L=r0*r1;
+      if(L>liq){ liq=L; best={pair:p, factory:f, v2:f.toLowerCase()===PULSEX_V2_FACTORY.toLowerCase()}; }
+    }catch(_){}
+  }
+  return best;
+}
+function pxPaths(tokenIn, tokenOut){
+  const a=tokenIn.toLowerCase(), b=tokenOut.toLowerCase();
+  if(a===b) return [];
+  const out=[], add=nodes=>{ const n=nodes.map(x=>x.toLowerCase()); if(new Set(n).size===n.length) out.push(nodes); };
+  add([tokenIn, tokenOut]);
+  const hops=[];
+  const push=h=>{
+    const l=String(h).toLowerCase();
+    if(hops.some(x=>x.toLowerCase()===l) || l===a || l===b) return;
+    hops.push(h);
+  };
+  push(WPLS);
+  if(cur) push(cur.cfg.assetAddr);
+  push(HEX_ADDR);
+  ASSETS.forEach(x=>push(x.addr));
+  hops.forEach(h=>add([tokenIn, h, tokenOut]));
+  if(cur){
+    const asset=cur.cfg.assetAddr;
+    if(a!==asset.toLowerCase() && b!==asset.toLowerCase()){
+      add([tokenIn, WPLS, asset, tokenOut]);
+      add([tokenIn, asset, WPLS, tokenOut]);
+    }
+  }
+  return out;
+}
+function pxLabel(addr){
+  const l=addr.toLowerCase();
+  if(cur && l===cur.cfg.vault.toLowerCase()) return cur.cfg.token;
+  if(l===WPLS.toLowerCase()) return "WPLS";
+  if(l===HEX_ADDR.toLowerCase()) return "HEX";
+  const a=ASSETS.find(x=>x.addr.toLowerCase()===l);
+  return a?a.sym:"token";
+}
+async function pxBestSwap(tokenIn, tokenOut, amt){
+  const paths=pxPaths(tokenIn, tokenOut);
+  let best=null;
+  for(const router of [PULSEX_V2_ROUTER, PULSEX_V1_ROUTER]){
+    const rc=new ethers.Contract(router, ROUTER_ABI, readProvider);
+    for(const path of paths){
+      try{
+        const amounts=await rc.getAmountsOut(amt, path);
+        const got=amounts[amounts.length-1];
+        if(got>0n && (!best || got>best.got)){
+          const ver=router.toLowerCase()===PULSEX_V2_ROUTER.toLowerCase()?"v2":"v1";
+          best={ router, path, got, amounts, via:"PulseX "+ver+" · "+path.map(pxLabel).join(" → ") };
+        }
+      }catch(_){}
+    }
+  }
+  return best;
+}
+async function pxBal(spec){
+  if(!account || !spec) return 0n;
+  if(spec.native) return readProvider.getBalance(account);
+  return new ethers.Contract(spec.addr, ERC20_ABI, readProvider).balanceOf(account);
+}
+async function pxApprove(token, spender, amt){
+  const erc=new ethers.Contract(token, ERC20_ABI, signer);
+  const allow=await erc.allowance(account, spender);
+  if(allow>=amt) return true;
+  setPxStatus("Approve for PulseX…");
+  const tx=await erc.approve(spender, ethers.MaxUint256);
+  await tx.wait();
+  return true;
+}
+function pxDeadline(){ return BigInt(Math.floor(Date.now()/1000)+1200); }
+
+async function paintPxPoolLine(){
+  const el=$("pxPoolLine"); if(!el || !cur) return null;
+  const q=pxSpec($("pxQuoteSel")?.value||"PLS") || pxSpec("PLS");
+  let v2=await pxPair(PULSEX_V2_FACTORY, cur.cfg.vault, q.addr);
+  let shown=q;
+  if(!v2){
+    for(const a of quoteAssets()){
+      const p=await pxPair(PULSEX_V2_FACTORY, cur.cfg.vault, a.addr);
+      if(p){ v2=p; shown=a; break; }
+    }
+  }
+  const had=pxHasPool;
+  pxHasPool=!!v2;
+  if($("pxTabSwap")) $("pxTabSwap").style.display=pxHasPool?"":"none";
+  if(pxHasPool && !had){
+    pxTab="swap";
+    if($("pxTabSwap")) $("pxTabSwap").classList.add("on");
+    if($("pxTabAdd")) $("pxTabAdd").classList.remove("on");
+    if($("pxTabRem")) $("pxTabRem").classList.remove("on");
+    if($("pxPaneSwap")) $("pxPaneSwap").style.display="";
+    if($("pxPaneAdd")) $("pxPaneAdd").style.display="none";
+    if($("pxPaneRem")) $("pxPaneRem").style.display="none";
+  }else if(!pxHasPool && pxTab==="swap"){
+    pxTab="add";
+    if($("pxTabAdd")) $("pxTabAdd").classList.add("on");
+    if($("pxTabSwap")) $("pxTabSwap").classList.remove("on");
+    if($("pxPaneSwap")) $("pxPaneSwap").style.display="none";
+    if($("pxPaneAdd")) $("pxPaneAdd").style.display="";
+  }
+  if(v2){
+    try{
+      const {r0,r1,t0}=await pairReserves(v2);
+      const tokIs0=t0.toLowerCase()===cur.cfg.vault.toLowerCase();
+      const rT=tokIs0?r0:r1, rQ=tokIs0?r1:r0;
+      const same=shown.sym===q.sym;
+      el.textContent="PulseX v2 pool live · "+fmt(rT, cur.tDec, 2)+" "+cur.cfg.token+" / "+fmt(rQ, shown.dec, 2)+" "+shown.sym+" · "+short(v2)
+        +(same?"":" · LP pair is "+shown.sym+" (not "+q.sym+")");
+      return v2;
+    }catch(_){}
+  }
+  el.textContent="No PulseX v2 pool vs "+q.sym+" yet. Add LP below — amounts are filled from vault backing so the pool isn’t an arb.";
+  return null;
+}
+
+async function fairQuoteForTokens(tokAmt, q){
+  if(!cur || !tokAmt || tokAmt<=0n || !q) return null;
+  let backing;
+  try{ backing=await cur.vr.backingPerToken(); }catch(_){ return null; }
+  if(!backing || backing===0n) return null;
+  const assetAmt = tokAmt * backing / (10n**18n);
+  if(q.addr.toLowerCase()===cur.cfg.assetAddr.toLowerCase()) return assetAmt;
+  const sw=await pxBestSwap(cur.cfg.assetAddr, q.addr, assetAmt);
+  return sw?sw.got:null;
+}
+
+function paintSlipChips(el, curBps, onPick){
+  if(!el) return;
+  el.innerHTML=[50,100,300,500,1000,1500].map(b=>'<button type="button" class="slipchip'+(b===curBps?" on":"")+'" data-b="'+b+'">'+(b/100)+'%</button>').join("");
+  el.querySelectorAll("button").forEach(b=>b.onclick=()=>onPick(Number(b.dataset.b)));
+}
+function setPxEl(id, txt, cls){
+  const e=$(id); if(!e) return;
+  e.textContent=txt;
+  e.classList.remove("warn-ok","warn-mid","warn-bad");
+  if(cls) e.classList.add(cls);
+}
+async function paintPxDeal(pay, got, amt, route){
+  let impact=null;
+  try{
+    const one=10n**BigInt(pay.dec);
+    const probe=(one>0n && one<amt/50n)?one:(amt>1000n?amt/1000n:0n);
+    if(probe>0n){
+      const p=await pxBestSwap(pay.addr, got.addr, probe);
+      if(p && p.got>0n){
+        const spot=p.got*amt/probe;
+        const nSpot=Number(ethers.formatUnits(spot, got.dec));
+        const nExec=Number(ethers.formatUnits(route.got, got.dec));
+        if(nSpot>0) impact=Math.max(0,(nSpot-nExec)/nSpot*100);
+      }
+    }
+  }catch(_){}
+  const vaultAddr=cur?cur.cfg.vault.toLowerCase():"";
+  const amounts=route.amounts||[amt, route.got];
+  let pick=null;
+  for(let i=0;i<route.path.length-1;i++){
+    const a=route.path[i], b=route.path[i+1];
+    try{
+      const info=await pxPairDeep(a,b);
+      if(!info) continue;
+      const {r0,r1,t0}=await pairReserves(info.pair);
+      const aIs0=t0.toLowerCase()===a.toLowerCase();
+      const hop={ rIn:aIs0?r0:r1, rOut:aIs0?r1:r0 };
+      if(hop.rIn===0n) continue;
+      const ain=amounts[i]||amt;
+      const share=Number(ain)/Number(hop.rIn)*100;
+      const isVault=a.toLowerCase()===vaultAddr||b.toLowerCase()===vaultAddr;
+      const cand={hop,a,b,share,isVault};
+      if(isVault){ pick=cand; break; }
+      if(!pick || share>pick.share) pick=cand;
+    }catch(_){}
+  }
+  if(pick){
+    const inSym=pxLabel(pick.a), outSym=pxLabel(pick.b);
+    const inDec=(ASSETS.find(x=>x.addr.toLowerCase()===pick.a.toLowerCase())||{}).dec || (pick.a.toLowerCase()===cur.cfg.vault.toLowerCase()?cur.tDec:18);
+    const outDec=(ASSETS.find(x=>x.addr.toLowerCase()===pick.b.toLowerCase())||{}).dec || (pick.b.toLowerCase()===cur.cfg.vault.toLowerCase()?cur.tDec:18);
+    setPxEl("pxPool", fmt(pick.hop.rIn, inDec, 2)+" "+inSym+" / "+fmt(pick.hop.rOut, outDec, 2)+" "+outSym);
+    const spotPx=Number(ethers.formatUnits(pick.hop.rIn, inDec))/Number(ethers.formatUnits(pick.hop.rOut, outDec));
+    const execPx=Number(ethers.formatUnits(amt, pay.dec))/Number(ethers.formatUnits(route.got, got.dec));
+    setPxEl("pxSpot", isFinite(spotPx)?("1 "+outSym+" = "+spotPx.toFixed(4)+" "+inSym):"—");
+    setPxEl("pxExec", isFinite(execPx)?("1 "+got.sym+" = "+execPx.toFixed(4)+" "+pay.sym):"—");
+    setPxEl("pxShare", isFinite(pick.share)?(pick.share.toFixed(1)+"% of "+inSym+" in this pool"):"—", pick.share>20?"warn-bad":pick.share>5?"warn-mid":"warn-ok");
+    setPxEl("pxSafe", "under ~"+fmt(pick.hop.rIn*2n/100n, inDec, 2)+" "+inSym);
+  }
+  setPxEl("pxImp", impact==null?"—":impact.toFixed(2)+"%", impact==null?"":impact>10?"warn-bad":impact>3?"warn-mid":"warn-ok");
+  let vs="—", vsCls="";
+  if(cur && lastBacking && (got.addr.toLowerCase()===cur.cfg.vault.toLowerCase() || pay.addr.toLowerCase()===cur.cfg.vault.toLowerCase())){
+    const buying=got.addr.toLowerCase()===cur.cfg.vault.toLowerCase();
+    const oth=buying?pay:got;
+    const tokAmt=buying?route.got:amt, othAmt=buying?amt:route.got;
+    const per=Number(ethers.formatUnits(othAmt, oth.dec))/Number(ethers.formatUnits(tokAmt, cur.tDec));
+    if(isFinite(per)){
+      let fair=lastBacking, fairSym=cur.cfg.assetSym;
+      if(oth.addr.toLowerCase()!==cur.cfg.assetAddr.toLowerCase()){
+        try{
+          const one=10n**BigInt(cur.tDec);
+          const fq=await fairQuoteForTokens(one, oth);
+          if(fq){ fair=Number(ethers.formatUnits(fq, oth.dec)); fairSym=oth.sym; }
+        }catch(_){}
+      }
+      const mint=fair*1.045;
+      const diff=(per/fair-1)*100;
+      vs=per.toFixed(4)+" "+oth.sym+" / token · backing ~"+fair.toFixed(4)+" "+fairSym+" · mint ~"+mint.toFixed(4);
+      if(buying && diff>8){ vs+=" · "+diff.toFixed(0)+"% over backing — bad fill"; vsCls="warn-bad"; }
+      else if(buying && diff>2){ vsCls="warn-mid"; }
+      else vsCls="warn-ok";
+    }
+  }
+  setPxEl("pxVs", vs, vsCls);
+  const warn=$("pxWarn"), btn=$("pxSwapBtn");
+  if(impact!=null && impact>15){
+    if(warn) warn.textContent="Thin pool. This size moves price ~"+impact.toFixed(0)+"%. Stay under the ~2% size or you take this fill.";
+    if(btn && account) btn.textContent="Swap anyway · "+impact.toFixed(0)+"% impact";
+  }else if(impact!=null && impact>pxSlipBps/100){
+    if(warn) warn.textContent="Impact "+impact.toFixed(1)+"% is larger than your "+(pxSlipBps/100)+"% slip buffer. Cut the size or you take the quoted (worse) price.";
+    if(btn && account) btn.textContent="Swap anyway · "+impact.toFixed(1)+"% impact";
+  }else{
+    if(warn) warn.textContent="New launch pools are often thin. Check impact before you sign.";
+    if(btn && account) btn.textContent="Swap on PulseX";
+  }
+  const min=route.got*BigInt(10000-pxSlipBps)/10000n;
+  setPxEl("pxMin", fmt(min, got.dec, 4)+" "+got.sym);
+  return min;
+}
+
+async function quotePxSwap(){
+  if(!cur) return;
+  const pay=pxSpec($("pxPaySel")?.value), got=pxSpec($("pxGotSel")?.value);
+  const btn=$("pxSwapBtn");
+  if(!account){ if(btn) btn.textContent="Connect wallet"; }
+  else if(btn) btn.textContent="Swap on PulseX";
+  if(pay){
+    try{ if($("pxPayBal")) $("pxPayBal").textContent="Balance: "+fmt(await pxBal(pay), pay.dec, 4)+" "+pay.sym; }catch(_){}
+  }
+  const raw=cleanNum($("pxPayAmt")?.value);
+  if(!raw || !(parseFloat(raw)>0) || !pay || !got){
+    if($("pxGotAmt")) $("pxGotAmt").value="";
+    if($("pxVia")) $("pxVia").textContent="—";
+    if($("pxMin")) $("pxMin").textContent="—";
+    return;
+  }
+  if(pay.addr.toLowerCase()===got.addr.toLowerCase()){
+    const wrap=(pay.native!==got.native);
+    if($("pxVia")) $("pxVia").textContent=wrap?"WPLS wrap · 1 PLS = 1 WPLS":"Same token";
+    if(wrap){
+      if($("pxGotAmt")) $("pxGotAmt").value=raw;
+      if($("pxMin")) $("pxMin").textContent=raw+" "+got.sym;
+      let amt; try{ amt=ethers.parseUnits(raw, 18); }catch(_){ return; }
+      window._pxSwap={ wrap:true, amt, pay, got, min:amt };
+    }else if($("pxGotAmt")) $("pxGotAmt").value="";
+    return;
+  }
+  let amt; try{ amt=ethers.parseUnits(raw, pay.dec); }catch(_){ return; }
+  try{
+    const route=await pxBestSwap(pay.addr, got.addr, amt);
+    if(!route){ if($("pxVia")) $("pxVia").textContent="no PulseX path — create the pool first"; if($("pxGotAmt")) $("pxGotAmt").value=""; return; }
+    if($("pxGotAmt")) $("pxGotAmt").value=commaNum(ethers.formatUnits(route.got, got.dec), 6);
+    if($("pxVia")) $("pxVia").textContent=route.via+(pay.native?" (PLS)":"");
+    const min=await paintPxDeal(pay, got, amt, route);
+    window._pxSwap={ route, amt, min:min||route.got*BigInt(10000-pxSlipBps)/10000n, pay, got };
+  }catch(_){ if($("pxGotAmt")) $("pxGotAmt").value=""; }
+}
+
+async function quotePxAdd(){
+  if(!cur) return;
+  const q=pxSpec($("pxQuoteSel")?.value||"PLS");
+  if($("pxTokSym")) $("pxTokSym").textContent=cur.cfg.token;
+  if(account){
+    try{ $("pxTokBal").textContent="Balance: "+fmt(await new ethers.Contract(cur.cfg.vault, ERC20_ABI, readProvider).balanceOf(account), cur.tDec, 4)+" "+cur.cfg.token; }catch(_){}
+    try{ $("pxQuoteBal").textContent="Balance: "+fmt(await pxBal(q), q.dec, 4)+" "+q.sym; }catch(_){}
+  }
+  const pair=await paintPxPoolLine();
+  const tokRaw=cleanNum($("pxTokAmt")?.value);
+  const qRaw=cleanNum($("pxQuoteAmt")?.value);
+  const btn=$("pxAddBtn");
+  if(!account){ if(btn) btn.textContent="Connect wallet"; }
+  else if(btn) btn.textContent=pair?"Add liquidity":"Create PulseX v2 pool";
+  let fair=null;
+  try{
+    const one=10n**BigInt(cur.tDec);
+    fair=await fairQuoteForTokens(one, q);
+    if(fair && $("pxFairT")){
+      $("pxFairT").textContent="1 "+cur.cfg.token+" ≈ "+fmt(fair, q.dec, 6)+" "+q.sym;
+      $("pxFairD").textContent="From vault backing ("+(lastBacking?lastBacking.toFixed(4):"—")+" "+cur.cfg.assetSym+" per token), converted to "+q.sym+" on PulseX. Seed at this ratio so the pool isn’t cheaper than redeeming.";
+    }else if($("pxFairT")){
+      $("pxFairT").textContent="Pair with the backing asset or PLS for a fair start";
+      $("pxFairD").textContent="No PulseX path from "+cur.cfg.assetSym+" to "+q.sym+" yet, so we can’t auto-price this pair.";
+    }
+  }catch(_){}
+  if(pair){
+    try{
+      const {r0,r1,t0}=await pairReserves(pair);
+      const tokIs0=t0.toLowerCase()===cur.cfg.vault.toLowerCase();
+      const rT=tokIs0?r0:r1, rQ=tokIs0?r1:r0;
+      if(pxLastLp==="tok" && tokRaw && parseFloat(tokRaw)>0 && rT>0n){
+        const tAmt=ethers.parseUnits(tokRaw, cur.tDec);
+        const qAmt=tAmt*rQ/rT;
+        if($("pxQuoteAmt") && document.activeElement!==$("pxQuoteAmt")) $("pxQuoteAmt").value=commaNum(ethers.formatUnits(qAmt, q.dec), 4);
+      }else if(pxLastLp==="quote" && qRaw && parseFloat(qRaw)>0 && rQ>0n){
+        const qAmt=ethers.parseUnits(qRaw, q.dec);
+        const tAmt=qAmt*rT/rQ;
+        if($("pxTokAmt") && document.activeElement!==$("pxTokAmt")) $("pxTokAmt").value=commaNum(ethers.formatUnits(tAmt, cur.tDec), 4);
+      }
+      if($("pxAddPool")) $("pxAddPool").textContent="v2 · "+short(pair);
+    }catch(_){ if($("pxAddPool")) $("pxAddPool").textContent="v2 · exists"; }
+  }else{
+    if($("pxAddPool")) $("pxAddPool").textContent="none — first add creates the v2 pool";
+    try{
+      if(fair && pxLastLp==="tok" && tokRaw && parseFloat(tokRaw)>0){
+        const tAmt=ethers.parseUnits(tokRaw, cur.tDec);
+        const qAmt=tAmt*fair/(10n**BigInt(cur.tDec));
+        if($("pxQuoteAmt") && document.activeElement!==$("pxQuoteAmt")) $("pxQuoteAmt").value=commaNum(ethers.formatUnits(qAmt, q.dec), 4);
+      }else if(fair && pxLastLp==="quote" && qRaw && parseFloat(qRaw)>0){
+        const qAmt=ethers.parseUnits(qRaw, q.dec);
+        const tAmt=qAmt*(10n**BigInt(cur.tDec))/fair;
+        if($("pxTokAmt") && document.activeElement!==$("pxTokAmt")) $("pxTokAmt").value=commaNum(ethers.formatUnits(tAmt, cur.tDec), 4);
+      }
+    }catch(_){}
+  }
+  const tNow=cleanNum($("pxTokAmt")?.value), qNow=cleanNum($("pxQuoteAmt")?.value);
+  if($("pxAddPrev")) $("pxAddPrev").textContent=(tNow||"—")+" "+cur.cfg.token+" + "+(qNow||"—")+" "+q.sym;
+  const skewEl=$("pxAddSkew");
+  if(skewEl){
+    try{
+      if(fair && tNow && qNow && parseFloat(tNow)>0 && parseFloat(qNow)>0){
+        const tAmt=ethers.parseUnits(tNow, cur.tDec);
+        const qAmt=ethers.parseUnits(qNow, q.dec);
+        const implied=qAmt*(10n**BigInt(cur.tDec))/tAmt;
+        const diff=Number(implied-fair)/Number(fair)*100;
+        if(!isFinite(diff)) skewEl.textContent="—";
+        else if(Math.abs(diff)<2){ skewEl.textContent="in line with backing"; skewEl.style.color="var(--mint)"; }
+        else { skewEl.textContent=(diff>0?"+":"")+diff.toFixed(1)+"% vs backing — arb risk"; skewEl.style.color="var(--gold)"; }
+      }else skewEl.textContent="—";
+    }catch(_){ skewEl.textContent="—"; }
+  }
+}
+
+function paintPxPct(){
+  const p=Math.max(0, Math.min(100, Number(pxRemPct)||0));
+  if($("pxPctRange")) $("pxPctRange").value=String(p);
+  if($("pxPctLab")) $("pxPctLab").textContent=p+"%";
+  document.querySelectorAll("#pxPctRow button").forEach(b=>b.classList.toggle("on", Number(b.dataset.p)===p));
+}
+function setPxPct(p){
+  pxRemPct=Math.max(0, Math.min(100, Number(p)||0));
+  paintPxPct();
+  quotePxRem();
+}
+
+async function quotePxRem(){
+  if(!cur) return;
+  const q=pxSpec($("pxRemSel")?.value||"PLS");
+  const pair=await pxPair(PULSEX_V2_FACTORY, cur.cfg.vault, q.addr);
+  const btn=$("pxRemBtn");
+  if(!account){ if(btn) btn.textContent="Connect wallet"; }
+  else if(btn) btn.textContent="Remove liquidity";
+  const clear=()=>{
+    ["pxRemLp","pxRemShare","pxRemTok","pxRemQuote","pxRemPrev"].forEach(id=>{ if($(id)) $(id).textContent="—"; });
+  };
+  if(!pair){
+    if($("pxLpBal")) $("pxLpBal").textContent="No v2 pool vs "+q.sym+".";
+    clear();
+    return;
+  }
+  window._pxPair=pair;
+  let lp=0n, ts=0n;
+  try{
+    const pc=new ethers.Contract(pair, PAIR_ABI, readProvider);
+    ts=await pc.totalSupply();
+    if(account) lp=await pc.balanceOf(account);
+    if($("pxLpBal")) $("pxLpBal").textContent="Your LP: "+fmtLp(lp)+" · "+sharePct(lp,ts)+"% of pool · "+short(pair);
+  }catch(_){}
+  paintPxPct();
+  const p=Math.max(0, Math.min(100, Number(pxRemPct)||0));
+  if(p<=0 || ts===0n || lp===0n){ clear(); return; }
+  const burn=p>=100 ? lp : lp*BigInt(Math.round(p))/100n;
+  if(burn===0n){ clear(); return; }
+  try{
+    const {r0,r1,t0}=await pairReserves(pair);
+    const tokIs0=t0.toLowerCase()===cur.cfg.vault.toLowerCase();
+    const rT=tokIs0?r0:r1, rQ=tokIs0?r1:r0;
+    const outT=burn*rT/ts, outQ=burn*rQ/ts;
+    if($("pxRemLp")) $("pxRemLp").textContent=fmtLp(burn)+" LP";
+    if($("pxRemShare")) $("pxRemShare").textContent=sharePct(burn,ts)+"% of the pool";
+    if($("pxRemTok")) $("pxRemTok").textContent=fmt(outT, cur.tDec, 4)+" "+cur.cfg.token;
+    if($("pxRemQuote")) $("pxRemQuote").textContent=fmt(outQ, q.dec, 4)+" "+q.sym+(q.native?" (as PLS)":"");
+    if($("pxRemPrev")) $("pxRemPrev").textContent=fmt(outT, cur.tDec, 4)+" "+cur.cfg.token+" + "+fmt(outQ, q.dec, 4)+" "+(q.native?"PLS":q.sym);
+    window._pxRem={ pair, burn, outT, outQ, q };
+  }catch(_){ clear(); }
+}
+
+async function paintPx(){
+  if(!cur || !$("pxBox") || $("pxBox").style.display==="none") return;
+  if(pxTab==="add") await quotePxAdd();
+  else if(pxTab==="rem") await quotePxRem();
+  if(pxTab==="swap") await quotePxSwap();
+}
+
+$("pxTabSwap") && ($("pxTabSwap").onclick=()=>setPxTab("swap"));
+$("pxTabAdd") && ($("pxTabAdd").onclick=()=>setPxTab("add"));
+$("pxTabRem") && ($("pxTabRem").onclick=()=>setPxTab("rem"));
+$("pxPayAmt") && $("pxPayAmt").addEventListener("input", ()=>quotePxSwap());
+$("pxPaySel") && $("pxPaySel").addEventListener("change", ()=>{
+  if($("pxPaySel").value===$("pxGotSel").value){
+    $("pxGotSel").value = $("pxPaySel").value===cur?.cfg.token ? "PLS" : (cur?cur.cfg.token:"PLS");
+  }
+  quotePxSwap();
+});
+$("pxGotSel") && $("pxGotSel").addEventListener("change", ()=>{
+  if($("pxPaySel").value===$("pxGotSel").value){
+    $("pxPaySel").value = $("pxGotSel").value===cur?.cfg.token ? "PLS" : (cur?cur.cfg.token:"PLS");
+  }
+  quotePxSwap();
+});
+$("pxPayMax") && ($("pxPayMax").onclick=async()=>{
+  if(!account){ openSheet(); return; }
+  const spec=pxSpec($("pxPaySel").value); if(!spec) return;
+  let b=await pxBal(spec);
+  if(spec.native){ const g=ethers.parseEther("50"); if(b>g) b-=g; }
+  $("pxPayAmt").value=commaNum(ethers.formatUnits(b, spec.dec), 4); quotePxSwap();
+});
+$("pxTokAmt") && $("pxTokAmt").addEventListener("input", ()=>{ pxLastLp="tok"; quotePxAdd(); });
+$("pxQuoteAmt") && $("pxQuoteAmt").addEventListener("input", ()=>{ pxLastLp="quote"; quotePxAdd(); });
+$("pxQuoteSel") && $("pxQuoteSel").addEventListener("change", ()=>{ paintPxPoolLine(); quotePxAdd(); quotePxRem(); });
+$("pxTokMax") && ($("pxTokMax").onclick=async()=>{
+  if(!account){ openSheet(); return; }
+  const b=await new ethers.Contract(cur.cfg.vault, ERC20_ABI, readProvider).balanceOf(account);
+  $("pxTokAmt").value=commaNum(ethers.formatUnits(b, cur.tDec), 4); pxLastLp="tok"; quotePxAdd();
+});
+$("pxQuoteMax") && ($("pxQuoteMax").onclick=async()=>{
+  if(!account){ openSheet(); return; }
+  const q=pxSpec($("pxQuoteSel").value); let b=await pxBal(q);
+  if(q.native){ const g=ethers.parseEther("50"); if(b>g) b-=g; }
+  $("pxQuoteAmt").value=commaNum(ethers.formatUnits(b, q.dec), 4); pxLastLp="quote"; quotePxAdd();
+});
+$("pxRemSel") && $("pxRemSel").addEventListener("change", ()=>quotePxRem());
+$("pxPctRow") && $("pxPctRow").querySelectorAll("button").forEach(b=>b.onclick=()=>{ if(!account){ openSheet(); return; } setPxPct(Number(b.dataset.p)); });
+$("pxPctRange") && $("pxPctRange").addEventListener("input", ()=>{ if(!account){ openSheet(); return; } setPxPct($("pxPctRange").value); });
+$("pxSwapBtn") && ($("pxSwapBtn").onclick=async()=>{
+  if(!account){ openSheet(); return; }
+  const btn=$("pxSwapBtn"); btn.disabled=true;
+  try{
+    await quotePxSwap();
+    const s=window._pxSwap;
+    if(!s||!s.amt){ setPxStatus("Enter an amount.","err"); btn.disabled=false; return; }
+    if(s.wrap){
+      const w=new ethers.Contract(WPLS, WPLS_ABI, signer);
+      setPxStatus(s.pay.native?"Wrapping PLS…":"Unwrapping WPLS…");
+      const tx=s.pay.native
+        ? await w.deposit({ value:s.amt, gasLimit: 80_000n })
+        : await w.withdraw(s.amt, { gasLimit: 80_000n });
+      await tx.wait();
+      setPxStatus(s.got.sym+" in this wallet.","ok");
+      $("pxPayAmt").value=""; await refresh();
+      btn.disabled=false; paintPx(); return;
+    }
+    if(s.pay.addr.toLowerCase()===s.got.addr.toLowerCase()){ setPxStatus("Pick two different assets.","err"); btn.disabled=false; return; }
+    const r=new ethers.Contract(s.route.router, ROUTER_ABI, signer);
+    if(!s.pay.native) await pxApprove(s.pay.addr, s.route.router, s.amt);
+    setPxStatus("Swapping "+s.pay.sym+" → "+s.got.sym+"…");
+    const dl=pxDeadline();
+    const tx=s.pay.native
+      ? await r.swapExactETHForTokens(s.min, s.route.path, account, dl, { value:s.amt, gasLimit: 800_000n })
+      : s.got.native
+        ? await r.swapExactTokensForETH(s.amt, s.min, s.route.path, account, dl, { gasLimit: 800_000n })
+        : await r.swapExactTokensForTokens(s.amt, s.min, s.route.path, account, dl, { gasLimit: 800_000n });
+    await tx.wait();
+    setPxStatus(s.got.sym+" in this wallet.","ok");
+    $("pxPayAmt").value=""; await refresh();
+  }catch(e){
+    let m=e.shortMessage||e.message||"Failed";
+    if(/user rejected|denied/i.test(m)) m="Cancelled.";
+    if(/INSUFFICIENT_OUTPUT|slippage/i.test(m)) m="Price moved — try again.";
+    setPxStatus(m,"err");
+  }
+  btn.disabled=false; paintPx();
+});
+function bindPxSlip(){
+  paintSlipChips($("pxSlip"), pxSlipBps, b=>{ pxSlipBps=b; bindPxSlip(); quotePxSwap(); });
+}
+bindPxSlip();
+document.querySelectorAll('input[inputmode="decimal"]').forEach(el=>{
+  el.addEventListener("input", ()=>liveComma(el), true);
+});
+
+$("pxAddBtn") && ($("pxAddBtn").onclick=async()=>{
+  if(!account){ openSheet(); return; }
+  const btn=$("pxAddBtn"); btn.disabled=true;
+  try{
+    const q=pxSpec($("pxQuoteSel").value);
+    const tRaw=cleanNum($("pxTokAmt").value), qRaw=cleanNum($("pxQuoteAmt").value);
+    if(!(parseFloat(tRaw)>0) || !(parseFloat(qRaw)>0)){ setPxStatus("Enter both amounts. First add sets the pool price.","err"); btn.disabled=false; return; }
+    const tAmt=ethers.parseUnits(tRaw, cur.tDec);
+    const qAmt=ethers.parseUnits(qRaw, q.dec);
+    const pair=await pxPair(PULSEX_V2_FACTORY, cur.cfg.vault, q.addr);
+    const r=new ethers.Contract(PULSEX_V2_ROUTER, ROUTER_ABI, signer);
+    await pxApprove(cur.cfg.vault, PULSEX_V2_ROUTER, tAmt);
+    if(!q.native) await pxApprove(q.addr, PULSEX_V2_ROUTER, qAmt);
+    setPxStatus(pair?"Adding liquidity…":"Creating PulseX v2 pool…");
+    const dl=pxDeadline();
+    const gas=pair?800_000n:2_800_000n;
+    const tMin=tAmt*99n/100n, qMin=qAmt*99n/100n;
+    const tx=q.native
+      ? await r.addLiquidityETH(cur.cfg.vault, tAmt, tMin, qMin, account, dl, { value:qAmt, gasLimit:gas })
+      : await r.addLiquidity(cur.cfg.vault, q.addr, tAmt, qAmt, tMin, qMin, account, dl, { gasLimit:gas });
+    await tx.wait();
+    setPxStatus(pair?"LP tokens in this wallet.":"PulseX v2 pool created. LP in this wallet.","ok");
+    await refresh();
+  }catch(e){
+    let m=e.shortMessage||e.message||"Failed";
+    if(/user rejected|denied/i.test(m)) m="Cancelled.";
+    setPxStatus(m,"err");
+  }
+  btn.disabled=false; paintPx();
+});
+
+$("pxRemBtn") && ($("pxRemBtn").onclick=async()=>{
+  if(!account){ openSheet(); return; }
+  const btn=$("pxRemBtn"); btn.disabled=true;
+  try{
+    await quotePxRem();
+    const s=window._pxRem;
+    if(!s||!s.burn){ setPxStatus("Pick 25%, 50%, 75% or Max.","err"); btn.disabled=false; return; }
+    await pxApprove(s.pair, PULSEX_V2_ROUTER, s.burn);
+    const r=new ethers.Contract(PULSEX_V2_ROUTER, ROUTER_ABI, signer);
+    setPxStatus("Removing liquidity…");
+    const dl=pxDeadline();
+    const tx=s.q.native
+      ? await r.removeLiquidityETH(cur.cfg.vault, s.burn, s.outT*99n/100n, s.outQ*99n/100n, account, dl, { gasLimit: 800_000n })
+      : await r.removeLiquidity(cur.cfg.vault, s.q.addr, s.burn, s.outT*99n/100n, s.outQ*99n/100n, account, dl, { gasLimit: 800_000n });
+    await tx.wait();
+    setPxStatus("Liquidity removed.","ok");
+    pxRemPct=0; paintPxPct(); await refresh();
+  }catch(e){
+    let m=e.shortMessage||e.message||"Failed";
+    if(/user rejected|denied/i.test(m)) m="Cancelled.";
+    setPxStatus(m,"err");
+  }
+  btn.disabled=false; paintPx();
+});
+
 /* leaderboard */
+
 async function findPair(a,b){
   for(const f of PULSEX_FACTORIES){
     try{
