@@ -58,7 +58,7 @@ header{display:flex;justify-content:space-between;align-items:center;padding:20p
 .chipbtn:hover,.chipbtn:focus-visible{border-color:var(--pulse);color:var(--text)}
 .mktrow{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;align-items:center;margin-top:14px}
 .mktrow .chip{white-space:nowrap}
-.chip.prem{color:var(--gold);border-color:rgba(217,169,78,.45)}
+.chip.prem{color:var(--gold,#D9A94E);border-color:rgba(217,169,78,.45)}
 .chip.disc{color:var(--mint);border-color:rgba(127,179,232,.45)}
 .backdelta{font-family:'IBM Plex Mono';font-size:13px;color:var(--mint);margin-top:-6px;letter-spacing:.02em}
 .chip.on{color:var(--mint);border-color:rgba(127,179,232,.40)}
@@ -68,6 +68,52 @@ header{display:flex;justify-content:space-between;align-items:center;padding:20p
   max-width:190px;transition:border-color .15s,color .15s}
 .rpcsel:hover,.rpcsel:focus-visible{border-color:var(--pulse);color:var(--text)}
 .rpcsel.custom{border-color:rgba(127,179,232,.45);color:var(--mint)}
+
+.vouch-box{margin:28px 0 8px;padding:18px 16px 16px;background:var(--panel);border:1px solid var(--line);border-radius:22px}
+.vouch-box h3{font-family:'Michroma';font-weight:400;font-size:12px;letter-spacing:.12em;text-transform:uppercase;margin:0 0 8px}
+.vouch-box p{font-size:13px;color:var(--mut);line-height:1.55;margin:0 0 14px}
+.vouch-box iframe{width:100%;max-width:420px;height:500px;border:0;border-radius:30px;display:block;margin:0 auto;background:#0b0b10}
+.vouch-box .vouch-off{font-size:12px;color:var(--mut);text-align:center;padding:18px 8px}
+.hsi-head{font-family:'Michroma';font-size:11px;letter-spacing:.1em;text-transform:uppercase;margin:18px 0 10px;color:var(--text)}
+.hsi-list{display:flex;flex-direction:column;gap:10px}
+.hsi-card{background:var(--panel2);border:1px solid var(--line);border-radius:14px;padding:14px}
+.hsi-card .row{display:flex;justify-content:space-between;gap:10px;padding:3px 0;font-size:13px;color:var(--mut)}
+.hsi-card .row span:last-child{font-family:'IBM Plex Mono';color:var(--text);text-align:right}
+.hsi-card .addr{font-family:'IBM Plex Mono';font-size:11px;word-break:break-all;color:var(--mut);margin-top:6px}
+.hsi-card .mintrow{display:flex;gap:8px;margin-top:10px}
+.hsi-card .mintrow input{flex:1;min-width:0;background:var(--panel);border:1px solid var(--line);border-radius:10px;color:var(--text);font-family:'IBM Plex Mono';font-size:14px;padding:10px 12px}
+.hsi-card button{font-family:'Michroma';font-size:11px;letter-spacing:.04em;padding:12px 14px;border:none;border-radius:11px;cursor:pointer;background:linear-gradient(135deg,#6FA8DC,var(--pulse) 45%,var(--pulse-deep));color:#fff;white-space:nowrap}
+.hsi-card button:disabled{opacity:.4;cursor:not-allowed}
+.hsi-card .acts{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.hsi-card .acts button.ghost{background:var(--panel);border:1px solid var(--line);color:var(--text)}
+.hsi-card .acts button.warn{background:linear-gradient(135deg,#A34A38,var(--violet) 45%,var(--violet-deep))}
+.hsi-empty{font-size:13px;color:var(--mut);padding:8px 2px}
+.rec-card{background:var(--panel2);border:1px solid var(--line);border-radius:14px;padding:14px 14px 12px;margin:0 0 14px}
+.rec-card .rec-k{font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--mint);margin-bottom:6px}
+.rec-card .rec-t{font-size:15px;font-weight:600;margin-bottom:6px}
+.rec-card .rec-d{font-size:13px;color:var(--mut);line-height:1.5}
+.route{width:100%;border-collapse:collapse;font-size:13px;margin:0 0 14px}
+.route th,.route td{text-align:left;padding:8px 6px;border-bottom:1px solid var(--line);color:var(--mut)}
+.route td:last-child,.route th:last-child{text-align:right;font-family:'IBM Plex Mono';color:var(--text)}
+.route tr.pick td{color:var(--mint)}
+.row-btns{display:flex;gap:8px;margin:4px 0 8px}
+.row-btns .action{flex:1;padding:14px 0;font-size:12px}
+.row-btns .ghost{background:var(--panel2);border:1px solid var(--line);color:var(--text)}
+.claim-banner{background:rgba(127,179,232,.08);border:1px solid rgba(127,179,232,.35);border-radius:14px;padding:14px;margin:0 0 14px}
+.claim-banner b{color:var(--mint)}
+.swap-note{font-size:12px;color:var(--mut);margin:8px 2px 0;line-height:1.5}
+.pos-grid{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--line);border:1px solid var(--line);border-radius:14px;overflow:hidden;margin:0 0 14px}
+.pos-grid .stat{background:var(--panel2)}
+.paysel{
+  appearance:none;-webkit-appearance:none;
+  background:transparent url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='8' height='6' viewBox='0 0 8 6'><path fill='%239398A8' d='M0 0l4 6 4-6z'/></svg>") no-repeat right 2px center;
+  border:none;color:var(--mut);font-family:'IBM Plex Mono',monospace;font-size:13px;
+  padding:4px 14px 4px 4px;cursor:pointer;min-width:52px;
+}
+.paysel:focus{outline:none;color:var(--text)}
+.paysel option{background:var(--panel);color:var(--text)}
+.adv-note{font-size:12px;color:var(--mut);line-height:1.55;margin:0 0 14px;padding:10px 12px;background:var(--panel2);border-radius:12px;border:1px dashed var(--line)}
+
 
 /* signature: the ratchet */
 .ratchet{margin-bottom:38px}
@@ -202,6 +248,16 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--violet);outline
 .vpill{font-family:'Michroma';font-size:11px;letter-spacing:.06em;padding:10px 16px;border-radius:99px;
   border:1px solid var(--line);background:var(--panel);color:var(--mut);cursor:pointer}
 .vpill[aria-selected="true"]{color:var(--text);border-color:var(--pulse);box-shadow:0 0 0 1px var(--pulse) inset}
+.slipchips{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
+.slipchip{background:transparent;border:1px solid var(--line);color:var(--mut);border-radius:8px;font-size:11px;padding:5px 8px;cursor:pointer;font-family:'IBM Plex Mono'}
+.slipchip.on{border-color:var(--pulse);color:var(--text)}
+.pctrow{display:flex;gap:8px;margin:4px 0 10px}
+.pctrow button{flex:1;background:transparent;border:1px solid var(--line);color:var(--mut);border-radius:10px;font-size:13px;padding:10px 8px;cursor:pointer;font-family:'Space Grotesk';font-weight:600}
+.pctrow button.on{border-color:var(--pulse);color:var(--text);box-shadow:0 0 0 1px var(--pulse) inset}
+.lp-range{width:100%;accent-color:var(--pulse);margin:2px 0 10px}
+.warn-ok{color:var(--mint)!important}
+.warn-mid{color:var(--gold)!important}
+.warn-bad{color:var(--danger)!important}
 </style>
 </head>
 <body>
@@ -243,7 +299,6 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--violet);outline
   <p class="rail-note" id="railNote"></p>
   <div class="mktrow">
     <span class="chip" id="mktChip" style="display:none"></span>
-    <a class="chip chipbtn" id="tradeLink" target="_blank" rel="noopener" style="display:none">Buy on PulseX ↗</a>
     <button class="chip chipbtn" id="copyTok" style="display:none">copy token address</button>
   </div>
 </section>
@@ -260,31 +315,262 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--violet);outline
   <span>resets in <b id="epochTimer">·····</b></span>
 </div>
 
-<section class="card" aria-label="Mint or redeem">
+<section class="card" aria-label="Swap, mint or redeem">
   <div class="tabs" role="tablist">
-    <button class="tab" role="tab" id="tabMint" aria-selected="true">Mint</button>
+    <button class="tab" role="tab" id="tabSwap" aria-selected="true">Swap</button>
+    <button class="tab" role="tab" id="tabMint" aria-selected="false">Mint</button>
     <button class="tab" role="tab" id="tabRedeem" aria-selected="false">Redeem</button>
   </div>
-  <div class="field">
-    <label id="inLabel" for="amt">You deposit</label>
-    <div class="amt-row">
-      <input id="amt" inputmode="decimal" placeholder="0.0" autocomplete="off">
-      <span class="sym" id="inSym"></span>
-      <button class="maxbtn" id="maxBtn">MAX</button>
+
+  <div id="swapPane">
+    <div class="field">
+      <label for="xSwapIn">You pay</label>
+      <div class="amt-row">
+        <input id="xSwapIn" inputmode="decimal" placeholder="0.0" autocomplete="off">
+        <select id="xPaySel" class="paysel" aria-label="Pay with"></select>
+        <button type="button" class="maxbtn" id="xSwapMax">MAX</button>
+      </div>
+      <div class="bal" id="xSwapBal"></div>
     </div>
-    <div class="bal" id="inBal"></div>
+    <div class="field" style="margin-top:10px">
+      <label for="xSwapOut">You receive</label>
+      <div class="amt-row">
+        <input id="xSwapOut" inputmode="decimal" placeholder="0.0" autocomplete="off" readonly>
+        <select id="xGotSel" class="paysel" aria-label="Receive"></select>
+      </div>
+    </div>
+    <div class="preview">
+      <div class="row"><span>Route</span><span id="xSwapVia">—</span></div>
+      <div class="row"><span>Pool</span><span id="xSwapPool">—</span></div>
+      <div class="row"><span>Spot</span><span id="xSwapSpot">—</span></div>
+      <div class="row"><span>This swap</span><span id="xSwapExec">—</span></div>
+      <div class="row"><span>Price impact</span><span id="xSwapImp">—</span></div>
+      <div class="row"><span>Of pool (in)</span><span id="xSwapShare">—</span></div>
+      <div class="row"><span>Vs vault</span><span id="xSwapVs">—</span></div>
+      <div class="row"><span>~2% impact size</span><span id="xSwapSafe">—</span></div>
+      <div class="row"><span>Max slippage</span><span class="slipchips" id="xSlip"></span></div>
+      <div class="row"><span>Min received</span><span id="xSwapMin">—</span></div>
+    </div>
+    <p class="swap-note" id="xSwapWarn">Pools here can be thin. Check impact before you sign. PulseStrategy does not operate PulseX.</p>
+    <button class="action" id="xSwapBtn" type="button">Swap on PulseX</button>
   </div>
-  <div class="preview">
-    <div class="row"><span>You receive</span><span id="outAmt">—</span></div>
-    <div class="row fee"><span id="feeLabel">Mint premium (4.5%: 4.0% vault, 0.5% protocol fee)</span><span id="feeAmt">—</span></div>
+
+  <div id="mrPane" style="display:none">
+    <div class="field">
+      <label id="inLabel" for="amt">You deposit</label>
+      <div class="amt-row">
+        <input id="amt" inputmode="decimal" placeholder="0.0" autocomplete="off">
+        <span class="sym" id="inSym"></span>
+        <button class="maxbtn" id="maxBtn">MAX</button>
+      </div>
+      <div class="bal" id="inBal"></div>
+    </div>
+    <div class="preview">
+      <div class="row"><span>You receive</span><span id="outAmt">—</span></div>
+      <div class="row fee"><span id="feeLabel">Mint premium (4.5%: 4.0% vault, 0.5% protocol fee)</span><span id="feeAmt">—</span></div>
+    </div>
+    <button class="action" id="actionBtn" disabled>Connect wallet</button>
   </div>
-  <button class="action" id="actionBtn" disabled>Connect wallet</button>
   <div class="status" id="status"></div>
+</section>
+
+<section id="vouchBox" class="vouch-box" style="display:none" aria-label="Stake PLS for vPLS">
+  <h3>Get vPLS · then mint PLSstr</h3>
+  <p>PLSstr is backed by vPLS. Stake PLS through Vouch, then mint above — or swap PLS for PLSstr on the Swap tab. PulseStrategy is not affiliated with Vouch or PulseX — we use vPLS because it earns validator yield.</p>
+  <div class="rec-card" id="vRec">
+    <div class="rec-k">Recommended</div>
+    <div class="rec-t" id="vRecT">Checking the vPLS market…</div>
+    <div class="rec-d" id="vRecD">Compare staking through Vouch with buying vPLS on PulseX.</div>
+  </div>
+  <table class="route"><tbody>
+    <tr><th>Route</th><th>Cost of 1 vPLS</th></tr>
+    <tr id="vRowStake"><td>Stake PLS</td><td id="vCostStake">—</td></tr>
+    <tr id="vRowBuy"><td>Buy vPLS</td><td id="vCostBuy">—</td></tr>
+  </tbody></table>
+  <div class="tabs" role="tablist">
+    <button class="tab" id="vStakeTab" aria-selected="true">Stake</button>
+    <button class="tab" id="vUnTab">Unstake</button>
+  </div>
+  <div id="vStakePane">
+    <div class="field" style="margin:0 0 12px">
+      <label for="vPlsAmt">You stake</label>
+      <div class="amt-row">
+        <input id="vPlsAmt" inputmode="decimal" placeholder="0.0" autocomplete="off">
+        <span class="sym">PLS</span>
+        <button type="button" class="maxbtn" id="vPlsMax">MAX</button>
+      </div>
+      <div class="bal" id="vPlsBal"></div>
+    </div>
+    <div class="preview" style="padding-bottom:12px">
+      <div class="row"><span>Rate</span><span id="vRate">—</span></div>
+      <div class="row"><span>You receive</span><span id="vOut">—</span></div>
+      <div class="row"><span>Minimum</span><span id="vMin">10,000 PLS</span></div>
+    </div>
+    <button class="action" id="vStakeBtn">Connect wallet</button>
+  </div>
+  <div id="vUnPane" style="display:none">
+    <div class="field" style="margin:0 0 12px">
+      <label for="vVplsAmt">You unstake</label>
+      <div class="amt-row">
+        <input id="vVplsAmt" inputmode="decimal" placeholder="0.0" autocomplete="off">
+        <span class="sym">vPLS</span>
+        <button type="button" class="maxbtn" id="vVplsMax">MAX</button>
+      </div>
+      <div class="bal" id="vVplsBal"></div>
+    </div>
+    <div class="preview" style="padding-bottom:12px">
+      <div class="row"><span>You receive</span><span id="vUnOut">—</span></div>
+    </div>
+    <button class="action" id="vUnBtn">Connect wallet</button>
+    <div class="hsi-head">Pending PLS claims</div>
+    <div class="hsi-list" id="vClaimList"><div class="hsi-empty">None.</div></div>
+  </div>
+  <div class="status" id="vStatus"></div>
+  <p class="swap-note">Vouch UserDeposit <span class="mono">0x2D7Dcc5A1d90d08D484E38a4C99B8394daaF4B9e</span> · NetworkWithdraw <span class="mono">0x1F082785Ca889388Ce523BF3de6781E40b99B060</span>. Docs: <a href="https://vouch.run/docs/vouch_ecosystem/vPLS_Token.html" target="_blank" rel="noopener">vouch.run ↗</a></p>
+</section>
+
+<section id="httBox" class="vouch-box" style="display:none" aria-label="HTT and Actuator">
+  <h3 id="httTitle">Use HEXstr with HTT</h3>
+  <p id="httLead">HEXstr is backed by HTT. You don’t need to create a HEX stake. Recommended: buy this HTT on PulseX, then deposit it above. PulseStrategy is not affiliated with Actuator or PulseX.</p>
+  <div id="hexClaimBanner" class="claim-banner" style="display:none">
+    <div class="hsi-head" style="margin:0 0 6px">Claim HEX</div>
+    <p style="margin:0 0 10px"><b id="hexClaimAmt">—</b> HEX is waiting in Actuator for HTT you hold. You do not need another frontend.</p>
+    <button class="action" id="hexClaimGo" type="button">Claim HEX</button>
+  </div>
+  <div class="tabs" role="tablist">
+    <button class="tab" id="hexTabBtnHtt" aria-selected="true">HTT</button>
+    <button class="tab" id="hexTabBtnHsi">HSI & Actuator</button>
+  </div>
+
+  <div id="hexPaneHtt">
+    <div class="rec-card" id="hexRec">
+      <div class="rec-k">Recommended</div>
+      <div class="rec-t" id="hexRecT">Buy HTT, then deposit</div>
+      <div class="rec-d" id="hexRecD">You don’t need to stake HEX to use this vault. Buying HTT and depositing is the simple path.</div>
+    </div>
+    <div class="preview" style="padding-bottom:8px">
+      <div class="row"><span>Market</span><span id="hexMkt">—</span></div>
+      <div class="row"><span>Redemption</span><span>1 HTT = 1 HEX</span></div>
+      <div class="row"><span>Discount</span><span id="hexDisc">—</span></div>
+      <div class="row"><span>Days until HEX day</span><span id="hexLeft">—</span></div>
+    </div>
+    <table class="route"><tbody>
+      <tr><th>Route</th><th>What you do</th></tr>
+      <tr id="hexRowBuy"><td>🟢 Buy HTT</td><td>Swap HEX → HTT on PulseX</td></tr>
+      <tr id="hexRowHsi"><td>🔵 Create HTT</td><td>Stake HEX → HSI → mint later</td></tr>
+    </tbody></table>
+    <p class="swap-note">Want HTT or HEXstr? Use Swap above — HEX or PLS into this vault’s HTT, or into HEXstr. Then Mint if you bought HTT.</p>
+  </div>
+
+  <div id="hexPaneHsi" style="display:none">
+    <div class="adv-note">Already have a HEX stake? You can manage it here. HEXstr does not require you to create one — buy HTT on the HTT tab if you just want vault exposure. If you do want your own Actuator-backed HSI, everything below talks to Actuator’s contracts from this file. PulseStrategy is not affiliated with Actuator.</div>
+    <div class="field" style="margin:0 0 12px">
+      <label for="hexAmt">Create delegated HSI · HEX to stake</label>
+      <div class="amt-row">
+        <input id="hexAmt" inputmode="decimal" placeholder="0.0" autocomplete="off">
+        <span class="sym">HEX</span>
+        <button type="button" class="maxbtn" id="hexMax">MAX</button>
+      </div>
+      <div class="bal" id="hexBal"></div>
+    </div>
+    <div class="preview" style="padding-bottom:12px">
+      <div class="row"><span>HSI length</span><span id="httDays">—</span></div>
+      <div class="row"><span>Ends / HTT series</span><span id="httEnds">—</span></div>
+      <div class="row"><span>You receive</span><span>delegated HSI · mint HTT separately</span></div>
+    </div>
+    <button class="action" id="httBtn">Connect wallet</button>
+    <div class="field" style="margin:14px 0 0">
+      <label for="hsiNft">Or delegate an existing HSI NFT</label>
+      <div class="amt-row">
+        <input id="hsiNft" inputmode="numeric" placeholder="token id" autocomplete="off">
+        <button type="button" class="maxbtn" id="hsiDelBtn">Delegate</button>
+      </div>
+    </div>
+    <div class="status" id="httStatus"></div>
+    <div class="hsi-head">Your delegated stakes</div>
+    <p style="margin-bottom:10px">Mint only HTT for this vault’s day, up to Actuator’s extractable. You can mint again later as the stake earns. Retire HTT before end-stake if you want the HEX back on the HSI.</p>
+    <div class="hsi-list" id="httList"><div class="hsi-empty">Connect to load delegated HSIs.</div></div>
+    <div id="httRedeemWrap" style="display:none">
+      <div class="hsi-head">Redeem HTT for HEX</div>
+      <p style="margin-bottom:10px">Open on the HTT’s HEX day, for holders with or without a stake. 1 HTT = 1 HEX after backing stakes are ended. PulseStrategy does not custody this HEX — it sits in Actuator.</p>
+      <div class="hsi-list" id="httHold"></div>
+      <div id="httRedeemCustom" style="display:none">
+        <div class="field" style="margin:12px 0 12px">
+          <label for="redMat">Other HTT day</label>
+          <div class="amt-row">
+            <input id="redMat" inputmode="numeric" placeholder="e.g. 7777" autocomplete="off">
+            <span class="sym">HEX day</span>
+          </div>
+        </div>
+        <div class="field" style="margin:0 0 12px">
+          <label for="redAmt">Amount</label>
+          <div class="amt-row">
+            <input id="redAmt" inputmode="decimal" placeholder="0.0" autocomplete="off">
+            <span class="sym">HTT</span>
+          </div>
+          <div class="bal" id="redBal"></div>
+        </div>
+        <button class="action" id="redBtn">Redeem HTT</button>
+      </div>
+    </div>
+  </div>
 </section>
 
 <section id="poolsSec" style="display:none" aria-label="Liquidity pools">
   <h2>Liquidity pools <small>Provide liquidity, earn the trading fees this system generates.</small></h2>
   <div id="poolsList"></div>
+  <div class="card" id="lpBox" style="margin-top:14px">
+    <div style="font-family:'Michroma';font-size:12px;letter-spacing:.1em;text-transform:uppercase;margin:0 0 8px">Manage PulseX LP</div>
+    <p class="swap-note" style="margin:0 0 12px">Add or remove liquidity for this vault’s pool from this file. PulseStrategy does not operate PulseX.</p>
+    <div class="note" id="lpPos" style="margin:0 0 14px">Open a vault to load the pool.</div>
+    <div class="tabs" role="tablist">
+      <button class="tab" id="lpTabAdd" aria-selected="true">Add</button>
+      <button class="tab" id="lpTabRem">Remove</button>
+    </div>
+    <div id="lpPaneAdd">
+      <div class="field">
+        <label for="lpTokAmt">Vault token</label>
+        <div class="amt-row">
+          <input id="lpTokAmt" inputmode="decimal" placeholder="0.0" autocomplete="off">
+          <span class="sym" id="lpTokSym">TOKEN</span>
+          <button type="button" class="maxbtn" id="lpTokMax">MAX</button>
+        </div>
+        <div class="bal" id="lpTokBal"></div>
+      </div>
+      <div class="field" style="margin-top:10px">
+        <label for="lpQuoteAmt">Paired with</label>
+        <div class="amt-row">
+          <input id="lpQuoteAmt" inputmode="decimal" placeholder="0.0" autocomplete="off">
+          <select id="lpQuoteSel" class="paysel" aria-label="Pair asset"></select>
+          <button type="button" class="maxbtn" id="lpQuoteMax">MAX</button>
+        </div>
+        <div class="bal" id="lpQuoteBal"></div>
+      </div>
+      <div class="preview">
+        <div class="row"><span>You deposit</span><span id="lpAddPrev">—</span></div>
+        <div class="row"><span>Vs vault</span><span id="lpAddSkew">—</span></div>
+      </div>
+      <button class="action" id="lpAddBtn" type="button">Add liquidity</button>
+    </div>
+    <div id="lpPaneRem" style="display:none">
+      <div class="bal" id="lpBurnBal" style="margin:0 0 12px"></div>
+      <div class="pctrow" id="lpPctRow">
+        <button type="button" data-p="25">25%</button>
+        <button type="button" data-p="50">50%</button>
+        <button type="button" data-p="75">75%</button>
+        <button type="button" data-p="100">Max</button>
+      </div>
+      <input type="range" id="lpPctRange" min="0" max="100" value="0" class="lp-range" aria-label="Percent of LP to remove">
+      <div class="preview">
+        <div class="row"><span>Removing</span><span id="lpPctLab">0%</span></div>
+        <div class="row"><span>LP burned</span><span id="lpRemLp">—</span></div>
+        <div class="row"><span>Pool share</span><span id="lpRemShare">—</span></div>
+        <div class="row"><span>You receive</span><span id="lpRemPrev">—</span></div>
+      </div>
+      <button class="action" id="lpRemBtn" type="button">Remove liquidity</button>
+    </div>
+    <div class="status" id="lpStatus"></div>
+  </div>
   <p class="rail-note" style="margin-top:10px">The arb-anchored floor and ceiling bound LP inventory risk — price mean-reverts around the ratchet instead of wandering freely. APR shown is trailing <b>realized</b> pool fees (annualized), not a promise, and excludes impermanent loss.</p>
 </section>
 
@@ -403,8 +689,20 @@ try{
   }
 }catch(_){}
 
-const BUILD = "v25 \u00b7 2026-09-08";   // shown in the footer so users can tell builds apart
+const BUILD = "v49 \u00b7 2026-09-15";   // shown in the footer so users can tell builds apart
 const WC_PROJECT_ID = "dfa53b26ebcaa8d274b2a7f6ddc66cb0";   // free at https://cloud.reown.com (enables WalletConnect)
+const VOUCH_VPLS = "0x79BB3A0Ee435f957ce4f54eE8c3CFADc7278da0C";
+const VOUCH_DEPOSIT = "0x2D7Dcc5A1d90d08D484E38a4C99B8394daaF4B9e";
+const VOUCH_WITHDRAW = "0x1F082785Ca889388Ce523BF3de6781E40b99B060";
+const PLS_DEC = 18;
+const HTT_MANAGER = "0x0d5d61FDDf84feFAB26f98164D8009022d740206";
+const HSIM_ADDR = "0x8BD3d1472A656e312E94fB1BbdD599B8C51D18e3";
+const HEX_ADDR = "0x2b591e99afE9f32eAA6214f7B7629768c40Eeb39";
+const HEX_MAX_DAYS = 5555;
+const HEX_DEC = 8;
+const HEDRON_ADDR = "0x3819f64f282bf135d62168C1e513280dAF905e06";
+const HEDRON_DEC = 9;
+const HTT_KNOWN = [3000,3690,4000,5000,5555,6000,6666,7000,7777,7900,8000];
 
 /* One entry per vault ON THIS CHAIN. To add a vault (any decimals — 8-dec HEX,
    18-dec vPLS, etc.): deploy the StrategyVault template, then add one object
@@ -516,7 +814,10 @@ const PAIR_ABI = [
   "function getReserves() view returns (uint112,uint112,uint32)",
   "function totalSupply() view returns (uint256)",
   "function token0() view returns (address)",
-  "function token1() view returns (address)"
+  "function token1() view returns (address)",
+  "function balanceOf(address) view returns (uint256)",
+  "function allowance(address,address) view returns (uint256)",
+  "function approve(address,uint256) returns (bool)"
 ];
 const SYM_ABI = ["function symbol() view returns (string)","function decimals() view returns (uint8)"];
 const FACTORY_ABI = ["function getPair(address,address) view returns (address)"];
@@ -530,12 +831,75 @@ const PULSEX_FACTORIES = [
   "0x1715a3E4A142d8b698131108995174F37aEBA10D",  // PulseX v1
   "0x29eA7545DEf87022BAdc76323F373EA1e707C523"   // PulseX v2
 ];
+const PULSEX_V1_ROUTER = "0x98bf93ebf5c380C0e6Ae8e192A7e2AE08edAcc02";
+const PULSEX_V2_ROUTER = "0x165C3410fC91EF562C50559f7d2289fEbed552d9";
+const PULSEX_ROUTER_OF = {
+  "0x1715a3e4a142d8b698131108995174f37aeba10d": PULSEX_V1_ROUTER,
+  "0x29ea7545def87022badc76323f373ea1e707c523": PULSEX_V2_ROUTER
+};
+const ROUTER_ABI = [
+  "function getAmountsOut(uint256,address[]) view returns (uint256[])",
+  "function swapExactTokensForTokens(uint256,uint256,address[],address,uint256) returns (uint256[])",
+  "function swapExactETHForTokens(uint256,address[],address,uint256) payable returns (uint256[])",
+  "function swapExactTokensForETH(uint256,uint256,address[],address,uint256) returns (uint256[])",
+  "function addLiquidity(address,address,uint256,uint256,uint256,uint256,address,uint256) returns (uint256,uint256,uint256)",
+  "function addLiquidityETH(address,uint256,uint256,uint256,address,uint256) payable returns (uint256,uint256,uint256)",
+  "function removeLiquidity(address,address,uint256,uint256,uint256,address,uint256) returns (uint256,uint256)",
+  "function removeLiquidityETH(address,uint256,uint256,uint256,address,uint256) returns (uint256,uint256)"
+];
 
 const ERC20_ABI = [
   "function balanceOf(address) view returns (uint256)",
   "function allowance(address,address) view returns (uint256)",
   "function approve(address,uint256) returns (bool)",
   "function decimals() view returns (uint8)"
+];
+const HEX_DAY_ABI = ["function currentDay() view returns (uint256)"];
+const HTTM_ABI = [
+  "function hexStakeStart(uint256,uint256) returns (address)",
+  "function delegateHSI(uint256) returns (address)",
+  "function mintHEXTimeTokens(uint256,uint256,uint256) returns (address)",
+  "function retireHEXTimeTokens(uint256,uint256,uint256)",
+  "function revokeHSIDelegation(uint256,uint256) returns (uint256)",
+  "function endHEXStake(uint256,uint256) returns (uint256)",
+  "function endCollateralizedHEXStake(address,uint256,uint256,uint256)",
+  "function mintInstanced(uint256,uint256) returns (uint256)",
+  "function redeemHEXTimeTokens(uint256,uint256)",
+  "function hsiCount(address) view returns (uint256)",
+  "function hsiLists(address,uint256) view returns (address)",
+  "function getExtractableAmount(address,uint256) view returns (uint256)",
+  "function shareLists(address,uint256) view returns (uint40,uint72,uint72,uint16,uint16,uint256,uint256,address)",
+  "function findHedronHSIIndex(address) view returns (int256)",
+  "function hsiListRange(uint256,uint256,uint256) view returns (address[])",
+  "function maturityToInfo(uint16) view returns (uint72,address)",
+  "event StartStake(address indexed user, address indexed hsiAddress)"
+];
+const VOUCH_DEP_ABI = [
+  "function deposit() payable",
+  "function minDeposit() view returns (uint256)",
+  "function getRate() view returns (uint256)",
+  "function depositEnabled() view returns (bool)",
+  "function getBalance() view returns (uint256)"
+];
+const VOUCH_WD_ABI = [
+  "function unstake(uint256)",
+  "function withdraw(uint256[])",
+  "function getUnclaimedWithdrawalsOfUser(address) view returns (uint256[])",
+  "function withdrawalAtIndex(uint256) view returns (address,uint256)",
+  "function maxClaimableWithdrawIndex() view returns (uint256)",
+  "function totalMissingAmountForWithdraw() view returns (uint256)"
+];
+const VPLS_ABI = [
+  "function balanceOf(address) view returns (uint256)",
+  "function allowance(address,address) view returns (uint256)",
+  "function approve(address,uint256) returns (bool)",
+  "function getRate() view returns (uint256)"
+];
+const HSIM_ABI = [
+  "function approve(address,uint256)",
+  "function setApprovalForAll(address,bool)",
+  "function getApproved(uint256) view returns (address)",
+  "function isApprovedForAll(address,address) view returns (bool)"
 ];
 
 const $ = id => document.getElementById(id);
@@ -568,6 +932,7 @@ let cur = null;           // active vault runtime {cfg, vr, ar, aDec, tDec, vaul
 let eip1193=null, signer=null, account=null;
 let mode="mint", bal={asset:0n, token:0n}, previewOut=0n, needsApproval=false;
 let epochSecs=null, epochFetched=0;
+let lastVplsRate=null;
 
 const fmt = (bn, dec, dp=4) => {
   if (bn===null||bn===undefined) return "—";
@@ -576,6 +941,64 @@ const fmt = (bn, dec, dp=4) => {
   if (n!==0 && n<0.0001) return "<0.0001";
   return n.toLocaleString("en-US",{maximumFractionDigits:dp});
 };
+const short = a => a ? a.slice(0,6)+"…"+a.slice(-4) : "";
+function cleanNum(v){ return String(v||"").replace(/,/g,"").trim(); }
+function commaNum(v, dp=4){
+  const t=cleanNum(v);
+  if(!t) return "";
+  const n=Number(t);
+  if(!isFinite(n)) return String(v);
+  return n.toLocaleString("en-US",{maximumFractionDigits:dp});
+}
+function parseInput(v, dec){
+  const t=cleanNum(v);
+  if(!t || !(parseFloat(t)>0)) return null;
+  try{ return ethers.parseUnits(t, dec); }catch(_){ return null; }
+}
+function fmtLp(bn){
+  if(bn===null||bn===undefined) return "—";
+  if(bn===0n) return "0";
+  const n=Number(ethers.formatUnits(bn, 18));
+  if(!isFinite(n)) return "—";
+  if(n>0 && n<0.001) return n.toLocaleString("en-US",{maximumFractionDigits:12, minimumFractionDigits:6});
+  return n.toLocaleString("en-US",{maximumFractionDigits:6});
+}
+function sharePct(part, whole){
+  if(!whole || whole===0n) return "0.000";
+  return (Number(part * 100000n / whole)/1000).toFixed(3);
+}
+function liveComma(el){
+  if(!el || el.readOnly) return;
+  const old=el.value;
+  const sel=el.selectionStart ?? old.length;
+  const leftKept=old.slice(0, sel).replace(/,/g,"");
+  let s=old.replace(/,/g,"");
+  const hadDot=s.includes(".");
+  if(hadDot){
+    const i=s.indexOf(".");
+    s=s.slice(0,i).replace(/\D/g,"")+"."+s.slice(i+1).replace(/\D/g,"");
+  }else s=s.replace(/\D/g,"");
+  let intp=s, frac=null;
+  if(hadDot){ const i=s.indexOf("."); intp=s.slice(0,i); frac=s.slice(i+1); }
+  intp=intp.replace(/^0+(?=\d)/,"");
+  if(intp==="") intp=hadDot?"0":"";
+  const intFmt=intp.replace(/\B(?=(\d{3})+(?!\d))/g,",");
+  const formatted=hadDot?intFmt+"."+frac:intFmt;
+  if(formatted===old) return;
+  el.value=formatted;
+  let pos=formatted.length;
+  if(sel<old.length){
+    const target=leftKept.length;
+    let seen=0;
+    pos=formatted.length;
+    for(let i=0;i<formatted.length;i++){
+      if(formatted[i]===",") continue;
+      seen++;
+      if(seen>=target){ pos=i+1; break; }
+    }
+  }
+  try{ el.setSelectionRange(pos, pos); }catch(_){}
+}
 let statusLockUntil = 0;
 function setStatus(m,c=""){
   /* refresh() clears the status every cycle; don't let it wipe a pinned
@@ -639,10 +1062,1281 @@ async function activateVault(key){
   $("assetLinkLabel").textContent = cfg.assetSym+": ";
 
   bal={asset:0n, token:0n}; previewOut=0n; $("amt").value="";
-  setMode("mint");
+  swapVaultKey=null; lpVaultKey=null;
+  setCardTab("swap");
   loadPools(cfg);
+  paintBackingSources();
   await refresh();
+  quoteVaultSwap();
 }
+
+function httMaturity(){
+  const m=Number(String(cur?.cfg?.assetSym||"").replace(/^HTT-/i,""));
+  return Number.isFinite(m) && m>0 ? m : 0;
+}
+function paintBackingSources(){
+  const vbox=$("vouchBox"), hbox=$("httBox");
+  const isPls=cur && cur.cfg.key==="PLSstr";
+  const mat=httMaturity();
+  const isHex=cur && /^HEXstr/i.test(cur.cfg.key) && mat>0;
+  if(vbox){
+    vbox.style.display=isPls?"":"none";
+    if(isPls) paintVouch();
+  }
+  if(hbox){
+    hbox.style.display=isHex?"":"none";
+    if(isHex){
+      const sym=cur.cfg.assetSym;
+      if($("httTitle")) $("httTitle").textContent="Use "+cur.cfg.token+" with "+sym;
+      if($("httLead")) $("httLead").textContent="You don't need to stake HEX to use this vault. Buy "+sym+" on PulseX, then deposit it above. HSI & Actuator is the advanced path if you already have a HEX stake. PulseStrategy is not affiliated with Actuator or PulseX.";
+      if($("hSwapSym")) $("hSwapSym").textContent=sym;
+      if(hexUiTab==="pos") hexUiTab="htt";
+      setHexUiTab(hexUiTab||"htt");
+      paintHexReco();
+      syncHttWalletUi();
+      paintHttPreview();
+      loadHsiList();
+      loadHttHoldings();
+    }
+  }
+}
+
+let vouchMode="stake";
+function setVouchStatus(m,c=""){ const s=$("vStatus"); if(s){ s.textContent=m; s.className="status "+c; } }
+function parsePls(el){
+  const v=cleanNum(el?.value);
+  if(!v || !(parseFloat(v)>0)) return null;
+  try{ return ethers.parseUnits(v, PLS_DEC); }catch(_){ return null; }
+}
+function setVouchMode(m){
+  if(m==="buy") m="stake";
+  vouchMode=m;
+  if($("vStakeTab")) $("vStakeTab").setAttribute("aria-selected", m==="stake"?"true":"false");
+  if($("vUnTab")) $("vUnTab").setAttribute("aria-selected", m==="unstake"?"true":"false");
+  if($("vStakePane")) $("vStakePane").style.display=m==="stake"?"":"none";
+  if($("vUnPane")) $("vUnPane").style.display=m==="unstake"?"":"none";
+  paintVouch();
+}
+async function paintVouch(){
+  if(!cur || cur.cfg.key!=="PLSstr") return;
+  const stakeBtn=$("vStakeBtn"), unBtn=$("vUnBtn");
+  if(!account){
+    if(stakeBtn) stakeBtn.textContent="Connect wallet";
+    if(unBtn) unBtn.textContent="Connect wallet";
+    if($("vPlsBal")) $("vPlsBal").textContent="";
+    if($("vVplsBal")) $("vVplsBal").textContent="";
+  }else{
+    if(stakeBtn) stakeBtn.textContent="Stake PLS for vPLS";
+    if(unBtn) unBtn.textContent="Unstake vPLS";
+  }
+  let rate=0n, min=10_000n*10n**18n;
+  try{
+    const dep=new ethers.Contract(VOUCH_DEPOSIT, VOUCH_DEP_ABI, readProvider);
+    const [r, mn] = await Promise.all([dep.getRate(), dep.minDeposit()]);
+    if(r>0n) rate=r;
+    if(mn>0n) min=mn;
+  }catch(_){
+    try{ rate=await new ethers.Contract(VOUCH_VPLS, VPLS_ABI, readProvider).getRate(); }catch(__){}
+  }
+  if($("vRate")) $("vRate").textContent=rate>0n ? (fmt(rate, PLS_DEC, 6)+" PLS / vPLS") : "—";
+  if(rate>0n) lastVplsRate=Number(ethers.formatUnits(rate, PLS_DEC));
+  if($("vMin")) $("vMin").textContent=fmt(min, PLS_DEC, 0)+" PLS";
+  if(account){
+    try{ $("vPlsBal").textContent="Balance: "+fmt(await readProvider.getBalance(account), PLS_DEC, 4)+" PLS"; }catch(_){}
+    try{
+      const b=await new ethers.Contract(VOUCH_VPLS, VPLS_ABI, readProvider).balanceOf(account);
+      $("vVplsBal").textContent="Balance: "+fmt(b, PLS_DEC, 4)+" vPLS";
+    }catch(_){}
+  }
+  const plsIn=parsePls($("vPlsAmt"));
+  if($("vOut")){
+    if(plsIn && rate>0n) $("vOut").textContent=fmt(plsIn * 10n**18n / rate, PLS_DEC, 4)+" vPLS";
+    else $("vOut").textContent="—";
+  }
+  const vIn=parsePls($("vVplsAmt"));
+  if($("vUnOut")){
+    if(vIn && rate>0n) $("vUnOut").textContent=fmt(vIn * rate / 10n**18n, PLS_DEC, 4)+" PLS";
+    else $("vUnOut").textContent="—";
+  }
+  loadVouchClaims();
+  paintVplsReco(rate);
+  if(vouchMode==="buy") quoteBuy("v");
+}
+async function loadVouchClaims(){
+  const box=$("vClaimList");
+  if(!box) return;
+  if(!account){ box.innerHTML='<div class="hsi-empty">Connect to load claims.</div>'; return; }
+  try{
+    const wd=new ethers.Contract(VOUCH_WITHDRAW, VOUCH_WD_ABI, readProvider);
+    const [idxs, maxC] = await Promise.all([wd.getUnclaimedWithdrawalsOfUser(account), wd.maxClaimableWithdrawIndex()]);
+    if(!idxs.length){ box.innerHTML='<div class="hsi-empty">None.</div>'; return; }
+    const ready=[], wait=[];
+    for(const i of idxs){
+      let amt=0n;
+      try{ const w=await wd.withdrawalAtIndex(i); amt=w[1]; }catch(_){}
+      const row='<div class="row"><span>#'+i.toString()+'</span><span>'+escH(fmt(amt, PLS_DEC, 4))+' PLS</span></div>';
+      if(i<=maxC) ready.push({i, amt, row}); else wait.push({i, amt, row});
+    }
+    let html='';
+    if(ready.length){
+      html+='<div class="hsi-card">'+ready.map(x=>x.row).join("")+'<button type="button" id="vClaimBtn" style="width:100%;margin-top:10px">Claim '+ready.length+' ready</button></div>';
+    }
+    if(wait.length){
+      html+='<div class="hsi-card"><div class="hsi-empty" style="padding:0 0 6px">Waiting on Vouch’s withdraw cycle</div>'+wait.map(x=>x.row).join("")+'</div>';
+    }
+    box.innerHTML=html;
+    const cb=$("vClaimBtn");
+    if(cb) cb.onclick=()=>claimVouch(ready.map(x=>x.i));
+  }catch(_){
+    box.innerHTML='<div class="hsi-empty">Couldn’t read claims.</div>';
+  }
+}
+async function claimVouch(idxs){
+  if(!account){ openSheet(); return; }
+  if(!idxs.length) return;
+  try{
+    setVouchStatus("Claiming PLS…");
+    const wd=new ethers.Contract(VOUCH_WITHDRAW, VOUCH_WD_ABI, signer);
+    const tx=await wd.withdraw(idxs, { gasLimit: 400_000n });
+    await tx.wait();
+    setVouchStatus("PLS is in this wallet.","ok");
+    paintVouch(); refresh();
+  }catch(e){
+    let m=e.shortMessage||e.message||"Failed";
+    if(/user rejected|denied/i.test(m)) m="Cancelled.";
+    setVouchStatus(m,"err");
+  }
+}
+
+let hexDayCache=null, hexDayAt=0;
+function hexDayFallback(){ return Math.floor((Date.now()/1000 - 1575331200)/86400); }
+function paintHttDays(day){
+  const mat=httMaturity();
+  const length=stakeLenFor(mat, day);
+  const daysEl=$("httDays"), ends=$("httEnds");
+  if(!daysEl && !ends) return;
+  if(!Number.isFinite(length) || length<1){
+    if(daysEl) daysEl.textContent="this HTT day has passed";
+    if(ends) ends.textContent="HEX day now: "+day;
+  }else if(length>HEX_MAX_DAYS){
+    if(daysEl) daysEl.textContent="longer than HEX max 5555d";
+    if(ends) ends.textContent="HEX day now: "+day;
+  }else{
+    if(daysEl) daysEl.textContent=length+" days";
+    if(ends) ends.textContent="HEX day "+(day+1+length)+" · HTT-"+mat+" (max collateral)";
+  }
+}
+async function hexCurrentDay(){
+  if(hexDayCache!=null && Date.now()-hexDayAt<120_000) return hexDayCache;
+  const fallback=hexDayFallback();
+  const urls=[];
+  try{ (CHAIN.rpcs||[]).forEach(u=>urls.push(u)); }catch(_){}
+  try{ (CHAIN.publicRpcs||[]).forEach(u=>urls.push(u)); }catch(_){}
+  const seen=new Set();
+  for(const url of urls){
+    if(!url || seen.has(url)) continue;
+    seen.add(url);
+    try{
+      const ctrl=new AbortController();
+      const t=setTimeout(()=>ctrl.abort(), 2500);
+      const res=await fetch(url, {
+        method:"POST",
+        headers:{"content-type":"application/json"},
+        body:JSON.stringify({ jsonrpc:"2.0", id:1, method:"eth_call", params:[{ to:HEX_ADDR, data:"0x5c9302c9" }, "latest"] }),
+        signal:ctrl.signal
+      });
+      clearTimeout(t);
+      const j=await res.json();
+      const d=parseInt(j.result, 16);
+      if(Number.isFinite(d) && d>1000 && d<20000){ hexDayCache=d; hexDayAt=Date.now(); return d; }
+    }catch(_){}
+  }
+  hexDayCache=fallback; hexDayAt=Date.now();
+  return fallback;
+}
+function syncHttWalletUi(){
+  const btn=$("httBtn");
+  if(btn) btn.textContent=account ? "Stake HEX into delegated HSI" : "Connect wallet";
+  if($("redBtn")) $("redBtn").textContent=account ? "Redeem HTT" : "Connect wallet";
+}
+function parseHexAmt(){
+  const v=cleanNum($("hexAmt")?.value);
+  if(!v || !(parseFloat(v)>0)) return null;
+  try{ return ethers.parseUnits(v, HEX_DEC); }catch(_){ return null; }
+}
+function parseDays(el){
+  const n=parseInt((el?.value||"").trim(),10);
+  return Number.isFinite(n)?n:NaN;
+}
+function escH(s){
+  return String(s||"").replace(/[&<>"']/g, c => ({
+    "&": "\u0026amp;",
+    "<": "\u0026lt;",
+    ">": "\u0026gt;",
+    '"': "\u0026quot;",
+    "'": "\u0026#39;"
+  }[c]));
+}
+function httMgr(write){
+  return new ethers.Contract(HTT_MANAGER, HTTM_ABI, write ? signer : readProvider);
+}
+function actuatorErr(e){
+  let m=e.shortMessage||e.reason||e.message||"Failed";
+  if(/user rejected|denied/i.test(m)) return "Cancelled.";
+  if(/A000|A019/.test(m)) return "Retire all HTT on this HSI first.";
+  if(/A001/.test(m)) return "Retire amount is more than HTT minted on this stake.";
+  if(/A002/.test(m)) return "Amount is above Actuator extractable for that day.";
+  if(/A003/.test(m)) return "Cannot retire after the HTT redemption day — redeem instead.";
+  if(/A006/.test(m)) return "Collateral index mismatch — reload and retry.";
+  if(/A007/.test(m)) return "Actuator has no HEX waiting. End the backing stake first.";
+  if(/A008/.test(m)) return "Not enough HTT in this wallet.";
+  if(/A009/.test(m)) return "Too early — wait until that HEX day.";
+  if(/A012/.test(m)) return "HSI index changed. Reload the list.";
+  if(/A013/.test(m)) return "This HSI is already minted against a different HTT day.";
+  if(/A014|A045|A046|A047|A017/.test(m)) return "Actuator rejected that redemption day (extractable is 0 or out of range).";
+  if(/A016/.test(m)) return "HEX transfer failed — approve Actuator and retry.";
+  if(/A018/.test(m)) return "No HTT minted on this stake — use End stake.";
+  if(/A022/.test(m)) return "Too early to end a collateralized stake (or not the owner).";
+  if(/A023|A024/.test(m)) return "Amount must be greater than 0.";
+  if(/insufficient funds/i.test(m)) return "Not enough PLS for gas.";
+  return m;
+}
+function setHttStatus(m,c=""){ const s=$("httStatus"); if(s){ s.textContent=m; s.className="status "+c; } }
+
+function stakeLenFor(mat, day){
+  if(!mat) return NaN;
+  return mat - day - 1;
+}
+
+async function paintHttPreview(){
+  const mat=httMaturity();
+  syncHttWalletUi();
+  paintHttDays(hexDayCache!=null ? hexDayCache : hexDayFallback());
+  if(account){
+    try{
+      const hx=new ethers.Contract(HEX_ADDR, ERC20_ABI, readProvider);
+      $("hexBal").textContent="Balance: "+fmt(await hx.balanceOf(account), HEX_DEC, 4)+" HEX";
+    }catch(_){ $("hexBal").textContent=""; }
+  }else if($("hexBal")) $("hexBal").textContent="";
+  hexCurrentDay().then(d=>paintHttDays(d)).catch(()=>{});
+}
+
+async function loadHsiList(){
+  const box=$("httList");
+  if(!box) return;
+  if(!account){ box.innerHTML='<div class="hsi-empty">Connect to load delegated HSIs.</div>'; return; }
+  try{
+    const mgr=httMgr(false);
+    const n=Number(await mgr.hsiCount(account));
+    if(!n){ box.innerHTML='<div class="hsi-empty">No delegated HSIs yet. Stake HEX above.</div>'; return; }
+    const day=await hexCurrentDay();
+    const vaultMat=httMaturity();
+    const cards=[];
+    for(let i=0;i<n;i++){
+      let staked, locked, daysN, minted, colMat, hsi;
+      try{
+        const r=await mgr.shareLists(account, i);
+        staked=r[1]; locked=Number(r[3]); daysN=Number(r[4]); minted=r[5]; colMat=Number(r[6]); hsi=r[7];
+      }catch(_){ continue; }
+      const endDay=locked+daysN;
+      const served=day>=endDay;
+      const match=endDay===vaultMat && (!colMat || colMat===vaultMat);
+      cards.push(
+        '<div class="hsi-card" data-idx="'+i+'" data-hsi="'+escH(hsi)+'" data-end="'+endDay+'" data-colmat="'+colMat+'" data-minted="'+minted.toString()+'">'+
+          '<div class="row"><span>HEX staked</span><span>'+escH(fmt(staked, HEX_DEC, 4))+' HEX</span></div>'+
+          '<div class="row"><span>Stake</span><span>HEX day '+locked+' \u2192 '+endDay+' ('+daysN+'d)'+(served?' · served':'')+'</span></div>'+
+          '<div class="row"><span>HTT minted</span><span>'+escH(fmt(minted, HEX_DEC, 4))+(colMat?(' HTT-'+colMat):(' of HTT-'+endDay))+'</span></div>'+
+          '<div class="row"><span>Extractable / available HTT-'+endDay+'</span><span data-ex>—</span></div>'+
+          (match
+            ? '<div class="mintrow"><input data-amt inputmode="decimal" placeholder="max available"><button type="button" data-act="mint">Mint available HTT-'+vaultMat+'</button></div>'
+            : '<div class="hsi-empty" style="padding:6px 0 0">'+(endDay!==vaultMat?('This HSI ends day '+endDay+' — open HEXstr-'+endDay+' to mint at max collateral.'):('Locked to HTT-'+colMat+' until retired.'))+'</div>')+
+          '<div class="acts">'+
+            '<button type="button" class="ghost" data-act="hdrn">Mint HDRN</button>'+
+            '<button type="button" class="ghost" data-act="retire">Retire HTT</button>'+
+            '<button type="button" class="warn" data-act="end">End stake</button>'+
+            '<button type="button" class="ghost" data-act="revoke">Revoke</button>'+
+          '</div>'+
+          '<div class="addr">'+escH(hsi)+'</div>'+
+        '</div>'
+      );
+    }
+    box.innerHTML=cards.length?cards.join(""):'<div class="hsi-empty">No readable HSIs.</div>';
+    box.querySelectorAll(".hsi-card").forEach(card=>quoteCard(card).catch(()=>{}));
+  }catch(_){
+    box.innerHTML='<div class="hsi-empty">Couldn\u2019t read Actuator stakes.</div>';
+  }
+}
+
+async function quoteCard(card){
+  const exEl=card.querySelector("[data-ex]");
+  const amtInp=card.querySelector("[data-amt]");
+  const hsi=card.dataset.hsi;
+  const endDay=Number(card.dataset.end||"0");
+  const minted=BigInt(card.dataset.minted||"0");
+  const mat=endDay;
+  if(!mat){ if(exEl) exEl.textContent="—"; return; }
+  try{
+    const extractable=await httMgr(false).getExtractableAmount(hsi, mat);
+    const avail=extractable>minted?extractable-minted:0n;
+    if(exEl) exEl.textContent=fmt(extractable, HEX_DEC, 4)+" / "+fmt(avail, HEX_DEC, 4);
+    if(amtInp) amtInp.value=commaNum(ethers.formatUnits(avail, HEX_DEC), 4);
+    card.dataset.avail=avail.toString();
+  }catch(e){
+    if(exEl) exEl.textContent="not extractable yet";
+    card.dataset.avail="0";
+  }
+}
+
+async function collateralIndexOf(mgr, maturity, hsi){
+  if(!maturity) return -1;
+  let start=0;
+  while(start<4000){
+    const chunk=await mgr.hsiListRange(maturity, start, start+50);
+    for(let i=0;i<chunk.length;i++){
+      if(String(chunk[i]).toLowerCase()===String(hsi).toLowerCase()) return start+i;
+    }
+    if(chunk.length<50) break;
+    start+=50;
+  }
+  return -1;
+}
+async function hedronIndexOf(mgr, hsi){
+  const hi=await mgr.findHedronHSIIndex(hsi);
+  return hi;
+}
+
+async function loadHttHoldings(){
+  const wrap=$("httRedeemWrap"), box=$("httHold"), custom=$("httRedeemCustom");
+  const ban=$("hexClaimBanner");
+  if(!wrap||!box) return;
+  const day=await hexCurrentDay();
+  if(day<3000){
+    wrap.style.display="none";
+    if(ban) ban.style.display="none";
+    return;
+  }
+  wrap.style.display="";
+  if(custom) custom.style.display=day>=7000?"":"none";
+  if(!account){
+    box.innerHTML='<div class="hsi-empty">Connect to load redeemable HTT.</div>';
+    if(ban) ban.style.display="none";
+    return;
+  }
+  try{
+    const mgr=httMgr(false);
+    const due=HTT_KNOWN.filter(m=>m<=day);
+    const extra=parseDays($("redMat"));
+    if(day>=7000 && Number.isFinite(extra) && extra>=3000 && extra<=day && !due.includes(extra)) due.push(extra);
+    due.sort((a,b)=>a-b);
+    const cards=[];
+    let bannerTake=0n, bannerMat=0;
+    const vaultMat=httMaturity();
+    for(const m of due){
+      const known=(VAULTS.find(v=>Number(String(v.assetSym||"").replace(/^HTT-/i,""))===m)||{}).assetAddr;
+      let hexBal=0n, token=known||ethers.ZeroAddress;
+      try{
+        const info=await mgr.maturityToInfo(m);
+        hexBal=info[0];
+        if(info[1] && info[1]!==ethers.ZeroAddress) token=info[1];
+      }catch(_){}
+      if(!token || token===ethers.ZeroAddress) continue;
+      let bag=0n;
+      try{ bag=await new ethers.Contract(token, ERC20_ABI, readProvider).balanceOf(account); }catch(_){}
+      if(bag===0n && hexBal===0n) continue;
+      const can=bag>0n && hexBal>0n;
+      const take=bag<hexBal?bag:hexBal;
+      if(can && m===vaultMat){ bannerTake=take; bannerMat=m; }
+      cards.push(
+        '<div class="hsi-card">'+
+          '<div class="row"><span>HTT-'+m+'</span><span>HEX day '+m+'</span></div>'+
+          '<div class="row"><span>Your HTT</span><span>'+escH(fmt(bag, HEX_DEC, 4))+'</span></div>'+
+          '<div class="row"><span>HEX waiting in Actuator</span><span>'+escH(fmt(hexBal, HEX_DEC, 4))+' HEX</span></div>'+
+          (can
+            ? '<div class="mintrow"><input data-redamt inputmode="decimal" value="'+escH(ethers.formatUnits(take, HEX_DEC))+'"><button type="button" data-redeem="'+m+'" data-max="'+take.toString()+'">Redeem HEX</button></div>'
+            : '<div class="hsi-empty" style="padding:6px 0 0">'+(bag===0n? 'None in this wallet.' : 'No HEX in Actuator yet — backing stakes must be ended first.')+'</div>')+
+        '</div>'
+      );
+    }
+    box.innerHTML=cards.length?cards.join(""):'<div class="hsi-empty">No redeemable HTT in this wallet for days that have arrived.</div>';
+    if(ban){
+      if(bannerTake>0n){
+        ban.style.display="";
+        if($("hexClaimAmt")) $("hexClaimAmt").textContent=fmt(bannerTake, HEX_DEC, 4);
+      }else ban.style.display="none";
+    }
+  }catch(_){
+    box.innerHTML='<div class="hsi-empty">Couldn\u2019t read HTT holdings.</div>';
+  }
+}
+
+let hexUiTab="htt";
+let hPay="HEX", vPay="PLS";
+function paySpec(kind){
+  if(kind==="HEX") return { kind:"HEX", addr:HEX_ADDR, dec:HEX_DEC, native:false, sym:"HEX" };
+  return { kind:"PLS", addr:WPLS, dec:18, native:true, sym:"PLS" };
+}
+function setHexUiTab(t){
+  if(t==="pos") t="htt";
+  hexUiTab=t;
+  [["hexTabBtnHtt","htt","hexPaneHtt"],["hexTabBtnHsi","hsi","hexPaneHsi"]].forEach(([btn,key,pane])=>{
+    if($(btn)) $(btn).setAttribute("aria-selected", hexUiTab===key?"true":"false");
+    if($(pane)) $(pane).style.display=hexUiTab===key?"":"none";
+  });
+  if(hexUiTab==="htt") paintHexReco();
+  if(hexUiTab==="hsi"){ paintHttPreview(); loadHsiList(); loadHttHoldings(); }
+}
+function setPay(which, kind){
+  if(which!=="h") return;
+  hPay=kind==="PLS"?"PLS":"HEX";
+  const sel=$("hPaySel");
+  if(sel && sel.value!==hPay) sel.value=hPay;
+  quoteBuy("h");
+}
+async function paintVplsReco(rateBn){
+  const recT=$("vRecT"), recD=$("vRecD");
+  if(!recT) return;
+  const rate=rateBn>0n ? Number(ethers.formatUnits(rateBn, PLS_DEC)) : 0;
+  let mkt=null;
+  try{ mkt=await pairPrice(VOUCH_VPLS, 18, WPLS, 18); }catch(_){}
+  if($("vCostStake")) $("vCostStake").textContent=rate? (rate.toFixed(4)+" PLS"):"—";
+  if($("vCostBuy")) $("vCostBuy").textContent=mkt!=null? (mkt.toFixed(4)+" PLS"):"no pool";
+  if($("vRowStake")) $("vRowStake").classList.remove("pick");
+  if($("vRowBuy")) $("vRowBuy").classList.remove("pick");
+  if(mkt!=null && rate>0 && mkt < rate*0.98){
+    recT.textContent="Buy vPLS";
+    recD.textContent="vPLS is cheaper on PulseX than staking through Vouch right now ("+((1-mkt/rate)*100).toFixed(1)+"% discount to the stake rate). Stake here if you want yield; swap PLS → PLSstr above if you just want the vault token.";
+    if($("vRowBuy")) $("vRowBuy").classList.add("pick");
+  }else{
+    recT.textContent="Stake PLS";
+    recD.textContent=mkt!=null && rate>0
+      ? "Staking through Vouch is the cheaper (or similar) way to get vPLS. Vouch minimum applies. Buy on PulseX if you want less than the minimum."
+      : "Stake PLS through Vouch for vPLS, then deposit it above. You can also buy vPLS on PulseX.";
+    if($("vRowStake")) $("vRowStake").classList.add("pick");
+  }
+}
+async function paintHexReco(){
+  if(!cur) return;
+  const mat=httMaturity();
+  const day=hexDayCache!=null?hexDayCache:hexDayFallback();
+  const left=mat-day;
+  if($("hexLeft")) $("hexLeft").textContent=left>0? (left+" days"):"HEX day has arrived";
+  let mkt=null;
+  try{ mkt=await pairPrice(cur.cfg.assetAddr, cur.aDec||8, HEX_ADDR, HEX_DEC); }catch(_){}
+  if($("hexMkt")) $("hexMkt").textContent=mkt!=null? (mkt.toFixed(4)+" HEX"):"no HTT/HEX pool yet";
+  const disc=mkt!=null? (1-mkt)*100 : null;
+  if($("hexDisc")){
+    if(disc==null) $("hexDisc").textContent="—";
+    else if(disc>=0) $("hexDisc").textContent=disc.toFixed(1)+"% to 1 HEX";
+    else $("hexDisc").textContent="+"+(-disc).toFixed(1)+"% premium to 1 HEX";
+  }
+  const recT=$("hexRecT"), recD=$("hexRecD");
+  if($("hexRowBuy")) $("hexRowBuy").classList.remove("pick");
+  if($("hexRowHsi")) $("hexRowHsi").classList.remove("pick");
+  if(mkt!=null && mkt<0.98){
+    if(recT) recT.textContent="Buy "+cur.cfg.assetSym;
+    if(recD) recD.textContent="HTT is trading at a discount to 1 HEX. Buying on PulseX and depositing is simpler than creating an HSI, and you keep the discount.";
+    if($("hexRowBuy")) $("hexRowBuy").classList.add("pick");
+  }else if(mkt!=null && mkt>=1){
+    if(recT) recT.textContent="Create an HSI or still buy";
+    if(recD) recD.textContent="HTT is at or above 1 HEX. Creating your own max-collateral HSI can make more sense if you already hold HEX. Buying is still the simpler path.";
+    if($("hexRowHsi")) $("hexRowHsi").classList.add("pick");
+  }else{
+    if(recT) recT.textContent="Buy "+cur.cfg.assetSym+", then deposit";
+    if(recD) recD.textContent="You don't need to stake HEX to use this vault. Buy HTT, then mint "+cur.cfg.token+" above.";
+    if($("hexRowBuy")) $("hexRowBuy").classList.add("pick");
+  }
+  quoteBuy("h");
+}
+function swapTokenLabel(x){
+  const l=String(x).toLowerCase();
+  if(l===WPLS.toLowerCase()) return "WPLS";
+  if(l===HEX_ADDR.toLowerCase()) return "HEX";
+  if(l===VOUCH_VPLS.toLowerCase()) return "vPLS";
+  if(cur && l===cur.cfg.vault.toLowerCase()) return cur.cfg.token;
+  if(cur && l===cur.cfg.assetAddr.toLowerCase()) return cur.cfg.assetSym;
+  return "token";
+}
+function swapCandidatePaths(tokenIn, tokenOut){
+  const a=tokenIn.toLowerCase(), b=tokenOut.toLowerCase();
+  if(a===b) return [];
+  const paths=[];
+  const add=nodes=>{
+    const n=nodes.map(x=>x.toLowerCase());
+    if(new Set(n).size!==n.length) return;
+    paths.push(nodes);
+  };
+  add([tokenIn, tokenOut]);
+  if(a!==WPLS.toLowerCase() && b!==WPLS.toLowerCase()) add([tokenIn, WPLS, tokenOut]);
+  if(a!==HEX_ADDR.toLowerCase() && b!==HEX_ADDR.toLowerCase()) add([tokenIn, HEX_ADDR, tokenOut]);
+  if(a!==WPLS.toLowerCase() && a!==HEX_ADDR.toLowerCase() && b!==WPLS.toLowerCase() && b!==HEX_ADDR.toLowerCase()){
+    add([tokenIn, WPLS, HEX_ADDR, tokenOut]);
+    add([tokenIn, HEX_ADDR, WPLS, tokenOut]);
+  }
+  return paths;
+}
+async function quoteBestSwap(tokenIn, tokenOut, amt){
+  const paths=swapCandidatePaths(tokenIn, tokenOut);
+  let best=null;
+  for(const router of [PULSEX_V2_ROUTER, PULSEX_V1_ROUTER]){
+    const rc=new ethers.Contract(router, ROUTER_ABI, readProvider);
+    for(const path of paths){
+      try{
+        const amounts=await rc.getAmountsOut(amt, path);
+        const got=amounts[amounts.length-1];
+        if(got>0n && (!best || got>best.got)){
+          const ver=router.toLowerCase()===PULSEX_V2_ROUTER.toLowerCase()?"v2":"v1";
+          best={ router, path, got, amounts, via:"PulseX "+ver+" · "+path.map(swapTokenLabel).join(" → ") };
+        }
+      }catch(_){}
+    }
+  }
+  return best;
+}
+function vaultSwapSpec(sym){
+  if(!cur || !sym) return null;
+  if(sym==="PLS") return {sym:"PLS", addr:WPLS, dec:18, native:true};
+  if(sym==="WPLS") return {sym:"WPLS", addr:WPLS, dec:18, native:false};
+  if(sym==="HEX") return {sym:"HEX", addr:HEX_ADDR, dec:HEX_DEC, native:false};
+  if(sym===cur.cfg.token) return {sym:cur.cfg.token, addr:cur.cfg.vault, dec:cur.tDec, native:false};
+  if(sym===cur.cfg.assetSym) return {sym:cur.cfg.assetSym, addr:cur.cfg.assetAddr, dec:cur.aDec, native:false};
+  return null;
+}
+function vaultSwapOptions(){
+  if(!cur) return ["PLS"];
+  const tok=cur.cfg.token, asset=cur.cfg.assetSym;
+  if(cur.cfg.key==="PLSstr") return ["PLS","WPLS",asset,tok];
+  return ["HEX","PLS","WPLS",asset,tok];
+}
+function fillVaultSwapSelects(){
+  if(!cur) return;
+  const opts=vaultSwapOptions();
+  const pay=$("xPaySel"), got=$("xGotSel");
+  if(!pay||!got) return;
+  const tok=cur.cfg.token;
+  const defPay=cur.cfg.key==="PLSstr"?"PLS":"HEX";
+  const reset=swapVaultKey!==cur.cfg.key;
+  swapVaultKey=cur.cfg.key;
+  const html=sel=>opts.map(o=>'<option value="'+o+'"'+(o===sel?" selected":"")+'>'+o+'</option>').join("");
+  const payV=(!reset && opts.includes(pay.value))?pay.value:defPay;
+  let gotV=(!reset && opts.includes(got.value))?got.value:tok;
+  if(payV===gotV) gotV = payV===tok ? defPay : tok;
+  pay.innerHTML=html(payV);
+  got.innerHTML=html(gotV);
+}
+let swapVaultKey=null;
+let swapSlipBps=100;
+function paintSlipChips(el, curBps, onPick){
+  if(!el) return;
+  el.innerHTML=[50,100,300,500,1000,1500].map(b=>{
+    const lab=(b/100)+"%";
+    return '<button type="button" class="slipchip'+(b===curBps?" on":"")+'" data-b="'+b+'">'+lab+'</button>';
+  }).join("");
+  el.querySelectorAll("button").forEach(b=>b.onclick=()=>onPick(Number(b.dataset.b)));
+}
+function setEl(id, txt, cls){
+  const e=$(id); if(!e) return;
+  e.textContent=txt;
+  e.classList.remove("warn-ok","warn-mid","warn-bad");
+  if(cls) e.classList.add(cls);
+}
+async function hopReserves(a,b){
+  const al=String(a).toLowerCase(), bl=String(b).toLowerCase();
+  if(cur){
+    for(const p of (cur.cfg.pools||[])){
+      if(!p.address) continue;
+      try{
+        const pc=new ethers.Contract(p.address, PAIR_ABI, readProvider);
+        const [t0,t1]=await Promise.all([pc.token0(), pc.token1()]);
+        const t0l=t0.toLowerCase(), t1l=t1.toLowerCase();
+        if(!((t0l===al&&t1l===bl)||(t0l===bl&&t1l===al))) continue;
+        const [r0,r1]=await pc.getReserves();
+        const aIs0=t0l===al;
+        return { rIn:aIs0?r0:r1, rOut:aIs0?r1:r0, pair:p.address };
+      }catch(_){}
+    }
+  }
+  const info=await findPairInfo(a,b);
+  if(!info) return null;
+  try{
+    const pc=new ethers.Contract(info.pair, PAIR_ABI, readProvider);
+    const [r0,r1]=await pc.getReserves();
+    const t0=(await pc.token0()).toLowerCase();
+    const aIs0=t0===al;
+    return { rIn:aIs0?r0:r1, rOut:aIs0?r1:r0, pair:info.pair };
+  }catch(_){ return null; }
+}
+function tokenDec(addr){
+  const l=String(addr).toLowerCase();
+  if(l===WPLS.toLowerCase()) return 18;
+  if(l===HEX_ADDR.toLowerCase()) return HEX_DEC;
+  if(cur && l===cur.cfg.vault.toLowerCase()) return cur.tDec;
+  if(cur && l===cur.cfg.assetAddr.toLowerCase()) return cur.aDec;
+  return 18;
+}
+async function paintSwapDeal(pfx, pay, got, amt, route){
+  let impact=null;
+  try{
+    const one=10n**BigInt(pay.dec);
+    const probe=(one>0n && one<amt/50n)?one:(amt>1000n?amt/1000n:0n);
+    if(probe>0n){
+      const p=await quoteBestSwap(pay.addr, got.addr, probe);
+      if(p && p.got>0n){
+        const spot=p.got*amt/probe;
+        const nSpot=Number(ethers.formatUnits(spot, got.dec));
+        const nExec=Number(ethers.formatUnits(route.got, got.dec));
+        if(nSpot>0) impact=Math.max(0, (nSpot-nExec)/nSpot*100);
+      }
+    }
+  }catch(_){}
+  const vaultAddr=cur?cur.cfg.vault.toLowerCase():"";
+  const amounts=route.amounts||[amt, route.got];
+  let pick=null;
+  for(let i=0;i<route.path.length-1;i++){
+    const a=route.path[i], b=route.path[i+1];
+    const hop=await hopReserves(a,b);
+    if(!hop||hop.rIn===0n) continue;
+    const ain=amounts[i]||amt;
+    const share=Number(ain)/Number(hop.rIn)*100;
+    const isVault=a.toLowerCase()===vaultAddr||b.toLowerCase()===vaultAddr;
+    const cand={hop,a,b,ain,share,isVault,i};
+    if(isVault){ pick=cand; break; }
+    if(!pick || share>pick.share) pick=cand;
+  }
+  if(pick){
+    const inSym=swapTokenLabel(pick.a), outSym=swapTokenLabel(pick.b);
+    const inDec=tokenDec(pick.a), outDec=tokenDec(pick.b);
+    const hops=route.path.length-1;
+    setEl(pfx+"SwapPool", fmt(pick.hop.rIn, inDec, 2)+" "+inSym+" / "+fmt(pick.hop.rOut, outDec, 2)+" "+outSym+(hops>1?" · thin hop":""));
+    const spotPx=Number(ethers.formatUnits(pick.hop.rIn, inDec))/Number(ethers.formatUnits(pick.hop.rOut, outDec));
+    const execPx=Number(ethers.formatUnits(amt, pay.dec))/Number(ethers.formatUnits(route.got, got.dec));
+    setEl(pfx+"SwapSpot", isFinite(spotPx)?("1 "+outSym+" = "+spotPx.toFixed(4)+" "+inSym):"—");
+    setEl(pfx+"SwapExec", isFinite(execPx)?("1 "+got.sym+" = "+execPx.toFixed(4)+" "+pay.sym):"—");
+    setEl(pfx+"SwapShare", isFinite(pick.share)?(pick.share.toFixed(1)+"% of "+inSym+" in this pool"):"—", pick.share>20?"warn-bad":pick.share>5?"warn-mid":"warn-ok");
+    setEl(pfx+"SwapSafe", "under ~"+fmt(pick.hop.rIn*2n/100n, inDec, 2)+" "+inSym);
+  }else{
+    setEl(pfx+"SwapPool","—"); setEl(pfx+"SwapSpot","—"); setEl(pfx+"SwapExec","—"); setEl(pfx+"SwapShare","—"); setEl(pfx+"SwapSafe","—");
+  }
+  const impCls=impact==null?"":impact>10?"warn-bad":impact>3?"warn-mid":"warn-ok";
+  setEl(pfx+"SwapImp", impact==null?"—":impact.toFixed(2)+"%", impCls);
+  let vs="—", vsCls="";
+  if(cur && lastBacking && (got.addr.toLowerCase()===cur.cfg.vault.toLowerCase() || pay.addr.toLowerCase()===cur.cfg.vault.toLowerCase())){
+    const buying=got.addr.toLowerCase()===cur.cfg.vault.toLowerCase();
+    const oth=buying?pay:got;
+    const tokAmt=buying?route.got:amt;
+    const othAmt=buying?amt:route.got;
+    const per=Number(ethers.formatUnits(othAmt, oth.dec))/Number(ethers.formatUnits(tokAmt, cur.tDec));
+    const othL=oth.addr.toLowerCase();
+    const isPls=othL===WPLS.toLowerCase();
+    const isHex=othL===HEX_ADDR.toLowerCase();
+    const isAsset=othL===cur.cfg.assetAddr.toLowerCase();
+    const isDefault=cur.cfg.key==="PLSstr"?isPls: (/^HEXstr/i.test(cur.cfg.key)?(isHex||isAsset):isAsset);
+    if(isFinite(per) && isDefault){
+      let fair=lastBacking, fairSym=cur.cfg.assetSym;
+      if(isPls){
+        if(!(lastVplsRate>0)){
+          try{
+            const r=await new ethers.Contract(VOUCH_VPLS, VPLS_ABI, readProvider).getRate();
+            if(r>0n) lastVplsRate=Number(ethers.formatUnits(r, PLS_DEC));
+          }catch(_){}
+        }
+        if(lastVplsRate>0){ fair=lastBacking*lastVplsRate; fairSym="PLS"; }
+      }
+      const mint=fair*1.045;
+      const diff=(per/fair-1)*100;
+      vs=per.toFixed(4)+" "+oth.sym+" / "+cur.cfg.token+" · backing ~"+fair.toFixed(4)+" "+fairSym+" · mint ~"+mint.toFixed(4);
+      if(buying && diff>8){ vs+=" · "+diff.toFixed(0)+"% over backing — bad fill"; vsCls="warn-bad"; }
+      else if(buying && diff>2){ vs+=" · "+diff.toFixed(1)+"% over backing"; vsCls="warn-mid"; }
+      else if(!buying && diff<-8){ vs+=" · selling well below backing"; vsCls="warn-mid"; }
+      else { vs+=" · in range"; vsCls="warn-ok"; }
+    }else if(isFinite(per)){
+      vs=per.toFixed(4)+" "+oth.sym+" / "+cur.cfg.token+" · default pair is "+(cur.cfg.key==="PLSstr"?"PLS":"HEX")+" ↔ "+cur.cfg.token;
+    }
+  }
+  setEl(pfx+"SwapVs", vs, vsCls);
+  const warn=$(pfx+"SwapWarn");
+  const btn=$(pfx+"SwapBtn");
+  const thinHop=pick && pick.share>5;
+  const hops=route.path.length-1;
+  if(impact!=null && impact>15){
+    if(warn) warn.textContent="Thin pool. This size moves price ~"+impact.toFixed(0)+"%. Stay under the ~2% size on the pool above or you take this fill.";
+    if(btn && account) btn.textContent="Swap anyway · "+impact.toFixed(0)+"% impact";
+  }else if(thinHop && hops>1){
+    if(warn) warn.textContent="Routed through a thin "+swapTokenLabel(pick.a)+"/"+swapTokenLabel(pick.b)+" hop ("+pick.share.toFixed(1)+"% of that pool). Default "+(cur.cfg.key==="PLSstr"?"PLS":"HEX")+" pair is the direct pool.";
+    if(btn && account) btn.textContent="Swap anyway · thin hop";
+  }else if(impact!=null && impact>swapSlipBps/100){
+    if(warn) warn.textContent="Impact "+impact.toFixed(1)+"% is larger than your "+(swapSlipBps/100)+"% slip buffer. Cut the size or you take the quoted price.";
+    if(btn && account) btn.textContent="Swap anyway · "+impact.toFixed(1)+"% impact";
+  }else if(impact!=null && impact>5){
+    if(warn) warn.textContent="Noticeable impact on a thin pool. Smaller size keeps more of the quoted price.";
+    if(btn && account) btn.textContent="Swap on PulseX";
+  }else{
+    if(warn) warn.textContent="Pools here can be thin. Check impact on the pool above before you sign. PulseStrategy does not operate PulseX.";
+    if(btn && account) btn.textContent="Swap on PulseX";
+  }
+  const min=route.got*BigInt(10000-swapSlipBps)/10000n;
+  setEl(pfx+"SwapMin", fmt(min, got.dec, 4)+" "+got.sym);
+}
+
+async function quoteVaultSwap(){
+  if(!cur || !$("xSwapIn")) return;
+  fillVaultSwapSelects();
+  const pay=vaultSwapSpec($("xPaySel")?.value), got=vaultSwapSpec($("xGotSel")?.value);
+  const btn=$("xSwapBtn");
+  if(!account){ if(btn) btn.textContent="Connect wallet"; }
+  else if(btn) btn.textContent="Swap on PulseX";
+  if(pay && account){
+    try{
+      const bag=pay.native? await readProvider.getBalance(account)
+        : await new ethers.Contract(pay.addr, ERC20_ABI, readProvider).balanceOf(account);
+      if($("xSwapBal")) $("xSwapBal").textContent="Balance: "+fmt(bag, pay.dec, 4)+" "+pay.sym;
+    }catch(_){ if($("xSwapBal")) $("xSwapBal").textContent=""; }
+  }else if($("xSwapBal")) $("xSwapBal").textContent="";
+  const raw=cleanNum($("xSwapIn")?.value);
+  if(!raw || !(parseFloat(raw)>0) || !pay || !got){
+    if($("xSwapOut")) $("xSwapOut").value="";
+    if($("xSwapVia")) $("xSwapVia").textContent="—";
+    if($("xSwapMin")) $("xSwapMin").textContent="—";
+    ["xSwapPool","xSwapSpot","xSwapExec","xSwapImp","xSwapShare","xSwapVs","xSwapSafe"].forEach(id=>{ if($(id)) $(id).textContent="—"; });
+    return;
+  }
+  if(pay.addr.toLowerCase()===got.addr.toLowerCase()){
+    const wrap=pay.native!==got.native;
+    if($("xSwapVia")) $("xSwapVia").textContent=wrap?"WPLS wrap · 1 PLS = 1 WPLS":"Same token";
+    if(wrap){
+      if($("xSwapOut")) $("xSwapOut").value=raw;
+      if($("xSwapMin")) $("xSwapMin").textContent=raw+" "+got.sym;
+      let amt; try{ amt=ethers.parseUnits(raw, 18);}catch(_){return;}
+      window._xSwap={ wrap:true, amt, pay, got, min:amt };
+    }else if($("xSwapOut")) $("xSwapOut").value="";
+    return;
+  }
+  let amt; try{ amt=ethers.parseUnits(raw, pay.dec);}catch(_){return;}
+  try{
+    const route=await quoteBestSwap(pay.addr, got.addr, amt);
+    if(!route){ if($("xSwapVia")) $("xSwapVia").textContent="no PulseX path"; if($("xSwapOut")) $("xSwapOut").value=""; return; }
+    if($("xSwapOut")) $("xSwapOut").value=commaNum(ethers.formatUnits(route.got, got.dec), 6);
+    if($("xSwapVia")) $("xSwapVia").textContent=route.via+(pay.native?" (PLS)":"");
+    const min=route.got*BigInt(10000-swapSlipBps)/10000n;
+    if($("xSwapMin")) $("xSwapMin").textContent=fmt(min, got.dec, 4)+" "+got.sym;
+    window._xSwap={ route, amt, min, pay, got };
+    await paintSwapDeal("x", pay, got, amt, route);
+  }catch(_){ if($("xSwapOut")) $("xSwapOut").value=""; }
+}
+async function execVaultSwap(){
+  if(!account){ openSheet(); return; }
+  const btn=$("xSwapBtn"); if(btn) btn.disabled=true;
+  const setH=(m,c)=>{ setStatus(m,c||""); };
+  try{
+    await quoteVaultSwap();
+    const s=window._xSwap;
+    if(!s||!s.amt){ setH("Enter an amount.","err"); if(btn) btn.disabled=false; return; }
+    if(s.wrap){
+      const w=new ethers.Contract(WPLS, ["function deposit() payable","function withdraw(uint256)"], signer);
+      setH(s.pay.native?"Wrapping PLS…":"Unwrapping WPLS…");
+      const tx=s.pay.native ? await w.deposit({value:s.amt, gasLimit:80_000n}) : await w.withdraw(s.amt,{gasLimit:80_000n});
+      await tx.wait();
+      setH(s.got.sym+" in this wallet.","ok");
+      $("xSwapIn").value=""; quoteVaultSwap(); refresh();
+      if(btn) btn.disabled=false; return;
+    }
+    const r=new ethers.Contract(s.route.router, ROUTER_ABI, signer);
+    if(!s.pay.native){
+      const tok=new ethers.Contract(s.pay.addr, ERC20_ABI, signer);
+      const allow=await tok.allowance(account, s.route.router);
+      if(allow<s.amt){
+        setH("Approve "+s.pay.sym+" for PulseX…");
+        if(btn){ btn.textContent="Approve "+s.pay.sym; btn.classList.add("approve"); }
+        const txA=await tok.approve(s.route.router, ethers.MaxUint256);
+        await txA.wait();
+        if(btn) btn.classList.remove("approve");
+      }
+    }
+    setH("Swapping "+s.pay.sym+" → "+s.got.sym+"…");
+    if(btn) btn.textContent="Confirm swap";
+    const dl=BigInt(Math.floor(Date.now()/1000)+1200);
+    const tx=s.pay.native
+      ? await r.swapExactETHForTokens(s.min, s.route.path, account, dl, { value:s.amt, gasLimit: 800_000n })
+      : s.got.native
+        ? await r.swapExactTokensForETH(s.amt, s.min, s.route.path, account, dl, { gasLimit: 800_000n })
+        : await r.swapExactTokensForTokens(s.amt, s.min, s.route.path, account, dl, { gasLimit: 800_000n });
+    await tx.wait();
+    setH(s.got.sym+" in this wallet.","ok");
+    $("xSwapIn").value=""; quoteVaultSwap(); refresh();
+  }catch(e){
+    let m=e.shortMessage||e.message||"Failed";
+    if(/user rejected|denied/i.test(m)) m="Cancelled.";
+    if(/INSUFFICIENT_OUTPUT|slippage/i.test(m)) m="Price moved — try again.";
+    setH(m,"err");
+  }
+  if(btn){ btn.disabled=false; btn.classList.remove("approve"); quoteVaultSwap(); }
+}
+async function maxVaultSwap(){
+  if(!account){ openSheet(); return; }
+  const pay=vaultSwapSpec($("xPaySel")?.value); if(!pay) return;
+  try{
+    let bag=pay.native ? await readProvider.getBalance(account)
+      : await new ethers.Contract(pay.addr, ERC20_ABI, readProvider).balanceOf(account);
+    if(pay.native){ const gas=ethers.parseEther("50"); if(bag>gas) bag-=gas; }
+    $("xSwapIn").value=commaNum(ethers.formatUnits(bag, pay.dec), 4);
+    quoteVaultSwap();
+  }catch(_){}
+}
+async function quoteBuy(which){
+  const spec=paySpec(which==="h"?hPay:vPay);
+  const tokenOut=which==="h"?(cur&&cur.cfg.assetAddr):VOUCH_VPLS;
+  const outDec=which==="h"?(cur&&cur.aDec||8):18;
+  const outSym=which==="h"?(cur?cur.cfg.assetSym:"HTT"):"vPLS";
+  const pfx=which==="h"?"h":"v";
+  const outEl=$(pfx+"SwapOut"), minEl=$(pfx+"SwapMin"), viaEl=$(pfx+"SwapVia"), btn=$(pfx+"SwapBtn"), balEl=$(pfx+"SwapBal");
+  if(account && btn) btn.textContent="Buy "+outSym;
+  else if(btn) btn.textContent="Connect wallet";
+  if(account){
+    try{
+      const bag=spec.native ? await readProvider.getBalance(account)
+        : await new ethers.Contract(spec.addr, ERC20_ABI, readProvider).balanceOf(account);
+      if(balEl) balEl.textContent="Balance: "+fmt(bag, spec.dec, 4)+" "+spec.sym;
+    }catch(_){ if(balEl) balEl.textContent=""; }
+  }else if(balEl) balEl.textContent="";
+  const raw=($(pfx+"SwapIn")?.value||"").trim();
+  if(!raw || !(parseFloat(raw)>0) || !tokenOut){
+    if(outEl) outEl.textContent="—";
+    if(minEl) minEl.textContent="—";
+    return;
+  }
+  let amt;
+  try{ amt=ethers.parseUnits(raw, spec.dec); }catch(_){ return; }
+  try{
+    const route=await quoteBestSwap(spec.addr, tokenOut, amt);
+    if(!route){ if(outEl) outEl.textContent="no PulseX path"; if(viaEl) viaEl.textContent="—"; return; }
+    if(viaEl) viaEl.textContent=route.via+(spec.native?" (PLS)":"");
+    const got=route.got;
+    if(outEl) outEl.textContent=fmt(got, outDec, 4)+" "+outSym;
+    if(minEl) minEl.textContent=fmt(got*99n/100n, outDec, 4);
+    window["_"+which+"Swap"]={ route, amt, min:got*99n/100n, spec, outSym };
+  }catch(_){ if(outEl) outEl.textContent="—"; }
+}
+async function execBuy(which){
+  if(!account){ openSheet(); return; }
+  const pfx=which==="h"?"h":"v";
+  const btn=$(pfx+"SwapBtn");
+  const setH=which==="h"
+    ? (m,c)=>{ const s=$("hSwapStatus"); if(s){ s.textContent=m; s.className="status "+(c||""); } }
+    : setVouchStatus;
+  if(btn) btn.disabled=true;
+  try{
+    await quoteBuy(which);
+    const s=window["_"+which+"Swap"];
+    if(!s||!s.amt){ setH("Enter an amount.","err"); if(btn) btn.disabled=false; return; }
+    const r=new ethers.Contract(s.route.router, ROUTER_ABI, signer);
+    if(!s.spec.native){
+      const tok=new ethers.Contract(s.spec.addr, ERC20_ABI, signer);
+      const allow=await tok.allowance(account, s.route.router);
+      if(allow<s.amt){
+        setH("Approve "+s.spec.sym+" for PulseX…");
+        if(btn){ btn.textContent="Approve "+s.spec.sym; btn.classList.add("approve"); }
+        const txA=await tok.approve(s.route.router, ethers.MaxUint256);
+        await txA.wait();
+        if(btn) btn.classList.remove("approve");
+      }
+    }
+    setH("Swapping "+s.spec.sym+" → "+s.outSym+" on PulseX…");
+    if(btn) btn.textContent="Confirm swap";
+    const dl=BigInt(Math.floor(Date.now()/1000)+1200);
+    const tx=s.spec.native
+      ? await r.swapExactETHForTokens(s.min, s.route.path, account, dl, { value:s.amt, gasLimit: 800_000n })
+      : await r.swapExactTokensForTokens(s.amt, s.min, s.route.path, account, dl, { gasLimit: 800_000n });
+    await tx.wait();
+    setH(s.outSym+" in this wallet. Deposit it above.","ok");
+    if($(pfx+"SwapIn")) $(pfx+"SwapIn").value="";
+    quoteBuy(which); refresh();
+  }catch(e){
+    let m=e.shortMessage||e.message||"Failed";
+    if(/user rejected|denied/i.test(m)) m="Cancelled.";
+    if(/INSUFFICIENT_OUTPUT|slippage/i.test(m)) m="Price moved — try again.";
+    setH(m,"err");
+  }
+  if(btn){ btn.disabled=false; btn.classList.remove("approve"); }
+  quoteBuy(which);
+}
+async function maxBuy(which){
+  if(!account){ openSheet(); return; }
+  const spec=paySpec(which==="h"?hPay:vPay);
+  const pfx=which==="h"?"h":"v";
+  try{
+    let bag=spec.native ? await readProvider.getBalance(account)
+      : await new ethers.Contract(spec.addr, ERC20_ABI, readProvider).balanceOf(account);
+    if(spec.native){
+      const gas=ethers.parseEther("50");
+      if(bag>gas) bag-=gas;
+    }
+    $(pfx+"SwapIn").value=commaNum(ethers.formatUnits(bag, spec.dec), 4);
+    quoteBuy(which);
+  }catch(_){}
+}
+
+$("vStakeTab") && ($("vStakeTab").onclick=()=>setVouchMode("stake"));
+$("vUnTab") && ($("vUnTab").onclick=()=>setVouchMode("unstake"));
+$("hexTabBtnHtt") && ($("hexTabBtnHtt").onclick=()=>setHexUiTab("htt"));
+$("hexTabBtnHsi") && ($("hexTabBtnHsi").onclick=()=>setHexUiTab("hsi"));
+$("hexClaimGo") && ($("hexClaimGo").onclick=()=>{ setHexUiTab("hsi"); const w=$("httRedeemWrap"); if(w) w.scrollIntoView({behavior:"smooth",block:"start"}); });
+$("xSwapIn") && $("xSwapIn").addEventListener("input", ()=>quoteVaultSwap());
+$("xPaySel") && $("xPaySel").addEventListener("change", ()=>{
+  if($("xPaySel").value===$("xGotSel").value && cur){
+    $("xGotSel").value = $("xPaySel").value===cur.cfg.token ? (cur.cfg.key==="PLSstr"?"PLS":"HEX") : cur.cfg.token;
+  }
+  quoteVaultSwap();
+});
+$("xGotSel") && $("xGotSel").addEventListener("change", ()=>{
+  if($("xPaySel").value===$("xGotSel").value && cur){
+    $("xPaySel").value = $("xGotSel").value===cur.cfg.token ? (cur.cfg.key==="PLSstr"?"PLS":"HEX") : cur.cfg.token;
+  }
+  quoteVaultSwap();
+});
+$("xSwapMax") && ($("xSwapMax").onclick=()=>maxVaultSwap());
+$("xSwapBtn") && ($("xSwapBtn").onclick=()=>execVaultSwap());
+function bindXSlip(){
+  paintSlipChips($("xSlip"), swapSlipBps, b=>{ swapSlipBps=b; bindXSlip(); quoteVaultSwap(); });
+}
+bindXSlip();
+document.querySelectorAll('input[inputmode="decimal"]').forEach(el=>{
+  el.addEventListener("input", ()=>liveComma(el), true);
+});
+$("lpTabAdd") && ($("lpTabAdd").onclick=()=>setLpTab("add"));
+$("lpTabRem") && ($("lpTabRem").onclick=()=>setLpTab("rem"));
+$("lpTokAmt") && $("lpTokAmt").addEventListener("input", ()=>{ lpLast="tok"; quoteLpAdd(); });
+$("lpQuoteAmt") && $("lpQuoteAmt").addEventListener("input", ()=>{ lpLast="quote"; quoteLpAdd(); });
+$("lpQuoteSel") && $("lpQuoteSel").addEventListener("change", ()=>paintLp());
+$("lpTokMax") && ($("lpTokMax").onclick=async()=>{
+  if(!account){ openSheet(); return; }
+  const b=await new ethers.Contract(cur.cfg.vault, ERC20_ABI, readProvider).balanceOf(account);
+  $("lpTokAmt").value=commaNum(ethers.formatUnits(b, cur.tDec), 4); lpLast="tok"; quoteLpAdd();
+});
+$("lpQuoteMax") && ($("lpQuoteMax").onclick=async()=>{
+  if(!account){ openSheet(); return; }
+  const q=lpQuoteSpec(); let b=q.native?await readProvider.getBalance(account):await new ethers.Contract(q.addr, ERC20_ABI, readProvider).balanceOf(account);
+  if(q.native){ const g=ethers.parseEther("50"); if(b>g) b-=g; }
+  $("lpQuoteAmt").value=commaNum(ethers.formatUnits(b, q.dec), 4); lpLast="quote"; quoteLpAdd();
+});
+$("lpPctRow") && $("lpPctRow").querySelectorAll("button").forEach(b=>b.onclick=()=>{ if(!account){ openSheet(); return; } setLpPct(Number(b.dataset.p)); });
+$("lpPctRange") && $("lpPctRange").addEventListener("input", ()=>{ if(!account){ openSheet(); return; } setLpPct($("lpPctRange").value); });
+$("lpAddBtn") && ($("lpAddBtn").onclick=()=>execLpAdd());
+$("lpRemBtn") && ($("lpRemBtn").onclick=()=>execLpRem());
+
+
+$("vPlsAmt") && $("vPlsAmt").addEventListener("input", ()=>paintVouch());
+$("vVplsAmt") && $("vVplsAmt").addEventListener("input", ()=>paintVouch());
+$("vPlsMax") && ($("vPlsMax").onclick=async()=>{
+  if(!account){ openSheet(); return; }
+  try{
+    const b=await readProvider.getBalance(account);
+    const gas=ethers.parseEther("50");
+    $("vPlsAmt").value=commaNum(ethers.formatUnits(b>gas?b-gas:b, PLS_DEC), 4);
+    paintVouch();
+  }catch(_){}
+});
+$("vVplsMax") && ($("vVplsMax").onclick=async()=>{
+  if(!account){ openSheet(); return; }
+  try{
+    const b=await new ethers.Contract(VOUCH_VPLS, VPLS_ABI, readProvider).balanceOf(account);
+    $("vVplsAmt").value=commaNum(ethers.formatUnits(b, PLS_DEC), 4);
+    paintVouch();
+  }catch(_){}
+});
+$("vStakeBtn") && ($("vStakeBtn").onclick=async()=>{
+  if(!account){ openSheet(); return; }
+  const amt=parsePls($("vPlsAmt"));
+  if(!amt || amt<=0n){ setVouchStatus("Enter a PLS amount.","err"); return; }
+  const btn=$("vStakeBtn");
+  btn.disabled=true;
+  try{
+    const depR=new ethers.Contract(VOUCH_DEPOSIT, VOUCH_DEP_ABI, readProvider);
+    const depW=new ethers.Contract(VOUCH_DEPOSIT, VOUCH_DEP_ABI, signer);
+    const [min, en, bal] = await Promise.all([depR.minDeposit(), depR.depositEnabled(), readProvider.getBalance(account)]);
+    if(!en){ setVouchStatus("Vouch deposits are paused.","err"); btn.disabled=false; return; }
+    if(amt<min){ setVouchStatus("Vouch minimum is "+fmt(min, PLS_DEC, 0)+" PLS.","err"); btn.disabled=false; return; }
+    if(bal<amt){ setVouchStatus("Not enough PLS.","err"); btn.disabled=false; return; }
+    setVouchStatus("Staking PLS on Vouch…");
+    btn.textContent="Confirm stake";
+    const tx=await depW.deposit({ value: amt, gasLimit: 400_000n });
+    await tx.wait();
+    setVouchStatus("vPLS in this wallet. Mint PLSstr above.","ok");
+    $("vPlsAmt").value="";
+    paintVouch(); refresh();
+  }catch(e){
+    let m=e.shortMessage||e.message||"Failed";
+    if(/user rejected|denied/i.test(m)) m="Cancelled.";
+    if(/LTMinAmount|min/i.test(m)) m="Below Vouch’s minimum deposit.";
+    if(/Disabled/i.test(m)) m="Vouch deposits are paused.";
+    if(/insufficient funds/i.test(m)) m="Not enough PLS for amount + gas.";
+    setVouchStatus(m,"err");
+  }
+  btn.disabled=false;
+  paintVouch();
+});
+$("vUnBtn") && ($("vUnBtn").onclick=async()=>{
+  if(!account){ openSheet(); return; }
+  const amt=parsePls($("vVplsAmt"));
+  if(!amt || amt<=0n){ setVouchStatus("Enter a vPLS amount.","err"); return; }
+  const btn=$("vUnBtn");
+  btn.disabled=true;
+  try{
+    const tok=new ethers.Contract(VOUCH_VPLS, VPLS_ABI, signer);
+    const wd=new ethers.Contract(VOUCH_WITHDRAW, VOUCH_WD_ABI, signer);
+    const bag=await tok.balanceOf(account);
+    if(bag<amt){ setVouchStatus("Not enough vPLS.","err"); btn.disabled=false; return; }
+    const allow=await tok.allowance(account, VOUCH_WITHDRAW);
+    if(allow<amt){
+      setVouchStatus("Approve vPLS for Vouch withdraw…");
+      btn.textContent="Approve vPLS";
+      btn.classList.add("approve");
+      const txA=await tok.approve(VOUCH_WITHDRAW, ethers.MaxUint256);
+      await txA.wait();
+      btn.classList.remove("approve");
+    }
+    setVouchStatus("Unstaking vPLS…");
+    btn.textContent="Confirm unstake";
+    const tx=await wd.unstake(amt, { gasLimit: 500_000n });
+    await tx.wait();
+    setVouchStatus("If the pool had PLS it is in this wallet; otherwise claim below when ready.","ok");
+    $("vVplsAmt").value="";
+    paintVouch(); refresh();
+  }catch(e){
+    let m=e.shortMessage||e.message||"Failed";
+    if(/user rejected|denied/i.test(m)) m="Cancelled.";
+    if(/insufficient funds/i.test(m)) m="Not enough PLS for gas.";
+    setVouchStatus(m,"err");
+  }
+  btn.disabled=false;
+  btn.classList.remove("approve");
+  paintVouch();
+});
+
+$("hexAmt").addEventListener("input", ()=>paintHttPreview());
+$("hexMax").onclick=async()=>{
+  if(!account){ openSheet(); return; }
+  try{
+    const hx=new ethers.Contract(HEX_ADDR, ERC20_ABI, readProvider);
+    $("hexAmt").value=commaNum(ethers.formatUnits(await hx.balanceOf(account), HEX_DEC), 4);
+    paintHttPreview();
+  }catch(_){}
+};
+$("httList").addEventListener("input", e=>{
+  const card=e.target.closest(".hsi-card");
+  if(card && e.target.matches("[data-day]")) quoteCard(card).catch(()=>{});
+});
+$("httList").onclick=async(e)=>{
+  const b=e.target.closest("[data-act]");
+  if(!b) return;
+  const card=b.closest(".hsi-card");
+  if(!card) return;
+  if(!account){ openSheet(); return; }
+  const act=b.dataset.act;
+  const idx=Number(card.dataset.idx);
+  const hsi=card.dataset.hsi;
+  const colMat=Number(card.dataset.colmat||"0");
+  const minted=BigInt(card.dataset.minted||"0");
+  const amtInp=card.querySelector("[data-amt]");
+  const mat=Number(card.dataset.end||"0");
+  b.disabled=true;
+  try{
+    if(act==="quote"){ await quoteCard(card); b.disabled=false; return; }
+    const mgrW=httMgr(true);
+    const mgrR=httMgr(false);
+    if(act==="mint"){
+      const vaultMat=httMaturity();
+      if(mat!==vaultMat) throw new Error("This HSI ends on day "+mat+". Open that HEXstr vault to mint at max collateral.");
+      await quoteCard(card);
+      let amt=0n;
+      try{ amt=ethers.parseUnits(cleanNum(amtInp.value)||"0", HEX_DEC); }catch(_){ throw new Error("Bad amount."); }
+      const max=BigInt(card.dataset.avail||"0");
+      if(amt<=0n) throw new Error("Enter an amount to mint.");
+      if(amt>max) amt=max;
+      setHttStatus("Minting HTT-"+mat+"…");
+      const tx=await mgrW.mintHEXTimeTokens(BigInt(idx), amt, mat, { gasLimit: 3_500_000n });
+      await tx.wait();
+      setHttStatus("HTT-"+mat+" in this wallet.","ok");
+    }else if(act==="retire"){
+      if(minted<=0n) throw new Error("Nothing minted on this HSI.");
+      const useMat=colMat||mat;
+      let amt=0n;
+      try{ amt=ethers.parseUnits(cleanNum(amtInp.value)||"0", HEX_DEC); }catch(_){ amt=minted; }
+      if(amt<=0n) amt=minted;
+      if(amt>minted) amt=minted;
+      if(!confirm("Retire "+fmt(amt,HEX_DEC,4)+" HTT-"+useMat+"? Burns HTT from this wallet and frees that HEX on the stake.")) throw new Error("Cancelled.");
+      const cIdx=await collateralIndexOf(mgrR, useMat, hsi);
+      if(cIdx<0) throw new Error("Could not find this HSI in Actuator’s collateral list.");
+      setHttStatus("Retiring HTT…");
+      const tx=await mgrW.retireHEXTimeTokens(BigInt(idx), BigInt(cIdx), amt, { gasLimit: 2_000_000n });
+      await tx.wait();
+      setHttStatus("Retired. Stake HEX is un-collateralized by that amount.","ok");
+    }else if(act==="hdrn"){
+      const hi=await hedronIndexOf(mgrR, hsi);
+      if(hi<0n) throw new Error("Could not find this HSI in Hedron.");
+      setHttStatus("Minting HDRN…");
+      let due=0n;
+      try{ due=await mgrR.mintInstanced.staticCall(BigInt(idx), hi); }catch(_){}
+      const tx=await mgrW.mintInstanced(BigInt(idx), hi, { gasLimit: 2_500_000n });
+      await tx.wait();
+      setHttStatus(due>0n ? ("Minted "+fmt(due, HEDRON_DEC, 4)+" HDRN.") : "HDRN mint sent.","ok");
+    }else if(act==="end"){
+      const hi=await hedronIndexOf(mgrR, hsi);
+      if(hi<0n) throw new Error("Could not find this HSI in Hedron.");
+      if(minted<=0n){
+        if(!confirm("End this HEX stake? Any due HDRN is minted first, then HEX returns to this wallet. Early end is penalized by HEX if it has not served.")) throw new Error("Cancelled.");
+      }else{
+        if(!confirm("End this collateralized stake? Any due HDRN is minted first. Before HTT day only the owner can end a fully served stake. After HTT day anyone can. HEX for minted HTT is reserved for redeemers.")) throw new Error("Cancelled.");
+      }
+      let hdrnNote="";
+      try{
+        setHttStatus("Minting HDRN before end-stake…");
+        const due=await mgrR.mintInstanced.staticCall(BigInt(idx), hi).catch(()=>0n);
+        if(due && due>0n){
+          const txH=await mgrW.mintInstanced(BigInt(idx), hi, { gasLimit: 2_500_000n });
+          await txH.wait();
+          hdrnNote=" Minted "+fmt(due, HEDRON_DEC, 4)+" HDRN.";
+        }else hdrnNote=" No HDRN due.";
+      }catch(_){ hdrnNote=" HDRN mint skipped."; }
+      if(minted<=0n){
+        setHttStatus("Ending stake…");
+        const tx=await mgrW.endHEXStake(BigInt(idx), hi, { gasLimit: 3_000_000n });
+        await tx.wait();
+        setHttStatus("Stake ended."+hdrnNote+" HEX is in this wallet.","ok");
+      }else{
+        const useMat=colMat||mat;
+        const cIdx=await collateralIndexOf(mgrR, useMat, hsi);
+        if(cIdx<0) throw new Error("Could not find this HSI in Actuator’s collateral list.");
+        setHttStatus("Ending collateralized stake…");
+        const tx=await mgrW.endCollateralizedHEXStake(hsi, BigInt(idx), BigInt(cIdx), hi, { gasLimit: 4_000_000n });
+        await tx.wait();
+        setHttStatus("Stake ended."+hdrnNote+" Redeem HTT below if the HEX day has arrived.","ok");
+      }
+    }else if(act==="revoke"){
+      if(minted>0n) throw new Error("Retire all HTT first, then revoke.");
+      if(!confirm("Revoke returns the HSI NFT to this wallet. The stake stays in HEX; Actuator no longer controls it.")) throw new Error("Cancelled.");
+      const hi=await hedronIndexOf(mgrR, hsi);
+      if(hi<0n) throw new Error("Could not find this HSI in Hedron.");
+      setHttStatus("Revoking delegation…");
+      const tx=await mgrW.revokeHSIDelegation(BigInt(idx), hi, { gasLimit: 3_000_000n });
+      await tx.wait();
+      setHttStatus("HSI NFT is in this wallet.","ok");
+    }
+    await loadHsiList();
+    loadHttHoldings();
+    refresh();
+  }catch(err){
+    setHttStatus(actuatorErr(err),"err");
+  }
+  b.disabled=false;
+};
+$("httBtn").onclick=async()=>{
+  if(!account){ openSheet(); return; }
+  const amt=parseHexAmt();
+  if(!amt || amt<=0n){ setHttStatus("Enter a HEX amount.","err"); return; }
+  const mat=httMaturity();
+  const btn=$("httBtn");
+  btn.disabled=true;
+  setHttStatus("Preparing HEX stake…");
+  try{
+    const day=await hexCurrentDay();
+    const length=stakeLenFor(mat, day);
+    paintHttDays(day);
+    if(!Number.isFinite(length) || length<1 || length>HEX_MAX_DAYS){
+      setHttStatus("This HTT’s HEX day is not a valid HEX stake length right now.","err");
+      btn.disabled=false; return;
+    }
+    const hx=new ethers.Contract(HEX_ADDR, ERC20_ABI, signer);
+    const mgr=httMgr(true);
+    const bal=await hx.balanceOf(account);
+    if(bal<amt){ setHttStatus("Not enough HEX.","err"); btn.disabled=false; return; }
+    const allow=await hx.allowance(account, HTT_MANAGER);
+    if(allow<amt){
+      setHttStatus("Approve HEX for Actuator…");
+      btn.textContent="Approve HEX";
+      btn.classList.add("approve");
+      const txA=await hx.approve(HTT_MANAGER, ethers.MaxUint256);
+      await txA.wait();
+      btn.classList.remove("approve");
+    }
+    setHttStatus("Starting HEX stake ("+length+" days). No HTT in this transaction…");
+    btn.textContent="Confirm stake";
+    const txS=await mgr.hexStakeStart(amt, length, { gasLimit: 4_000_000n });
+    await txS.wait();
+    setHttStatus("HSI delegated. Mint available HTT-"+mat+" below as extractable grows.","ok");
+    $("hexAmt").value="";
+    paintHttPreview();
+    loadHsiList();
+    refresh();
+  }catch(e){ setHttStatus(actuatorErr(e),"err"); }
+  btn.disabled=false;
+  btn.classList.remove("approve");
+  paintHttPreview();
+};
+$("hsiDelBtn").onclick=async()=>{
+  if(!account){ openSheet(); return; }
+  const id=($("hsiNft").value||"").trim();
+  if(!/^\d+$/.test(id)){ setHttStatus("Enter the HSI NFT token id.","err"); return; }
+  try{
+    const nft=new ethers.Contract(HSIM_ADDR, HSIM_ABI, signer);
+    const mgr=httMgr(true);
+    const tokenId=BigInt(id);
+    const approved=await nft.getApproved(tokenId).catch(()=>null);
+    const all=await nft.isApprovedForAll(account, HTT_MANAGER).catch(()=>false);
+    if(!all && String(approved).toLowerCase()!==HTT_MANAGER.toLowerCase()){
+      setHttStatus("Approve the HSI NFT for Actuator…");
+      const txA=await nft.approve(HTT_MANAGER, tokenId);
+      await txA.wait();
+    }
+    setHttStatus("Delegating HSI…");
+    const tx=await mgr.delegateHSI(tokenId, { gasLimit: 3_000_000n });
+    await tx.wait();
+    setHttStatus("HSI delegated.","ok");
+    $("hsiNft").value="";
+    loadHsiList();
+  }catch(e){ setHttStatus(actuatorErr(e),"err"); }
+};
+$("redBtn") && ($("redBtn").onclick=async()=>{
+  if(!account){ openSheet(); return; }
+  const mat=parseDays($("redMat"));
+  if(!Number.isFinite(mat) || mat<1){ setHttStatus("Enter the HTT redemption day.","err"); return; }
+  let amt=0n;
+  try{ amt=ethers.parseUnits(cleanNum($("redAmt").value)||"0", HEX_DEC); }catch(_){ setHttStatus("Bad redeem amount.","err"); return; }
+  if(amt<=0n){ setHttStatus("Enter an HTT amount.","err"); return; }
+  try{
+    const mgr=httMgr(true);
+    setHttStatus("Redeeming HTT-"+mat+"…");
+    const tx=await mgr.redeemHEXTimeTokens(mat, amt, { gasLimit: 1_500_000n });
+    await tx.wait();
+    setHttStatus("HEX is in this wallet.","ok");
+    $("redAmt").value="";
+    loadHttHoldings();
+    refresh();
+  }catch(e){ setHttStatus(actuatorErr(e),"err"); }
+});
+$("redMat") && $("redMat").addEventListener("change", ()=>loadHttHoldings());
+$("httHold") && ($("httHold").onclick=async(e)=>{
+  const b=e.target.closest("[data-redeem]");
+  if(!b) return;
+  if(!account){ openSheet(); return; }
+  const mat=Number(b.dataset.redeem);
+  const max=BigInt(b.dataset.max||"0");
+  const inp=b.parentElement.querySelector("[data-redamt]");
+  let amt=max;
+  if(inp && inp.value.trim()){
+    try{ amt=ethers.parseUnits(inp.value.trim(), HEX_DEC); }catch(_){ setHttStatus("Bad redeem amount.","err"); return; }
+  }
+  if(amt<=0n){ setHttStatus("Enter an HTT amount.","err"); return; }
+  if(amt>max) amt=max;
+  b.disabled=true;
+  try{
+    setHttStatus("Redeeming HTT-"+mat+"…");
+    const tx=await httMgr(true).redeemHEXTimeTokens(mat, amt, { gasLimit: 1_500_000n });
+    await tx.wait();
+    setHttStatus("HEX is in this wallet.","ok");
+    loadHttHoldings();
+    refresh();
+  }catch(err){ setHttStatus(actuatorErr(err),"err"); }
+  b.disabled=false;
+});
 
 /* ── Liquidity pools: depth + trailing realized fee APR ──
    V2 math: LP value from fees grows as sqrt(k)/totalSupply. Comparing that
@@ -656,6 +2350,207 @@ async function pairSnapshot(pair, blockTag){
   const k = isqrt(BigInt(res[0]) * BigInt(res[1]));
   return { ratio: Number(k * 10n**18n / L) / 1e18, r0: BigInt(res[0]), r1: BigInt(res[1]) };
 }
+let lpTab="add", lpLast="tok", lpRemPct=0;
+function setLpStatus(m,c){ const s=$("lpStatus"); if(s){ s.textContent=m||""; s.className="status "+(c||""); } }
+function lpQuoteSpec(){
+  const sym=$("lpQuoteSel")?.value|| (cur.cfg.key==="PLSstr"?"PLS":"HEX");
+  return vaultSwapSpec(sym);
+}
+function fillLpSelects(){
+  if(!cur || !$("lpQuoteSel")) return;
+  const opts=cur.cfg.key==="PLSstr"?["PLS","WPLS",cur.cfg.assetSym]:["HEX","PLS","WPLS",cur.cfg.assetSym];
+  const def=cur.cfg.key==="PLSstr"?"PLS":"HEX";
+  const reset=lpVaultKey!==cur.cfg.key;
+  lpVaultKey=cur.cfg.key;
+  const curV=(!reset && opts.includes($("lpQuoteSel").value))?$("lpQuoteSel").value:def;
+  $("lpQuoteSel").innerHTML=opts.map(o=>'<option value="'+o+'"'+(o===curV?" selected":"")+'>'+o+'</option>').join("");
+  if($("lpTokSym")) $("lpTokSym").textContent=cur.cfg.token;
+}
+let lpVaultKey=null;
+function setLpTab(t){
+  lpTab=t;
+  if($("lpTabAdd")) $("lpTabAdd").setAttribute("aria-selected", t==="add"?"true":"false");
+  if($("lpTabRem")) $("lpTabRem").setAttribute("aria-selected", t==="rem"?"true":"false");
+  if($("lpPaneAdd")) $("lpPaneAdd").style.display=t==="add"?"":"none";
+  if($("lpPaneRem")) $("lpPaneRem").style.display=t==="rem"?"":"none";
+  paintLp();
+}
+async function lpPairFor(q){
+  if(!cur||!q) return null;
+  return hopReserves(cur.cfg.vault, q.addr);
+}
+async function paintLp(){
+  if(!cur || !$("lpBox")) return;
+  fillLpSelects();
+  const q=lpQuoteSpec();
+  const hop=await lpPairFor(q);
+  let pos="No PulseX pool vs "+(q?q.sym:"?")+" yet. First add creates a v2 pool at the ratio you set.";
+  if(hop){
+    try{
+      const pc=new ethers.Contract(hop.pair, PAIR_ABI, readProvider);
+      const ts=await pc.totalSupply();
+      const lp=account?await pc.balanceOf(account):0n;
+      const myTok=ts>0n?lp*hop.rIn/ts:0n;
+      const myQ=ts>0n?lp*hop.rOut/ts:0n;
+      pos="Pool "+short(hop.pair)+" · "+fmt(hop.rIn, cur.tDec, 2)+" "+cur.cfg.token+" / "+fmt(hop.rOut, q.dec, 2)+" "+q.sym;
+      if(account) pos+=" · you own "+sharePct(lp,ts)+"% = "+fmt(myTok,cur.tDec,4)+" "+cur.cfg.token+" + "+fmt(myQ,q.dec,4)+" "+q.sym;
+      window._lp={ hop, ts, lp, q };
+    }catch(e){
+      pos="Pool "+short(hop.pair)+" found, but a read failed. Try another RPC.";
+      window._lp={ hop, ts:0n, lp:0n, q };
+    }
+  }
+  if($("lpPos")) $("lpPos").textContent=pos;
+  if(lpTab==="add") quoteLpAdd(); else quoteLpRem();
+}
+async function quoteLpAdd(){
+  if(!cur) return;
+  const q=lpQuoteSpec();
+  const hop=await lpPairFor(q);
+  if(account){
+    try{ $("lpTokBal").textContent="Balance: "+fmt(await new ethers.Contract(cur.cfg.vault, ERC20_ABI, readProvider).balanceOf(account), cur.tDec, 4)+" "+cur.cfg.token; }catch(_){}
+    try{
+      const bag=q.native?await readProvider.getBalance(account):await new ethers.Contract(q.addr, ERC20_ABI, readProvider).balanceOf(account);
+      $("lpQuoteBal").textContent="Balance: "+fmt(bag, q.dec, 4)+" "+q.sym;
+    }catch(_){}
+  }
+  const tokRaw=cleanNum($("lpTokAmt")?.value), qRaw=cleanNum($("lpQuoteAmt")?.value);
+  const btn=$("lpAddBtn");
+  if(!account){ if(btn) btn.textContent="Connect wallet"; }
+  else if(btn) btn.textContent=hop?"Add liquidity":"Create PulseX v2 pool";
+  if(hop && hop.rIn>0n && hop.rOut>0n){
+    try{
+      if(lpLast==="tok" && tokRaw && parseFloat(tokRaw)>0){
+        const tAmt=ethers.parseUnits(tokRaw, cur.tDec);
+        const qAmt=tAmt*hop.rOut/hop.rIn;
+        if($("lpQuoteAmt") && document.activeElement!==$("lpQuoteAmt")) $("lpQuoteAmt").value=commaNum(ethers.formatUnits(qAmt, q.dec), 4);
+      }else if(lpLast==="quote" && qRaw && parseFloat(qRaw)>0){
+        const qAmt=ethers.parseUnits(qRaw, q.dec);
+        const tAmt=qAmt*hop.rIn/hop.rOut;
+        if($("lpTokAmt") && document.activeElement!==$("lpTokAmt")) $("lpTokAmt").value=commaNum(ethers.formatUnits(tAmt, cur.tDec), 4);
+      }
+    }catch(_){}
+  }
+  const tNow=cleanNum($("lpTokAmt")?.value), qNow=cleanNum($("lpQuoteAmt")?.value);
+  if($("lpAddPrev")) $("lpAddPrev").textContent=(tNow||"—")+" "+cur.cfg.token+" + "+(qNow||"—")+" "+q.sym;
+  const skew=$("lpAddSkew");
+  if(skew && lastBacking && tNow && qNow && parseFloat(tNow)>0 && parseFloat(qNow)>0){
+    try{
+      const tAmt=ethers.parseUnits(tNow, cur.tDec);
+      const qAmt=ethers.parseUnits(qNow, q.dec);
+      const per=Number(ethers.formatUnits(qAmt, q.dec))/Number(ethers.formatUnits(tAmt, cur.tDec));
+      skew.textContent=per.toFixed(4)+" "+q.sym+" per token · backing "+lastBacking.toFixed(4)+" "+cur.cfg.assetSym;
+    }catch(_){ skew.textContent="—"; }
+  }
+}
+function paintLpPct(){
+  const p=Math.max(0, Math.min(100, Number(lpRemPct)||0));
+  if($("lpPctRange")) $("lpPctRange").value=String(p);
+  if($("lpPctLab")) $("lpPctLab").textContent=p+"%";
+  document.querySelectorAll("#lpPctRow button").forEach(b=>{
+    b.classList.toggle("on", Number(b.dataset.p)===p);
+  });
+}
+function setLpPct(p){
+  lpRemPct=Math.max(0, Math.min(100, Number(p)||0));
+  paintLpPct();
+  quoteLpRem();
+}
+async function quoteLpRem(){
+  const s=window._lp, q=lpQuoteSpec();
+  paintLpPct();
+  if(!s||!s.ts||s.ts===0n){
+    ["lpRemShare","lpRemTok","lpRemQuote","lpRemPrev","lpRemLp"].forEach(id=>{ if($(id)) $(id).textContent="—"; });
+    if($("lpBurnBal")) $("lpBurnBal").textContent="No LP in this wallet for this pool.";
+    return;
+  }
+  if($("lpBurnBal")) $("lpBurnBal").textContent=(s.ts<10n**15n)
+    ? ("You own "+sharePct(s.lp,s.ts)+"% of the pool · LP units "+fmtLp(s.lp)+" (tiny is normal when HEX is 8 decimals)")
+    : ("Your LP: "+fmtLp(s.lp)+" · "+sharePct(s.lp,s.ts)+"% of the pool");
+  const p=Math.max(0, Math.min(100, Number(lpRemPct)||0));
+  if(p<=0 || s.lp===0n){
+    ["lpRemShare","lpRemTok","lpRemQuote","lpRemPrev","lpRemLp"].forEach(id=>{ if($(id)) $(id).textContent="—"; });
+    return;
+  }
+  const burn=p>=100 ? s.lp : s.lp*BigInt(Math.round(p))/100n;
+  if(burn===0n){
+    ["lpRemShare","lpRemTok","lpRemQuote","lpRemPrev","lpRemLp"].forEach(id=>{ if($(id)) $(id).textContent="—"; });
+    return;
+  }
+  const outT=burn*s.hop.rIn/s.ts, outQ=burn*s.hop.rOut/s.ts;
+  if($("lpRemLp")) $("lpRemLp").textContent=fmtLp(burn);
+  if($("lpRemShare")) $("lpRemShare").textContent=sharePct(burn,s.ts)+"% of the pool";
+  if($("lpRemPrev")) $("lpRemPrev").textContent=fmt(outT, cur.tDec, 4)+" "+cur.cfg.token+" + "+fmt(outQ, q.dec, 4)+" "+(q.native?"PLS":q.sym);
+  window._lpRem={ burn, outT, outQ, q, pair:s.hop.pair };
+}
+async function execLpAdd(){
+  if(!account){ openSheet(); return; }
+  const btn=$("lpAddBtn"); if(btn) btn.disabled=true;
+  try{
+    const q=lpQuoteSpec();
+    const tRaw=cleanNum($("lpTokAmt").value), qRaw=cleanNum($("lpQuoteAmt").value);
+    if(!(parseFloat(tRaw)>0)||!(parseFloat(qRaw)>0)){ setLpStatus("Enter both amounts.","err"); btn.disabled=false; return; }
+    const tAmt=ethers.parseUnits(tRaw, cur.tDec);
+    const qAmt=ethers.parseUnits(qRaw, q.dec);
+    const hop=await lpPairFor(q);
+    const r=new ethers.Contract(PULSEX_V2_ROUTER, ROUTER_ABI, signer);
+    const tok=new ethers.Contract(cur.cfg.vault, ERC20_ABI, signer);
+    if((await tok.allowance(account, PULSEX_V2_ROUTER))<tAmt){
+      setLpStatus("Approve "+cur.cfg.token+"…");
+      const txA=await tok.approve(PULSEX_V2_ROUTER, ethers.MaxUint256); await txA.wait();
+    }
+    if(!q.native){
+      const qt=new ethers.Contract(q.addr, ERC20_ABI, signer);
+      if((await qt.allowance(account, PULSEX_V2_ROUTER))<qAmt){
+        setLpStatus("Approve "+q.sym+"…");
+        const txB=await qt.approve(PULSEX_V2_ROUTER, ethers.MaxUint256); await txB.wait();
+      }
+    }
+    setLpStatus(hop?"Adding liquidity…":"Creating PulseX v2 pool…");
+    const dl=BigInt(Math.floor(Date.now()/1000)+1200);
+    const gas=hop?800_000n:2_800_000n;
+    const tx=q.native
+      ? await r.addLiquidityETH(cur.cfg.vault, tAmt, tAmt*99n/100n, qAmt*99n/100n, account, dl, { value:qAmt, gasLimit:gas })
+      : await r.addLiquidity(cur.cfg.vault, q.addr, tAmt, qAmt, tAmt*99n/100n, qAmt*99n/100n, account, dl, { gasLimit:gas });
+    await tx.wait();
+    setLpStatus("LP tokens in this wallet.","ok");
+    await refresh(); paintLp();
+  }catch(e){
+    let m=e.shortMessage||e.message||"Failed";
+    if(/user rejected|denied/i.test(m)) m="Cancelled.";
+    setLpStatus(m,"err");
+  }
+  if(btn) btn.disabled=false;
+}
+async function execLpRem(){
+  if(!account){ openSheet(); return; }
+  const btn=$("lpRemBtn"); if(btn) btn.disabled=true;
+  try{
+    await paintLp(); await quoteLpRem();
+    const s=window._lpRem;
+    if(!s||!s.burn){ setLpStatus("Pick 25%, 50%, 75% or Max.","err"); btn.disabled=false; return; }
+    const pc=new ethers.Contract(s.pair, PAIR_ABI, signer);
+    if((await pc.allowance(account, PULSEX_V2_ROUTER))<s.burn){
+      setLpStatus("Approve LP…");
+      const txA=await pc.approve(PULSEX_V2_ROUTER, ethers.MaxUint256); await txA.wait();
+    }
+    const r=new ethers.Contract(PULSEX_V2_ROUTER, ROUTER_ABI, signer);
+    setLpStatus("Removing liquidity…");
+    const dl=BigInt(Math.floor(Date.now()/1000)+1200);
+    const tx=s.q.native
+      ? await r.removeLiquidityETH(cur.cfg.vault, s.burn, s.outT*99n/100n, s.outQ*99n/100n, account, dl, { gasLimit:800_000n })
+      : await r.removeLiquidity(cur.cfg.vault, s.q.addr, s.burn, s.outT*99n/100n, s.outQ*99n/100n, account, dl, { gasLimit:800_000n });
+    await tx.wait();
+    setLpStatus("Liquidity removed.","ok");
+    lpRemPct=0; paintLpPct(); $("lpBurnAmt") && ($("lpBurnAmt").value=""); await refresh(); paintLp();
+  }catch(e){
+    let m=e.shortMessage||e.message||"Failed";
+    if(/user rejected|denied/i.test(m)) m="Cancelled.";
+    setLpStatus(m,"err");
+  }
+  if(btn) btn.disabled=false;
+}
+
 async function loadPools(cfg){
   const sec = $("poolsSec"), list = $("poolsList");
   const pools = (cfg.pools||[]).filter(p=>p.address);
@@ -666,7 +2561,7 @@ async function loadPools(cfg){
     '<div class="paddr"><span title="'+p.address+'">'+p.address.slice(0,10)+'…'+p.address.slice(-8)+'</span>'+
     '<button class="icpy" onclick="copyText(\''+p.address+'\',this)">copy pair</button>'+
     (cfg.vault ? '<button class="icpy" onclick="copyText(\''+cfg.vault+'\',this)">copy '+cfg.token+'</button>' : '')+
-    '<a href="'+pulsexAdd()+'" target="_blank" rel="noopener">Add liquidity ↗</a></div></div>'+
+    '</div></div>'+
     '<div class="papr" id="pa'+i+'">…<small>trailing 7d fee APR</small></div></div>').join("");
   const nowBlock = await readProvider.getBlockNumber();
   for(let i=0;i<pools.length;i++){
@@ -707,6 +2602,7 @@ async function loadPools(cfg){
       }
     })();
   }
+  paintLp();
 }
 
 /* ---------- reads ---------- */
@@ -760,10 +2656,14 @@ async function refresh(){
       if(mode==="redeem") $("inBal").textContent="Balance: "+fmt(ut,cur.tDec);
     }
     setStatus("");
+    if(httMaturity()){ paintHttPreview(); loadHsiList(); loadHttHoldings(); paintHexReco(); }
+    if(cur && cur.cfg.key==="PLSstr") paintVouch();
   }catch(e){
     console.error(e);
     rpcHealthy = false; // next refresh cycle probes & rotates endpoints
   }
+  if(cardTab==="swap") quoteVaultSwap();
+  paintLp();
 }
 function tickEpoch(){
   if(epochSecs===null)return;
@@ -775,7 +2675,7 @@ setInterval(tickEpoch,1000); setInterval(refresh,15000);
 
 /* ---------- preview ---------- */
 async function updatePreview(){
-  const v=$("amt").value.trim(); previewOut=0n;
+  const v=cleanNum($("amt").value); previewOut=0n;
   if(!cur||!cur.vr||!v||isNaN(parseFloat(v))||parseFloat(v)<=0){$("outAmt").textContent="—";$("feeAmt").textContent="—";updateActionState();return;}
   try{
     if(mode==="mint"){
@@ -795,20 +2695,32 @@ async function updatePreview(){
 $("amt").addEventListener("input",updatePreview);
 
 /* ---------- tabs ---------- */
-function setMode(m){
-  mode=m;
-  $("tabMint").setAttribute("aria-selected",m==="mint");
-  $("tabRedeem").setAttribute("aria-selected",m==="redeem");
-  $("inLabel").textContent=m==="mint"?"You deposit":"You redeem";
-  $("inSym").textContent=m==="mint"?cur.cfg.assetSym:cur.cfg.token;
-  $("feeLabel").textContent=m==="mint"?"Mint premium (4.5%: 4.0% vault, 0.5% protocol fee)":"Redemption fee (0.5%, stays in the vault)";
-  $("inBal").textContent=account?"Balance: "+(m==="mint"?fmt(bal.asset,cur.aDec):fmt(bal.token,cur.tDec)):"";
+let cardTab="swap";
+function setCardTab(t){
+  cardTab=t;
+  if(t==="mint"||t==="redeem") mode=t;
+  if($("tabSwap")) $("tabSwap").setAttribute("aria-selected", t==="swap"?"true":"false");
+  $("tabMint").setAttribute("aria-selected", t==="mint"?"true":"false");
+  $("tabRedeem").setAttribute("aria-selected", t==="redeem"?"true":"false");
+  if($("swapPane")) $("swapPane").style.display=t==="swap"?"":"none";
+  if($("mrPane")) $("mrPane").style.display=t==="swap"?"none":"";
+  if(t==="swap"){
+    fillVaultSwapSelects();
+    quoteVaultSwap();
+    return;
+  }
+  $("inLabel").textContent=mode==="mint"?"You deposit":"You redeem";
+  $("inSym").textContent=mode==="mint"?cur.cfg.assetSym:cur.cfg.token;
+  $("feeLabel").textContent=mode==="mint"?"Mint premium (4.5%: 4.0% vault, 0.5% protocol fee)":"Redemption fee (0.5%, stays in the vault)";
+  $("inBal").textContent=account?"Balance: "+(mode==="mint"?fmt(bal.asset,cur.aDec):fmt(bal.token,cur.tDec)):"";
   $("amt").value=""; updatePreview();
 }
-$("tabMint").onclick=()=>setMode("mint");
-$("tabRedeem").onclick=()=>setMode("redeem");
+function setMode(m){ setCardTab(m); }
+$("tabSwap") && ($("tabSwap").onclick=()=>setCardTab("swap"));
+$("tabMint").onclick=()=>setCardTab("mint");
+$("tabRedeem").onclick=()=>setCardTab("redeem");
 $("maxBtn").onclick=()=>{
-  $("amt").value = mode==="mint" ? ethers.formatUnits(bal.asset,cur.aDec) : ethers.formatUnits(bal.token,cur.tDec);
+  $("amt").value = commaNum(mode==="mint" ? ethers.formatUnits(bal.asset,cur.aDec) : ethers.formatUnits(bal.token,cur.tDec), 6);
   updatePreview();
 };
 
@@ -856,6 +2768,7 @@ async function disconnectWallet(){
   const b = $("connectBtn"); b.textContent = "Connect"; b.classList.remove("connected");
   $("userTok").textContent = "\u2014";
   $("userAsset").textContent = "\u2014";
+  syncHttWalletUi();
   statusLockUntil = 0; setStatus("");
   await refresh(); updateActionState();
 }
@@ -897,6 +2810,7 @@ async function finishConnect(p, kind){
   p.on?.("accountsChanged",()=>location.reload());
   p.on?.("chainChanged",()=>location.reload());
   closeSheet(); setStatus("");
+  syncHttWalletUi();
   await refresh(); updatePreview();
 }
 
@@ -955,7 +2869,7 @@ async function updateActionState(){
   const btn=$("actionBtn"); btn.classList.remove("approve");
   if(!cur||!cur.cfg.vault){btn.textContent="Not configured";btn.disabled=true;return;}
   if(!account){btn.textContent="Connect wallet";btn.disabled=false;btn.onclick=openSheet;return;}
-  const v=$("amt").value.trim();
+  const v=cleanNum($("amt").value);
   if(!v||isNaN(parseFloat(v))||parseFloat(v)<=0){btn.textContent=mode==="mint"?"Mint "+cur.cfg.token:"Redeem for "+cur.cfg.assetSym;btn.disabled=true;return;}
   if(mode==="mint"){
     const amt=ethers.parseUnits(v,cur.aDec);
@@ -977,7 +2891,7 @@ async function doAction(){
   btn.disabled=true;
   try{
     if(mode==="mint"){
-      const amt=ethers.parseUnits($("amt").value.trim(),cur.aDec);
+      const amt=ethers.parseUnits(cleanNum($("amt").value),cur.aDec);
       if(needsApproval){
         setStatus("Approving "+cur.cfg.assetSym+"…");
         const tx=await cur.assetW.approve(cur.cfg.vault,amt); await tx.wait();
@@ -988,7 +2902,7 @@ async function doAction(){
       const tx=await cur.vault.mint(amt,minOut); await tx.wait();
       setStatusHtml("Minted. The ratchet just clicked forward."+txLink(tx.hash)+dismissLink(),"ok",120);
     }else{
-      const amt=ethers.parseUnits($("amt").value.trim(),cur.tDec);
+      const amt=ethers.parseUnits(cleanNum($("amt").value),cur.tDec);
       const minOut=previewOut*995n/1000n;
       setStatus("Redeeming…");
       const tx=await cur.vault.redeem(amt,minOut); await tx.wait();
@@ -1056,14 +2970,25 @@ async function loadBackingDelta(){
 }
 
 /* ---------- DEX market price vs backing ---------- */
-async function findPair(a, b){
+async function findPairInfo(a, b){
+  let best=null, bestLiq=-1n;
   for(const f of PULSEX_FACTORIES){
     try{
       const p = await new ethers.Contract(f, FACTORY_ABI, readProvider).getPair(a, b);
-      if(p && p !== ethers.ZeroAddress) return p;
+      if(!p || p===ethers.ZeroAddress) continue;
+      const [r0,r1] = await new ethers.Contract(p, PAIR_ABI, readProvider).getReserves();
+      const liq = BigInt(r0) * BigInt(r1);
+      if(liq>bestLiq){
+        bestLiq=liq;
+        best={ pair:p, factory:f, router:PULSEX_ROUTER_OF[f.toLowerCase()]||PULSEX_V2_ROUTER };
+      }
     }catch(_){}
   }
-  return null;
+  return best;
+}
+async function findPair(a, b){
+  const i=await findPairInfo(a,b);
+  return i?i.pair:null;
 }
 /* how many B you get for 1 A, from pool reserves (spot, ignores fees/slippage) */
 async function pairPrice(tokenA, decA, tokenB, decB){
@@ -1085,15 +3010,12 @@ function copyText(t, btn){
   if(btn){ const o = btn.textContent; btn.textContent = "copied"; setTimeout(()=>btn.textContent = o, 1100); }
 }
 function paintTradeLink(){
-  const a = $("tradeLink"); if(!a) return;
+  const a = $("tradeLink");
   const cp = $("copyTok");
+  if(a) a.style.display = "none";
   if(cur && cur.cfg.vault){
-    a.href = pulsexSwap();
-    a.textContent = "Buy " + cur.cfg.token + " on PulseX \u2197";
-    a.style.display = "inline-block";
     if(cp){ cp.style.display = "inline-block"; cp.onclick = () => copyText(cur.cfg.vault, cp); }
   } else {
-    a.style.display = "none";
     if(cp) cp.style.display = "none";
   }
 }
