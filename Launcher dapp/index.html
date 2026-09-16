@@ -87,6 +87,7 @@ header{display:flex;justify-content:space-between;align-items:center;padding:20p
 .stat{background:var(--panel);padding:14px 16px}
 .stat .k{font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--mut);margin-bottom:6px}
 .stat .v{font-family:'IBM Plex Mono';font-size:15px;font-weight:500}
+.backdelta{font-family:'IBM Plex Mono';font-size:13px;color:var(--mint);margin-top:6px;letter-spacing:.02em}
 .backing{font-family:'IBM Plex Mono';font-weight:600;font-size:clamp(36px,10vw,58px);line-height:1}
 .backing .unit{font-size:.32em;font-weight:500;color:var(--mut);margin-left:.35em}
 .rail{position:relative;height:26px;margin:14px 0 8px;overflow:hidden;border-radius:5px}
@@ -278,14 +279,15 @@ pre.json{background:var(--panel2);border:1px solid var(--line);border-radius:12p
   <section class="ratchet">
     <div style="font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--mut);margin-bottom:8px" id="eyebrow">Backing per token</div>
     <div class="backing"><span id="backingNum">·····</span><span class="unit" id="backingUnit"></span></div>
+    <div class="backdelta" id="backDelta" style="display:none"></div>
     <div class="rail" aria-hidden="true"><div class="teeth"></div><div class="trail" id="railTrail"></div><div class="pawl" id="railPawl"></div></div>
     <p style="font-size:13px;color:var(--mut)" id="railNote">Open a vault to read the ratchet.</p>
   </section>
   <section class="stats">
     <div class="stat"><div class="k">Vault holds</div><div class="v" id="vaultBal">—</div></div>
-    <div class="stat"><div class="k">Supply</div><div class="v" id="supply">—</div></div>
-    <div class="stat"><div class="k">Your tokens</div><div class="v" id="userTok">—</div></div>
-    <div class="stat"><div class="k">Your asset</div><div class="v" id="userAsset">—</div></div>
+    <div class="stat"><div class="k">Vault token supply</div><div class="v" id="supply">—</div></div>
+    <div class="stat"><div class="k">Your vault tokens</div><div class="v" id="userTok">—</div></div>
+    <div class="stat"><div class="k">Your backing asset</div><div class="v" id="userAsset">—</div></div>
   </section>
   <div class="note" style="margin:0 0 16px">Mintable this epoch: <b id="quota">—</b> · resets in <b id="epochTimer">—</b> · quota now <b id="qBps">—</b></div>
   <section class="card">
@@ -437,7 +439,7 @@ pre.json{background:var(--panel2);border:1px solid var(--line);border-radius:12p
     <a href="https://pulsestrategy369.com" rel="noopener">PulseVerify</a> is the front page. The <a href="https://pulsestrategy369.com/whitepaper" rel="noopener">whitepaper</a> covers this launcher too — overview and how to. Download each page from its own footer.
   </div>
   <div>The contracts live on PulseChain and work without this page. This dapp reads the chain directly from your browser — no server, no database, no tracking.</div>
-  <div style="margin-top:10px"><a href="https://x.com/pulsestrategy" target="_blank" rel="noopener">@pulsestrategy</a> · the floor only rises · <span class="mono" id="buildTag">launcher v22 · 2026-09-15</span></div>
+  <div style="margin-top:10px"><a href="https://x.com/pulsestrategy" target="_blank" rel="noopener">@pulsestrategy</a> · the floor only rises · <span class="mono" id="buildTag">launcher v23 · 2026-09-16</span></div>
 </footer>
 </div>
 
@@ -1142,9 +1144,11 @@ async function openVault(addr, switchTab){
     cur.assetW=new ethers.Contract(asset, ERC20_ABI, signer);
   }
   $("backingUnit").textContent=aSym;
+  const bd=$("backDelta"); if(bd) bd.style.display="none";
   $("railNote").textContent="The ratchet only moves right. 3.5% of every mint and 0.5% of every redeem stay in "+aSym+".";
   $("vaultMeta").innerHTML='Vault <span class="mono">'+addr+'</span><br>Creator <span class="mono">'+creator+'</span> · backing '+aSym+' · start quota '+(Number(iq)/100)+'%';
   setMode(mode);
+  bal={asset:0n,token:0n}; previewOut=0n;
   pxHasPool=false; pxTab="add";
   $("pxBox").style.display="";
   await refresh();
@@ -1159,10 +1163,9 @@ async function refresh(){
   if(account){
     try{
       const ua=await cur.ar.balanceOf(account);
-      bal.asset=ua; $("userAsset").textContent=fmt(ua,cur.aDec);
-      if(mode==="mint") $("inBal").textContent="Balance: "+fmt(ua,cur.aDec);
+      bal.asset=ua; $("userAsset").textContent=fmt(ua,cur.aDec)+" "+cur.cfg.assetSym;
     }catch(_){}
-  }
+  }else if($("userAsset")) $("userAsset").textContent="—";
   try{
     const [backing,vb,ts,quota,tnext,qbps,genesis]=await Promise.all([
       cur.vr.backingPerToken(), cur.vr.vaultBalance(), cur.vr.totalSupply(),
@@ -1174,19 +1177,53 @@ async function refresh(){
     const pct=Math.min(96, 8+lastBacking*18);
     $("railTrail").style.width=pct+"%"; $("railPawl").style.left=pct+"%";
     $("vaultBal").textContent=fmt(vb,cur.aDec)+" "+cur.cfg.assetSym;
-    $("supply").textContent=fmt(ts,cur.tDec);
+    $("supply").textContent=fmt(ts,cur.tDec)+" "+cur.cfg.token;
     $("quota").textContent=(genesis||quota>=MAXU/2n)?"unlimited (genesis)":fmt(quota,cur.tDec)+" "+cur.cfg.token;
     $("qBps").textContent=(genesis||quota>=MAXU/2n)?"uncapped this epoch":((Number(qbps)/100)+"% of supply");
     epochSecs=Number(tnext); epochFetched=Date.now();
     if(account){
       const ut=await cur.vr.balanceOf(account);
-      bal.token=ut; $("userTok").textContent=fmt(ut,cur.tDec);
-      if(mode==="redeem") $("inBal").textContent="Balance: "+fmt(ut,cur.tDec);
-    }
+      bal.token=ut; $("userTok").textContent=fmt(ut,cur.tDec)+" "+cur.cfg.token;
+    }else if($("userTok")) $("userTok").textContent="—";
+    paintInBal();
     setStatus("");
     updatePreview();
     paintPx();
+    loadBackingDelta();
   }catch(e){ rpcHealthy=false; }
+}
+const MINTED_TOPIC   = "0x5a3358a3d27a5373c0df2604662088d37894d56b7cfd27f315770440f4e0d919";
+const REDEEMED_TOPIC = "0x76cd0cedf979345ca241ce6de696a520a8efc860c6c10d9db2a7953307c237fc";
+async function loadBackingDelta(){
+  const el=$("backDelta"); if(!el) return;
+  el.style.display="none";
+  if(!cur || !cur.cfg.vault || !(lastBacking>0)) return;
+  const vault=cur.cfg.vault;
+  const perDay=Math.max(1, Math.round(86400/CHAIN.blockTimeSec));
+  let head;
+  try{ head=await readProvider.getBlockNumber(); }catch(_){ return; }
+  for(const days of [7,3,1]){
+    let logs;
+    try{
+      logs=await readProvider.getLogs({
+        address: vault,
+        topics: [[MINTED_TOPIC, REDEEMED_TOPIC]],
+        fromBlock: Math.max(0, head - days*perDay),
+        toBlock: head
+      });
+    }catch(_){ continue; }
+    if(!logs || !logs.length) return;
+    const d=(logs[0].data||"0x").replace(/^0x/,"");
+    if(d.length<64) return;
+    let base;
+    try{ base=Number(ethers.formatEther(BigInt("0x"+d.slice(-64)))); }catch(_){ return; }
+    if(!(base>0)) return;
+    if(cur.cfg.vault!==vault) return;
+    const pct=(lastBacking/base-1)*100;
+    el.textContent=(pct>=0?"+":"")+pct.toFixed(2)+"% in the last "+days+(days===1?" day":" days");
+    el.style.display="block";
+    return;
+  }
 }
 function tickEpoch(){
   if(epochSecs===null) return;
@@ -1197,6 +1234,12 @@ function tickEpoch(){
 setInterval(tickEpoch,1000);
 setInterval(refresh,15000);
 
+function paintInBal(){
+  const el=$("inBal"); if(!el) return;
+  if(!cur || !account){ el.textContent=""; return; }
+  if(mode==="mint") el.textContent="Balance: "+fmt(bal.asset,cur.aDec)+" "+cur.cfg.assetSym;
+  else el.textContent="Balance: "+fmt(bal.token,cur.tDec)+" "+cur.cfg.token;
+}
 function setMode(m){
   mode=m;
   $("tabMint").classList.toggle("on", m==="mint");
@@ -1206,7 +1249,9 @@ function setMode(m){
   $("feeLabel").textContent=m==="mint"
     ?"Mint premium 4.5% (3.5 vault / 0.5 protocol / 0.5 creator)"
     :"Redemption fee 0.5% (stays in the vault)";
-  $("amt").value=""; updatePreview();
+  $("amt").value="";
+  paintInBal();
+  updatePreview();
 }
 $("tabMint").onclick=()=>setMode("mint");
 $("tabRedeem").onclick=()=>setMode("redeem");
