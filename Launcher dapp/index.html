@@ -442,7 +442,7 @@ pre.json{background:var(--panel2);border:1px solid var(--line);border-radius:12p
 
 <footer>
   <div>Factory: <span class="mono" id="factoryLink">not configured — set FACTORY_ADDR</span></div>
-  <div style="margin-top:10px">Launch fee: 10,000 PLS + min 10 of the backing asset · Protocol mint cut (0.5%): <span class="mono">0x3E5a5764EBd24d8142638366d4c5674D86c2EC64</span></div>
+  <div style="margin-top:10px">Launch fee: 10,000 PLS + Protocol mint fee (0.5%): <span class="mono">0x3E5a5764EBd24d8142638366d4c5674D86c2EC64</span></div>
   <div style="margin-top:16px" id="verifyBlock">
     <a href="#" id="dlLink" class="dl-cta">⬇ Download this app</a>
     <div style="margin-top:10px">Run it locally on desktop or mobile — it works with no server, reading PulseChain directly from your browser.</div>
@@ -462,7 +462,7 @@ rel="noopener">Github</a> and inspect the code or download from github.</div>
     <a href="https://pulsestrategy369.com" rel="noopener">PulseVerify</a> is the front page. The <a href="https://pulsestrategy369.com/whitepaper" rel="noopener">whitepaper</a> covers this launcher too — overview and how to. Download each page from its own footer.
   </div>
   <div>The contracts live on PulseChain and work without this page. This dapp reads the chain directly from your browser — no server, no database, no tracking.</div>
-  <div style="margin-top:10px"><a href="https://x.com/pulsestrategy" target="_blank" rel="noopener">@pulsestrategy</a> · the floor only rises · <span class="mono" id="buildTag">launcher v26 · 2026-09-17</span></div>
+  <div style="margin-top:10px"><a href="https://x.com/pulsestrategy" target="_blank" rel="noopener">@pulsestrategy</a> · the floor only rises · <span class="mono" id="buildTag">launcher v27 · 2026-09-17</span></div>
 </footer>
 </div>
 
@@ -2193,8 +2193,8 @@ async function toWpls(token, amount, dec){
 const SYNC_TOPIC = "0x1c411e9a96e071241c2f21f7726b17ae89e3cab4c78be50e062b03a9fffbbad1";
 const SWAP_TOPIC = "0xd78ad95fa46c994b6551d0da85fc3d2cd6ee11e89dad82c4f70f0bd2faa23fc8";
 const STABLES = [
-  { sym:"DAI",  addr:"0x6B175474E89094C44Da98b954EedeAC495271d0F", dec:18 },
-  { sym:"USDT", addr:"0x0Cb6F5a34ad4ec2579CBD6878af77a2E197DCE8B", dec:18 }
+  { sym:"DAI",  addr:"0xefD766cCb38EaF1dfd701853BFCe31359239F305", dec:18 },
+  { sym:"USDC", addr:"0x15D38573d2feeb82e7ad5187aB8c1D52810B1f07", dec:6 }
 ];
 function boardQuotes(){
   const out=[{sym:"PLS", addr:WPLS, dec:18}];
@@ -2244,26 +2244,40 @@ function syncReserves(log, tokenIs0){
 }
 async function loadPlsUsd(){
   plsUsd=null;
-  let best=null, bestL=-1n;
+  const cands=[];
   for(const s of STABLES){
-    try{
-      const deep=await pxPairDeep(WPLS, s.addr);
-      if(!deep) continue;
-      const {r0,r1,t0}=await pairReserves(deep.pair);
-      const L=r0*r1;
-      if(L<=bestL) continue;
-      const wIs0=t0.toLowerCase()===WPLS.toLowerCase();
-      const rW=wIs0?r0:r1, rS=wIs0?r1:r0;
-      if(rW===0n) continue;
-      const usdPer=Number(rS * 10n**18n / rW)/1e18;
-      if(!(usdPer>0) || usdPer>100 || usdPer<1e-8) continue;
-      best={ usdPer, sym:s.sym, pair:deep.pair };
-      bestL=L;
-    }catch(_){}
+    for(const f of [PULSEX_V1_FACTORY, PULSEX_V2_FACTORY]){
+      try{
+        const p=await pxPair(f, WPLS, s.addr);
+        if(!p) continue;
+        const {r0,r1,t0}=await pairReserves(p);
+        const wIs0=t0.toLowerCase()===WPLS.toLowerCase();
+        const rW=wIs0?r0:r1, rS=wIs0?r1:r0;
+        if(rW===0n || rS===0n) continue;
+        const usdWei=rS * 10n**(18n-BigInt(s.dec)) * 10n**18n / rW;
+        const usdPer=Number(usdWei)/1e18;
+        if(!(usdPer>0) || usdPer>1 || usdPer<1e-10) continue;
+        cands.push({ usdPer, sym:s.sym, pair:p, depth: rS * 10n**(18n-BigInt(s.dec)) });
+      }catch(_){}
+    }
+  }
+  let best=null;
+  if(cands.length){
+    const sorted=cands.slice().sort((a,b)=>a.usdPer-b.usdPer);
+    const mid=sorted[Math.floor(sorted.length/2)].usdPer;
+    const cluster=cands.filter(c=>Math.abs(c.usdPer/mid-1)<0.25);
+    const pool=cluster.length?cluster:cands;
+    best=pool.reduce((a,b)=> b.depth>a.depth ? b : a);
   }
   plsUsd=best;
   const el=$("plsUsdRate");
-  if(el) el.textContent=best ? "1 PLS ≈ $"+best.usdPer.toFixed(best.usdPer>=0.01?4:6)+" · PulseX "+best.sym : "USD feed unavailable (no DAI/USDT pool)";
+  if(el){
+    if(best){
+      const p=best.usdPer;
+      const txt=p>=0.01?p.toFixed(4):p>=0.0001?p.toFixed(6):p.toFixed(8);
+      el.textContent="1 PLS ≈ $"+txt+" · PulseX "+best.sym;
+    }else el.textContent="USD feed unavailable (no DAI/USDC pool)";
+  }
 }
 function fmtUsd(wplsBn){
   if(!plsUsd || !(plsUsd.usdPer>0) || wplsBn==null) return "—";
@@ -2275,9 +2289,10 @@ function fmtUsd(wplsBn){
   if(abs>=1e3) return sign+"$"+(abs/1e3).toFixed(2)+"K";
   if(abs>=1) return sign+"$"+abs.toFixed(2);
   if(abs>=0.01) return sign+"$"+abs.toFixed(4);
-  if(abs>=0.000001) return sign+"$"+abs.toFixed(6);
+  if(abs>=0.0001) return sign+"$"+abs.toFixed(6);
+  if(abs>=1e-8) return sign+"$"+abs.toFixed(8);
   if(abs===0) return "$0";
-  return sign+"<$0.000001";
+  return sign+"<$0.00000001";
 }
 function moneyW(wplsStr){
   if(wplsStr==null || wplsStr==="" || wplsStr==="0") return "—";
