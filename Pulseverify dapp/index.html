@@ -124,6 +124,10 @@ button:focus-visible,select:focus-visible,input:focus-visible,textarea:focus-vis
 .txrow{display:flex;justify-content:space-between;gap:10px;padding:8px 10px;border:1px solid var(--line);border-radius:8px;margin-bottom:6px;font-family:var(--mono);font-size:12px;flex-wrap:wrap}
 .txrow:hover{background:var(--panel-2)}
 .txrow .val{color:var(--muted);flex:none}
+.xfer{align-items:flex-start}
+.xfer .dir{color:var(--faint);font-size:11px}
+.raw-box{max-height:140px;overflow:auto;word-break:break-all;font-family:var(--mono);font-size:11px;color:var(--muted);background:var(--bg-2);border:1px solid var(--line);border-radius:8px;padding:8px 10px}
+.kv .v .usd{color:var(--faint);font-size:11px;margin-left:6px}
 .loading{padding:40px;text-align:center;color:var(--faint)}
 .spin{display:inline-block;width:22px;height:22px;border:2px solid var(--line);border-top-color:var(--pulse);border-radius:50%;animation:spin .8s linear infinite;margin-bottom:10px}
 @keyframes spin{to{transform:rotate(360deg)}}
@@ -333,7 +337,9 @@ footer a.vaultlink{color:var(--teal);font-weight:600}
       <b>On iPhone or iPad</b> — a downloaded copy is fine for reading, but iOS gives no equivalent way to serve it, so use <b>pulsestrategy369.com</b> to connect a wallet.
     </div>
     <div class="hashline">SHA-256 of this file:<br><span id="fileHash">computing…</span></div>
-    <div style="opacity:.85">Cross-check the hash against the one published on our <a href="https://x.com/pulsestrategy" target="_blank" rel="noopener">X</a> / GitHub before trusting a downloaded copy.</div>
+    <div style="opacity:.85">Cross-check the hash against the one published on our <a href="https://x.com/pulsestrategy" target="_blank" rel="noopener">X</a> / <a href="https://github.com/PulseStrategy369/PulseStrategy
+" target="_blank"
+rel="noopener">Github</a> and inspect the code or download from github.</div>
   </div>
   <div style="margin-bottom:14px;opacity:.85">
     The <b>explorer</b>, <b>vaults dapp</b> and <b>launcher</b> are separate pages — download each from its own page: grab the explorer here, then open <a class="vaultlink" href="https://pulsestrategy369.com/vaults">PulseStrategy Vaults</a> or <a class="launchlink" href="https://pulsestrategy369.com/launch">PulseStrategy Launcher</a> and download from there.
@@ -344,7 +350,7 @@ footer a.vaultlink{color:var(--teal);font-weight:600}
 </div>
 <script>
 "use strict";
-var BUILD = 'v30 · 2026-09-17';
+var BUILD = 'v31 · 2026-09-17';
 var VAULTS_URL = 'https://pulsestrategy369.com/vaults'; /* ★ EDIT HERE: the one place that controls every 'Vaults' link on this page */
 var LAUNCH_URL = 'https://pulsestrategy369.com/launch'; /* ★ EDIT HERE: PulseStrategy Launcher */
 /* ================= RPC core ================= */
@@ -479,6 +485,154 @@ function bodyLoading(msg){ $('d-body').innerHTML = `<div class="loading"><span c
 function showErr(msg){ $('d-body').innerHTML = `<div class="errbox">${esc(msg)}</div>`; }
 
 /* ================= block & tx views ================= */
+let _addrLabels = null, _tokMeta = {};
+function buildAddrLabels(){
+  if(_addrLabels) return _addrLabels;
+  const m = {};
+  const add = (a,n)=>{ if(a) m[String(a).toLowerCase()] = n; };
+  add(WPLS,'WPLS'); add(DEAD,'dead'); add(ZERO,'zero');
+  add('0x1715a3E4A142d8b698131108995174F37aEBA10D','PulseX v1 factory');
+  add('0x29eA7545DEf87022BAdc76323F373EA1e707C523','PulseX v2 factory');
+  add('0x98bf93ebf5c380C0e6Ae8e192A7e2AE08edAcc02','PulseX v1 router');
+  add('0x165C3410fC91EF562C50559f7d2289fEbed552d9','PulseX v2 router');
+  add('0x1F3Ef0bf7fE0c6bEBD0ba1503734F87014dBa5e5','LaunchVault factory');
+  add('0x3E5a5764EBd24d8142638366d4c5674D86c2EC64','protocol fee');
+  try{ FACTORIES.forEach(f=>add(f.addr, f.name+' factory')); }catch(e){}
+  try{ TOKEN_LIST.forEach(t=>add(t.addr, t.sym)); }catch(e){}
+  try{ PS_VAULTS.forEach(v=>add(v.vault, v.symbol)); }catch(e){}
+  _addrLabels = m; return m;
+}
+function addrTag(a){
+  if(!a) return '';
+  const n = buildAddrLabels()[String(a).toLowerCase()];
+  return n ? '<span class="badge info">'+esc(n)+'</span> ' : '';
+}
+function linkAddrNamed(a){ return a ? addrTag(a)+linkAddr(a) : '—'; }
+function fmtUsdTiny(plsNum, usdPer){
+  if(!(usdPer>0) || !isFinite(plsNum)) return '';
+  const n = plsNum * usdPer, abs = Math.abs(n);
+  let s;
+  if(abs>=1e6) s = '$'+(abs/1e6).toFixed(2)+'M';
+  else if(abs>=1e3) s = '$'+(abs/1e3).toFixed(2)+'K';
+  else if(abs>=1) s = '$'+abs.toFixed(2);
+  else if(abs>=0.01) s = '$'+abs.toFixed(4);
+  else if(abs>=1e-8) s = '$'+abs.toFixed(8);
+  else if(abs===0) s = '$0';
+  else s = '<$0.00000001';
+  return ' <span class="usd">≈ '+s+'</span>';
+}
+async function tokenMeta(addr){
+  const k = String(addr||'').toLowerCase();
+  if(_tokMeta[k]) return _tokMeta[k];
+  let known = null;
+  try{ known = TOKEN_LIST.find(t=>t.addr.toLowerCase()===k); }catch(e){}
+  try{
+    const [symH, decH, nmH] = await Promise.all([
+      call(addr,'0x95d89b41').catch(()=>null),
+      call(addr,'0x313ce567').catch(()=>null),
+      call(addr,'0x06fdde03').catch(()=>null)
+    ]);
+    const meta = {
+      sym: (symH && decodeAbiString(symH)) || (known && known.sym) || short(addr,4),
+      dec: decH!=null ? hexToNum(decH) : 18,
+      name: (nmH && decodeAbiString(nmH)) || ''
+    };
+    _tokMeta[k] = meta; return meta;
+  }catch(e){
+    const meta = {sym:(known&&known.sym)||short(addr,4), dec:18, name:''};
+    _tokMeta[k] = meta; return meta;
+  }
+}
+function decodeRevertHex(data){
+  if(!data || typeof data !== 'string') return null;
+  const h = data.replace(/^0x/,'').toLowerCase();
+  if(!h || h==='0') return null;
+  if(h.startsWith('08c379a0')){
+    try{
+      const off = parseInt(h.slice(8,72),16)*2;
+      const len = parseInt(h.slice(8+off, 8+off+64),16);
+      const str = h.slice(8+off+64, 8+off+64+len*2);
+      let out=''; for(let i=0;i<str.length;i+=2) out += '%'+str.slice(i,i+2);
+      return decodeURIComponent(out);
+    }catch(e){ return null; }
+  }
+  if(h.startsWith('4e487b71')){
+    const code = parseInt(h.slice(-64),16);
+    const names = {1:'assert',17:'overflow',18:'div by zero',33:'pop empty',34:'out of bounds',49:'bad enum',81:'bad encoding'};
+    return 'Panic('+code+(names[code]?': '+names[code]:'')+')';
+  }
+  return null;
+}
+async function fetchRevertReason(t){
+  if(!t || !t.input || t.input==='0x') return null;
+  const blockTag = t.blockNumber || 'latest';
+  try{
+    const res = await fetch(RPC, {method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({jsonrpc:'2.0', id:rpcId++, method:'eth_call', params:[{
+        from:t.from, to:t.to, data:t.input, value:t.value||'0x0', gas:t.gas
+      }, blockTag]})});
+    const j = await res.json();
+    if(j.error){
+      const d = j.error.data;
+      const hex = typeof d==='string' ? d : (d && (d.data||d.raw));
+      return decodeRevertHex(hex) || (j.error.message||'').replace(/^execution reverted:?\s*/i,'') || 'reverted';
+    }
+    if(j.result && j.result!=='0x') return decodeRevertHex(j.result);
+  }catch(e){}
+  return null;
+}
+async function decodeInput(input){
+  if(!input || input==='0x' || input.length<10) return null;
+  const sel = input.slice(0,10);
+  const sig = await lookupMethodName(sel);
+  if(!sig) return {sel, sig:null, args:null};
+  try{
+    const ethers = await loadEthers();
+    const iface = new ethers.Interface(['function '+sig]);
+    const parsed = iface.parseTransaction({data:input});
+    const args = parsed.fragment.inputs.map((inp,i)=>({name:inp.name||('arg'+i), type:inp.type, value:parsed.args[i]}));
+    return {sel, sig, args};
+  }catch(e){ return {sel, sig, args:null}; }
+}
+function flattenTrace(node, depth, out){
+  if(!node) return;
+  const val = hexToBig(node.value||'0x0');
+  const typ = (node.type||node.callType||'CALL').toUpperCase();
+  if(val>0n || /CREATE/.test(typ) || node.error || node.revertReason)
+    out.push({depth, type:typ, from:node.from, to:node.to||node.address, value:val, error:node.error||node.revertReason||'', input:node.input});
+  (node.calls||[]).forEach(c=>flattenTrace(c, depth+1, out));
+}
+async function fetchInternal(hash){
+  const timed = (method, params) => Promise.race([
+    rpc(method, params),
+    new Promise((_,rej)=>setTimeout(()=>rej(new Error('timeout')), 6000))
+  ]);
+  try{
+    const tr = await timed('debug_traceTransaction',[hash,{tracer:'callTracer',timeout:'5s'}]);
+    const out=[]; flattenTrace(tr, 0, out); return out;
+  }catch(e){}
+  try{
+    const traces = await timed('trace_transaction',[hash]);
+    if(!Array.isArray(traces)) return [];
+    return traces.map(x=>{
+      const a=x.action||{};
+      return {depth:x.traceAddress?x.traceAddress.length:0, type:(x.type||a.callType||'call').toUpperCase(),
+        from:a.from, to:a.to, value:hexToBig(a.value||'0x0'), error:x.error||'', input:a.input};
+    }).filter(x=>x.value>0n || /CREATE/.test(x.type) || x.error);
+  }catch(e){}
+  return null;
+}
+function parseTransferLog(l){
+  if(!l || !l.topics || l.topics[0]!==TRANSFER_TOPIC) return null;
+  if(l.topics.length>=4){
+    return {kind:'nft', token:l.address, from:wordAddr(l.topics[1]), to:wordAddr(l.topics[2]), id:hexToBig(l.topics[3])};
+  }
+  if(l.topics.length>=3){
+    return {kind:'erc20', token:l.address, from:wordAddr(l.topics[1]), to:wordAddr(l.topics[2]), amt:hexToBig(l.data||'0x0')};
+  }
+  return null;
+}
+
 async function loadBlock(n){
   setHash('b='+n);
   showLoading('Block #' + n.toLocaleString('en-US'));
@@ -486,22 +640,25 @@ async function loadBlock(n){
     const b = await getBlock(n, true);
     if(!b) return showErr('Block not found on this endpoint yet.');
     const ts = hexToNum(b.timestamp);
-    const txs = b.transactions.slice(0,25).map(t=>`
-      <div class="txrow"><span>${linkTx(t.hash)}</span>
-        <span class="val">${fmtPLS(hexToBig(t.value),4)} PLS</span></div>`).join('');
-    const more = b.transactions.length>25 ? `<div class="hint">Showing 25 of ${b.transactions.length} transactions.</div>` : '';
+    const conf = lastBlockNum ? Math.max(0, lastBlockNum - n) : 0;
+    const txs = b.transactions.slice(0,40).map(t=>`
+      <div class="txrow"><span>${linkTx(t.hash)}<div class="dir">${addrTag(t.from)}${short(t.from,4)} → ${t.to?addrTag(t.to)+short(t.to,4):'<span class="badge info">create</span>'}</div></span>
+        <span class="val">${fmtPLS(hexToBig(t.value),4)} PLS${t.input&&t.input!=='0x'?'<div class="dir">'+esc(t.input.slice(0,10))+'</div>':''}</span></div>`).join('');
+    const more = b.transactions.length>40 ? `<div class="hint">Showing 40 of ${b.transactions.length} transactions in this block.</div>` : '';
+    const used = hexToNum(b.gasUsed), limit = hexToNum(b.gasLimit);
     setDetail('Block #'+n.toLocaleString('en-US'), `
       <div class="kv">
-        <div class="k">Height</div><div class="v">${n.toLocaleString('en-US')} <span class="badge info">${b.transactions.length} txs</span></div>
+        <div class="k">Height</div><div class="v">${n.toLocaleString('en-US')} <span class="badge info">${b.transactions.length} txs</span>${conf?` <span class="badge ok">${conf.toLocaleString('en-US')} conf</span>`:''}</div>
         <div class="k">Time</div><div class="v">${new Date(ts*1000).toLocaleString()} · ${ago(ts)}</div>
         <div class="k">Hash</div><div class="v">${short(b.hash,12)}${copyBtn(b.hash)}</div>
         <div class="k">Parent</div><div class="v"><a onclick="loadBlock(${n-1})">${short(b.parentHash,12)}</a></div>
-        <div class="k">Fee recipient</div><div class="v">${linkAddr(b.miner)}</div>
-        <div class="k">Gas used</div><div class="v">${hexToNum(b.gasUsed).toLocaleString('en-US')} / ${hexToNum(b.gasLimit).toLocaleString('en-US')} (${(hexToNum(b.gasUsed)/hexToNum(b.gasLimit)*100).toFixed(1)}%)</div>
+        <div class="k">Fee recipient</div><div class="v">${linkAddrNamed(b.miner)}</div>
+        <div class="k">Gas used</div><div class="v">${used.toLocaleString('en-US')} / ${limit.toLocaleString('en-US')} (${limit?((used/limit)*100).toFixed(1):'0'}%)</div>
         <div class="k">Base fee</div><div class="v">${b.baseFeePerGas ? fmtGwei(hexToBig(b.baseFeePerGas))+' gwei' : '—'}</div>
+        <div class="k">Extra data</div><div class="v">${b.extraData && b.extraData!=='0x' ? esc(b.extraData.slice(0,66))+(b.extraData.length>66?'…':'') : '—'}</div>
         <div class="k">Size</div><div class="v">${hexToNum(b.size).toLocaleString('en-US')} bytes</div>
       </div>
-      ${b.transactions.length ? `<div class="txlist"><h3>Transactions</h3>${txs}${more}</div>` : ''}`);
+      ${b.transactions.length ? `<div class="txlist"><h3>Transactions</h3>${txs}${more}</div>` : '<div class="hint">Empty block.</div>'}`);
   }catch(e){ showErr('Could not load block: '+e.message); }
 }
 
@@ -511,36 +668,169 @@ async function loadTx(hash){
   try{
     const [t, r] = await Promise.all([rpc('eth_getTransactionByHash',[hash]), rpc('eth_getTransactionReceipt',[hash])]);
     if(!t) return showErr('Transaction not found. It may be pending propagation, or on a different network.');
-    const status = r ? (hexToNum(r.status)===1 ? '<span class="badge ok">Success</span>' : '<span class="badge fail">Failed</span>') : '<span class="badge info">Pending</span>';
+    const ok = r ? hexToNum(r.status)===1 : null;
+    const status = r ? (ok ? '<span class="badge ok">Success</span>' : '<span class="badge fail">Failed</span>') : '<span class="badge info">Pending</span>';
     const gasPrice = hexToBig(r?.effectiveGasPrice ?? t.gasPrice ?? '0x0');
-    const fee = r ? gasPrice * hexToBig(r.gasUsed) : null;
+    const gasUsed = r ? hexToBig(r.gasUsed) : 0n;
+    const gasLimit = hexToBig(t.gas||'0x0');
+    const fee = r ? gasPrice * gasUsed : null;
     const isCall = t.input && t.input !== '0x';
+    const txType = t.type!=null ? hexToNum(t.type) : 0;
+    const typeLbl = txType===2?'EIP-1559':txType===1?'Access list':'Legacy';
+    const created = r && r.contractAddress ? r.contractAddress : null;
+    const pos = t.transactionIndex!=null ? hexToNum(t.transactionIndex) : null;
+    const blockN = t.blockNumber ? hexToNum(t.blockNumber) : null;
+
     setDetail('Transaction', `
-      <div class="kv">
+      <div class="kv" id="tx-kv">
         <div class="k">Hash</div><div class="v">${short(hash,12)}${copyBtn(hash)}</div>
-        <div class="k">Status</div><div class="v">${status}</div>
-        <div class="k">Block</div><div class="v">${t.blockNumber ? linkBlk(hexToNum(t.blockNumber)) : 'pending'}</div>
-        <div class="k">From</div><div class="v">${linkAddr(t.from)}</div>
-        <div class="k">To</div><div class="v">${t.to ? linkAddr(t.to) : '<span class="badge info">Contract creation</span>'+(r&&r.contractAddress?'<br>'+linkAddr(r.contractAddress):'')}</div>
-        <div class="k">Value</div><div class="v">${fmtPLS(hexToBig(t.value))} PLS</div>
-        <div class="k">Tx fee</div><div class="v">${fee!=null ? fmtPLS(fee)+' PLS' : '—'}</div>
-        <div class="k">Gas price</div><div class="v">${fmtGwei(gasPrice)} gwei</div>
-        <div class="k">Gas used</div><div class="v">${r ? hexToNum(r.gasUsed).toLocaleString('en-US')+' / '+hexToNum(t.gas).toLocaleString('en-US') : '—'}</div>
+        <div class="k">Status</div><div class="v">${status}${!ok && r ? ' <span class="badge fail">reverted</span>' : ''}</div>
+        <div class="k">Block</div><div class="v">${blockN!=null ? linkBlk(blockN)+(pos!=null?' · index '+pos:'')+' <span id="tx-conf"></span>' : 'pending'}</div>
+        <div class="k">Time</div><div class="v" id="tx-time">…</div>
+        <div class="k">From</div><div class="v">${linkAddrNamed(t.from)}</div>
+        <div class="k">To</div><div class="v">${created ? '<span class="badge info">Contract created</span> '+linkAddrNamed(created) : (t.to ? linkAddrNamed(t.to)+' <span id="tx-toname"></span>' : '—')}</div>
+        <div class="k">Value</div><div class="v">${fmtPLS(hexToBig(t.value))} PLS<span id="tx-val-usd"></span></div>
+        <div class="k">Tx fee</div><div class="v">${fee!=null ? fmtPLS(fee)+' PLS' : '—'}<span id="tx-fee-usd"></span></div>
+        <div class="k">Gas price</div><div class="v">${fmtGwei(gasPrice)} gwei${t.maxFeePerGas?' · max '+fmtGwei(hexToBig(t.maxFeePerGas))+' · tip '+fmtGwei(hexToBig(t.maxPriorityFeePerGas||'0x0')):''}</div>
+        <div class="k">Gas used</div><div class="v">${r ? hexToNum(r.gasUsed).toLocaleString('en-US')+' / '+hexToNum(t.gas).toLocaleString('en-US')+(gasLimit>0n?' ('+(Number(gasUsed*10000n/gasLimit)/100).toFixed(2)+'%)':'') : 'pending · limit '+hexToNum(t.gas).toLocaleString('en-US')}</div>
         <div class="k">Nonce</div><div class="v">${hexToNum(t.nonce)}</div>
-        <div class="k">Type</div><div class="v">${isCall ? 'Contract interaction' : 'PLS transfer'} <span class="badge ok" id="tx-mname" style="display:none"></span>${r&&r.logs.length?` · <span class="badge info">${r.logs.length} events</span>`:''}</div>
-        ${isCall ? `<div class="k">Method ID</div><div class="v">${esc(t.input.slice(0,10))} <a onclick="openDecoder('${esc(t.input)}')">decode ↗</a></div>
-        <div class="k">Input data</div><div class="v" style="max-height:90px;overflow:auto">${esc(t.input.slice(0,400))}${t.input.length>400?'…':''}</div>` : ''}
+        <div class="k">Type</div><div class="v">${typeLbl} · ${isCall ? 'Contract call' : 'PLS transfer'} <span class="badge ok" id="tx-mname" style="display:none"></span>${r&&r.logs&&r.logs.length?` · <span class="badge info">${r.logs.length} log${r.logs.length>1?'s':''}</span>`:''}</div>
       </div>
-      ${r && r.logs.length ? '<div class="sub-h">Events</div><div id="tx-events"><div class="hint">Decoding\u2026</div></div>' : ''}`);
-    if(isCall) lookupMethodName(t.input.slice(0,10)).then(sig=>{
-      const el = document.getElementById('tx-mname');
-      if(el && sig){ el.textContent = sig.split('(')[0]; el.title = sig; el.style.display = 'inline-block'; }
-    });
-    if(r && r.logs.length) renderEvents(r.logs);
+      <div id="tx-revert"></div>
+      <div id="tx-xfers"></div>
+      <div id="tx-internal"></div>
+      <div id="tx-decoded"></div>
+      ${r && r.logs && r.logs.length ? '<div class="sub-h">Logs</div><div id="tx-events"><div class="hint">Decoding…</div></div>' : ''}
+      <div class="toolbar" style="margin-top:12px">
+        <button class="btn-ghost" type="button" onclick="var e=document.getElementById('tx-adv');e.style.display=e.style.display==='none'?'block':'none'">Advanced</button>
+        <button class="btn-ghost" onclick="shareLink(event)">🔗 Copy link</button>
+      </div>
+      <div id="tx-adv" style="display:none">
+        <div class="kv" style="margin-top:10px">
+          <div class="k">Tx type</div><div class="v">${txType} (${typeLbl})</div>
+          ${t.chainId!=null?`<div class="k">Chain ID</div><div class="v">${hexToNum(t.chainId)}</div>`:''}
+          ${r&&r.cumulativeGasUsed?`<div class="k">Cumulative gas</div><div class="v">${hexToNum(r.cumulativeGasUsed).toLocaleString('en-US')}</div>`:''}
+          <div class="k">r</div><div class="v">${esc((t.r||'').slice(0,18))}…${copyBtn(t.r||'')}</div>
+          <div class="k">s</div><div class="v">${esc((t.s||'').slice(0,18))}…${copyBtn(t.s||'')}</div>
+          <div class="k">v</div><div class="v">${t.v||'—'}</div>
+          ${t.accessList && t.accessList.length?`<div class="k">Access list</div><div class="v">${t.accessList.length} address${t.accessList.length>1?'es':''}</div>`:''}
+          <div class="k">Input</div><div class="v"><div class="raw-box">${esc(t.input||'0x')}</div></div>
+        </div>
+      </div>
+      <div class="small-note">Everything on this page is from this transaction’s receipt, its block, and live eth_call — no archive, no server. Internal calls only appear if this RPC exposes a tracer.</div>`);
+
+    /* async enrich — none of this blocks the first paint */
+    (async ()=>{
+      if(blockN!=null){
+        try{
+          const b = await getBlock(blockN, false);
+          if(b){
+            const ts = hexToNum(b.timestamp);
+            const el = $('tx-time');
+            if(el) el.innerHTML = new Date(ts*1000).toLocaleString()+' · '+ago(ts);
+            const base = b.baseFeePerGas ? hexToBig(b.baseFeePerGas) : 0n;
+            if(r && base>0n && fee!=null){
+              const burnt = base * gasUsed;
+              const tip = fee - burnt;
+              const kv = $('tx-kv');
+              if(kv && !$('tx-burn')){
+                kv.insertAdjacentHTML('beforeend',
+                  `<div class="k" id="tx-burn">Burnt / tip</div><div class="v">${fmtPLS(burnt)} PLS burnt · ${fmtPLS(tip<0n?0n:tip)} PLS to validator</div>`);
+              }
+            }
+          }
+        }catch(e){ const el=$('tx-time'); if(el) el.textContent = '—'; }
+        const conf = lastBlockNum ? Math.max(0, lastBlockNum - blockN) : 0;
+        const ce = $('tx-conf'); if(ce) ce.innerHTML = conf ? `<span class="badge ok">${conf.toLocaleString('en-US')} confirmation${conf===1?'':'s'}</span>` : '';
+      }else{
+        const el=$('tx-time'); if(el) el.textContent = 'pending';
+      }
+      try{
+        const usd = await plsUsd();
+        const plsVal = Number(hexToBig(t.value))/1e18;
+        const ve=$('tx-val-usd'); if(ve && usd) ve.innerHTML = fmtUsdTiny(plsVal, usd);
+        if(fee!=null){ const fe=$('tx-fee-usd'); if(fe && usd) fe.innerHTML = fmtUsdTiny(Number(fee)/1e18, usd); }
+      }catch(e){}
+      if(t.to && !created){
+        try{
+          const code = await rpc('eth_getCode',[t.to,'latest']);
+          if(code && code!=='0x'){
+            const meta = await tokenMeta(t.to);
+            const el=$('tx-toname');
+            if(el && (meta.sym||meta.name)) el.innerHTML = '<span class="badge info">'+(esc(meta.sym||meta.name))+'</span>';
+          }
+        }catch(e){}
+      }
+    })();
+
+    if(!ok && r){
+      fetchRevertReason(t).then(why=>{
+        const box=$('tx-revert'); if(!box) return;
+        box.innerHTML = why
+          ? `<div class="errbox" style="margin-top:10px"><b>Reverted:</b> ${esc(why)}</div>`
+          : `<div class="errbox" style="margin-top:10px">Transaction reverted. This RPC did not return a reason string.</div>`;
+      });
+    }
+
+    if(isCall){
+      decodeInput(t.input).then(d=>{
+        const el=$('tx-mname');
+        if(el && d && d.sig){ el.textContent = d.sig.split('(')[0]; el.title = d.sig; el.style.display='inline-block'; }
+        const box=$('tx-decoded'); if(!box || !d) return;
+        let html = '<div class="sub-h">Calldata</div><div class="kv">';
+        html += `<div class="k">Method</div><div class="v">${d.sig?esc(d.sig):esc(d.sel)+' <span style="color:var(--faint)">(unknown selector)</span>'}</div>`;
+        if(d.args){
+          d.args.forEach(a=>{
+            html += `<div class="k">${esc(a.name)} <span style="color:var(--faint)">${esc(a.type)}</span></div><div class="v">${fmtEventArg(a.type, a.value)}</div>`;
+          });
+        }
+        html += '</div>';
+        box.innerHTML = html;
+      });
+    }
+
+    if(r && r.logs && r.logs.length){
+      renderEvents(r.logs);
+      const xfers = r.logs.map(parseTransferLog).filter(Boolean);
+      const apprs = r.logs.filter(l=>l.topics && l.topics[0]===APPROVAL_TOPIC && l.topics.length>=3);
+      (async ()=>{
+        const box=$('tx-xfers'); if(!box) return;
+        let html='';
+        if(xfers.length){
+          const rows = await Promise.all(xfers.map(async x=>{
+            if(x.kind==='nft'){
+              return `<div class="txrow xfer"><span>NFT ${linkAddrNamed(x.token)} #${x.id.toString()}<div class="dir">${linkAddrNamed(x.from)} → ${linkAddrNamed(x.to)}</div></span><span class="val">tokenId ${x.id.toString()}</span></div>`;
+            }
+            const meta = await tokenMeta(x.token);
+            return `<div class="txrow xfer"><span>${esc(meta.sym)}${meta.name && meta.name!==meta.sym?' · '+esc(meta.name):''}<div class="dir">${linkAddrNamed(x.from)} → ${linkAddrNamed(x.to)}</div></span><span class="val">${fmtUnits(x.amt, meta.dec, 6)} ${esc(meta.sym)}</span></div>`;
+          }));
+          html += '<div class="sub-h">Token transfers</div>'+rows.join('');
+        }
+        if(apprs.length){
+          const rows = await Promise.all(apprs.map(async l=>{
+            const owner = wordAddr(l.topics[1]), spender = wordAddr(l.topics[2]), amt = hexToBig(l.data||'0x0');
+            const meta = await tokenMeta(l.address);
+            const unlimited = amt >= UNLIMITED_HINT;
+            return `<div class="txrow xfer"><span>Approval ${esc(meta.sym)}<div class="dir">${linkAddrNamed(owner)} → spender ${linkAddrNamed(spender)}</div></span><span class="val">${unlimited?'<span class="badge fail">UNLIMITED</span>':fmtUnits(amt,meta.dec,4)+' '+esc(meta.sym)}</span></div>`;
+          }));
+          html += '<div class="sub-h">Approvals in this tx</div>'+rows.join('');
+        }
+        if(html) box.innerHTML = html;
+      })();
+    }
+
+    if(r){
+      fetchInternal(hash).then(rows=>{
+        const box=$('tx-internal'); if(!box) return;
+        if(rows===null) return;
+        if(!rows.length) return;
+        box.innerHTML = '<div class="sub-h">Internal calls with value</div>'+rows.map(c=>
+          `<div class="txrow xfer"><span>${esc(c.type)}${' · '.repeat(0)}${c.error?' <span class="badge fail">err</span>':''}<div class="dir">${linkAddrNamed(c.from)} → ${c.to?linkAddrNamed(c.to):'—'}</div></span><span class="val">${c.value>0n?fmtPLS(c.value)+' PLS':'—'}</span></div>`
+        ).join('');
+      });
+    }
   }catch(e){ showErr('Could not load transaction: '+e.message); }
 }
-
-
 
 /* ══════════ Token approvals ═════════════════════════════════════════════════
    Every `approve` a wallet has ever signed leaves an Approval event. Those
@@ -681,11 +971,13 @@ const KNOWN_EVENTS = {
   'Burn(address,uint256,uint256,address)':'event Burn(address indexed sender, uint256 amount0, uint256 amount1, address indexed to)',
   'Swap(address,uint256,uint256,uint256,uint256,address)':
     'event Swap(address indexed sender, uint256 amount0In, uint256 amount1In, uint256 amount0Out, uint256 amount1Out, address indexed to)',
-  'OwnershipTransferred(address,address)':'event OwnershipTransferred(address indexed previousOwner, address indexed newOwner)'
+  'OwnershipTransferred(address,address)':'event OwnershipTransferred(address indexed previousOwner, address indexed newOwner)',
+  'Minted(address,uint256,uint256,uint256)':'event Minted(address indexed minter, uint256 assetIn, uint256 tokensOut, uint256 newBackingPerToken)',
+  'Redeemed(address,uint256,uint256,uint256,uint256)':'event Redeemed(address indexed redeemer, uint256 tokensBurned, uint256 assetOut, uint256 assetFeeRetained, uint256 newBackingPerToken)'
 };
 function fmtEventArg(type, val){
   if(val === null || val === undefined) return '';
-  if(/^address$/.test(type)) return linkAddr(String(val));
+  if(/^address$/.test(type)) return linkAddrNamed(String(val));
   if(/^u?int/.test(type)){
     const b = BigInt(val);
     let s = b.toLocaleString('en-US');
@@ -723,7 +1015,7 @@ async function renderEvents(logs){
     }catch(e){
       body = '<div style="color:var(--faint);margin-top:3px">' + esc(list.join(', ')) + ' \u2014 raw data not decodable here</div>';
     }
-    return '<div class="selrow" style="display:block"><span class="sig" style="color:var(--pulse-soft)">' +
+    return '<div class="selrow" style="display:block"><span style="color:var(--faint)">#'+i+'</span> <span class="sig" style="color:var(--pulse-soft)">' +
            esc(name) + '</span><span style="color:var(--faint)"> (' + esc(list.join(', ')) + ')</span>' +
            body + from + '</div>';
   });
@@ -2282,7 +2574,7 @@ try{
           e.preventDefault();
           var a = document.createElement('a');
           a.href = URL.createObjectURL(new Blob([buf], {type:'text/html'}));
-          a.download = 'pulseverify-v30.html';
+          a.download = 'pulseverify-v31.html';
           a.click(); URL.revokeObjectURL(a.href);
         };
       });
