@@ -157,6 +157,7 @@ button:focus-visible,select:focus-visible,input:focus-visible,textarea:focus-vis
 .chk .lbl{color:var(--text)}
 .chk .det{color:var(--faint);font-size:12px}
 .chk.pass{border-color:rgba(127,179,232,.3)}.chk.pass .ico{color:var(--green)}
+.chk.info{border-color:rgba(78,143,217,.28)}.chk.info .ico{color:var(--pulse-soft)}
 .chk.warn{border-color:rgba(217,169,78,.35)}.chk.warn .ico{color:var(--amber)}
 .chk.fail{border-color:rgba(255,107,90,.4)}.chk.fail .ico{color:var(--red)}
 .chk.na .ico{color:var(--faint)}
@@ -332,9 +333,7 @@ footer a.vaultlink{color:var(--teal);font-weight:600}
       <b>On iPhone or iPad</b> — a downloaded copy is fine for reading, but iOS gives no equivalent way to serve it, so use <b>pulsestrategy369.com</b> to connect a wallet.
     </div>
     <div class="hashline">SHA-256 of this file:<br><span id="fileHash">computing…</span></div>
-    <div style="opacity:.85">Cross-check the hash against the one published on our <a href="https://x.com/pulsestrategy" target="_blank" rel="noopener">X</a> / <a href="https://github.com/PulseStrategy369/PulseStrategy
-" target="_blank"
-rel="noopener">Github</a> and inspect the code or download from github.</div>
+    <div style="opacity:.85">Cross-check the hash against the one published on our <a href="https://x.com/pulsestrategy" target="_blank" rel="noopener">X</a> / GitHub before trusting a downloaded copy.</div>
   </div>
   <div style="margin-bottom:14px;opacity:.85">
     The <b>explorer</b>, <b>vaults dapp</b> and <b>launcher</b> are separate pages — download each from its own page: grab the explorer here, then open <a class="vaultlink" href="https://pulsestrategy369.com/vaults">PulseStrategy Vaults</a> or <a class="launchlink" href="https://pulsestrategy369.com/launch">PulseStrategy Launcher</a> and download from there.
@@ -345,7 +344,7 @@ rel="noopener">Github</a> and inspect the code or download from github.</div>
 </div>
 <script>
 "use strict";
-var BUILD = 'v28 · 2026-09-08';
+var BUILD = 'v30 · 2026-09-17';
 var VAULTS_URL = 'https://pulsestrategy369.com/vaults'; /* ★ EDIT HERE: the one place that controls every 'Vaults' link on this page */
 var LAUNCH_URL = 'https://pulsestrategy369.com/launch'; /* ★ EDIT HERE: PulseStrategy Launcher */
 /* ================= RPC core ================= */
@@ -1005,99 +1004,316 @@ async function tokBalance(){
   }catch(e){ $('tok-bal').innerHTML = `<div class="errbox">${esc(e.message)}</div>`; }
 }
 
-/* ================= Pulse Check™ safety scan ================= */
-const IMPL_SLOT = '0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc';
-const RISK_SELECTORS = [
-  {sel:'40c10f19', lbl:'mint(address,uint256)', why:'supply can be inflated', pen:15},
-  {sel:'8456cb59', lbl:'pause()', why:'trading can be frozen', pen:10},
-  {sel:'f9f92be4', lbl:'blacklist(address)', why:'wallets can be blocked', pen:15},
-  {sel:'47e7ef24', lbl:'deposit-style admin fn', why:'', pen:0},
+/* ================= Pulse Check™ safety scan =================
+   Fail on known traps. If Sourcify has source, read it — custom names
+   like approvet/transferToburn are how honeypots dodge selector lists.
+   Do not score-penalize unknown custom functions, and do not advertise
+   any product. A backing+redeem token is treated as having an on-chain
+   exit, so unburned LP is market depth, not a drain of that backing. */
+const IMPL_SLOT  = '0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc';
+const ADMIN_SLOT = '0xb53127684a568b3173ae13b9f8a6016e243e63b6e8ee1178d6a717850b5d6103';
+const BEACON_SLOT= '0xa3f0ad74e5423aebfd80d3ef4346578335a9a72aeaee59ff6cb3582b35133d50';
+const PAIR_QUOTES = [
+  {sym:'WPLS', addr: WPLS},
+  {sym:'HEX',  addr:'0x2b591e99afE9f32eAA6214f7B7629768c40Eeb39'},
+  {sym:'PLSX', addr:'0x95B303987A60C71504D99Aa1b13B4DA07b0790ab'},
+  {sym:'INC',  addr:'0x2fa878Ab3F87CC1C9737Fc071108F904c0B0C95d'},
+  {sym:'vPLS', addr:'0x79BB3A0Ee435f957ce4f54eE8c3CFADc7278da0C'},
+  {sym:'DAI',  addr:'0xefD766cCb38EaF1dfd701853BFCe31359239F305'},
+  {sym:'USDC', addr:'0x15D38573d2feeb82e7ad5187aB8c1D52810B1f07'}
 ];
+const DANGER_SELECTORS = [
+  {sel:'40c10f19', lbl:'mint(address,uint256)', kind:'mint', why:'an admin can print tokens into any wallet'},
+  {sel:'a0712d68', lbl:'mint(uint256)', kind:'mint', why:'unbacked mint of new supply'},
+  {sel:'8456cb59', lbl:'pause()', kind:'pause', why:'all transfers can be frozen'},
+  {sel:'f9f92be4', lbl:'blacklist(address)', kind:'blacklist', why:'any wallet can be blocked from sending'},
+  {sel:'404e5129', lbl:'blacklist(address,bool)', kind:'blacklist', why:'any wallet can be blocked from sending'},
+  {sel:'153b0d1e', lbl:'setBlacklist(address,bool)', kind:'blacklist', why:'any wallet can be blocked from sending'},
+  {sel:'6b254a9a', lbl:'approvet(address,bool)', kind:'blacklist', why:'hidden wallet flag used to block sells'},
+  {sel:'48f2f812', lbl:'approver(address,bool)', kind:'blacklist', why:'hidden wallet flag used to block sells'},
+  {sel:'0df88456', lbl:'transferToburn(uint256)', kind:'mint', why:'admin mints; everyone else is burned to zero'},
+  {sel:'ffecf516', lbl:'addBot(address)', kind:'blacklist', why:'addresses can be flagged and trapped'},
+  {sel:'342aa8b5', lbl:'setBot(address,bool)', kind:'blacklist', why:'addresses can be flagged and trapped'},
+  {sel:'ca6507af', lbl:'setSniper(address,bool)', kind:'blacklist', why:'addresses can be flagged and trapped'},
+  {sel:'8a8c523c', lbl:'enableTrading()', kind:'trading', why:'trading may still be off — only an admin can turn it on'},
+  {sel:'c9567bf9', lbl:'openTrading()', kind:'trading', why:'trading may still be off — only an admin can turn it on'},
+  {sel:'8f70ccf7', lbl:'setTrading(bool)', kind:'trading', why:'admin can disable selling'},
+  {sel:'c2e5ec04', lbl:'setTradingEnabled(bool)', kind:'trading', why:'admin can disable selling'},
+  {sel:'3659cfe6', lbl:'upgradeTo(address)', kind:'upgrade', why:'the running code can be swapped'},
+  {sel:'4f1ef286', lbl:'upgradeToAndCall(address,bytes)', kind:'upgrade', why:'the running code can be swapped'},
+  {sel:'8f283970', lbl:'changeAdmin(address)', kind:'upgrade', why:'proxy admin can be handed to someone else'},
+  {sel:'dc1052e2', lbl:'setBuyTax(uint256)', kind:'tax', why:'buy tax can be raised after you buy'},
+  {sel:'8cd09d50', lbl:'setSellTax(uint256)', kind:'tax', why:'sell tax can be raised to 99% after you buy'},
+  {sel:'061c82d0', lbl:'setTaxFeePercent(uint256)', kind:'tax', why:'fee can be changed after you buy'},
+  {sel:'0b78f9c0', lbl:'setFees(uint256,uint256)', kind:'tax', why:'fees can be changed after you buy'},
+  {sel:'ec28438a', lbl:'setMaxTxAmount(uint256)', kind:'limit', why:'max tx can be dropped so you cannot sell'},
+  {sel:'5d0044ca', lbl:'setMaxWallet(uint256)', kind:'limit', why:'max wallet can be dropped so you cannot receive'}
+];
+const ABI_TRAP_NAME = /^(approvet|approver|transfertoburn|blacklist|setblacklist|addblacklist|addbot|setbot|setbots|setsniper|enabletrading|opentrading|settrading|settradingenabled|setmaxtxamount|setmaxwallet|setwalletmax|excludefromfee|includeinfee|settaxfeepercent|setbuytax|setselltax|setfees|updatefees)$/i;
+function extractPush4(code){
+  const c = (code||'').toLowerCase().replace(/^0x/,'');
+  return new Set([...c.matchAll(/63([0-9a-f]{8})/g)].map(m=>m[1]).filter(s=>!/^(f{8}|0{8})$/.test(s)));
+}
 function chkRow(state, lbl, det){
-  const ico = state==='pass'?'✔':state==='warn'?'▲':state==='fail'?'✖':'·';
+  const ico = state==='pass'?'✔':state==='warn'?'▲':state==='fail'?'✖':state==='info'?'ℹ':'·';
   return `<div class="chk ${state}"><span class="ico">${ico}</span><div><div class="lbl">${lbl}</div><div class="det">${det}</div></div></div>`;
 }
+function flattenSources(meta){
+  const srcs = meta && meta.standardInput && meta.standardInput.sources;
+  if(!srcs) return '';
+  return Object.values(srcs).map(s => (s && s.content) || (typeof s==='string'?s:'')).join('\n');
+}
+function stripSol(src){
+  return String(src||'').replace(/\/\*[\s\S]*?\*\//g,' ').replace(/\/\/.*$/gm,' ');
+}
+function scanVerifiedTraps(meta){
+  const out = [];
+  if(!meta) return out;
+  const abi = Array.isArray(meta.abi) ? meta.abi : [];
+  const src = stripSol(flattenSources(meta));
+  const flagFns = [];
+  for(const f of abi){
+    if(!f || f.type!=='function') continue;
+    const n = f.name||'';
+    const mut = f.stateMutability!=='view' && f.stateMutability!=='pure';
+    if(!mut) continue;
+    const ins = (f.inputs||[]).map(i=>i.type).join(',');
+    if(ABI_TRAP_NAME.test(n)) flagFns.push(n+'('+ins+')');
+    else if(ins==='address,bool' || ins==='address,bool[]' || ins==='address[],bool') flagFns.push(n+'('+ins+')');
+  }
+  if(flagFns.length){
+    out.push({pen:30, lbl:'Verified source: wallet-flag / trap functions',
+      det:'ABI exposes '+esc(flagFns.slice(0,6).join(', '))+(flagFns.length>6?'…':'')+'. These are how honeypots blacklist sellers or freeze wallets under innocent names.'});
+  }
+  const skipVar = /^(owner|_owner|newOwner|oldOwner|account|sender|recipient|from|to|spender|factory|factory_|router|pair|uniswapV2Pair|uniswapV2Router|WETH|WPLS|token0|token1|asset|protocolFee|creator|implementation|beacon)$/i;
+  const vars = new Set();
+  let m, re = /address\s+(?:private|internal|public)?\s+(?:immutable\s+)?(\w+)/g;
+  while((m = re.exec(src))) vars.add(m[1]);
+  const hidden = [];
+  for(const v of vars){
+    if(skipVar.test(v) || v.length<3 || /_$/.test(v)) continue;
+    const gate = new RegExp('(?:\\b'+v+'\\b\\s*!?=\\s*(?:msg\\.sender|_msgSender\\(\\)))|(?:(?:msg\\.sender|_msgSender\\(\\))\\s*!?=\\s*\\b'+v+'\\b)');
+    if(gate.test(src)) hidden.push(v);
+  }
+  if(hidden.length){
+    out.push({pen:40, lbl:'Verified source: hidden admin besides owner()',
+      det:'Functions are still gated on '+esc(hidden.slice(0,4).join(', '))+'. owner() can be zero and this address still blacklists, mints, or burns you. Renounce is cosmetic.'});
+  }
+  if(/\b(\w+)\s*=\s*\1\s*\^\s*\1\b/.test(src) || /adjusted\s*\^\s*adjusted/.test(src)){
+    out.push({pen:35, lbl:'Verified source: XOR used to zero balances',
+      det:'x ^ x is always 0. Honeypots use this so a flagged wallet’s transferable balance becomes zero while balanceOf() still looks fine.'});
+  }
+  if(/function\s+transferToburn\b/i.test(src) || (/_totalSupply\s*\+\=/.test(src) && /balances?\s*\[[^\]]+\]\s*\-=\s*(balances?\s*\[[^\]]+\]|deductAmount)/.test(src))){
+    out.push({pen:35, lbl:'Verified source: one function mints for admin, burns everyone else',
+      det:'If you call it, your balance goes to zero. If the hidden admin calls it, supply increases. Do not interact.'});
+  }
+  return out;
+}
+async function fetchVerifiedLight(addr){
+  try{
+    if(fetchedMeta && fetchedMeta.addr && fetchedMeta.addr.toLowerCase()===addr.toLowerCase() && (fetchedMeta.abi || flattenSources(fetchedMeta)))
+      return fetchedMeta;
+  }catch(e){}
+  try{
+    const r = await fetch(SOURCIFY + '/v2/contract/369/' + addr + '?fields=sources,abi');
+    if(r.ok){
+      const j = await r.json();
+      const sources = {};
+      if(j.sources) for(const [p,s] of Object.entries(j.sources)){
+        const c = (s && typeof s === 'object') ? s.content : s;
+        if(typeof c === 'string') sources[p] = {content: c};
+      }
+      if((j.abi && j.abi.length) || Object.keys(sources).length)
+        return {addr, abi:j.abi||null, standardInput:{sources}, match:j.match||''};
+    }
+  }catch(e){}
+  try{ return await fetchVerifiedMeta(addr); }catch(e){ return null; }
+}
+async function hasBackingExit(addr){
+  try{
+    const [bpt, asset, redeem] = await Promise.all([
+      call(addr,'0x1521843e'),
+      call(addr,'0x38d52e0f'),
+      call(addr,'0x7cbc2373'+padN(0)+padN(0)).catch(()=>null)
+    ]);
+    if(!(hexToBig(bpt)>0n) || hexToBig(asset)===0n) return false;
+    return true;
+  }catch(e){ return false; }
+}
+async function findDexPair(token){
+  let best=null, bestK=-1n;
+  const quotes = PAIR_QUOTES.slice();
+  try{
+    const assetHex = await call(token,'0x38d52e0f');
+    const a = wordAddr(assetHex);
+    if(a && hexToBig(assetHex)!==0n && !quotes.some(q=>q.addr.toLowerCase()===a.toLowerCase()))
+      quotes.unshift({sym:'asset', addr:a});
+  }catch(e){}
+  for(const q of quotes){
+    if(q.addr.toLowerCase()===token.toLowerCase()) continue;
+    for(const f of FACTORIES){
+      try{
+        const p = await call(f.addr, '0xe6a43905'+padA(token)+padA(q.addr));
+        if(!p || hexToBig(p)===0n) continue;
+        const pair = wordAddr(p);
+        const resHex = await call(pair,'0x0902f1ac');
+        const h = resHex.replace(/^0x/,'');
+        const r0=hexToBig('0x'+h.slice(0,64)), r1=hexToBig('0x'+h.slice(64,128));
+        const K=r0*r1;
+        if(K>bestK){ bestK=K; best={pair, dex:f.name, quote:q, r0, r1}; }
+      }catch(e){}
+    }
+  }
+  return best;
+}
 async function runSafety(){
-  const addr = cur.addr, code = cur.code.toLowerCase();
+  const addr = cur.addr, code = (cur.code||'').toLowerCase();
   bodyLoading('Running live on-chain checks…');
   let score = 100; const rows = [];
   const push = (state,lbl,det,pen=0)=>{ rows.push(chkRow(state,lbl,det)); score -= pen; };
+  const sels = extractPush4(code);
+  const backingExit = await hasBackingExit(addr);
+  let meta = null;
+  try{ meta = await fetchVerifiedLight(addr); }catch(e){}
+  const srcTraps = scanVerifiedTraps(meta);
+  const verified = !!(meta && (flattenSources(meta) || (meta.abi && meta.abi.length)));
 
-  /* 1. owner / renounced */
+  if(srcTraps.length){
+    srcTraps.forEach(t => push('fail', t.lbl, t.det, t.pen));
+  }else if(verified){
+    push('pass','Verified source scanned', 'Sourcify source/ABI has no hidden-admin gate, wallet-flag functions, XOR-zero, or admin-mint/user-burn pattern we look for.');
+  }else{
+    push('info','Source not verified', 'Without source, custom-named blacklist/mint (approvet, transferToburn, …) cannot be read. Selector lists miss those. Verify the contract or do not trust this score alone.');
+  }
+
+  let owner = null, ownerLive = false;
   try{
     let o = await call(addr,'0x8da5cb5b').catch(()=>null) || await call(addr,'0x893d20e8').catch(()=>null);
-    if(o===null) push('pass','No owner() function','No standard ownership hook detected — likely immutable or non-Ownable.');
-    else{
-      const owner = wordAddr(o);
-      if(owner===ZERO.toLowerCase()||owner===DEAD.toLowerCase()) push('pass','Ownership renounced','owner() returns the zero/dead address.');
-      else push('warn','Active owner', `owner() = ${short(owner,6)} — owner-only functions are live.`, 15);
+    if(o===null){
+      push('pass','No owner() function','No standard ownership hook.');
+    }else{
+      owner = wordAddr(o);
+      if(owner===ZERO.toLowerCase()||owner===DEAD.toLowerCase()){
+        if(srcTraps.some(t=>/hidden admin/i.test(t.lbl)))
+          push('fail','owner() is zero — admin moved off owner()', 'Renounce only cleared owner(). The verified source still gates trap functions on another address.', 0);
+        else
+          push('pass','Ownership renounced','owner() returns the zero/dead address.');
+      }else{
+        ownerLive = true;
+        push('warn','Active owner', 'owner() = '+short(owner,6)+' — whoever holds this can call owner-only functions.', 12);
+      }
     }
   }catch(e){ push('na','Ownership check skipped', e.message); }
 
-  /* 2. upgradeable proxy */
   try{
-    const impl = await rpc('eth_getStorageAt',[addr, IMPL_SLOT,'latest']);
-    if(impl && hexToBig(impl)!==0n) push('fail','Upgradeable proxy (EIP-1967)', `Logic can be swapped at any time → points to ${short(wordAddr(impl),6)}.`, 25);
-    else push('pass','Not an EIP-1967 proxy','Deployed bytecode is what runs. Code cannot be swapped via the standard proxy slot.');
+    const [impl, admin, beacon] = await Promise.all([
+      rpc('eth_getStorageAt',[addr, IMPL_SLOT,'latest']),
+      rpc('eth_getStorageAt',[addr, ADMIN_SLOT,'latest']),
+      rpc('eth_getStorageAt',[addr, BEACON_SLOT,'latest'])
+    ]);
+    const hasImpl = impl && hexToBig(impl)!==0n;
+    const hasBeacon = beacon && hexToBig(beacon)!==0n;
+    const adm = admin && hexToBig(admin)!==0n ? wordAddr(admin) : null;
+    if(hasImpl || hasBeacon){
+      const where = hasImpl ? ('implementation '+short(wordAddr(impl),6)) : ('beacon '+short(wordAddr(beacon),6));
+      if(adm && adm!==ZERO.toLowerCase() && adm!==DEAD.toLowerCase())
+        push('fail','Upgradeable proxy', 'Code can be swapped. '+where+'. Admin '+short(adm,6)+' is live.', 40);
+      else if(ownerLive)
+        push('fail','Upgradeable (UUPS / owner)', 'Proxy slot is set ('+where+') and owner() is live. The running code can still be replaced.', 40);
+      else
+        push('warn','Proxy bytecode, admin burned', 'EIP-1967 slot is set ('+where+') but admin looks burned. Still not the same as immutable deployed code.', 8);
+    }else{
+      push('pass','Not a standard proxy','No EIP-1967 implementation/beacon slot. Deployed bytecode is what runs.');
+    }
   }catch(e){ push('na','Proxy check skipped', e.message); }
 
-  /* 3. bytecode selector scan */
-  const hits = RISK_SELECTORS.filter(r=>r.pen && code.includes(r.sel));
-  if(hits.length) hits.forEach(h=>push('warn',`Selector found: ${h.lbl}`, `Bytecode contains this function signature — ${h.why}.`, h.pen));
-  else push('pass','No mint / pause / blacklist selectors','None of the common admin-risk signatures appear in the bytecode. (Heuristic — custom names evade this.)');
+  try{
+    const p = await call(addr,'0x5c975abb');
+    if(hexToBig(p)!==0n) push('fail','Contract is paused right now', 'paused() returns true. Transfers are likely frozen.', 50);
+    else push('pass','Not paused','paused() returns false.');
+  }catch(e){}
+  try{
+    const t = await call(addr,'0xffb54a99');
+    if(hexToBig(t)===0n) push('fail','Trading is not open', 'tradingOpen() returns false. You can get in and not get out.', 40);
+  }catch(e){}
 
-  /* 4-6. DEX pair, honeypot sim, LP burned — token contracts only */
+  const hits = DANGER_SELECTORS.filter(r=>sels.has(r.sel));
+  if(hits.length){
+    hits.forEach(h=>{
+      const deadly = h.kind==='blacklist'||h.kind==='pause'||h.kind==='upgrade'||h.kind==='trading'||h.kind==='mint';
+      const already = srcTraps.length && (h.kind==='blacklist'||h.kind==='mint');
+      if(already) return;
+      if(ownerLive || srcTraps.some(t=>/hidden admin/i.test(t.lbl))){
+        push(deadly?'fail':'warn', h.lbl, h.why+' An admin path is live.', deadly?25:12);
+      }else{
+        push('info', h.lbl+' in dispatcher', h.why+' No live owner() found. Not scored unless verified source shows another admin.');
+      }
+    });
+  }else if(!srcTraps.length){
+    push('pass','No common trap selectors in the dispatcher',
+      'No well-known mint-to-address, pause, blacklist, trading-switch, tax-setter, or upgrade selector. Custom names still need verified source (scanned above when available).');
+  }
+
   if(cur.token){
-    let pair=null, pairDex='';
-    for(const f of FACTORIES){
-      try{
-        const p = await call(f.addr, '0xe6a43905'+padA(addr)+padA(WPLS));
-        if(p && hexToBig(p)!==0n){ pair = wordAddr(p); pairDex=f.name; break; }
-      }catch(e){}
-    }
-    if(pair){
-      /* honeypot: impersonate the LP pair itself via eth_call and try to move 1 unit out */
+    const found = await findDexPair(addr);
+    if(found){
+      const pair = found.pair, pairDex = found.dex, qsym = found.quote.sym;
       try{
         await call(addr, '0xa9059cbb'+padA(DEAD)+padN(1n), pair);
-        push('pass','Transfer simulation passed', `Simulated transfer *as the ${pairDex} pair* succeeded — transfers out of the LP are not blocked.`);
+        push('pass','LP can send tokens', 'Simulated transfer as the '+pairDex+' '+qsym+' pair succeeded — the pool is not frozen from selling.');
       }catch(e){
-        push('fail','Transfer simulation REVERTED', `Impersonating the LP pair, transfer() reverts (${esc(e.message.slice(0,80))}). Honeypot-style restriction likely.`, 50);
+        push('fail','Honeypot-style transfer revert', 'Impersonating the LP pair, transfer() reverts ('+esc((e.message||'').slice(0,80))+'). You likely cannot sell.', 50);
       }
-      /* LP burned % */
+      try{
+        await call(addr, '0xa9059cbb'+padA(pair)+padN(1n), pair);
+        push('pass','Tokens can move onto the pair', 'A transfer *to* the LP pair did not revert — selling into the pool is not blocked at the token layer.');
+      }catch(e){
+        push('fail','Cannot send tokens to the LP', 'transfer() to the pair reverts. Classic sell-block.', 50);
+      }
       try{
         const [supHex, dB, zB] = await Promise.all([
           call(pair,'0x18160ddd'), call(pair,'0x70a08231'+padA(DEAD)), call(pair,'0x70a08231'+padA(ZERO))
         ]);
         const sup=hexToBig(supHex), burned=hexToBig(dB)+hexToBig(zB);
         const pct = sup>0n ? Number(burned*10000n/sup)/100 : 0;
-        if(pct>=90) push('pass',`LP ${pct.toFixed(1)}% burned`, `${pairDex} LP tokens sent to dead/zero — liquidity can't be pulled by anyone.`);
-        else push('warn',`LP ${pct.toFixed(1)}% burned`, `Remaining LP may be locked in a locker contract (needs a database to know) or held by a wallet that can pull liquidity.`, 10);
+        if(backingExit){
+          push('info', 'LP '+pct.toFixed(1)+'% burned',
+            'This token also has backingPerToken + an on-chain redeem path. Unburned LP thins the DEX; it does not by itself drain that backing.');
+        }else if(pct>=90){
+          push('pass','LP '+pct.toFixed(1)+'% burned', pairDex+' LP sent to dead/zero — liquidity cannot be yanked by a wallet.');
+        }else{
+          push('warn','LP '+pct.toFixed(1)+'% burned', 'Remaining LP may sit in a locker (this scan cannot see lockers) or in a wallet that can pull liquidity.', 10);
+        }
       }catch(e){ push('na','LP check skipped', e.message); }
-      /* liquidity depth */
       try{
-        const [resHex, t0Hex] = await Promise.all([call(pair,'0x0902f1ac'), call(pair,'0x0dfe1681')]);
-        const h = resHex.replace(/^0x/,''); const r0=hexToBig('0x'+h.slice(0,64)), r1=hexToBig('0x'+h.slice(64,128));
+        const t0Hex = await call(pair,'0x0dfe1681');
         const wplsIs0 = wordAddr(t0Hex)===WPLS.toLowerCase();
-        const wplsRes = wplsIs0?r0:r1;
-        const depth = Number(wplsRes/10n**18n);
-        if(depth<1e6) push('warn','Thin liquidity', `~${depth.toLocaleString('en-US')} PLS in the ${pairDex} pair — large trades will slip hard, easy to rug perception-wise.`, 5);
-        else push('pass','Liquidity depth', `~${depth.toLocaleString('en-US')} PLS paired in ${pairDex}.`);
+        const wplsRes = found.quote.addr.toLowerCase()===WPLS.toLowerCase() ? (wplsIs0?found.r0:found.r1) : 0n;
+        if(wplsRes>0n){
+          const depth = Number(wplsRes/10n**18n);
+          if(depth<1e6) push('info','Thin WPLS pool', '~'+depth.toLocaleString('en-US')+' PLS in this pair. Large trades slip. That is market depth, not a freeze.');
+          else push('pass','Liquidity depth', '~'+depth.toLocaleString('en-US')+' PLS paired in '+pairDex+'.');
+        }else{
+          push('pass', 'Paired with '+qsym, pairDex+' pool vs '+qsym+'.');
+        }
       }catch(e){}
     }else{
-      push('warn','No WPLS pair found on PulseX v1/v2', 'No standard liquidity pair — token may be pre-launch, use a different pairing, or be untradeable.', 10);
+      push('info','No PulseX pair found', 'No v1/v2 pair vs WPLS, HEX, PLSX, INC, vPLS, DAI, or USDC. May be pre-launch or paired elsewhere. Not scored as a trap.');
     }
   }
-  score = Math.max(0, score);
+
+  score = Math.max(0, Math.min(100, score));
   const grade = score>=85?['A','var(--green)']:score>=70?['B','var(--teal)']:score>=55?['C','var(--amber)']:score>=40?['D','var(--amber)']:['F','var(--red)'];
   $('d-body').innerHTML = `
     <div class="score-ring">
       <div class="score-num" style="color:${grade[1]}">${score}</div>
       <div><div class="score-grade">Pulse Check™ grade: ${grade[0]}</div>
-      <div class="det" style="font-size:12px;color:var(--faint)">Live heuristic scan run by your browser against the chain — not stored, not a rating service, not financial advice.</div></div>
+      <div class="det" style="font-size:12px;color:var(--faint)">Live scan in your browser. Fails on known traps: honeypot transfers, freeze, hidden mint, live upgrade, and — when Sourcify has source — hidden admin / wallet flags / user-burn. Not financial advice.</div></div>
     </div>
     ${rows.join('')}
     <div class="toolbar"><button class="btn-ghost" onclick="shareLink(event)">🔗 Share this scan</button></div>
-    <div class="small-note"><b>What this can't see without an indexer:</b> holder concentration, deployer wallet history, exact buy/sell tax %, and whether unburned LP sits in a time-lock. A clean score here means "no on-chain red flags found," not "safe."</div>`;
+    <div class="small-note"><b>What this will fail:</b> LP cannot send, you cannot send to the LP, paused / trading-closed right now, a live owner who can mint / pause / blacklist / change tax / upgrade, and verified source that still gates those tricks on a second admin after owner() is zero.<br>
+    <b>What it still cannot see:</b> holder concentration, deployer history, locker contracts, and traps in <i>unverified</i> bytecode under names that are not in the dictionary. A clean score means “no on-chain red flags we know how to test,” not “safe.”</div>`;
 }
 
 /* ============ contract source & verification (client-side proof) ============ */
@@ -1365,9 +1581,15 @@ async function showSourcifyVerdict(addr){
   }
 }
 /* ---- bytecode inspector: what can this contract DO? ---- */
-const RISK_NAMES = {'40c10f19':'can mint new supply','8456cb59':'can pause','f9f92be4':'can blacklist',
+const RISK_NAMES = {
+  '40c10f19':'can mint new supply','a0712d68':'can mint new supply','8456cb59':'can pause','f9f92be4':'can blacklist',
+  '404e5129':'can blacklist','153b0d1e':'can blacklist','ffecf516':'can flag bots','342aa8b5':'can flag bots',
   '3f4ba83a':'can unpause','f2fde38b':'ownership transferable','3659cfe6':'UPGRADEABLE (upgradeTo)',
-  '4f1ef286':'UPGRADEABLE (upgradeToAndCall)','8f283970':'admin changeable'};
+  '4f1ef286':'UPGRADEABLE (upgradeToAndCall)','8f283970':'admin changeable',
+  '8a8c523c':'trading gated','c9567bf9':'trading gated','8f70ccf7':'trading switch',
+  'dc1052e2':'buy tax setter','8cd09d50':'sell tax setter','0b78f9c0':'fee setter',
+  'ec28438a':'max-tx setter','5d0044ca':'max-wallet setter'
+};
 async function inspectBytecode(){
   const out = $('v-out') || $('d-body');
   out.innerHTML = '<div class="loading"><span class="spin"></span><br>Extracting function selectors from bytecode…</div>';
@@ -2060,7 +2282,7 @@ try{
           e.preventDefault();
           var a = document.createElement('a');
           a.href = URL.createObjectURL(new Blob([buf], {type:'text/html'}));
-          a.download = 'pulseverify-v25.html';
+          a.download = 'pulseverify-v30.html';
           a.click(); URL.revokeObjectURL(a.href);
         };
       });
