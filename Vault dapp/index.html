@@ -61,6 +61,7 @@ header{display:flex;justify-content:space-between;align-items:center;padding:20p
 .chip.prem{color:var(--gold,#D9A94E);border-color:rgba(217,169,78,.45)}
 .chip.disc{color:var(--mint);border-color:rgba(127,179,232,.45)}
 .backdelta{font-family:'IBM Plex Mono';font-size:13px;color:var(--mint);margin-top:-6px;letter-spacing:.02em}
+.youfloor{font-family:'IBM Plex Mono';font-size:13px;color:var(--mint);margin-top:4px;letter-spacing:.02em}
 .chip.on{color:var(--mint);border-color:rgba(127,179,232,.40)}
 .sr-only{position:absolute;left:-9999px}
 .rpcsel{font-family:'IBM Plex Mono';font-size:11px;background:var(--panel);color:var(--mut);
@@ -293,6 +294,7 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--violet);outline
   <div class="eyebrow" id="eyebrow">Backing per token</div>
   <div class="backing"><span id="backingNum">·····</span><span class="unit" id="backingUnit"></span></div>
   <div class="backdelta" id="backDelta" style="display:none"></div>
+  <div class="youfloor" id="youFloor" style="display:none"></div>
   <div class="rail" aria-hidden="true">
     <div class="teeth"></div><div class="trail" id="railTrail"></div><div class="pawl" id="railPawl"></div>
   </div>
@@ -300,6 +302,8 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--violet);outline
   <div class="mktrow">
     <span class="chip" id="mktChip" style="display:none"></span>
     <button class="chip chipbtn" id="copyTok" style="display:none">copy token address</button>
+    <button class="chip chipbtn" id="copyLink" style="display:none">copy vault link</button>
+    <button class="chip chipbtn" id="addTok" style="display:none">add to wallet</button>
   </div>
 </section>
 
@@ -689,7 +693,7 @@ try{
   }
 }catch(_){}
 
-const BUILD = "v49 \u00b7 2026-09-15";   // shown in the footer so users can tell builds apart
+const BUILD = "v50 \u00b7 2026-09-17";   // shown in the footer so users can tell builds apart
 const WC_PROJECT_ID = "dfa53b26ebcaa8d274b2a7f6ddc66cb0";   // free at https://cloud.reown.com (enables WalletConnect)
 const VOUCH_VPLS = "0x79BB3A0Ee435f957ce4f54eE8c3CFADc7278da0C";
 const VOUCH_DEPOSIT = "0x2D7Dcc5A1d90d08D484E38a4C99B8394daaF4B9e";
@@ -1032,6 +1036,7 @@ async function activateVault(key){
   rememberVault(key);
   statusLockUntil = 0;
   { const bd = $("backDelta"); if(bd) bd.style.display = "none"; }
+  { const yf = $("youFloor"); if(yf) yf.style.display = "none"; }
   { const tl = $("tradeLink"); if(tl) tl.style.display = "none"; }
   document.querySelectorAll(".vpill").forEach(p=>p.setAttribute("aria-selected", p.dataset.key===key));
 
@@ -2645,6 +2650,7 @@ async function refresh(){
     setRail(backing);
     updateMarket();
     loadBackingDelta();
+    loadYouFloor();
     $("vaultBal").textContent=fmt(vb,cur.aDec)+" "+cur.cfg.assetSym;
     $("supply").textContent=fmt(ts,cur.tDec);
     $("quota").textContent=quota>=MAXU/2n?"unlimited (genesis)":fmt(quota,cur.tDec)+" "+cur.cfg.token;
@@ -2768,6 +2774,8 @@ async function disconnectWallet(){
   const b = $("connectBtn"); b.textContent = "Connect"; b.classList.remove("connected");
   $("userTok").textContent = "\u2014";
   $("userAsset").textContent = "\u2014";
+  { const yf=$("youFloor"); if(yf) yf.style.display="none"; }
+  paintTradeLink();
   syncHttWalletUi();
   statusLockUntil = 0; setStatus("");
   await refresh(); updateActionState();
@@ -2811,6 +2819,7 @@ async function finishConnect(p, kind){
   p.on?.("chainChanged",()=>location.reload());
   closeSheet(); setStatus("");
   syncHttWalletUi();
+  paintTradeLink();
   await refresh(); updatePreview();
 }
 
@@ -3004,6 +3013,12 @@ async function pairPrice(tokenA, decA, tokenB, decB){
     return (rA > 0 && rB > 0) ? rB / rA : null;
   }catch(_){ return null; }
 }
+function shareVaultUrl(key){
+  const canon="https://pulsestrategy369.com/vaults";
+  const http=(location.protocol==="http:"||location.protocol==="https:") && location.origin && location.origin!=="null";
+  const base=http ? (location.origin + location.pathname.replace(/\/index\.html$/i,"").replace(/\/$/,"")) : canon;
+  return base + "?vault=" + encodeURIComponent(key);
+}
 function copyText(t, btn){
   try{ navigator.clipboard.writeText(t); }catch(_){}
   if(!btn) return;
@@ -3012,12 +3027,103 @@ function copyText(t, btn){
 function paintTradeLink(){
   const a = $("tradeLink");
   const cp = $("copyTok");
+  const cl = $("copyLink");
+  const ad = $("addTok");
   if(a) a.style.display = "none";
-  if(cur && cur.cfg.vault){
-    if(cp){ cp.style.display = "inline-block"; cp.onclick = () => copyText(cur.cfg.vault, cp); }
-  } else {
-    if(cp) cp.style.display = "none";
+  const ok=!!(cur && cur.cfg.vault);
+  if(cp){
+    cp.style.display = ok ? "inline-block" : "none";
+    if(ok) cp.onclick = () => copyText(cur.cfg.vault, cp);
   }
+  if(cl){
+    cl.style.display = ok ? "inline-block" : "none";
+    if(ok) cl.onclick = () => copyText(shareVaultUrl(cur.cfg.key), cl);
+  }
+  if(ad){
+    ad.style.display = (ok && account && eip1193) ? "inline-block" : "none";
+    if(ok) ad.onclick = addTokenToWallet;
+  }
+}
+async function addTokenToWallet(){
+  if(!eip1193 || !cur || !cur.cfg.vault) return;
+  const btn=$("addTok");
+  try{
+    await eip1193.request({
+      method:"wallet_watchAsset",
+      params:{ type:"ERC20", options:{
+        address: cur.cfg.vault,
+        symbol: String(cur.cfg.token||"TOKEN").slice(0,11),
+        decimals: cur.tDec||18
+      }}
+    });
+    if(btn){ const o=btn.textContent; btn.textContent="added"; setTimeout(()=>btn.textContent=o, 1400); }
+  }catch(_){}
+}
+async function firstMintOf(vault, acct, createdAt){
+  const key="ps_mint0_"+String(vault).toLowerCase()+"_"+String(acct).toLowerCase();
+  try{
+    const c=JSON.parse(localStorage.getItem(key)||"null");
+    if(c && c.backing>0) return c;
+  }catch(_){}
+  const topic1="0x"+acct.slice(2).toLowerCase().padStart(64,"0");
+  let head;
+  try{ head=await readProvider.getBlockNumber(); }catch(_){ return null; }
+  const perDay=Math.max(1, Math.round(86400/CHAIN.blockTimeSec));
+  let fromBlock=0;
+  if(createdAt){
+    const ago=Math.max(0, Math.floor(Date.now()/1000)-Number(createdAt));
+    fromBlock=Math.max(0, head - Math.ceil(ago/CHAIN.blockTimeSec) - 80);
+  }
+  let oldest=null;
+  if(createdAt && fromBlock>=0){
+    try{
+      const logs=await readProvider.getLogs({
+        address: vault, topics:[MINTED_TOPIC, topic1], fromBlock, toBlock: head
+      });
+      if(logs && logs.length) oldest=logs[0];
+    }catch(_){}
+  }
+  if(!oldest){
+    let chunk=30, endDays=0, maxDays=400;
+    while(endDays<maxDays){
+      const to=Math.max(0, head - endDays*perDay);
+      const from=Math.max(0, head - (endDays+chunk)*perDay);
+      if(to<=0) break;
+      let logs=null;
+      try{
+        logs=await readProvider.getLogs({
+          address: vault, topics:[MINTED_TOPIC, topic1], fromBlock: from, toBlock: to
+        });
+      }catch(_){
+        if(chunk>7){ chunk=7; continue; }
+        endDays+=chunk; continue;
+      }
+      if(logs && logs.length) oldest=logs[0];
+      if(from===0) break;
+      endDays+=chunk;
+    }
+  }
+  if(!oldest) return null;
+  const d=(oldest.data||"0x").replace(/^0x/,"");
+  if(d.length<64) return null;
+  let backing;
+  try{ backing=Number(ethers.formatEther(BigInt("0x"+d.slice(-64)))); }catch(_){ return null; }
+  if(!(backing>0)) return null;
+  const rec={ backing, block:parseInt(oldest.blockNumber,16), tx:oldest.transactionHash };
+  try{ localStorage.setItem(key, JSON.stringify(rec)); }catch(_){}
+  return rec;
+}
+async function loadYouFloor(){
+  const el=$("youFloor"); if(!el) return;
+  el.style.display="none";
+  if(!account || !cur || !cur.cfg.vault || !(lastBacking>0)) return;
+  const vault=cur.cfg.vault;
+  const rec=await firstMintOf(vault, account, cur.cfg.createdAt);
+  if(!cur || cur.cfg.vault!==vault) return;
+  if(!rec || !(rec.backing>0)) return;
+  const pct=(lastBacking/rec.backing - 1)*100;
+  el.textContent=(pct>=0?"+":"")+pct.toFixed(2)+"% since you minted · from "+rec.backing.toFixed(4);
+  el.style.display="block";
 }
 async function updateMarket(){
   const chip = $("mktChip"); if(!chip) return;
@@ -3214,11 +3320,16 @@ function vaultFromUrl(){
 function rememberVault(key){
   try{ localStorage.setItem("ps_vault", key); }catch(_){}
   try{
-    if(("#"+encodeURIComponent(key)) !== location.hash)
-      history.replaceState(null, "", "#"+encodeURIComponent(key));
+    const next=location.pathname + "?vault=" + encodeURIComponent(key);
+    if(location.pathname + location.search + location.hash !== next)
+      history.replaceState(null, "", next);
   }catch(_){}
 }
 window.addEventListener("hashchange", () => {
+  const k = vaultFromUrl();
+  if(k && (!cur || cur.cfg.key !== k)) activateVault(k);
+});
+window.addEventListener("popstate", () => {
   const k = vaultFromUrl();
   if(k && (!cur || cur.cfg.key !== k)) activateVault(k);
 });
