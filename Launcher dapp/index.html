@@ -251,6 +251,7 @@ pre.json{background:var(--panel2);border:1px solid var(--line);border-radius:12p
         <a class="chip chipbtn" id="createdTx" target="_blank" rel="noopener">Your transaction ↗</a>
       </div>
       <p style="margin:12px 0 0;font-size:12px;color:var(--mut)" id="createdNote">This page remembers it on this device. The token is already in this wallet from the first mint. It is also in the <b>VaultCreated</b> event of your transaction.</p>
+      <p style="margin:10px 0 0;font-size:12px;color:var(--mut)" id="createdSrcfy"></p>
     </div>
   </div>
 
@@ -462,7 +463,7 @@ rel="noopener">Github</a> and inspect the code or download from github.</div>
     <a href="https://pulsestrategy369.com" rel="noopener">PulseVerify</a> is the front page. The <a href="https://pulsestrategy369.com/whitepaper" rel="noopener">whitepaper</a> covers this launcher too — overview and how to. Download each page from its own footer.
   </div>
   <div>The contracts live on PulseChain and work without this page. This dapp reads the chain directly from your browser — no server, no database, no tracking.</div>
-  <div style="margin-top:10px"><a href="https://x.com/pulsestrategy" target="_blank" rel="noopener">@pulsestrategy</a> · the floor only rises · <span class="mono" id="buildTag">launcher v27 · 2026-09-17</span></div>
+  <div style="margin-top:10px"><a href="https://x.com/pulsestrategy" target="_blank" rel="noopener">@pulsestrategy</a> · the floor only rises · <span class="mono" id="buildTag">launcher v28 · 2026-09-18</span></div>
 </footer>
 </div>
 
@@ -870,7 +871,114 @@ function rememberLaunched(entry){
   list.unshift(entry);
   try{ localStorage.setItem(launchedKey(), JSON.stringify(list.slice(0,25))); }catch(_){}
 }
-function paintCreated(entry){
+
+const SOURCIFY = "https://sourcify.dev/server";
+let _lvStdJson = null, _lvCompVer = null;
+function srcfyLink(addr){ return "https://repo.sourcify.dev/369/" + addr; }
+function paintSrcfyStatus(html, ok){
+  const el = $("createdSrcfy"); if(!el) return;
+  el.style.display = html ? "block" : "none";
+  el.innerHTML = html || "";
+  el.style.color = ok===true ? "var(--mint)" : ok===false ? "var(--danger)" : "var(--mut)";
+}
+async function sourcifyLookup(addr){
+  try{
+    const r = await fetch(SOURCIFY + "/v2/contract/369/" + addr);
+    if(!r.ok) return null;
+    const j = await r.json();
+    const m = j.match || j.runtimeMatch;
+    if(!m || m==="null" || m==="false") return null;
+    return m;
+  }catch(_){ return null; }
+}
+async function loadLaunchVaultStdJson(){
+  if(_lvStdJson) return _lvStdJson;
+  const r = await fetch(SOURCIFY + "/v2/contract/369/" + FACTORY_ADDR + "?fields=compilation,stdJsonInput");
+  if(!r.ok) throw new Error("Could not load factory sources from Sourcify (HTTP "+r.status+")");
+  const j = await r.json();
+  const sji = j.stdJsonInput;
+  if(!sji || !sji.sources || !sji.sources["launcher/LaunchVault.sol"])
+    throw new Error("Factory source on Sourcify is missing LaunchVault.sol");
+  _lvStdJson = sji;
+  _lvCompVer = ((j.compilation && j.compilation.compilerVersion) || "0.8.29+commit.ab55807c").replace(/^v/,"");
+  return sji;
+}
+function srcfyMatchLabel(m){
+  if(/exact/i.test(m||"")) return "exact match";
+  if(/partial/i.test(m||"")) return "partial match";
+  return m || "verified";
+}
+async function sourcifySubmitLaunchVault(addr, creationTx){
+  const existing = await sourcifyLookup(addr);
+  if(existing) return {ok:true, match:existing, already:true};
+  const stdJsonInput = await loadLaunchVaultStdJson();
+  const body = {
+    stdJsonInput,
+    compilerVersion: _lvCompVer,
+    contractIdentifier: "launcher/LaunchVault.sol:LaunchVault"
+  };
+  if(creationTx) body.creationTransactionHash = creationTx;
+  const r = await fetch(SOURCIFY + "/v2/verify/369/" + addr, {
+    method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body: JSON.stringify(body)
+  });
+  const j = await r.json().catch(()=>({}));
+  const blob = JSON.stringify(j);
+  if(/already/i.test(blob) && r.status>=400){
+    const m = await sourcifyLookup(addr);
+    if(m) return {ok:true, match:m, already:true};
+  }
+  if(!r.ok){
+    const msg = j.error?.message || j.message || j.error || ("Sourcify HTTP "+r.status);
+    throw new Error(typeof msg==="string"?msg:JSON.stringify(msg));
+  }
+  const id = j.verificationId || j.verification_id;
+  if(!id){
+    if(j.match) return {ok:true, match:j.match};
+    throw new Error("Sourcify did not return a job id");
+  }
+  const t0 = Date.now();
+  while(Date.now()-t0 < 150000){
+    await new Promise(res=>setTimeout(res, 2500));
+    const s = await fetch(SOURCIFY + "/v2/verify/" + id);
+    const st = await s.json().catch(()=>({}));
+    const err = st.error && (st.error.message || st.error.customCode || st.error);
+    if(err && (st.isJobCompleted || st.status==="error")) throw new Error(typeof err==="string"?err:JSON.stringify(err));
+    const match = (st.contract && (st.contract.match || st.contract.runtimeMatch)) || st.match;
+    if(match && match!=="null" && match!==false) return {ok:true, match};
+    if(st.isJobCompleted){
+      const again = await sourcifyLookup(addr);
+      if(again) return {ok:true, match:again};
+      throw new Error(err || "Sourcify finished without a match");
+    }
+  }
+  throw new Error("Sourcify is still compiling — open the repo in a minute");
+}
+async function verifyCreatedVault(entry){
+  if(!entry || !entry.addr) return {ok:false};
+  paintSrcfyStatus("Submitting LaunchVault.sol to Sourcify (same compile as the factory: 0.8.29 · shanghai · viaIR)…");
+  try{
+    const r = await sourcifySubmitLaunchVault(entry.addr, entry.tx);
+    paintSrcfyStatus(
+      (r.already?"Already on Sourcify":"Verified on Sourcify")+" — "+srcfyMatchLabel(r.match)+
+      ' · <a href="'+srcfyLink(entry.addr)+'" target="_blank" rel="noopener">view source ↗</a>',
+      true
+    );
+    return r;
+  }catch(e){
+    paintSrcfyStatus(
+      "Sourcify: "+esc(e.message||String(e))+
+      ' · <a href="#" id="srcfyRetry">retry</a>'+
+      ' · Remix: LaunchVault.sol, 0.8.29, shanghai, viaIR',
+      false
+    );
+    const a=$("srcfyRetry");
+    if(a) a.onclick=(ev)=>{ ev.preventDefault(); verifyCreatedVault(entry); };
+    return {ok:false, error:e};
+  }
+}
+function paintCreated(entry, opts){
   if(!entry || !entry.addr) return;
   const box = $("createdBox");
   box.style.display = "block";
@@ -903,6 +1011,24 @@ function paintCreated(entry){
     $("createdTx").href = (CHAIN.txExplorer||"https://pulsestrategy369.com/tx/") + entry.tx;
   }else{
     $("createdTx").style.display = "none";
+  }
+  if(opts && opts.submit){
+    verifyCreatedVault(entry);
+  }else{
+    paintSrcfyStatus("Checking Sourcify…");
+    sourcifyLookup(entry.addr).then(m=>{
+      if(m){
+        paintSrcfyStatus("On Sourcify — "+srcfyMatchLabel(m)+' · <a href="'+srcfyLink(entry.addr)+'" target="_blank" rel="noopener">view source ↗</a>', true);
+      }else{
+        paintSrcfyStatus('Not on Sourcify yet. <a href="#" id="srcfyRetry">Verify now</a> — submits LaunchVault.sol from the verified factory.');
+        const a=$("srcfyRetry");
+        if(a) a.onclick=(ev)=>{ ev.preventDefault(); verifyCreatedVault(entry); };
+      }
+    }).catch(()=>{
+      paintSrcfyStatus('Could not reach Sourcify. <a href="#" id="srcfyRetry">retry</a>');
+      const a=$("srcfyRetry");
+      if(a) a.onclick=(ev)=>{ ev.preventDefault(); verifyCreatedVault(entry); };
+    });
   }
   box.scrollIntoView({block:"center", behavior:"smooth"});
 }
@@ -975,8 +1101,8 @@ $("createBtn").onclick=async()=>{
     }
     const entry={addr:vault, name, sym, tx:rec.hash, at:Date.now(), seed, tokensOut: String(tokensOut), assetSym:a.sym, dec:a.dec};
     rememberLaunched(entry);
-    paintCreated(entry);
-    setCreateStatus("Vault live. Token is in this wallet. Address is below.","ok");
+    paintCreated(entry, {submit:true});
+    setCreateStatus("Vault live. Token is in this wallet. Submitting source to Sourcify…","ok");
     try{
       const iface=new ethers.Interface(VAULT_ABI);
       for(const log of rec.logs){
@@ -1217,7 +1343,30 @@ async function openVault(addr, switchTab){
   const bd=$("backDelta"); if(bd) bd.style.display="none";
   const yf=$("youFloor"); if(yf) yf.style.display="none";
   $("railNote").textContent="The ratchet only moves right. 3.5% of every mint and 0.5% of every redeem stay in "+aSym+".";
-  $("vaultMeta").innerHTML='Vault <span class="mono">'+addr+'</span><br>Creator <span class="mono">'+creator+'</span> · backing '+aSym+' · start quota '+(Number(iq)/100)+'%';
+  $("vaultMeta").innerHTML='Vault <span class="mono">'+addr+'</span><br>Creator <span class="mono">'+creator+'</span> · backing '+aSym+' · start quota '+(Number(iq)/100)+'% · <span id="vaultSrcfy">Sourcify…</span>';
+  sourcifyLookup(addr).then(m=>{
+    const el=$("vaultSrcfy"); if(!el) return;
+    if(m){
+      el.innerHTML='<a href="'+srcfyLink(addr)+'" target="_blank" rel="noopener">Sourcify '+srcfyMatchLabel(m)+' ↗</a>';
+    }else{
+      el.innerHTML='<a href="#" id="vaultSrcfyGo">Verify on Sourcify</a>';
+      const a=$("vaultSrcfyGo");
+      if(a) a.onclick=(ev)=>{
+        ev.preventDefault();
+        el.textContent="Submitting LaunchVault.sol…";
+        const last=readLaunched().find(x=>x.addr && x.addr.toLowerCase()===addr.toLowerCase());
+        verifyCreatedVault({addr, tx: last && last.tx}).then(r=>{
+          if(r && r.ok){
+            el.innerHTML='<a href="'+srcfyLink(addr)+'" target="_blank" rel="noopener">Sourcify '+srcfyMatchLabel(r.match)+' ↗</a>';
+          }else{
+            el.innerHTML='<a href="#" id="vaultSrcfyGo">Retry Sourcify</a>';
+            const b=$("vaultSrcfyGo");
+            if(b) b.onclick=a.onclick;
+          }
+        });
+      };
+    }
+  }).catch(()=>{});
   setMode(mode);
   bal={asset:0n,token:0n}; previewOut=0n;
   pxHasPool=false; pxTab="add";
