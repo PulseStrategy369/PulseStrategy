@@ -350,7 +350,7 @@ rel="noopener">Github</a> and inspect the code or download from github.</div>
 </div>
 <script>
 "use strict";
-var BUILD = 'v31 · 2026-09-17';
+var BUILD = 'v34 · 2026-09-18';
 var VAULTS_URL = 'https://pulsestrategy369.com/vaults'; /* ★ EDIT HERE: the one place that controls every 'Vaults' link on this page */
 var LAUNCH_URL = 'https://pulsestrategy369.com/launch'; /* ★ EDIT HERE: PulseStrategy Launcher */
 /* ================= RPC core ================= */
@@ -1667,6 +1667,47 @@ async function sourcifyStatus(addr){
   window._regNotes = _regNotes;
   return st;
 }
+async function probePulseScan(addr){
+  try{
+    const r = await fetch('https://api.scan.pulsechain.com/api/v2/smart-contracts/' + addr);
+    if(r.ok){
+      const j = await r.json();
+      if(j.is_verified || j.source_code){
+        const partial = !!j.is_partially_verified;
+        return {ok:true, partial, name:j.name||'', compiler:j.compiler_version||''};
+      }
+    }
+  }catch(e){}
+  try{
+    const r = await fetch('https://api.scan.pulsechain.com/api/v2/addresses/' + addr);
+    if(r.ok){
+      const j = await r.json();
+      if(j.is_verified) return {ok:true, partial:false, name:j.name||''};
+      return {ok:false};
+    }
+  }catch(e){}
+  try{
+    const r = await fetch(SCAN_API + '?module=contract&action=getsourcecode&address=' + addr);
+    if(r.ok){
+      const j = await r.json();
+      const it = j.result && j.result[0];
+      if(it && it.SourceCode) return {ok:true, partial:false, name:it.ContractName||'', compiler:it.CompilerVersion||''};
+    }
+  }catch(e){}
+  return {ok:false};
+}
+function pulseScanBox(addr, ps){
+  const scanLink = `https://scan.pulsechain.com/address/${addr}?tab=contract`;
+  const who = (ps.name ? esc(ps.name)+' · ' : '') + (ps.compiler ? esc(ps.compiler)+'. ' : '');
+  if(ps.partial){
+    return `<div class="warnbox"><div style="font-family:var(--disp);font-size:15px;margin-bottom:6px">✓ VERIFIED ON PULSESCAN — PARTIAL MATCH</div>
+      ${who}The deployed runtime bytecode matches the published source, but the metadata differs slightly (often just comments, variable names, or a different source path). The logic is verified; the packaging isn't identical.
+      <div style="margin-top:10px"><a href="${scanLink}" target="_blank" rel="noopener">View source on PulseScan ↗</a></div></div>`;
+  }
+  return `<div class="okbox"><div style="font-family:var(--disp);font-size:15px;margin-bottom:6px">✓ VERIFIED ON PULSESCAN — EXACT MATCH</div>
+    ${who}The source published to PulseScan recompiles to <i>exactly</i> the bytecode deployed at ${short(addr,8)}, metadata included.
+    <div style="margin-top:10px"><a href="${scanLink}" target="_blank" rel="noopener">View source on PulseScan ↗</a></div></div>`;
+}
 async function fillSourcifyBadge(addr){
   const st = await sourcifyStatus(addr);
   const el = document.getElementById('srcfy-badge');
@@ -1674,7 +1715,17 @@ async function fillSourcifyBadge(addr){
   if(st === 'full'){ el.className = 'badge ok'; el.textContent = 'Sourcify ✓ exact match'; }
   else if(st){ el.className = 'badge warn'; el.textContent = 'Sourcify: partial match'; }
   else if(st === undefined){ el.className = 'badge info'; el.textContent = 'Sourcify unreachable'; }
-  else { el.className = 'badge info'; el.textContent = 'not on Sourcify'; }
+  else {
+    try{
+      const ps = await probePulseScan(addr);
+      if(ps && ps.ok){
+        el.className = ps.partial ? 'badge warn' : 'badge ok';
+        el.textContent = ps.partial ? 'PulseScan: partial match' : 'PulseScan ✓ exact match';
+        return;
+      }
+    }catch(e){}
+    el.className = 'badge info'; el.textContent = 'not on Sourcify';
+  }
 }
 function _mdToMeta(addr, md, sources, matchLabel){
   if(!md || !md.compiler || !md.compiler.version || !Object.keys(sources).length) return null;
@@ -1867,6 +1918,12 @@ async function showSourcifyVerdict(addr){
   } else if(st === undefined){
     box.innerHTML = `<div class="errbox">Couldn't reach Sourcify right now. <a onclick="showSourcifyVerdict('${addr}')">Retry</a> — or check directly at <a href="${repoLink}" target="_blank" rel="noopener">Sourcify ↗</a>. Registry checks: ${esc((window._regNotes||[]).join(' · ')||'—')}</div>`;
   } else {
+    let ps = null;
+    try{ ps = await probePulseScan(addr); }catch(e){}
+    if(ps && ps.ok){
+      box.innerHTML = pulseScanBox(addr, ps);
+      return;
+    }
     box.innerHTML = `<div class="warnbox"><div style="font-family:var(--disp);font-size:15px;margin-bottom:6px">NOT VERIFIED ON SOURCIFY</div>
       No published source for this contract on Sourcify. That doesn't mean it's unsafe — it may be verified on a block explorer instead, or simply never submitted to Sourcify. Use the bytecode inspector below to see what it can actually do, and run <b>Pulse Check</b>.
       <div style="margin-top:10px"><a href="https://sourcify.dev/#/lookup/${addr}" target="_blank" rel="noopener">Double-check on Sourcify ↗</a></div></div>`;
@@ -2574,7 +2631,7 @@ try{
           e.preventDefault();
           var a = document.createElement('a');
           a.href = URL.createObjectURL(new Blob([buf], {type:'text/html'}));
-          a.download = 'pulseverify-v31.html';
+          a.download = 'pulseverify-v34.html';
           a.click(); URL.revokeObjectURL(a.href);
         };
       });
