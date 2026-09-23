@@ -3,20 +3,24 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script>
+(function(){var W=980,m=document.querySelector('meta[name=viewport]');if(!m)return;var w=Math.min(screen.width||W,window.innerWidth||W);if(w<W)m.setAttribute('content','width='+W+', initial-scale='+(w/W).toFixed(4)+', minimum-scale=0.2, maximum-scale=5, user-scalable=yes');})();
+</script>
 <title>PulseStrategy Market Desk · the floor only rises</title>
 <meta name="description" content="Live backing vs DEX in USD, WPLS and HEX. HTT yield, vPLS vs Vouch, size and impact. Six vaults, on-chain, no server.">
-<meta name="theme-color" content="#050507">
+<meta name="theme-color" content="#0b0b10">
 <link rel="icon" id="favicon" type="image/png" href="">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Michroma&family=Space+Grotesk:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
 :root{
-  --ink:#050507; --panel:#111118; --panel2:#181822; --line:#262633;
+  --ink:#0b0b10; --panel:#181822; --panel2:#22222e; --line:#3a3a4c;
   --pulse:#4E8FD9; --pulse-deep:#1E3A6E; --violet:#8C4238; --violet-deep:#54395F;
-  --mint:#7FB3E8; --text:#F2F3F6; --mut:#9398A8; --danger:#FF6B5A; --gold:#C4A574;
+  --mint:#7FB3E8; --text:#F7F8FB; --mut:#C4C7D4; --danger:#FF6B5A; --gold:#C4A574;
 }
 *{box-sizing:border-box;margin:0;padding:0}
 html{-webkit-text-size-adjust:100%;scroll-behavior:smooth}
+::selection{background:rgba(78,143,217,.38);color:#fff}
 body{
   background:var(--ink);color:var(--text);
   font-family:'Space Grotesk',system-ui,sans-serif;line-height:1.5;
@@ -24,63 +28,61 @@ body{
     radial-gradient(ellipse 90% 45% at 60% -8%,rgba(78,143,217,.16),transparent),
     radial-gradient(ellipse 60% 30% at 10% 4%,rgba(120,63,88,.10),transparent);
 }
-.wrap{max-width:1120px;margin:0 auto;padding:0 20px 72px}
+body::after{content:"";position:fixed;top:0;left:0;right:0;height:2px;z-index:80;pointer-events:none;background:linear-gradient(90deg,#1E3A6E,#4E8FD9 42%,#7FB3E8 82%,transparent)}
+.wrap{max-width:1440px;width:100%;margin:0 auto;padding:0 32px 80px}
 a{color:var(--violet);text-decoration:none}
 a:hover{text-decoration:underline}
 h2{font-family:'Michroma';font-weight:400;font-size:15px;letter-spacing:.05em;margin:44px 0 8px;text-transform:uppercase}
 h2 small{display:block;font-family:'Space Grotesk';font-weight:400;font-size:12px;letter-spacing:0;text-transform:none;color:var(--mut);margin-top:6px}
-header{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:20px 0 30px;position:sticky;top:0;background:linear-gradient(var(--ink) 75%,transparent);z-index:5;flex-wrap:wrap}
-.brand{display:flex;align-items:center;gap:10px}
-.brand img{width:30px;height:30px}
-.brand .name{font-family:'Michroma';font-size:12.5px;letter-spacing:.14em}
+header{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:20px 0 16px;position:sticky;top:0;background:rgba(11,11,16,.86);backdrop-filter:saturate(1.15) blur(16px);-webkit-backdrop-filter:saturate(1.15) blur(16px);border-bottom:1px solid var(--line);z-index:5;flex-wrap:nowrap}
+.brand{display:flex;align-items:center;gap:12px}
+.brand img{width:36px;height:36px;object-fit:contain}
+.brand .name{font-family:'Michroma';font-size:13px;letter-spacing:.16em}
 .brand .tick{font-size:10px;color:var(--mut);letter-spacing:.16em}
-.hdr-right{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:flex-end}
-.navtab{font-family:'Michroma';font-size:11px;letter-spacing:.04em;padding:10px 14px;border-radius:11px;border:1px solid var(--line);background:var(--panel);color:var(--mut);text-decoration:none;display:inline-flex;align-items:center;white-space:nowrap;min-height:44px;cursor:pointer}
+.hdr-right{display:flex;align-items:center;gap:8px;flex-wrap:nowrap;justify-content:flex-end}
+.navtab{font-family:'Michroma';font-size:11px;letter-spacing:.04em;padding:10px 14px;border-radius:11px;border:1px solid var(--line);background:var(--panel);color:var(--mut);text-decoration:none;display:inline-flex;align-items:center;white-space:nowrap;min-height:44px;cursor:pointer;transition:border-color .18s,color .18s}
 .navtab:hover{border-color:var(--pulse);color:var(--text);text-decoration:none}
 .navtab:disabled{opacity:.55;cursor:not-allowed}
 .chip{font-size:11px;letter-spacing:.06em;color:var(--mut);border:1px solid var(--line);border-radius:99px;padding:6px 12px;background:rgba(20,16,32,.6);display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
-.chip on,.chip on,.chip.on{color:var(--mint);border-color:rgba(127,179,232,.40)}
+.chip.on{color:var(--mint);border-color:rgba(127,179,232,.40)}
 .chip.prem{color:var(--gold);border-color:rgba(196,165,116,.45)}
 .chip.disc{color:var(--mint);border-color:rgba(127,179,232,.45)}
-.trust{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:28px}
+.trust{display:flex;flex-wrap:wrap;gap:8px 18px;margin-bottom:22px}
+.trust .chip{font-size:12px;letter-spacing:.02em;border:none;border-radius:0;padding:0;background:none;cursor:default}
+.trust .chip.on{border:none;box-shadow:none}
 .rpcsel{font-family:'IBM Plex Mono';font-size:11px;background:var(--panel);color:var(--mut);border:1px solid var(--line);border-radius:11px;padding:10px 12px;cursor:pointer;max-width:190px;min-height:44px}
 .rpcsel:hover,.rpcsel:focus-visible{border-color:var(--pulse);color:var(--text)}
 .rpcsel.custom{border-color:rgba(127,179,232,.45);color:var(--mint)}
 .sr-only{position:absolute;left:-9999px}
 .vaultbar{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 16px}
-.vpill{font-family:'Michroma';font-size:11px;letter-spacing:.06em;padding:10px 16px;border-radius:99px;border:1px solid var(--line);background:var(--panel);color:var(--mut);cursor:pointer;min-height:44px}
-.vpill[aria-selected="true"]{color:var(--text);border-color:var(--pulse);box-shadow:0 0 0 1px var(--pulse) inset}
-.panel{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:18px;box-shadow:0 24px 60px -30px rgba(0,0,0,.7)}
-.mono{font-family:'IBM Plex Mono';font-variant-numeric:tabular-nums;word-break:break-all}
+.vswitch{margin:0 0 16px}
+.vswitch-lab{font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--mut);margin-bottom:8px}
+.vswitch .vaultbar{display:flex;gap:3px;flex-wrap:wrap;margin:0;padding:4px;background:var(--panel2);border:1px solid var(--line);border-radius:14px;width:max-content;max-width:100%}
+.vpill{font-family:'Michroma';font-size:11px;letter-spacing:.06em;padding:10px 16px;border-radius:11px;border:none;background:transparent;color:var(--mut);cursor:pointer;min-height:40px;transition:background .18s,color .18s}
+.vpill:hover{color:var(--text);background:rgba(78,143,217,.12)}
+.vpill[aria-selected="true"]{color:#fff;background:linear-gradient(135deg,#6FA8DC,var(--pulse) 48%,var(--pulse-deep));box-shadow:none}
+.tablewrap{overflow-x:auto;border:1px solid var(--line);border-radius:16px;margin-top:12px;box-shadow:inset 0 1px 0 rgba(255,255,255,.04),0 28px 64px -34px rgba(0,0,0,.7)}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:18px;box-shadow:inset 0 1px 0 rgba(255,255,255,.05),0 28px 64px -34px rgba(0,0,0,.78)}
+.mono{font-family:'IBM Plex Mono';font-variant-numeric:tabular-nums}
+.mono.break{word-break:break-all}
 table{width:100%;border-collapse:collapse;font-size:13px}
 th{text-align:left;font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--mut);font-weight:500;padding:10px 12px;border-bottom:1px solid var(--line);background:var(--panel);white-space:nowrap}
 td{padding:12px;border-bottom:1px solid var(--line);vertical-align:top}
 tr:last-child td{border-bottom:none}
 tr.active{background:var(--panel2)}
 tr[data-key]{cursor:pointer}
-.tablewrap{overflow-x:auto;border:1px solid var(--line);border-radius:16px;margin-top:12px}
-.stats{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1px;background:var(--line);border:1px solid var(--line);border-radius:16px;overflow:hidden}
-@media(min-width:900px){
-  .stats{grid-template-columns:repeat(4,minmax(0,1fr))}
-  .stats.n3{grid-template-columns:repeat(3,minmax(0,1fr))}
-  .stats.n1{grid-template-columns:minmax(0,1fr)}
-  .wrap{padding:0 32px 80px}
-  .brand .name{font-size:14px}
-}
+.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:1px;background:var(--line);border:1px solid var(--line);border-radius:16px;overflow:hidden}
+.stats.n3{grid-template-columns:repeat(3,minmax(0,1fr))}
+.stats.n1{grid-template-columns:minmax(0,1fr)}
+.brand .name{font-size:14px}
 .stat{background:var(--panel);padding:16px 18px}
 .stat .k{font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--mut);margin-bottom:7px}
 .stat .v{font-family:'IBM Plex Mono';font-size:16px;font-weight:500;font-variant-numeric:tabular-nums}
 .stat .copy{font-family:'Space Grotesk',system-ui,sans-serif;font-size:13px;font-weight:400;line-height:1.5;color:var(--mut)}
 .bar{height:8px;background:var(--panel2);border-radius:5px;overflow:hidden;margin-top:6px}
 .bar > span{display:block;height:100%;background:linear-gradient(90deg,var(--pulse),var(--mint));border-radius:5px}
-.cards{display:grid;gap:10px}
-@media(min-width:900px){.cards{display:none}}
+.cards{display:none}
 .mcard{display:none}
-@media(max-width:899px){
-  .tablewrap{display:none}
-  .mcard{display:block;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px;cursor:pointer}
-  .mcard.active{border-color:var(--pulse)}
-}
 .tape li{display:flex;justify-content:space-between;gap:12px;padding:10px 0;border-bottom:1px solid var(--line);font-size:13px}
 .tape li:last-child{border-bottom:none}
 .buy{color:var(--mint)} .sell{color:var(--danger)}
@@ -113,10 +115,10 @@ button:focus-visible,select:focus-visible,a:focus-visible,input:focus-visible{ou
     </div>
   </div>
   <div class="hdr-right">
-    <a class="navtab" href="https://pulsestrategy369.com" target="_blank" rel="noopener">PulseVerify ↗</a>
-    <a class="navtab" href="https://pulsestrategy369.com/vaults" target="_blank" rel="noopener">Vaults ↗</a>
-    <a class="navtab" href="https://pulsestrategy369.com/launch" target="_blank" rel="noopener">Launcher ↗</a>
-    <a class="navtab" href="https://pulsestrategy369.com/whitepaper" target="_blank" rel="noopener">Whitepaper ↗</a>
+    <a class="navtab" href="https://pulsestrategy369.com">PulseVerify</a>
+    <a class="navtab" href="https://pulsestrategy369.com/vaults">Vaults</a>
+    <a class="navtab" href="https://pulsestrategy369.com/launch">Launcher</a>
+    <a class="navtab" href="https://pulsestrategy369.com/whitepaper">Whitepaper</a>
     <label for="rpcSel" class="sr-only">RPC endpoint</label>
     <select id="rpcSel" class="rpcsel" title="RPC endpoint this desk reads from"></select>
     <button type="button" class="navtab" id="refreshBtn">Refresh</button>
@@ -149,7 +151,10 @@ button:focus-visible,select:focus-visible,a:focus-visible,input:focus-visible{ou
 </div>
 
 <h2>For holders <small>Hold HTT or vPLS? Wrap it into HEXstr / PLSstr. More mint and redeem volume through the vault lifts the floor — that's the yield. Cheaper source is backing × 1.045 vs the live DEX print.</small></h2>
-<div class="vaultbar" id="holdPills"></div>
+<div class="vswitch">
+  <div class="vswitch-lab">Choose vault</div>
+  <div class="vaultbar" id="holdPills" role="tablist" aria-label="Choose vault"></div>
+</div>
 <div class="panel" id="holdBox"></div>
 
 <h2>Wallet lookup <small>Paste a PulseChain address. Reads HTT, HEXstr, PLSstr, vPLS and PulseX LP balances. Public RPC, no connect.</small></h2>
@@ -170,8 +175,11 @@ button:focus-visible,select:focus-visible,a:focus-visible,input:focus-visible{ou
 <h2>HTT yield curve <small>Each HTT redeems 1:1 for HEX on its day. Implied APY = (1 / price)^(1 / years) − 1, from the live HTT/HEX pool.</small></h2>
 <div class="panel" id="curve"></div>
 
-<h2>Pair modules <small>Size, impact and recent swaps follow the selected vault.</small></h2>
-<div class="vaultbar" id="vaultbar" role="tablist" aria-label="Vaults"></div>
+<h2>Pair modules <small>Recent swaps follow the selected vault.</small></h2>
+<div class="vswitch">
+  <div class="vswitch-lab">Choose vault</div>
+  <div class="vaultbar" id="vaultbar" role="tablist" aria-label="Choose vault"></div>
+</div>
 
 <h2 id="lpTitle">LP desk <small>PulseX v2 50/50. IL to the mint/redeem band edges — not an unbounded AMM walk. Fees from Swap events in the tape window, not an APR.</small></h2>
 <div class="panel">
@@ -190,24 +198,6 @@ button:focus-visible,select:focus-visible,a:focus-visible,input:focus-visible{ou
   <p class="note" id="lpNote"></p>
 </div>
 
-<h2>Size & impact <small>PulseX v2 0.30% fee. Type a size in vault tokens, quote, or USD.</small></h2>
-<div class="panel">
-  <div class="vaultbar" style="margin:0 0 12px">
-    <button type="button" class="vpill" id="buySide" aria-selected="true">Buy</button>
-    <button type="button" class="vpill" id="sellSide" aria-selected="false">Sell</button>
-    <span class="chip" id="depthChip"></span>
-  </div>
-  <div class="vaultbar" style="margin:0 0 14px;align-items:flex-end">
-    <label><span class="sr-only">Size</span><input id="sizeAmt" class="amt" inputmode="decimal" placeholder="0"></label>
-    <button type="button" class="vpill unit" data-u="vault" aria-selected="true" id="uVault">Token</button>
-    <button type="button" class="vpill unit" data-u="quote" aria-selected="false" id="uQuote">Quote</button>
-    <button type="button" class="vpill unit" data-u="usd" aria-selected="false">USD</button>
-  </div>
-  <div class="stats" id="simBox" style="margin-bottom:14px"></div>
-  <svg id="depthSvg" viewBox="0 0 640 220" width="100%" role="img" aria-label="Price impact vs trade size"></svg>
-  <p class="note" id="depthNote"></p>
-</div>
-
 <h2>Recent swaps <small>PulseX Swap events. Public RPCs cap log range — default last 3h, load more for earlier blocks.</small></h2>
 <div class="vaultbar">
   <button type="button" class="vpill hours" data-h="3" aria-selected="true">Last 3h</button>
@@ -224,7 +214,7 @@ button:focus-visible,select:focus-visible,a:focus-visible,input:focus-visible{ou
 <footer>
   <a href="#" id="dlLink" class="dl-cta">Download this page</a>
   <p style="margin-top:16px">Nothing on this page is financial advice.</p>
-  <div style="margin-top:10px"><a href="https://x.com/pulsestrategy" target="_blank" rel="noopener">@pulsestrategy</a> · the floor only rises · <span class="mono">build v2 · 2026-09-08</span> · <a href="https://github.com/PulseStrategy369/PulseStrategy" target="_blank" rel="noopener">GitHub</a></div>
+  <div style="margin-top:10px"><a href="https://x.com/pulsestrategy" target="_blank" rel="noopener">@pulsestrategy</a> · the floor only rises · <span class="mono">build v7 · 2026-09-23</span> · <a href="https://github.com/PulseStrategy369/PulseStrategy" target="_blank" rel="noopener">GitHub</a></div>
 </footer>
 </div>
 
@@ -242,7 +232,7 @@ const PULSEX = "https://ipfs.app.pulsex.com/#/swap";
 const SWAP_TOPIC = "0xd78ad95fa46c994b6551d0da85fc275fe613ce37657fb8d5e3d130840159d822";
 const CHAIN = {
   id: 369,
-  rpcs: ["https://rpc.pulsechain.com","https://pulsechain-rpc.publicnode.com","https://rpc.pulsechainstats.com","https://rpc-pulsechain.g4mm4.io"],
+  rpcs: ["https://rpc.pulsechain.com","https://pulsechain-rpc.publicnode.com","https://rpc-pulsechain.g4mm4.io"],
   explorer: "https://pulsestrategy369.com/address/",
   blockTimeSec: 10
 };
@@ -558,7 +548,7 @@ function paintHolders(){
     '<div class="stats">'+
       stat("Mint 1 "+r.cfg.token, (a.mintA==null?"—":fmt(a.mintA,4)+' '+r.cfg.assetSym)+'<div class="muted" style="font-size:12px">'+(a.mintQ==null?"—":fmt(a.mintQ,4)+' '+r.cfg.quoteSym)+' · '+fmtUsd(a.mintUsd)+'</div><div class="muted" style="font-size:12px">'+(r.quotaOpen?('quota '+fmtC(r.quotaTok)):'quota closed')+'</div>')+
       stat("Buy 1 on PulseX", (a.dex==null?"—":fmt(a.dex,4)+' '+r.cfg.quoteSym)+'<div class="muted" style="font-size:12px">'+fmtUsd(a.dexUsd)+'</div><div style="margin-top:6px"><a href="'+PULSEX+'?inputCurrency='+r.cfg.quote+'&outputCurrency='+r.cfg.vault+'" target="_blank" rel="noopener">PulseX ↗</a></div>')+
-      stat("Hold "+r.cfg.assetSym+"?", '<div class="copy">Mint '+r.cfg.token+'. Same bag, liquid token, LP pair — and every mint pays the vault.</div>'+(wrap==null?'':'<div class="ok" style="font-size:12px;margin-top:6px">1 '+r.cfg.assetSym+' → '+fmt(wrap,4)+' '+r.cfg.token+'</div>')+'<div style="margin-top:6px"><a href="https://pulsestrategy369.com/vaults" target="_blank" rel="noopener">Mint on Vaults ↗</a></div>')+
+      stat("Hold "+r.cfg.assetSym+"?", '<div class="copy">Mint '+r.cfg.token+'. Same bag, liquid token, LP pair — and every mint pays the vault.</div>'+(wrap==null?'':'<div class="ok" style="font-size:12px;margin-top:6px">1 '+r.cfg.assetSym+' → '+fmt(wrap,4)+' '+r.cfg.token+'</div>')+'<div style="margin-top:6px"><a href="https://pulsestrategy369.com/vaults">Mint on Vaults</a></div>')+
       '<div class="stat"><div class="k sand">The floor only rises</div><div class="copy">4% of every mint stays in. More users and more churn through this vault = more backing per token. That\'s the yield for holders of '+r.cfg.token+'.</div></div>'+
     '</div>';
 }
@@ -894,7 +884,7 @@ function paintLp(){
     stat("1 LP token", fmtUsd(oneLp)+'<div class="muted" style="font-size:12px">pool TVL ÷ LP supply</div>')+
     stat("Volume to offset floor IL", fmtUsd(beF)+'<div class="muted" style="font-size:12px">'+(beF!=null && qPx>0?fmtC(beF/qPx)+' '+r.cfg.quoteSym:'0.30% of swap volume')+'</div>')+
     stat("Volume to offset ceil IL", fmtUsd(beC)+'<div class="muted" style="font-size:12px">'+(beC!=null && qPx>0?fmtC(beC/qPx)+' '+r.cfg.quoteSym:'0.30% of swap volume')+'</div>')+
-    stat("Addresses", '<a href="https://pulsestrategy369.com/address/'+r.cfg.pair+'" target="_blank" rel="noopener">pair '+shortAddr(r.cfg.pair)+'</a><div><a href="https://pulsestrategy369.com/address/'+r.cfg.vault+'" target="_blank" rel="noopener">'+r.cfg.token+' '+shortAddr(r.cfg.vault)+'</a></div>');
+    stat("Addresses", '<a href="https://pulsestrategy369.com/address/'+r.cfg.pair+'">pair '+shortAddr(r.cfg.pair)+'</a><div><a href="https://pulsestrategy369.com/address/'+r.cfg.vault+'">'+r.cfg.token+' '+shortAddr(r.cfg.vault)+'</a></div>');
   paintLpPos();
   const n = parseFloat($("lpAmt").value);
   if(!(n>0) || !(r.dep.tok>0)){
@@ -948,13 +938,13 @@ function paint(){
       '<td class="mono">'+fmt(r.back,4)+'<div class="muted" style="font-size:11px">'+r.cfg.assetSym+'</div><div class="muted" style="font-size:11px">'+(r.backingInQuote==null?"—":fmt(r.backingInQuote,4)+' '+r.cfg.quoteSym)+'</div></td>'+
       '<td class="mono">'+(r.dex==null?"—":fmt(r.dex,4))+'<div class="muted" style="font-size:11px">'+r.cfg.quoteSym+'</div></td>'+
       '<td class="mono">'+fmtUsd(r.dexUsd)+'<div class="muted" style="font-size:11px">nav '+fmtUsd(r.backingUsd)+'</div></td>'+
-      '<td class="mono'+dc+'">'+fmtPct(r.dev,1)+'</td>'+
+      '<td class="mono'+dc+'" style="white-space:nowrap">'+fmtPct(r.dev,1)+'</td>'+
       '<td>'+chipBand(r.band)+'</td>'+
       '<td style="font-size:12px">'+r.arb+'</td>'+
       '<td class="mono" style="font-size:12px">'+fmtUsd(r.tvlUsd)+'</td>'+
       '<td class="mono muted" style="font-size:12px">'+fmtC(r.dep.q)+' '+r.cfg.quoteSym+'<div>'+fmtUsd(r.depthUsd)+'</div></td>'+
       '<td class="mono" style="font-size:12px">'+(r.quotaTok===Infinity?"genesis":fmtC(r.quotaTok))+'</td>'+
-      '<td class="mono muted" style="font-size:12px">'+fmtPct(r.chg,1)+'</td></tr>';
+      '<td class="mono muted" style="font-size:12px;white-space:nowrap">'+fmtPct(r.chg,1)+'</td></tr>';
   }).join("");
   board.querySelectorAll("tr[data-key]").forEach(tr => tr.onclick = () => { state.active=tr.dataset.key; state.extra=0; state.trades=[]; paint(); loadTape(true); });
   $("cards").innerHTML = state.vaults.map(r => {
@@ -992,13 +982,10 @@ function paint(){
     '<button type="button" class="vpill" data-key="'+v.key+'" aria-selected="'+(v.key===state.active)+'">'+v.token+'</button>'
   ).join("");
   $("vaultbar").querySelectorAll(".vpill").forEach(b => b.onclick = () => { state.active=b.dataset.key; state.extra=0; state.trades=[]; paint(); loadTape(true); });
-  $("uVault").textContent = (state.vaults.find(x=>x.cfg.key===state.active)||{}).cfg?.token || "Token";
-  $("uQuote").textContent = (state.vaults.find(x=>x.cfg.key===state.active)||{}).cfg?.quoteSym || "Quote";
   paintArb();
   paintHolders();
   paintYield();
   paintLp();
-  paintDepth();
 }
 function stat(k,v){ return '<div class="stat"><div class="k">'+k+'</div><div class="v">'+v+'</div></div>'; }
 function reserves(r){
@@ -1075,100 +1062,6 @@ function paintArb(){
   $("arbBody").innerHTML = html;
   $("arbHint").textContent = 'One '+r.cfg.token+' = '+fmt(r.dex,4)+' '+r.cfg.quoteSym+' · '+fmtUsd(r.dexUsd)+'. Leave blank for the max that still prints.';
   if(!(custom>0) && ticket.size>0) $("arbSize").placeholder = fmt(ticket.size,2);
-}
-function paintDepth(){
-  const r = state.vaults.find(x => x.cfg.key===state.active);
-  if(!r) return;
-  $("buySide").textContent = "Buy "+r.cfg.token;
-  $("sellSide").textContent = "Sell "+r.cfg.token;
-  $("buySide").setAttribute("aria-selected", state.side==="buy");
-  $("sellSide").setAttribute("aria-selected", state.side==="sell");
-  $("depthChip").textContent = fmt(r.dep.tok,2)+" "+r.cfg.token+" · "+fmt(r.dep.q,2)+" "+r.cfg.quoteSym+" · "+fmtUsd(r.depthUsd);
-  document.querySelectorAll(".unit").forEach(b => b.setAttribute("aria-selected", b.dataset.u===state.unit));
-  const {rVault, rQuote} = reserves(r);
-  const amt = parseFloat($("sizeAmt").value);
-  let simHtml = 'Enter a size to price the fill in USD, WPLS and HEX.';
-  let simClass = 'note';
-  if(amt>0){
-    let inAmt, inSym, outAmt, outSym, impact, inQ;
-    if(state.unit==="usd"){
-      const px = asUsd(1, r.cfg.quoteSym);
-      if(px>0){
-        const qAmt = amt/px;
-        if(state.side==="buy"){
-          const out = nDec(amountOut(toWei(qAmt,r.cfg.quoteDec), rQuote, rVault), r.cfg.tokenDec);
-          inAmt=qAmt; inSym=r.cfg.quoteSym; outAmt=out; outSym=r.cfg.token; impact=impactPct(toWei(qAmt,r.cfg.quoteDec), rQuote, rVault); inQ=qAmt;
-        } else {
-          const spot = r.dex>0?r.dex:1;
-          const vAmt = qAmt/spot;
-          const out = nDec(amountOut(toWei(vAmt,r.cfg.tokenDec), rVault, rQuote), r.cfg.quoteDec);
-          inAmt=vAmt; inSym=r.cfg.token; outAmt=out; outSym=r.cfg.quoteSym; impact=impactPct(toWei(vAmt,r.cfg.tokenDec), rVault, rQuote); inQ=out;
-        }
-      }
-    } else if(state.unit==="quote"){
-      if(state.side==="buy"){
-        const out = nDec(amountOut(toWei(amt,r.cfg.quoteDec), rQuote, rVault), r.cfg.tokenDec);
-        inAmt=amt; inSym=r.cfg.quoteSym; outAmt=out; outSym=r.cfg.token; impact=impactPct(toWei(amt,r.cfg.quoteDec), rQuote, rVault); inQ=amt;
-      } else {
-        const spot = r.dex>0?r.dex:1;
-        const vAmt = amt/spot;
-        const out = nDec(amountOut(toWei(vAmt,r.cfg.tokenDec), rVault, rQuote), r.cfg.quoteDec);
-        inAmt=vAmt; inSym=r.cfg.token; outAmt=out; outSym=r.cfg.quoteSym; impact=impactPct(toWei(vAmt,r.cfg.tokenDec), rVault, rQuote); inQ=out;
-      }
-    } else {
-      if(state.side==="sell"){
-        const out = nDec(amountOut(toWei(amt,r.cfg.tokenDec), rVault, rQuote), r.cfg.quoteDec);
-        inAmt=amt; inSym=r.cfg.token; outAmt=out; outSym=r.cfg.quoteSym; impact=impactPct(toWei(amt,r.cfg.tokenDec), rVault, rQuote); inQ=out;
-      } else {
-        const cost = nDec(amountIn(toWei(amt,r.cfg.tokenDec), rQuote, rVault), r.cfg.quoteDec);
-        inAmt=cost; inSym=r.cfg.quoteSym; outAmt=amt; outSym=r.cfg.token; impact=impactPct(amountIn(toWei(amt,r.cfg.tokenDec), rQuote, rVault), rQuote, rVault); inQ=cost;
-      }
-    }
-    if(inAmt!=null){
-      simClass = 'stats n3';
-      simHtml =
-        stat("You pay", fmt(inAmt,4)+' '+inSym+three(asUsd(inQ,r.cfg.quoteSym), asWpls(inQ,r.cfg.quoteSym), asHex(inQ,r.cfg.quoteSym)))+
-        stat("You receive", fmt(outAmt,4)+' '+outSym+three(asUsd(inQ,r.cfg.quoteSym), asWpls(inQ,r.cfg.quoteSym), asHex(inQ,r.cfg.quoteSym)))+
-        stat("Impact vs spot", impact.toFixed(2)+'% <div class="muted" style="font-size:12px">1 '+r.cfg.token+' = '+fmtUsd(r.dexUsd)+'</div>');
-    }
-  }
-  $("simBox").className = simClass;
-  $("simBox").style.marginBottom = "14px";
-  $("simBox").innerHTML = simHtml;
-  const reserveIn = state.side==="buy"?rQuote:rVault;
-  const reserveOut = state.side==="buy"?rVault:rQuote;
-  const pts=[];
-  for(let i=1;i<=24;i++){
-    const xPct = (i/24)*20;
-    const amtIn = reserveIn * BigInt(Math.round(xPct*100)) / 10000n;
-    if(amtIn<=0n) continue;
-    pts.push({xPct, impact: impactPct(amtIn, reserveIn, reserveOut)});
-  }
-  const w=640,h=220,l=44,rr=12,t=16,b=28;
-  const maxI = Math.max(0.5, ...pts.map(p=>p.impact));
-  const X = p => l + (p.xPct/20)*(w-l-rr);
-  const Y = p => t + (1-p.impact/maxI)*(h-t-b);
-  let svg = "";
-  [0,.25,.5,.75,1].forEach(fr => {
-    const yy = t + (1-fr)*(h-t-b);
-    svg += '<line x1="'+l+'" x2="'+(w-rr)+'" y1="'+yy+'" y2="'+yy+'" stroke="#262633"/>';
-    svg += '<text x="'+(l-6)+'" y="'+(yy+3)+'" fill="#9398A8" font-size="10" font-family="IBM Plex Mono" text-anchor="end">'+(maxI*fr).toFixed(1)+'%</text>';
-  });
-  [0,5,10,15,20].forEach(xp => {
-    const xx = l + (xp/20)*(w-l-rr);
-    svg += '<text x="'+xx+'" y="'+(h-8)+'" fill="#9398A8" font-size="10" font-family="IBM Plex Mono" text-anchor="middle">'+xp+'%</text>';
-  });
-  if(pts.length){
-    const d = pts.map((p,i)=>(i?"L":"M")+X(p).toFixed(1)+","+Y(p).toFixed(1)).join(" ");
-    const last = pts[pts.length-1], first = pts[0];
-    svg += '<path d="'+d+' L'+X(last).toFixed(1)+','+(h-b)+' L'+X(first).toFixed(1)+','+(h-b)+' Z" fill="rgba(78,143,217,.16)"/>';
-    svg += '<path d="'+d+'" fill="none" stroke="#4E8FD9" stroke-width="2"/>';
-  }
-  $("depthSvg").innerHTML = svg;
-  const sample = pts[Math.min(pts.length-1,11)];
-  $("depthNote").innerHTML = sample
-    ? ('At ~'+sample.xPct.toFixed(0)+'% of the input reserve: <b style="color:var(--text)">'+sample.impact.toFixed(2)+'% impact</b> · pair <a href="'+CHAIN.explorer+r.cfg.pair+'" target="_blank" rel="noopener">'+r.cfg.pair+'</a> · <a href="'+PULSEX+'?inputCurrency='+r.cfg.quote+'&outputCurrency='+r.cfg.vault+'" target="_blank" rel="noopener">Trade on PulseX ↗</a>')
-    : "No reserves to plot.";
 }
 async function loadTape(reset){
   const r = state.vaults.find(x => x.cfg.key===state.active);
@@ -1264,10 +1157,6 @@ $("rpcSel").onchange = function(e){
   applyRpc(url);
 };
 $("refreshBtn").onclick = () => loadDesk();
-$("buySide").onclick = () => { state.side="buy"; paintDepth(); };
-$("sellSide").onclick = () => { state.side="sell"; paintDepth(); };
-document.querySelectorAll(".unit").forEach(b => b.onclick = () => { state.unit=b.dataset.u; paintDepth(); });
-$("sizeAmt").oninput = () => paintDepth();
 $("lpAmt").oninput = () => paintLp();
 $("arbSize").oninput = () => paintArb();
 $("walletBtn").onclick = () => lookupWallet($("wallet").value);
