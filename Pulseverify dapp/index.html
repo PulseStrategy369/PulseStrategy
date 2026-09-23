@@ -3,6 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script>
+(function(){var W=980,m=document.querySelector('meta[name=viewport]');if(!m)return;var w=Math.min(screen.width||W,window.innerWidth||W);if(w<W)m.setAttribute('content','width='+W+', initial-scale='+(w/W).toFixed(4)+', minimum-scale=0.2, maximum-scale=5, user-scalable=yes');})();
+</script>
 <title>PulseStrategy — PulseVerify · trustless PulseChain explorer</title>
 <link rel="icon" type="image/png" href="data:image/png;base64,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">
 <link rel="alternate" type="application/json" href="https://pulsestrategy369.com/pulsestrategy.json" title="PulseStrategy protocol manifest">
@@ -10,8 +13,8 @@
 <link href="https://fonts.googleapis.com/css2?family=Michroma&family=IBM+Plex+Mono:wght@400;500&family=Space+Grotesk:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
 :root{
-  --bg:#050507; --bg-2:#0c0c12; --panel:#111118; --panel-2:#181822; --line:#262633;
-  --text:#F2F3F6; --muted:#9398A8; --faint:#5e6272;
+  --bg:#0b0b10; --bg-2:#12121a; --panel:#181822; --panel-2:#22222e; --line:#3a3a4c;
+  --text:#F7F8FB; --muted:#C4C7D4; --faint:#9AA0B2;
   --pulse:#4E8FD9; --pulse-soft:#7BA7E8; --violet:#6FA8DC; --teal:#7FB3E8;
   --amber:#D9A94E; --red:#FF6B5A; --green:#7FB3E8; --deep:#1E3A6E;
   --mono:'IBM Plex Mono',ui-monospace,monospace;
@@ -23,11 +26,12 @@ html{scrollbar-color:var(--line) var(--bg)}
 body{background:var(--bg);color:var(--text);font-family:var(--body);font-size:15px;line-height:1.5;min-height:100vh;
   background-image:radial-gradient(ellipse 80% 50% at 50% -10%,rgba(78,143,217,.14),transparent),
                    radial-gradient(ellipse 60% 40% at 90% 0%,rgba(127,179,232,.06),transparent)}
+body::after{content:"";position:fixed;top:0;left:0;right:0;height:2px;z-index:80;pointer-events:none;background:linear-gradient(90deg,#1E3A6E,#4E8FD9 42%,#7FB3E8 82%,transparent)}
 a{color:var(--teal);text-decoration:none;cursor:pointer}
 a:hover{text-decoration:underline}
 button{font-family:inherit;cursor:pointer}
 ::selection{background:rgba(78,143,217,.4)}
-.wrap{max-width:1100px;margin:0 auto;padding:0 16px 64px}
+.wrap{max-width:1440px;width:100%;margin:0 auto;padding:0 24px 64px}
 
 /* header */
 header{padding:20px 0 0}
@@ -37,10 +41,6 @@ header{padding:20px 0 0}
 .brand .p2{background:linear-gradient(90deg,#7BA7E8,var(--pulse) 60%,#7FB3E8);-webkit-background-clip:text;background-clip:text;color:transparent}
 .brand small{display:block;font-family:var(--body);font-weight:400;font-size:11px;color:var(--faint);letter-spacing:.09em;text-transform:uppercase;white-space:normal;line-height:1.5;margin-top:2px}
 .brand>div{min-width:0}
-@media(max-width:560px){
-  .brand small{font-size:9px;letter-spacing:.05em;max-width:240px}
-  .brand .p1,.brand .p2{font-size:15px}
-}
 .ekg-box{flex:1;min-width:140px;height:44px;position:relative;overflow:hidden}
 .ekg-box svg{width:100%;height:100%}
 .ekg-path{fill:none;stroke:url(#ekgGrad);stroke-width:2;stroke-linecap:round;stroke-linejoin:round;filter:drop-shadow(0 0 6px rgba(78,143,217,.55))}
@@ -79,13 +79,13 @@ button:focus-visible,select:focus-visible,input:focus-visible,textarea:focus-vis
 .stat{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px 14px}
 .stat .k{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--faint)}
 .stat .v{font-family:var(--mono);font-size:17px;margin-top:4px;color:var(--text);overflow-wrap:break-word}
+.stat .sub{font-family:var(--mono);font-size:11px;color:var(--muted);margin-top:6px;line-height:1.45}
 .stat .v .unit{white-space:nowrap;display:inline-block}
 .stat .v .unit{font-size:11px;color:var(--muted)}
 
 /* layout */
 .cols{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);gap:16px;margin-top:24px;align-items:start}
-@media(max-width:860px){.cols{grid-template-columns:1fr}}
-.panel{background:var(--panel);border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:14px;overflow:hidden;box-shadow:inset 0 1px 0 rgba(255,255,255,.04),0 24px 50px -32px rgba(0,0,0,.7)}
 .panel h2{font-family:var(--disp);font-size:11px;font-weight:400;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);padding:14px 16px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:8px;flex-wrap:wrap}
 .panel h2 .live{width:7px;height:7px;border-radius:50%;background:var(--pulse);animation:blink 2s infinite}
 @keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
@@ -250,7 +250,6 @@ footer a.vaultlink{color:var(--teal);font-weight:600}
       <select id="rpcsel">
         <option value="https://rpc.pulsechain.com">rpc.pulsechain.com</option>
         <option value="https://pulsechain-rpc.publicnode.com">publicnode.com</option>
-        <option value="https://rpc.pulsechainstats.com">pulsechainstats.com</option>
         <option value="https://rpc-pulsechain.g4mm4.io">g4mm4.io</option>
         <option value="__custom">⚙ Custom RPC…</option>
       </select>
@@ -264,6 +263,7 @@ footer a.vaultlink{color:var(--teal);font-weight:600}
   <div class="navtabs">
     <a class="navtab on vaultlink" href="https://pulsestrategy369.com/vaults">◆ PulseStrategy Vaults →</a>
     <a class="navtab launchlink" href="https://pulsestrategy369.com/launch">PulseStrategy Launcher →</a>
+    <a class="navtab paperlink" href="https://pulsestrategy369.com/whitepaper">PulseStrategy Whitepaper →</a>
   </div>
   <div class="toolbar">
     <button class="btn-ghost" onclick="showTools()">🧰 Tools</button>
@@ -273,7 +273,7 @@ footer a.vaultlink{color:var(--teal);font-weight:600}
 
 <div class="stats">
   <div class="stat"><div class="k">Latest block</div><div class="v" id="s-block">—</div></div>
-  <div class="stat"><div class="k">Gas price</div><div class="v" id="s-gas">—</div></div>
+  <div class="stat"><div class="k">Gas price</div><div class="v" id="s-gas">—</div><div class="sub" id="s-gas-fees">send and swap in PLS / USD once the next block lands</div></div>
   <div class="stat"><div class="k">Block time</div><div class="v" id="s-time">—</div></div>
   <div class="stat"><div class="k">PLS price</div><div class="v" id="s-pls">—</div></div>
   <div class="stat"><div class="k">HEX price</div><div class="v" id="s-hex">—</div></div>
@@ -282,7 +282,7 @@ footer a.vaultlink{color:var(--teal);font-weight:600}
 <div class="psbar">
   <b>PULSESTRATEGY</b>
   <span>Immutable vault tokens on PulseChain — backing per token that mathematically cannot go down.</span>
-  <span style="margin-left:auto"><a href="https://pulsestrategy369.com" target="_blank" rel="noopener">pulsestrategy369.com ↗</a> · <a href="https://x.com/pulsestrategy" target="_blank" rel="noopener">@pulsestrategy</a></span>
+  <span style="margin-left:auto"><a href="https://pulsestrategy369.com">pulsestrategy369.com</a> · <a href="https://x.com/pulsestrategy" target="_blank" rel="noopener">@pulsestrategy</a></span>
 </div>
 
 <div class="cols">
@@ -318,7 +318,7 @@ footer a.vaultlink{color:var(--teal);font-weight:600}
       <li><b>Holders collect the churn.</b> Every round trip through a vault leaves ~4.3% behind for people who simply hold.</li>
     </ul>
     <div class="cta">
-      <a class="btn-grad vaultlink" style="text-decoration:none" href="https://pulsestrategy369.com/vaults">Launch the vaults ↗</a>
+      <a class="btn-grad vaultlink" style="text-decoration:none" href="https://pulsestrategy369.com/vaults">Open the vaults</a>
       <a class="btn-ghost" style="text-decoration:none" href="https://x.com/pulsestrategy" target="_blank" rel="noopener">Follow @pulsestrategy</a>
     </div>
     <div class="tie">Don't take our word for any of it — that's the point of this explorer. Paste a PulseStrategy vault address into the search bar above, and <b>Verify</b> shows its Sourcify status with a link to the full source, <b>Pulse Check</b> runs a live on-chain safety scan — it even simulates a token transfer out of the liquidity pool to catch honeypots — and <b>Read</b> queries the vault's backing straight from the chain. We built the tool that audits us.</div>
@@ -345,14 +345,15 @@ rel="noopener">Github</a> and inspect the code or download from github.</div>
     The <b>explorer</b>, <b>vaults dapp</b> and <b>launcher</b> are separate pages — download each from its own page: grab the explorer here, then open <a class="vaultlink" href="https://pulsestrategy369.com/vaults">PulseStrategy Vaults</a> or <a class="launchlink" href="https://pulsestrategy369.com/launch">PulseStrategy Launcher</a> and download from there.
   </div>
   PulseVerify reads public PulseChain RPC directly from your browser — no server, no database, no tracking. Sourcify verification status, DEX prices, safety checks, and contract reads are all computed live on your device from public on-chain data.<br><br>
-  Free tool from <a href="https://pulsestrategy369.com" target="_blank" rel="noopener">PulseStrategy</a> · <a href="https://x.com/pulsestrategy" target="_blank" rel="noopener">@pulsestrategy</a> · the floor only rises · <span id="buildTag" style="font-family:var(--mono)"></span>
+  Free tool from <a href="https://pulsestrategy369.com">PulseStrategy</a> · <a href="https://x.com/pulsestrategy" target="_blank" rel="noopener">@pulsestrategy</a> · the floor only rises · <span id="buildTag" style="font-family:var(--mono)"></span>
 </footer>
 </div>
 <script>
 "use strict";
-var BUILD = 'v34 · 2026-09-18';
+var BUILD = 'v43 · 2026-09-22';
 var VAULTS_URL = 'https://pulsestrategy369.com/vaults'; /* ★ EDIT HERE: the one place that controls every 'Vaults' link on this page */
 var LAUNCH_URL = 'https://pulsestrategy369.com/launch'; /* ★ EDIT HERE: PulseStrategy Launcher */
+var WHITEPAPER_URL = 'https://pulsestrategy369.com/whitepaper';
 /* ================= RPC core ================= */
 let RPC = document.getElementById('rpcsel').value;
 let rpcId = 1;
@@ -419,7 +420,7 @@ function decodeAbiString(hex){
 }
 
 /* ================= live feed ================= */
-let lastBlockNum=0, lastBlockTs=0, prevBlockTs=0;
+let lastBlockNum=0, lastBlockTs=0, prevBlockTs=0, lastBaseFeeWei=0n;
 const seen = new Set();
 const recentBlocks = []; // {n, base, gasUsed, txs, ts} for gas chart
 function beat(){ const e=$('ekg'); e.classList.remove('beat'); void e.offsetWidth; e.classList.add('beat'); }
@@ -438,6 +439,7 @@ async function refreshFeed(tip){
     if(seen.has(n)) return;
     seen.add(n);
     const ts = hexToNum(b.timestamp);
+    if(b.baseFeePerGas) lastBaseFeeWei = hexToBig(b.baseFeePerGas);
     recentBlocks.push({n, base:b.baseFeePerGas?Number(hexToBig(b.baseFeePerGas))/1e9:0, gasUsed:hexToNum(b.gasUsed), txs:b.transactions.length, ts});
     if(recentBlocks.length>60) recentBlocks.shift();
     if(n===tip){ prevBlockTs=lastBlockTs; lastBlockTs=ts; }
@@ -453,11 +455,31 @@ async function refreshFeed(tip){
   if(prevBlockTs && lastBlockTs>prevBlockTs) $('s-time').innerHTML = (lastBlockTs-prevBlockTs)+' <span class="unit">sec</span>';
 }
 
+let lastGasWei = 0n;
+const SEND_GAS = 21000n;
+const SWAP_GAS = 250000n;
+function feeLine(wei, usdPer){
+  const pls = Number(wei)/1e18;
+  let html = fmtPLS(wei, 4)+' PLS';
+  if(usdPer>0) html += fmtUsdTiny(pls, usdPer);
+  return html;
+}
+async function paintFeeStats(gasWei){
+  if(gasWei!=null) lastGasWei = gasWei;
+  if(lastGasWei===0n) return;
+  let usd = null;
+  try{ usd = await plsUsd(); }catch(_){}
+  const el=$('s-gas-fees'); if(!el) return;
+  el.innerHTML =
+    'send · '+feeLine(lastGasWei * SEND_GAS, usd)+'<br>'+
+    'swap · '+feeLine(lastGasWei * SWAP_GAS, usd);
+}
+
 async function tick(){
   try{
     const [bnHex, gasHex] = await Promise.all([rpc('eth_blockNumber'), rpc('eth_gasPrice')]);
     setNet(true);
-    $('s-gas').innerHTML = fmtGwei(hexToBig(gasHex)) + ' <span class="unit">gwei</span>';
+    let gasWei = hexToBig(gasHex);
     const bn = hexToNum(bnHex);
     if(bn > lastBlockNum){
       const isFirst = lastBlockNum===0;
@@ -466,6 +488,12 @@ async function tick(){
       if(!isFirst) beat();
       await refreshFeed(bn);
     }
+    let tip = 10n**9n;
+    try{ const t = await rpc('eth_maxPriorityFeePerGas'); if(t) tip = hexToBig(t); }catch(_){}
+    const eip = lastBaseFeeWei + tip;
+    if(eip > gasWei) gasWei = eip;
+    $('s-gas').innerHTML = fmtGwei(gasWei) + ' <span class="unit">gwei</span>';
+    paintFeeStats(gasWei);
   }catch(e){
     setNet(false);
     if($('blocks').querySelector('.loading'))
@@ -1210,7 +1238,8 @@ $('rpcsel').onchange = e => {
 /* restore remembered RPC (defaults or custom) */
 try{
   const saved = localStorage.getItem('pv_rpc');
-  if(saved && (/^https:\/\/.+/.test(saved) || (location.protocol !== 'https:' && /^http:\/\/.+/.test(saved)))){
+  if(saved && saved.indexOf('pulsechainstats') !== -1){ localStorage.removeItem('pv_rpc'); }
+  else if(saved && (/^https:\/\/.+/.test(saved) || (location.protocol !== 'https:' && /^http:\/\/.+/.test(saved)))){
     const sel = $('rpcsel');
     if([...sel.options].some(o=>o.value===saved)) sel.value = saved;
     else addCustomOption(saved);
@@ -2411,6 +2440,7 @@ async function refreshPls(){
       el.innerHTML = fmtUsd(u) + ' <span class="unit">PulseX spot</span>';
       change24(WPLS).then(d => { if(d !== null && $('s-pls')) $('s-pls').innerHTML = fmtUsd(u) + deltaHtml(d); });
     } else if(el) el.innerHTML = '—';
+    if(lastGasWei>0n) paintFeeStats();
   }catch(e){}
 }
 async function fillTokenPrice(addr, dec){
@@ -2615,6 +2645,7 @@ try{
     /* every vaults link on the page follows the single VAULTS_URL setting at the top of this file */
     document.querySelectorAll('a.vaultlink').forEach(function(a){ a.href = VAULTS_URL; });
     document.querySelectorAll('a.launchlink').forEach(function(a){ a.href = LAUNCH_URL; });
+    document.querySelectorAll('a.paperlink').forEach(function(a){ a.href = WHITEPAPER_URL; });
     var dl = document.getElementById('dlLink'), hashEl = document.getElementById('fileHash');
     var _isLocal = location.protocol === 'file:' ||
       /^(localhost|127\.0\.0\.1|\[::1\])$/.test(location.hostname);
