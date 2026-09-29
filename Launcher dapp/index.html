@@ -270,7 +270,7 @@ pre.json{background:var(--panel2);border:1px solid var(--line);border-radius:12p
 
 <!-- BOARD -->
 <section id="tab-board" class="panel">
-  <h2>Leaderboard <small>Biggest is vault TVL + PulseX depth. Newest is factory order, latest first. Switch PLS / USD for price, cap, TVL, depth, and volume. Floor is backing-per-token. 24h change from chain logs — no indexer. A blank 24h means there is no reading yet, not a flat day.</small></h2>
+  <h2>Leaderboard <small>Biggest is vault TVL + PulseX depth. Newest is factory order, latest first. Switch PLS / USD for price, cap, TVL, depth, and volume. Floor is backing-per-token. 24h change from chain logs — no indexer. — means that read failed. +0.00% means the read worked and nothing changed.</small></h2>
   <div class="unitbar">
     <button class="chip chipbtn on" type="button" id="sortBiggest">Biggest</button>
     <button class="chip chipbtn" type="button" id="sortNewest">Newest</button>
@@ -492,7 +492,7 @@ pre.json{background:var(--panel2);border:1px solid var(--line);border-radius:12p
     <a href="https://pulsestrategy369.com" rel="noopener">PulseVerify</a> is the front page. The <a href="https://pulsestrategy369.com/whitepaper" rel="noopener">whitepaper</a> covers this launcher too — overview and how to. Download each page from its own footer.
   </div>
   <div>The contracts live on PulseChain and work without this page. This dapp reads the chain directly from your browser — no server, no database, no tracking.</div>
-  <div style="margin-top:10px"><a href="https://x.com/pulsestrategy" target="_blank" rel="noopener">@pulsestrategy</a> · the floor only rises · <span class="mono" id="buildTag">launcher v66 · 2026-09-29</span></div>
+  <div style="margin-top:10px"><a href="https://x.com/pulsestrategy" target="_blank" rel="noopener">@pulsestrategy</a> · the floor only rises · <span class="mono" id="buildTag">launcher v67 · 2026-09-29</span></div>
 </footer>
 </div>
 
@@ -2263,19 +2263,22 @@ function pairPickRead(){
 function pairPickGet(a,b){
   const row=pairPickRead()[pairPickKey(a,b)];
   if(!row || !(row.at>0) || Date.now()-row.at>PAIR_TTL) return undefined;
-  if(row.pair==null) return null;
-  return typeof row.pair==="string" ? row.pair : undefined;
+  if(typeof row.pair!=="string" || !row.pair) return undefined;
+  return { pair:row.pair, factory: typeof row.factory==="string" ? row.factory : "" };
 }
-function pairPickSet(a,b,pair){
+function pairPickSet(a,b,pair,factory){
+  if(!pair || !factory) return;
   const o=pairPickRead();
   const now=Date.now();
-  Object.keys(o).forEach(k=>{ if(!o[k] || !(o[k].at>0) || now-o[k].at>PAIR_TTL) delete o[k]; });
-  o[pairPickKey(a,b)]={ pair: pair||null, at: now };
+  Object.keys(o).forEach(k=>{ if(!o[k] || !(o[k].at>0) || now-o[k].at>PAIR_TTL || !o[k].pair) delete o[k]; });
+  o[pairPickKey(a,b)]={ pair, factory, at: now };
   try{ localStorage.setItem(PAIR_LS, JSON.stringify(o)); }catch(_){}
 }
 async function pxPairDeep(a,b){
   const saved=pairPickGet(a,b);
-  if(saved!==undefined) return saved ? { pair:saved, cached:true } : null;
+  if(saved && saved.pair && saved.factory){
+    return { pair:saved.pair, factory:saved.factory, cached:true, v2:saved.factory.toLowerCase()===PULSEX_V2_FACTORY.toLowerCase() };
+  }
   let best=null, liq=-1n;
   for(const f of [PULSEX_V2_FACTORY, PULSEX_V1_FACTORY]){
     const p=await pxPair(f,a,b);
@@ -2286,7 +2289,7 @@ async function pxPairDeep(a,b){
       if(L>liq){ liq=L; best={pair:p, factory:f, v2:f.toLowerCase()===PULSEX_V2_FACTORY.toLowerCase()}; }
     }catch(_){}
   }
-  pairPickSet(a,b, best?best.pair:null);
+  if(best && best.pair && best.factory) pairPickSet(a,b, best.pair, best.factory);
   return best;
 }
 function pxPaths(tokenIn, tokenOut){
@@ -2897,7 +2900,7 @@ async function findPair(a,b){
   if(Object.prototype.hasOwnProperty.call(pairAddrCache, k)) return pairAddrCache[k];
   const deep=await pxPairDeep(a,b);
   const found=deep ? deep.pair : null;
-  pairAddrCache[k]=found;
+  if(found) pairAddrCache[k]=found;
   return found;
 }
 async function pairReserves(pair){
@@ -3039,6 +3042,8 @@ async function toWpls(token, amount, dec){
 
 const SYNC_TOPIC = "0x1c411e9a96e071241c2f21f7726b17ae89e3cab4c78be50e062b03a9fffbbad1";
 const SWAP_TOPIC = "0xd78ad95fa46c994b6551d0da85fc275fe613ce37657fb8d5e3d130840159d822";
+const MINT_TOPIC = "0x4c209b5fc8ad50758f13e2e1088ba56a560dff690a1c6fef26394f4c03821c4f";
+const BURN_TOPIC = "0xdccd412f0b1252819cb1fd330b93224ca42612892bb3f4f789976e6d81936496";
 const STABLES = [
   { sym:"DAI",  addr:"0xefD766cCb38EaF1dfd701853BFCe31359239F305", dec:18 },
   { sym:"USDC", addr:"0x15D38573d2feeb82e7ad5187aB8c1D52810B1f07", dec:6 }
@@ -3053,20 +3058,18 @@ function boardQuotes(){
 }
 async function getLogsSpan(address, topics, daysMax){
   let head;
-  try{ head=await readProvider.getBlockNumber(); }catch(_){ return { logs:[], head:0, perDay:8640, days:0 }; }
+  try{ head=await readProvider.getBlockNumber(); }catch(_){ return { logs:[], head:0, perDay:8640, days:0, ok:false }; }
   const perDay=Math.max(1, Math.round(86400/CHAIN.blockTimeSec));
   const tries=[daysMax,3,1].filter((d,i,a)=>d>0 && a.indexOf(d)===i && d<=daysMax);
   for(const days of tries){
     try{
-      const logs=await readProvider.getLogs({
-        address, topics,
-        fromBlock: Math.max(0, head-days*perDay),
-        toBlock: head
-      });
-      return { logs: logs||[], head, perDay, days };
+      const q={ address, fromBlock: Math.max(0, head-days*perDay), toBlock: head };
+      if(topics) q.topics=topics;
+      const logs=await readProvider.getLogs(q);
+      return { logs: logs||[], head, perDay, days, ok:true };
     }catch(_){}
   }
-  return { logs:[], head, perDay, days:0 };
+  return { logs:[], head, perDay, days:0, ok:false };
 }
 function logBlock(l){
   const n=l && l.blockNumber;
@@ -3075,15 +3078,31 @@ function logBlock(l){
   if(typeof n==="string") return n.startsWith("0x") ? parseInt(n,16) : parseInt(n,10);
   return 0;
 }
-function chgInWindow(logs, head, perDay, hours, thenBnFn, nowBn){
-  if(!nowBn || nowBn===0n || !head) return null;
-  if(!logs || !logs.length) return null;
-  const from=head - Math.round(hours*perDay/24);
-  const inWin=logs.filter(l=>logBlock(l)>=from);
-  if(!inWin.length) return null;
-  const then=thenBnFn(inWin[0]);
-  if(!then || then===0n) return null;
-  return { pct: Number((nowBn - then) * 10000n / then) / 100, hours };
+function topic0(l){
+  const t=l && l.topics && l.topics[0];
+  return t ? String(t).toLowerCase() : "";
+}
+function dataWord(data, i){
+  const d=String(data||"0x").replace(/^0x/,"");
+  const s=d.slice(i*64, (i+1)*64);
+  if(s.length<64) return 0n;
+  try{ return BigInt("0x"+s); }catch(_){ return 0n; }
+}
+function logIndex(l){
+  const n=l && (l.index!=null ? l.index : l.logIndex);
+  if(typeof n==="number") return n;
+  if(typeof n==="bigint") return Number(n);
+  if(typeof n==="string") return n.startsWith("0x") ? parseInt(n,16) : parseInt(n,10);
+  return 0;
+}
+function byLogOrder(a,b){
+  return (logBlock(a)-logBlock(b)) || (logIndex(a)-logIndex(b));
+}
+function flatDay(){ return { pct:0, hours:24 }; }
+function readFailed(tip){ return { failed:true, tip: tip || "24h log read failed" }; }
+function pctFrom(thenBn, nowBn){
+  if(thenBn==null || nowBn==null || thenBn<=0n || nowBn<=0n) return readFailed("Couldn't read the value from before the first trade in this window");
+  return { pct: Number((nowBn - thenBn) * 10000n / thenBn) / 100, hours:24 };
 }
 function backingBn(log){
   const d=(log.data||"0x").replace(/^0x/,"");
@@ -3166,46 +3185,99 @@ function setBoardUnit(u){
   else if(lastSnapshot) paintBoard(lastSnapshot.vaults);
 }
 
+function preRawReserves(syncLog, allLogs){
+  const body=String(syncLog.data||"0x").replace(/^0x/,"");
+  if(body.length<128) return null;
+  const r0=dataWord(syncLog.data, 0), r1=dataWord(syncLog.data, 1);
+  const tx=String(syncLog.transactionHash||"").toLowerCase();
+  if(!tx) return null;
+  const sibs=(allLogs||[]).filter(l=>String(l.transactionHash||"").toLowerCase()===tx && topic0(l)!==SYNC_TOPIC);
+  for(const l of sibs){
+    const t=topic0(l);
+    if(t===SWAP_TOPIC){
+      const a0in=dataWord(l.data,0), a1in=dataWord(l.data,1), a0out=dataWord(l.data,2), a1out=dataWord(l.data,3);
+      if(r0+a0out<a0in || r1+a1out<a1in) return null;
+      return { r0:r0-a0in+a0out, r1:r1-a1in+a1out };
+    }
+    if(t===MINT_TOPIC){
+      const a0=dataWord(l.data,0), a1=dataWord(l.data,1);
+      if(r0<a0 || r1<a1) return null;
+      return { r0:r0-a0, r1:r1-a1 };
+    }
+    if(t===BURN_TOPIC) return { r0:r0+dataWord(l.data,0), r1:r1+dataWord(l.data,1) };
+  }
+  return null;
+}
 async function pairHistory(pair, tokenAddr, quoteAddr, nowT, nowQ){
   const res=await pairReserves(pair);
   const is0=res.t0.toLowerCase()===tokenAddr.toLowerCase();
-  const span=await getLogsSpan(pair, [SYNC_TOPIC], 1);
+  const span=await getLogsSpan(pair, [[SYNC_TOPIC, SWAP_TOPIC, MINT_TOPIC, BURN_TOPIC]], 1);
+  if(!span.ok) return { price24:readFailed(), price7:null, depth24:readFailed(), depth7:null, vol24:"0" };
+  const from=span.head - span.perDay;
+  const logs=(span.logs||[]).slice().sort(byLogOrder);
+  let volT=0n;
+  for(const lg of logs){
+    if(topic0(lg)!==SWAP_TOPIC || logBlock(lg)<from) continue;
+    const a0in=dataWord(lg.data,0), a1in=dataWord(lg.data,1), a0out=dataWord(lg.data,2), a1out=dataWord(lg.data,3);
+    volT += is0 ? (a0in+a0out) : (a1in+a1out);
+  }
+  let vol24="0";
+  try{ vol24=(await toWpls(tokenAddr, volT, 18)).toString(); }catch(_){}
+  const syncs=logs.filter(l=>topic0(l)===SYNC_TOPIC && logBlock(l)>=from);
+  if(!syncs.length) return { price24:flatDay(), price7:null, depth24:flatDay(), depth7:null, vol24 };
+  const pre=preRawReserves(syncs[0], logs);
+  const miss=readFailed("Couldn't read the reserves from before the first trade in this window");
+  if(!pre) return { price24:miss, price7:null, depth24:miss, depth7:null, vol24 };
+  const rT=is0?pre.r0:pre.r1, rQ=is0?pre.r1:pre.r0;
   const nowPriceBn=nowT>0n ? nowQ * 10n**18n / nowT : 0n;
   const nowDepthBn=(await toWpls(tokenAddr, nowT, 18)) + (await toWpls(quoteAddr, nowQ, 18));
-  const thenPrice=log=>{
-    const s=syncReserves(log, is0); if(!s || s.rT===0n) return 0n;
-    return s.rQ * 10n**18n / s.rT;
+  const thenPrice=rT>0n ? rQ * 10n**18n / rT : 0n;
+  let thenDepth=0n;
+  if(quoteAddr.toLowerCase()===WPLS.toLowerCase() && rQ>0n) thenDepth=rQ*2n;
+  else if(nowQ>0n && rQ>0n) thenDepth = rQ * nowDepthBn / nowQ;
+  return {
+    price24: thenPrice>0n ? pctFrom(thenPrice, nowPriceBn) : miss,
+    price7:null,
+    depth24: thenDepth>0n ? pctFrom(thenDepth, nowDepthBn) : miss,
+    depth7:null,
+    vol24
   };
-  const depthThen=log=>{
-    const s=syncReserves(log, is0); if(!s) return 0n;
-    if(quoteAddr.toLowerCase()===WPLS.toLowerCase() && s.rQ>0n) return s.rQ*2n;
-    if(nowQ>0n) return s.rQ * nowDepthBn / nowQ;
-    return 0n;
-  };
-  const price24=chgInWindow(span.logs, span.head, span.perDay, 24, thenPrice, nowPriceBn);
-  const depth24=chgInWindow(span.logs, span.head, span.perDay, 24, depthThen, nowDepthBn);
-  let vol24="0";
-  try{
-    const sw=await getLogsSpan(pair, [SWAP_TOPIC], 1);
-    let volT=0n;
-    for(const lg of sw.logs){
-      const d=(lg.data||"0x").replace(/^0x/,"");
-      if(d.length<256) continue;
-      const a0in=BigInt("0x"+d.slice(0,64));
-      const a1in=BigInt("0x"+d.slice(64,128));
-      const a0out=BigInt("0x"+d.slice(128,192));
-      const a1out=BigInt("0x"+d.slice(192,256));
-      volT += is0 ? (a0in+a0out) : (a1in+a1out);
-    }
-    vol24=(await toWpls(tokenAddr, volT, 18)).toString();
-  }catch(_){}
-  return { price24, price7:null, depth24, depth7:null, vol24 };
 }
 
+async function backingBefore(vault, beforeBlock){
+  const perDay=Math.max(1, Math.round(86400/CHAIN.blockTimeSec));
+  const topics=[[MINTED_TOPIC, REDEEMED_TOPIC]];
+  let hi=beforeBlock-1;
+  for(const days of [1,7,30,120]){
+    const lo=Math.max(0, beforeBlock - days*perDay);
+    if(hi<lo){
+      if(lo===0) return { ok:true, bn:10n**18n };
+      continue;
+    }
+    try{
+      const logs=await readProvider.getLogs({ address:vault, topics, fromBlock:lo, toBlock:hi });
+      if(logs && logs.length){
+        const last=logs.slice().sort(byLogOrder).pop();
+        const bn=backingBn(last);
+        if(bn>0n) return { ok:true, bn };
+      }
+      if(lo===0) return { ok:true, bn:10n**18n };
+    }catch(_){ return { ok:false, bn:null }; }
+    hi=lo-1;
+    if(hi<0) return { ok:true, bn:10n**18n };
+  }
+  return { ok:true, bn:null };
+}
 async function vaultFloorChg(vault, nowBackingBn){
   const span=await getLogsSpan(vault, [[MINTED_TOPIC, REDEEMED_TOPIC]], 1);
-  const b24=chgInWindow(span.logs, span.head, span.perDay, 24, backingBn, nowBackingBn);
-  return { floor24:b24, floor7:null };
+  if(!span.ok) return { floor24:readFailed(), floor7:null };
+  const from=span.head - span.perDay;
+  const inWin=(span.logs||[]).filter(l=>logBlock(l)>=from);
+  if(!inWin.length) return { floor24:flatDay(), floor7:null };
+  const prev=await backingBefore(vault, from);
+  if(!prev.ok) return { floor24:readFailed(), floor7:null };
+  if(!(prev.bn>0n)) return { floor24:readFailed("Couldn't read the floor from before the first mint in this window"), floor7:null };
+  return { floor24:pctFrom(prev.bn, nowBackingBn), floor7:null };
 }
 
 async function scoreVault(addr, withLogs, factoryIndex){
@@ -3334,7 +3406,10 @@ function paintBoard(rows){
     const pin = FEATURED.vault && r.vault.toLowerCase()===FEATURED.vault.toLowerCase();
     const price=r.priceWpls && r.priceWpls!=="0" ? moneyW(r.priceWpls) : (r.dexPriceTxt?esc(r.dexPriceTxt):"no pool");
     const one=c=>{
-      if(!c || typeof c.pct!=="number" || !isFinite(c.pct)) return '<span class="chg-flat">—</span>';
+      if(!c || c.failed || typeof c.pct!=="number" || !isFinite(c.pct)){
+        const tip=(c && c.tip) ? c.tip : "No 24h reading";
+        return '<span class="chg-flat" title="'+esc(tip)+'">—</span>';
+      }
       const cls=c.pct>0.005?"chg-up":c.pct<-0.005?"chg-dn":"chg-flat";
       return '<span class="'+cls+'">'+(c.pct>=0?"+":"")+c.pct.toFixed(2)+"%</span>";
     };
@@ -3455,11 +3530,13 @@ function updateLoadMore(){
   if(!note) return;
   if(!total){ note.textContent="Top 5 by TVL, then 5 more at a time, up to 25."; return; }
   const word=boardSort==="newest"?"newest":"biggest";
-  let t="Showing the "+page.length+" "+word+" of "+total+".";
-  if(failedN) t+=" "+failedN+" couldn't load.";
+  const failBit=failedN ? " "+failedN+" couldn't load." : "";
+  let t;
+  if(!page.length && failedN) t="None of the "+total+" loaded."+failBit;
+  else if(page.length===1) t="Showing the "+word+" vault of "+total+"."+failBit;
+  else t="Showing the "+page.length+" "+word+" of "+total+"."+failBit;
   if(boardSort!=="newest" && boardShown>=BOARD_MAX && total>BOARD_MAX){
-    t="25 biggest loaded. "+(total-BOARD_MAX)+" smaller stay on the factory.";
-    if(failedN) t+=" "+failedN+" couldn't load.";
+    t="25 biggest loaded. "+(total-BOARD_MAX)+" smaller stay on the factory."+failBit;
   }
   note.textContent=t;
 }
@@ -3494,15 +3571,26 @@ async function fillLogs(rows){
 }
 async function retryVault(r){
   const gen=boardGen;
+  const addr=String(r.vault||"").toLowerCase();
   const full=await scoreVault(r.vault, true, r.factoryIndex).catch(e=>{
     console.warn("skip", r.vault, e);
     return null;
   });
   if(gen!==boardGen) return;
-  const row=full || failedVault(r.vault, r.factoryIndex);
-  const i=boardRanked.findIndex(x=>x.vault && x.vault.toLowerCase()===String(r.vault).toLowerCase());
-  if(i>=0) boardRanked[i]=row; else boardRanked.push(row);
+  const i=boardRanked.findIndex(x=>x.vault && x.vault.toLowerCase()===addr);
+  if(!full){
+    const row=failedVault(r.vault, r.factoryIndex);
+    if(i>=0) boardRanked[i]=row; else boardRanked.push(row);
+    boardRanked=sortBoard(boardRanked);
+    showBoard();
+    return;
+  }
+  if(i>=0) boardRanked[i]=full; else boardRanked.push(full);
   boardRanked=sortBoard(boardRanked);
+  const pos=boardSort==="newest"
+    ? boardRanked.findIndex(x=>x.vault && x.vault.toLowerCase()===addr)
+    : boardRanked.filter(x=>!x.failed).findIndex(x=>x.vault && x.vault.toLowerCase()===addr);
+  if(pos>=0 && pos>=boardShown) boardShown=Math.min(BOARD_MAX, pos+1);
   showBoard();
 }
 function showBoard(){
