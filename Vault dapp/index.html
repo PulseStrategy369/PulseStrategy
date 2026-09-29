@@ -711,7 +711,7 @@ try{
   }
 }catch(_){}
 
-const BUILD = "v81 \u00b7 2026-09-28";   // shown in the footer so users can tell builds apart
+const BUILD = "v82 \u00b7 2026-09-29";   // shown in the footer so users can tell builds apart
 const WC_PROJECT_ID = "dfa53b26ebcaa8d274b2a7f6ddc66cb0";   // free at https://cloud.reown.com (enables WalletConnect)
 /* Paste after Remix deploy of contracts/LPFeeShare.sol. Leave blank to hide the claim UI.
    Ownerless. Core deposits: protocol-fee wallet. Launch deposits: that vault's creator. */
@@ -1069,6 +1069,7 @@ function setRail(backing){
 async function activateVault(key){
   const cfg = VAULTS.find(v=>v.key===key);
   if(!cfg) return;
+  pinFxVault(key);
   rememberVault(key);
   statusLockUntil = 0;
   { const box=$("lpFeeBox"); if(box){ delete box.dataset.copy; delete box.dataset.on; } }
@@ -2463,11 +2464,11 @@ async function paintLp(){
       const myQ=ts>0n?lp*hop.rOut/ts:0n;
       pos="Pool "+short(hop.pair)+" · "+fmt(hop.rIn, cur.tDec, 2)+" "+cur.cfg.token+" / "+fmt(hop.rOut, q.dec, 2)+" "+q.sym;
       const qSym=q.native?"PLS":q.sym;
-      const poolUsd=usdAmt(cur.cfg.token, Number(ethers.formatUnits(hop.rIn, cur.tDec)))+usdAmt(qSym, Number(ethers.formatUnits(hop.rOut, q.dec)));
+      const poolUsd=poolMarkUsd(qSym, Number(ethers.formatUnits(hop.rOut, q.dec)));
       if(poolUsd>0) pos+=" · "+fmtUsd(poolUsd);
       if(account){
         pos+=" · you own "+sharePct(lp,ts)+"% = "+fmt(myTok,cur.tDec,4)+" "+cur.cfg.token+" + "+fmt(myQ,q.dec,4)+" "+qSym;
-        const mine=usdAmt(cur.cfg.token, Number(ethers.formatUnits(myTok, cur.tDec)))+usdAmt(qSym, Number(ethers.formatUnits(myQ, q.dec)));
+        const mine=poolMarkUsd(qSym, Number(ethers.formatUnits(myQ, q.dec)));
         if(mine>0) pos+=" · "+fmtUsd(mine);
       }
       window._lp={ hop, ts, lp, q };
@@ -2517,7 +2518,7 @@ async function quoteLpAdd(){
     const tN=parseFloat(tNow)||0, qN=parseFloat(qNow)||0;
     const qSym=q.native?"PLS":q.sym;
     let line=(tNow||"—")+" "+cur.cfg.token+" + "+(qNow||"—")+" "+qSym;
-    const sum=usdAmt(cur.cfg.token, tN)+usdAmt(qSym, qN);
+    const sum=poolMarkUsd(qSym, qN);
     if(sum>0) line+=" · "+fmtUsd(sum);
     $("lpAddPrev").textContent=line;
   }
@@ -2572,7 +2573,7 @@ async function quoteLpRem(){
   const qN=Number(ethers.formatUnits(outQ, q.dec));
   const qSym=q.native?"PLS":q.sym;
   let recv=fmt(outT, cur.tDec, 4)+" "+cur.cfg.token+" + "+fmt(outQ, q.dec, 4)+" "+qSym;
-  const sum=usdAmt(cur.cfg.token, outN)+usdAmt(qSym, qN);
+  const sum=poolMarkUsd(qSym, qN);
   if(sum>0) recv+=" · "+fmtUsd(sum);
   if($("lpRemPrev")) $("lpRemPrev").textContent=recv;
   window._lpRem={ burn, outT, outQ, q, pair:s.hop.pair };
@@ -2908,7 +2909,9 @@ async function loadPools(cfg){
     (cfg.vault ? '<button class="icpy" onclick="copyText(\''+cfg.vault+'\',this)">copy '+cfg.token+'</button>' : '')+
     '</div></div>'+
     '<div class="papr" id="pa'+i+'">…<small>trailing 7d fee APR</small></div></div>').join("");
+  const poolKey = cfg.key;
   const nowBlock = await readProvider.getBlockNumber();
+  if(!cur || cur.cfg.key !== poolKey) return;
   for(let i=0;i<pools.length;i++){
     (async()=>{
       try{
@@ -2920,15 +2923,17 @@ async function loadPools(cfg){
         const [s0,s1,d0,d1] = await Promise.all([c0.symbol(),c1.symbol(),c0.decimals(),c1.decimals()]);
         const now = await pairSnapshot(pair, null);
         await loadUsdFx();
+        if(!cur || cur.cfg.key !== poolKey) return;
         const n0=Number(ethers.formatUnits(now.r0, Number(d0)));
         const n1=Number(ethers.formatUnits(now.r1, Number(d1)));
-        const u0=usdAmt(s0, n0), u1=usdAmt(s1, n1);
+        const poolUsd=reservesMarkUsd(cfg.vault, t0, s0, n0, t1, s1, n1);
         const depth=$("pd"+i);
+        if(!depth) return;
         depth.textContent = fmt(now.r0,Number(d0),2)+" "+s0+" · "+fmt(now.r1,Number(d1),2)+" "+s1;
-        if(u0+u1>0){
+        if(poolUsd>0){
           const sub=document.createElement("div");
           sub.className="subusd";
-          sub.textContent=(u0>0 && u1>0) ? fmtUsd(u0+u1)+" in this pool" : (fmtUsd(u0||u1)+" priced side");
+          sub.textContent=fmtUsd(poolUsd)+" in this pool";
           depth.appendChild(sub);
         }
         const ck=pools[i].address.toLowerCase();
@@ -2952,7 +2957,9 @@ async function loadPools(cfg){
             }
           }catch(_){/* pool too new or no archive at this depth */}
         }
+        if(!cur || cur.cfg.key !== poolKey) return;
         const el = $("pa"+i);
+        if(!el) return;
         if (apr === null){
           el.innerHTML = 'n/a<small>pool too new or RPC lacks history</small>';
           el.style.color = "var(--mut)";
@@ -2962,8 +2969,9 @@ async function loadPools(cfg){
           aprMemo[ck]={at:Date.now(), html:el.innerHTML, mut:false};
         }
       }catch(e){
-        $("pd"+i).textContent = "unreadable";
-        const el=$("pa"+i); el.textContent="n/a"; el.style.color="var(--mut)";
+        if(!cur || cur.cfg.key !== poolKey) return;
+        const depth=$("pd"+i); if(depth) depth.textContent = "unreadable";
+        const el=$("pa"+i); if(el){ el.textContent="n/a"; el.style.color="var(--mut)"; }
       }
     })();
   }
@@ -2982,6 +2990,17 @@ const HTT_HEX_PAIR = {
   "HEXstr-7000":"0x0d37481cd2c2e1a309a159fd08d9f6efd0a1f224"
 };
 let usdFx = null, usdFxAt = 0;
+function pinFxVault(key){
+  if(!usdFx || usdFx.forKey === key) return;
+  usdFx = {
+    forKey: key,
+    partial: true,
+    usdPerWpls: usdFx.usdPerWpls,
+    usdPerHex: usdFx.usdPerHex,
+    plsPerVpls: usdFx.plsPerVpls,
+    httHex: null
+  };
+}
 function spotQuote(token, tDec, quote, qDec, t0, r0, r1){
   const a = token.toLowerCase(), b = quote.toLowerCase(), z = t0.toLowerCase();
   if(z !== a && z !== b) return null;
@@ -2993,7 +3012,7 @@ function fmtUsd(n){
   if(!(n > 0) || !isFinite(n)) return "";
   if(n >= 1e9) return "$" + (n / 1e9).toFixed(2) + "B";
   if(n >= 1e6) return "$" + (n / 1e6).toFixed(2) + "M";
-  if(n >= 1e3) return "$" + n.toLocaleString("en-US", {maximumFractionDigits: 0});
+  if(n >= 1e4) return "$" + n.toLocaleString("en-US", {maximumFractionDigits: 0});
   if(n >= 1) return "$" + n.toLocaleString("en-US", {minimumFractionDigits: 2, maximumFractionDigits: 2});
   if(n >= 0.01) return "$" + n.toFixed(4);
   if(n >= 0.0001) return "$" + n.toFixed(6);
@@ -3002,7 +3021,10 @@ function fmtUsd(n){
 }
 async function loadUsdFx(){
   const key = cur && cur.cfg ? cur.cfg.key : "";
-  if(usdFx && usdFx.forKey === key && Date.now() - usdFxAt < 60000) return usdFx;
+  const assetAddr = cur && cur.cfg ? cur.cfg.assetAddr : "";
+  if(usdFx && usdFx.forKey === key && !usdFx.partial && Date.now() - usdFxAt < 60000) return usdFx;
+  const same = (usdFx && usdFx.forKey === key && !usdFx.partial) ? usdFx : null;
+  pinFxVault(key);
   try{
     const dai = new ethers.Contract(USD_DAI_WPLS, PAIR_ABI, readProvider);
     const hex = new ethers.Contract(USD_HEX_WPLS, PAIR_ABI, readProvider);
@@ -3018,24 +3040,50 @@ async function loadUsdFx(){
     const wplsPerHex = spotQuote(HEX_ADDR, 8, WPLS, 18, r[2], r[3][0], r[3][1]);
     const plsPerVpls = spotQuote("0x79BB3A0Ee435f957ce4f54eE8c3CFADc7278da0C", 18, WPLS, 18, r[4], r[5][0], r[5][1]);
     let httHex = null;
-    if(httPair && cur){
-      httHex = spotQuote(cur.cfg.assetAddr, 8, HEX_ADDR, 8, r[6], r[7][0], r[7][1]);
+    if(httPair && assetAddr){
+      httHex = spotQuote(assetAddr, 8, HEX_ADDR, 8, r[6], r[7][0], r[7][1]);
     }
-    usdFx = { forKey:key, usdPerWpls, usdPerHex: (usdPerWpls > 0 && wplsPerHex > 0) ? usdPerWpls * wplsPerHex : null, plsPerVpls, httHex };
-    usdFxAt = Date.now();
-  }catch(e){}
-  return usdFx;
+    if(cur && cur.cfg && cur.cfg.key === key){
+      usdFx = { forKey:key, partial:false, usdPerWpls, usdPerHex: (usdPerWpls > 0 && wplsPerHex > 0) ? usdPerWpls * wplsPerHex : null, plsPerVpls, httHex };
+      usdFxAt = Date.now();
+    }
+  }catch(e){
+    if(same && cur && cur.cfg && cur.cfg.key === key) usdFx = same;
+  }
+  const shown = cur && cur.cfg ? cur.cfg.key : "";
+  return (usdFx && usdFx.forKey === shown) ? usdFx : null;
 }
 function usdAmt(sym, amount){
   if(!usdFx || !(usdFx.usdPerWpls > 0) || !(amount > 0) || !isFinite(amount)) return 0;
   const s = String(sym || "");
+  const shown = cur && cur.cfg ? cur.cfg.key : "";
   let usd = 0;
   if(s === "PLS" || s === "WPLS") usd = amount * usdFx.usdPerWpls;
   else if(s === "HEX") usd = usdFx.usdPerHex ? amount * usdFx.usdPerHex : 0;
   else if(s === "vPLS") usd = usdFx.plsPerVpls > 0 ? amount * usdFx.plsPerVpls * usdFx.usdPerWpls : 0;
-  else if(/^HTT-/.test(s) && usdFx.httHex > 0 && usdFx.usdPerHex) usd = amount * usdFx.httHex * usdFx.usdPerHex;
+  else if(/^HTT-/.test(s) && !usdFx.partial && usdFx.forKey === shown && usdFx.httHex > 0 && usdFx.usdPerHex) usd = amount * usdFx.httHex * usdFx.usdPerHex;
   else if(cur && s === cur.cfg.token && lastBacking > 0) return usdAmt(cur.cfg.assetSym, amount * lastBacking);
   return (usd > 0 && isFinite(usd)) ? usd : 0;
+}
+function poolMarkUsd(quoteSym, quoteAmt){
+  const q = usdAmt(quoteSym, quoteAmt);
+  return q > 0 ? q * 2 : 0;
+}
+function reservesMarkUsd(vaultAddr, t0, s0, n0, t1, s1, n1){
+  const v = String(vaultAddr || "").toLowerCase();
+  let quoteSym = null, quoteAmt = 0, otherSym = null, otherAmt = 0;
+  if(String(t0).toLowerCase() === v){ quoteSym = s1; quoteAmt = n1; otherSym = s0; otherAmt = n0; }
+  else if(String(t1).toLowerCase() === v){ quoteSym = s0; quoteAmt = n0; otherSym = s1; otherAmt = n1; }
+  if(quoteSym){
+    const marked = poolMarkUsd(quoteSym, quoteAmt);
+    if(marked > 0) return marked;
+    const other = usdAmt(otherSym, otherAmt);
+    return other > 0 ? other * 2 : 0;
+  }
+  const a = usdAmt(s0, n0), b = usdAmt(s1, n1);
+  if(a > 0 && b > 0) return a + b;
+  const one = a > 0 ? a : b;
+  return one > 0 ? one * 2 : 0;
 }
 function usdOf(sym, amount){
   const n = usdAmt(sym, amount);
@@ -3067,14 +3115,19 @@ function statHtml(text, sym, amount){
 }
 
 /* ---------- reads ---------- */
+let refreshGen = 0;
 async function refresh(){
   if(!cur) return;
+  const gen = ++refreshGen;
+  const key = cur.cfg.key;
+  const still = () => gen === refreshGen && cur && cur.cfg && cur.cfg.key === key;
 
   // RPC health check runs regardless of vault-configured status, since
   // asset-balance reads need it too.
   if(!rpcHealthy){
     const ok = await ensureRpc();
     if(!ok){ setStatus("All RPC endpoints are unreachable — check your connection or add another endpoint to CHAIN.rpcs.","err"); return; }
+    if(!still()) return;
     cur.ar = new ethers.Contract(cur.cfg.assetAddr, ERC20_ABI, readProvider);
     if(cur.cfg.vault) cur.vr = new ethers.Contract(cur.cfg.vault, VAULT_ABI, readProvider);
   }
@@ -3084,6 +3137,7 @@ async function refresh(){
   if(account){
     try{
       const ua = await cur.ar.balanceOf(account);
+      if(!still()) return;
       bal.asset=ua;
       const an = Number(ethers.formatUnits(ua, cur.aDec));
       $("userAsset").innerHTML = statHtml(fmt(ua,cur.aDec), cur.cfg.assetSym, an);
@@ -3102,10 +3156,12 @@ async function refresh(){
       cur.vr.backingPerToken(),cur.vr.vaultBalance(),
       cur.vr.totalSupply(),cur.vr.mintQuotaRemaining(),cur.vr.timeToNextEpoch()
     ]);
+    if(!still()) return;
     lastBacking = parseFloat(ethers.formatEther(backing));
     $("backingNum").textContent=lastBacking.toFixed(4);
     setRail(backing);
     await loadUsdFx();
+    if(!still()) return;
     const floorUsd = usdOf(cur.cfg.token, 1);
     const assetPx = usdOf(cur.cfg.assetSym, 1);
     if($("backingUsd")){
@@ -3128,6 +3184,7 @@ async function refresh(){
     loadBackingDelta();
     if(account){
       const ut = await cur.vr.balanceOf(account);
+      if(!still()) return;
       bal.token=ut;
       const tn = Number(ethers.formatUnits(ut, cur.tDec));
       $("userTok").innerHTML = statHtml(fmt(ut,cur.tDec), cur.cfg.token, tn);
@@ -3141,6 +3198,7 @@ async function refresh(){
     console.error(e);
     rpcHealthy = false; // next refresh cycle probes & rotates endpoints
   }
+  if(!still()) return;
   if(cardTab==="swap") quoteVaultSwap();
   paintLp();
 }
@@ -3680,6 +3738,7 @@ async function updateMarket(){
   const chip = $("mktChip"); if(!chip) return;
   if(!cur || !cur.vr || !cur.cfg.vault || !lastBacking){ chip.style.display = "none"; return; }
   const cfg = cur.cfg;
+  const mktKey = cfg.key;
   try{
     let price = await pairPrice(cfg.vault, cur.tDec, cfg.assetAddr, cur.aDec);
     if(price === null){
@@ -3694,16 +3753,19 @@ async function updateMarket(){
         if(aB > 0){ price = tB / aB; break; }
       }
     }
-    if(price === null){ chip.style.display = "none"; return; }
+    if(!cur || cur.cfg.key !== mktKey || price === null){ if(cur && cur.cfg.key===mktKey) chip.style.display = "none"; return; }
     const diff = (price / lastBacking - 1) * 100;
     const prem = diff >= 0;
     chip.className = "chip " + (prem ? "prem" : "disc");
     chip.textContent = "Market " + price.toFixed(4) + " " + cfg.assetSym +
                        (usdOf(cfg.assetSym, price) ? " · " + usdOf(cfg.assetSym, price) : "") + " · " +
                        (prem ? "+" : "") + diff.toFixed(1) + "% " + (prem ? "premium" : "discount");
-    chip.title = prem
-      ? "Trading above backing — minting gets you more than buying at this price."
-      : "Trading below backing — buying is cheaper than minting right now.";
+    const mintPx = lastBacking * 1.045;
+    let hint;
+    if(mintPx < price * 0.995) hint = "Minting is cheaper than buying on PulseX.";
+    else if(price < mintPx * 0.995) hint = "Buying on PulseX is cheaper than minting.";
+    else hint = "Mint and the pool are within 0.5%.";
+    chip.title = hint;
     chip.style.display = "inline-block";
   }catch(_){ chip.style.display = "none"; }
 }
