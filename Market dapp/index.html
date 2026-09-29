@@ -140,7 +140,7 @@ button:focus-visible,select:focus-visible,a:focus-visible,input:focus-visible{ou
 <div class="cards" id="cards"></div>
 <p class="note" id="epochNote"></p>
 
-<h2 id="arbTitle">Arb ticket <small>Round-trip after the 4.5% mint premium or 0.5% redeem fee, and PulseX 0.30% impact. Trade worth is the DEX notional of this size. Profit is what remains after those fees — yes, that's the round-trip profit.</small></h2>
+<h2 id="arbTitle">Arb ticket <small>Round-trip after the 4.5% mint premium or 0.5% redeem fee, and PulseX 0.29% impact. Trade worth is the DEX notional of this size. Profit is what remains after those fees — yes, that's the round-trip profit.</small></h2>
 <div class="panel">
   <div id="arbBody"></div>
   <div style="margin-top:14px">
@@ -214,7 +214,7 @@ button:focus-visible,select:focus-visible,a:focus-visible,input:focus-visible{ou
 <footer>
   <a href="#" id="dlLink" class="dl-cta">Download this page</a>
   <p style="margin-top:16px">Nothing on this page is financial advice.</p>
-  <div style="margin-top:10px"><a href="https://x.com/pulsestrategy" target="_blank" rel="noopener">@pulsestrategy</a> · the floor only rises · <span class="mono">build v7 · 2026-09-23</span> · <a href="https://github.com/PulseStrategy369/PulseStrategy" target="_blank" rel="noopener">GitHub</a></div>
+  <div style="margin-top:10px"><a href="https://x.com/pulsestrategy" target="_blank" rel="noopener">@pulsestrategy</a> · the floor only rises · <span class="mono">build v10 · 2026-09-28</span> · <a href="https://github.com/PulseStrategy369/PulseStrategy" target="_blank" rel="noopener">GitHub</a></div>
 </footer>
 </div>
 
@@ -393,12 +393,12 @@ function asHex(amt, q){
 }
 function amountOut(amountIn, reserveIn, reserveOut){
   if(amountIn<=0n||reserveIn<=0n||reserveOut<=0n) return 0n;
-  const ain = amountIn*997n;
-  return ain*reserveOut/(reserveIn*1000n+ain);
+  const ain = amountIn*9971n;
+  return ain*reserveOut/(reserveIn*10000n+ain);
 }
 function amountIn(amountOutW, reserveIn, reserveOut){
   if(amountOutW<=0n||reserveIn<=0n||reserveOut<=0n||amountOutW>=reserveOut) return 0n;
-  return reserveIn*amountOutW*1000n/((reserveOut-amountOutW)*997n)+1n;
+  return reserveIn*amountOutW*10000n/((reserveOut-amountOutW)*9971n)+1n;
 }
 function impactPct(amountIn, reserveIn, reserveOut){
   const out = amountOut(amountIn, reserveIn, reserveOut);
@@ -415,9 +415,12 @@ function toWei(n, dec){
 let state = { vaults:[], htt:[], vouch:{}, fx:{}, head:0, fetchedAt:0, active:"PLSstr", side:"buy", unit:"vault", hours:3, extra:0, trades:[], tvlUsd:null, bag:null, wallet:"" };
 let autoWallet = false;
 
-async function loadDesk(){
-  $("status").textContent = "Reading six vaults, six pools, Vouch, and DAI/WPLS…";
-  $("status").className = "note";
+async function loadDesk(fullTape){
+  if(fullTape===false && document.hidden) return;
+  if(fullTape!==false){
+    $("status").textContent = "Reading six vaults, six pools, Vouch, and DAI/WPLS…";
+    $("status").className = "note";
+  }
   if(!await ensureRpc()){ $("status").textContent="All RPC endpoints failed — pick another."; $("status").className="note err"; return; }
   const head = await provider.getBlockNumber();
   const vpls = new ethers.Contract(VPLS, VPLS_ABI, provider);
@@ -493,12 +496,15 @@ async function loadDesk(){
   }
   const ss = snaps();
   if(!ss.length || Date.now()-ss[ss.length-1].t > 120000){ ss.push({t:Date.now(), px}); saveSnaps(ss); }
+  const prevHead = state.head;
   state.vaults = rows; state.htt = htt; state.head = head; state.fetchedAt = Date.now();
   const tvs = rows.map(r=>r.tvlUsd).filter(n=>n!=null);
   state.tvlUsd = tvs.length ? tvs.reduce((a,b)=>a+b,0) : null;
   paint();
-  $("status").textContent = "";
-  loadTape(true);
+  if(fullTape!==false) $("status").textContent = "";
+  if(fullTape!==false) await loadTape(true);
+  else if(prevHead && head>prevHead) await loadTape(false, {from: prevHead+1, to: head});
+  else if(state.trades && state.trades.length) paintTapeList();
   if(state.wallet && !autoWallet){ autoWallet = true; lookupWallet(state.wallet); }
 }
 function ilPct(k){
@@ -756,7 +762,7 @@ function paintLpPos(){
   const floorIl=(r.dex>0 && r.floor)? ilPct(r.floor/r.dex) : null;
   const ceilIl=(r.dex>0 && r.ceil)? ilPct(r.ceil/r.dex) : null;
   const vol=(state.trades||[]).reduce((s,t)=>s+t.amtQ,0);
-  const fee=vol*0.003;
+  const fee=vol*0.0029;
   const yourFee=(pos.sharePct!=null && pos.sharePct>0) ? pos.sharePct/100*fee : null;
   const feeUsd=asUsd(fee, r.cfg.quoteSym);
   const yourFeeUsd=(yourFee!=null && fee>0 && feeUsd!=null) ? feeUsd*(yourFee/fee) : null;
@@ -776,8 +782,8 @@ function paintLpPos(){
   const afterCV=walkC && walkC.newVault!=null ? walkC.newVault*share : null;
   const afterCQ=walkC && walkC.newQuote!=null ? walkC.newQuote*share : null;
   const qPx=asUsd(1, r.cfg.quoteSym);
-  const beF= (ilFloorUsd!=null) ? Math.abs(ilFloorUsd)/0.003 : null;
-  const beC= (ilCeilUsd!=null) ? Math.abs(ilCeilUsd)/0.003 : null;
+  const beF= (ilFloorUsd!=null) ? Math.abs(ilFloorUsd)/0.0029 : null;
+  const beC= (ilCeilUsd!=null) ? Math.abs(ilCeilUsd)/0.0029 : null;
   const oneLp=lpUsd(r);
   let slices='<div class="muted" style="font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;margin:0 0 8px">Remove a slice</div><div class="stats" style="margin-bottom:14px">';
   [25,50,75,100].forEach(pct=>{
@@ -868,9 +874,9 @@ function paintLp(){
   const poolTvl=r.depthUsd!=null?r.depthUsd*2:null;
   const qPx=asUsd(1, r.cfg.quoteSym);
   const vol = (state.trades||[]).reduce((s,t)=>s+t.amtQ,0);
-  const fee = vol*0.003;
-  const beF=(floorIl!=null && poolTvl!=null)? Math.abs(poolTvl*(floorIl/100))/0.003 : null;
-  const beC=(ceilIl!=null && poolTvl!=null)? Math.abs(poolTvl*(ceilIl/100))/0.003 : null;
+  const fee = vol*0.0029;
+  const beF=(floorIl!=null && poolTvl!=null)? Math.abs(poolTvl*(floorIl/100))/0.0029 : null;
+  const beC=(ceilIl!=null && poolTvl!=null)? Math.abs(poolTvl*(ceilIl/100))/0.0029 : null;
   const walkFLab = (!walkF||walkF.side==="none") ? "already there" : ((walkF.side==="sell"?"sell ":"buy ")+fmtC(walkF.vaultAmt)+" "+r.cfg.token);
   const walkFSub = (walkF&&walkF.side!=="none") ? (fmtC(walkF.quoteAmt)+" "+r.cfg.quoteSym+" through the pool") : "spot sits on the redeem floor";
   const walkCLab = (!walkC||walkC.side==="none") ? "already there" : ((walkC.side==="buy"?"buy ":"sell ")+fmtC(walkC.vaultAmt)+" "+r.cfg.token);
@@ -882,8 +888,8 @@ function paintLp(){
     stat("Last swap", (last||"none in window")+'<div class="muted" style="font-size:12px">'+fmt(fee,4)+' '+r.cfg.quoteSym+' fees · '+fmtUsd(asUsd(fee,r.cfg.quoteSym))+'</div>');
   if($("lpWalk")) $("lpWalk").innerHTML =
     stat("1 LP token", fmtUsd(oneLp)+'<div class="muted" style="font-size:12px">pool TVL ÷ LP supply</div>')+
-    stat("Volume to offset floor IL", fmtUsd(beF)+'<div class="muted" style="font-size:12px">'+(beF!=null && qPx>0?fmtC(beF/qPx)+' '+r.cfg.quoteSym:'0.30% of swap volume')+'</div>')+
-    stat("Volume to offset ceil IL", fmtUsd(beC)+'<div class="muted" style="font-size:12px">'+(beC!=null && qPx>0?fmtC(beC/qPx)+' '+r.cfg.quoteSym:'0.30% of swap volume')+'</div>')+
+    stat("Volume to offset floor IL", fmtUsd(beF)+'<div class="muted" style="font-size:12px">'+(beF!=null && qPx>0?fmtC(beF/qPx)+' '+r.cfg.quoteSym:'0.29% of swap volume')+'</div>')+
+    stat("Volume to offset ceil IL", fmtUsd(beC)+'<div class="muted" style="font-size:12px">'+(beC!=null && qPx>0?fmtC(beC/qPx)+' '+r.cfg.quoteSym:'0.29% of swap volume')+'</div>')+
     stat("Addresses", '<a href="https://pulsestrategy369.com/address/'+r.cfg.pair+'">pair '+shortAddr(r.cfg.pair)+'</a><div><a href="https://pulsestrategy369.com/address/'+r.cfg.vault+'">'+r.cfg.token+' '+shortAddr(r.cfg.vault)+'</a></div>');
   paintLpPos();
   const n = parseFloat($("lpAmt").value);
@@ -904,7 +910,7 @@ function paintLp(){
       stat("Share after add", (combined==null?"—":combined.toFixed(2)+"%")+'<div class="muted" style="font-size:12px">'+(existing>0?"includes LP you already hold":"no existing LP on this pair")+'</div>')+
       stat("Fees · last "+state.hours+"h", fmt(fee,4)+' '+r.cfg.quoteSym+'<div class="muted" style="font-size:12px">'+fmtUsd(asUsd(fee,r.cfg.quoteSym))+(state.trades.length?"":" · no swaps in window")+'</div>');
   }
-  $("lpNote").textContent = "Band IL is vs a 50/50 hold if spot walks to the floor or ceiling and sits there. PulseX v2 takes 0.30% per swap for LPs. A quiet window is a quiet window — not a 0% APR.";
+  $("lpNote").textContent = "Band IL is vs a 50/50 hold if spot walks to the floor or ceiling and sits there. PulseX v2 takes 0.29% per swap. A quiet window is a quiet window — not a 0% APR.";
 }
 
 function chipBand(b){
@@ -942,7 +948,7 @@ function paint(){
       '<td>'+chipBand(r.band)+'</td>'+
       '<td style="font-size:12px">'+r.arb+'</td>'+
       '<td class="mono" style="font-size:12px">'+fmtUsd(r.tvlUsd)+'</td>'+
-      '<td class="mono muted" style="font-size:12px">'+fmtC(r.dep.q)+' '+r.cfg.quoteSym+'<div>'+fmtUsd(r.depthUsd)+'</div></td>'+
+      '<td class="mono muted" style="font-size:12px">'+fmtC(r.dep.tok)+' '+r.cfg.token+'<div>'+fmtC(r.dep.q)+' '+r.cfg.quoteSym+'</div><div>'+fmtUsd(r.depthUsd==null?null:r.depthUsd*2)+'</div></td>'+
       '<td class="mono" style="font-size:12px">'+(r.quotaTok===Infinity?"genesis":fmtC(r.quotaTok))+'</td>'+
       '<td class="mono muted" style="font-size:12px;white-space:nowrap">'+fmtPct(r.chg,1)+'</td></tr>';
   }).join("");
@@ -956,7 +962,7 @@ function paint(){
       '<div><div class="muted" style="font-size:10px;letter-spacing:.14em;text-transform:uppercase">DEX</div>'+(r.dex==null?"—":fmt(r.dex,4)+' '+r.cfg.quoteSym)+'<div class="muted" style="font-size:11px">'+fmtUsd(r.dexUsd)+'</div></div>'+
       '<div><div class="muted" style="font-size:10px;letter-spacing:.14em;text-transform:uppercase">vs backing</div><span class="'+dc+'">'+fmtPct(r.dev,1)+'</span></div>'+
       '<div><div class="muted" style="font-size:10px;letter-spacing:.14em;text-transform:uppercase">Arb</div>'+r.arb+'</div></div>'+meter(r)+
-      '<div class="muted" style="font-size:11px;margin-top:8px">TVL '+fmtUsd(r.tvlUsd)+' · depth '+fmtUsd(r.depthUsd)+'</div></div>';
+      '<div class="muted" style="font-size:11px;margin-top:8px">TVL '+fmtUsd(r.tvlUsd)+' · pool '+fmtUsd(r.depthUsd==null?null:r.depthUsd*2)+'</div></div>';
   }).join("");
   $("cards").querySelectorAll(".mcard").forEach(el => el.onclick = () => { state.active=el.dataset.key; state.extra=0; state.trades=[]; paint(); loadTape(true); });
   const s = Math.max(0, (state.vaults[0]?.tnext||0) - Math.floor((Date.now()-state.fetchedAt)/1000));
@@ -1038,7 +1044,7 @@ function maxArb(r){
 function paintArb(){
   const r = state.vaults.find(x => x.cfg.key===state.active);
   if(!r) return;
-  $("arbTitle").innerHTML = 'Arb ticket · '+r.cfg.token+' <small>Round-trip after the 4.5% mint premium or 0.5% redeem fee, and PulseX 0.30% impact. Trade worth is the DEX notional of this size. Profit is what remains after those fees — yes, that\'s the round-trip profit.</small>';
+  $("arbTitle").innerHTML = 'Arb ticket · '+r.cfg.token+' <small>Round-trip after the 4.5% mint premium or 0.5% redeem fee, and PulseX 0.29% impact. Trade worth is the DEX notional of this size. Profit is what remains after those fees — yes, that\'s the round-trip profit.</small>';
   $("arbUnit").textContent = r.cfg.token;
   const custom = parseFloat($("arbSize").value);
   const ticket = (custom>0) ? arbAtSize(r, custom) : maxArb(r);
@@ -1056,21 +1062,27 @@ function paintArb(){
       stat("Path", ticket.label+'<div class="muted" style="font-size:12px">'+ticket.limiter+'</div>')+
       stat("Size", fmtC(ticket.size)+' '+r.cfg.token+'<div class="muted" style="font-size:12px">'+ticket.impact.toFixed(2)+'% impact</div>')+
       stat("Trade worth", three(ticket.nUsd, ticket.nW, ticket.nH)+'<div class="muted" style="font-size:12px">DEX notional of this size</div>')+
-      stat("Profit", '<span class="'+(ticket.profit>=0?"ok":"err")+'">'+three(ticket.pUsd, ticket.pW, ticket.pH)+'</span><div class="muted" style="font-size:12px">after mint/redeem + PulseX 0.30%</div>')+
+      stat("Profit", '<span class="'+(ticket.profit>=0?"ok":"err")+'">'+three(ticket.pUsd, ticket.pW, ticket.pH)+'</span><div class="muted" style="font-size:12px">after mint/redeem + PulseX 0.29%</div>')+
       '</div>';
   }
   $("arbBody").innerHTML = html;
   $("arbHint").textContent = 'One '+r.cfg.token+' = '+fmt(r.dex,4)+' '+r.cfg.quoteSym+' · '+fmtUsd(r.dexUsd)+'. Leave blank for the max that still prints.';
   if(!(custom>0) && ticket.size>0) $("arbSize").placeholder = fmt(ticket.size,2);
 }
-async function loadTape(reset){
+async function loadTape(reset, range){
   const r = state.vaults.find(x => x.cfg.key===state.active);
   if(!r) return;
   if(reset) $("tape").innerHTML = '<li class="muted">Reading Swap events…</li>';
-  const span = Math.floor((state.hours*3600)/CHAIN.blockTimeSec);
-  const extraSpan = Math.floor(((reset?0:3)*3600)/CHAIN.blockTimeSec);
-  const to = reset ? state.head : Math.max(0, state.head - span - Math.floor((state.extra-3)*3600/CHAIN.blockTimeSec));
-  const from = Math.max(0, (reset?state.head:to) - (reset?span:extraSpan));
+  let from, to;
+  if(range){
+    from = range.from; to = range.to;
+  }else{
+    const span = Math.floor((state.hours*3600)/CHAIN.blockTimeSec);
+    const extraSpan = Math.floor(((reset?0:3)*3600)/CHAIN.blockTimeSec);
+    to = reset ? state.head : Math.max(0, state.head - span - Math.floor((state.extra-3)*3600/CHAIN.blockTimeSec));
+    from = Math.max(0, (reset?state.head:to) - (reset?span:extraSpan));
+  }
+  if(to<from) return;
   const chunk=700;
   const logs=[];
   try{
@@ -1084,7 +1096,7 @@ async function loadTape(reset){
       logs.push(...part);
     }
   }catch(e){
-    $("tape").innerHTML = '<li class="err">Log range rejected by this RPC. Try a shorter window or another endpoint.</li>';
+    if(reset) $("tape").innerHTML = '<li class="err">Log range rejected by this RPC. Try a shorter window or another endpoint.</li>';
     return;
   }
   const vaultIs0 = r.t0.toLowerCase()===r.cfg.vault.toLowerCase();
@@ -1113,6 +1125,12 @@ async function loadTape(reset){
     const k=t.tx+"-"+t.li; if(seen.has(k)) continue; seen.add(k); uniq.push(t);
   }
   state.trades = uniq;
+  paintTapeList();
+}
+function paintTapeList(){
+  const r = state.vaults.find(x => x.cfg.key===state.active);
+  if(!r) return;
+  state.trades.forEach(t=>{ t.age = Math.max(0,(state.head-t.block)*CHAIN.blockTimeSec); });
   const buys = state.trades.filter(t=>t.buy).reduce((s,t)=>s+t.amtQ,0);
   const sells = state.trades.filter(t=>!t.buy).reduce((s,t)=>s+t.amtQ,0);
   const tot = buys+sells;
@@ -1156,7 +1174,7 @@ $("rpcSel").onchange = function(e){
   if(!/^https:\/\/.+/.test(url)){ alert("RPC must start with https://"); buildRpcSel(); return; }
   applyRpc(url);
 };
-$("refreshBtn").onclick = () => loadDesk();
+$("refreshBtn").onclick = () => loadDesk(true);
 $("lpAmt").oninput = () => paintLp();
 $("arbSize").oninput = () => paintArb();
 $("walletBtn").onclick = () => lookupWallet($("wallet").value);
@@ -1184,8 +1202,9 @@ try{
   if(a){ $("wallet").value=a; state.wallet=a; }
 }catch(_){}
 buildRpcSel();
-loadDesk();
-setInterval(loadDesk, 15000);
+loadDesk(true);
+setInterval(()=>{ if(!document.hidden) loadDesk(false); }, 30000);
+document.addEventListener("visibilitychange", ()=>{ if(!document.hidden) loadDesk(false); });
 </script>
 </body>
 </html>
