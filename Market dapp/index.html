@@ -214,7 +214,7 @@ button:focus-visible,select:focus-visible,a:focus-visible,input:focus-visible{ou
 <footer>
   <a href="#" id="dlLink" class="dl-cta">Download this page</a>
   <p style="margin-top:16px">Nothing on this page is financial advice.</p>
-  <div style="margin-top:10px"><a href="https://x.com/pulsestrategy" target="_blank" rel="noopener">@pulsestrategy</a> · the floor only rises · <span class="mono">build v10 · 2026-09-28</span> · <a href="https://github.com/PulseStrategy369/PulseStrategy" target="_blank" rel="noopener">GitHub</a></div>
+  <div style="margin-top:10px"><a href="https://x.com/pulsestrategy" target="_blank" rel="noopener">@pulsestrategy</a> · the floor only rises · <span class="mono">build v12 · 2026-09-29</span> · <a href="https://github.com/PulseStrategy369/PulseStrategy" target="_blank" rel="noopener">GitHub</a></div>
 </footer>
 </div>
 
@@ -355,9 +355,13 @@ function band(dev){
   if(dev < -0.55) return "below";
   return "in";
 }
-function arb(b, quotaOpen){
-  if(b==="above") return quotaOpen ? "Mint → sell" : "Sell DEX";
-  if(b==="below") return "Buy → redeem";
+function arb(r){
+  if(!r || r.band==null) return "—";
+  if(r.band==="above" && !r.quotaOpen) return "Sell DEX";
+  if(r.band==="in") return "—";
+  const t = maxArb(r);
+  if(t && t.side==="mint-sell") return "Mint → sell";
+  if(t && t.side==="buy-redeem") return "Buy → redeem";
   return "—";
 }
 function snaps(){ try{ return JSON.parse(localStorage.getItem("ps_desk_snaps_v1")||"[]"); }catch(_){ return []; } }
@@ -470,7 +474,8 @@ async function loadDesk(fullTape){
       const years = days/365.25;
       const apy = (price>0 && years>0 && price<1) ? Math.pow(1/price, 1/years)-1 : (price>=1?0:null);
       const hd = depthOf(cfg.asset,8,HEX,8,ht0b,hresb[0],hresb[1]);
-      htt.push({cfg, price, days, years, apy, discount: price==null?null:(1-price)*100, depth:hd, pair:httPair, usd: asUsd(price,"HEX"), depthUsd: asUsd(hd.q,"HEX")});
+      const hexSide = asUsd(hd.q,"HEX");
+      htt.push({cfg, price, days, years, apy, discount: price==null?null:(1-price)*100, depth:hd, pair:httPair, usd: asUsd(price,"HEX"), depthUsd: hexSide==null?null:hexSide*2});
     }
     const backingInQuote = (assetInQuote!=null && back>0) ? back*assetInQuote : null;
     const floor = backingInQuote!=null ? backingInQuote*0.995 : null;
@@ -485,14 +490,16 @@ async function loadDesk(fullTape){
     const dexUsd = asUsd(dex, cfg.quoteSym);
     const backingUsd = asUsd(backingInQuote, cfg.quoteSym);
     const tvlUsd = (vaultBal>0 && assetInQuote!=null) ? asUsd(vaultBal*assetInQuote, cfg.quoteSym) : null;
-    rows.push({
+    const row = {
       cfg, back, bal:vaultBal, sup:supply,
       quota, quotaOpen: quotaOpen && quotaTok>0, quotaTok, tnext:Number(tnext),
-      dex, assetInQuote, backingInQuote, floor, ceil, dev, band:b, arb:arb(b, quotaOpen && quotaTok>0),
+      dex, assetInQuote, backingInQuote, floor, ceil, dev, band:b,
       dep, t0, r0:res[0], r1:res[1], chg: chg24(cfg.key, dex),
       dexUsd, backingUsd, tvlUsd, depthUsd: asUsd(dep.q, cfg.quoteSym),
       lpSupply: n18(lpSup)
-    });
+    };
+    row.arb = arb(row);
+    rows.push(row);
   }
   const ss = snaps();
   if(!ss.length || Date.now()-ss[ss.length-1].t > 120000){ ss.push({t:Date.now(), px}); saveSnaps(ss); }
@@ -982,7 +989,7 @@ function paint(){
       '<div><span style="font-family:Michroma;font-size:12px">'+r.cfg.assetSym+'</span> <span class="muted">'+r.cfg.htt.label+' · '+Math.round(r.days)+'d</span></div>'+
       '<div class="mono">'+fmt(r.price,4)+' HEX <span class="muted">'+fmtUsd(r.usd)+'</span> <span class="muted">'+fmtPct(-(r.discount||0),1)+'</span> <span class="ok">'+(r.apy==null?"—":(r.apy*100).toFixed(2)+"% APY")+'</span></div></div>'+
       '<div class="bar"><span style="width:'+w+'%"></span></div>'+
-      '<div class="note" style="margin-top:4px">Depth '+fmt(r.depth.tok,1)+' '+r.cfg.assetSym+' · '+fmt(r.depth.q,1)+' HEX · '+fmtUsd(r.depthUsd)+'</div></div>';
+      '<div class="note" style="margin-top:4px">Depth '+fmt(r.depth.tok,1)+' '+r.cfg.assetSym+' · '+fmt(r.depth.q,1)+' HEX · pool '+fmtUsd(r.depthUsd)+'</div></div>';
   }).join("");
   $("vaultbar").innerHTML = VAULTS.map(v =>
     '<button type="button" class="vpill" data-key="'+v.key+'" aria-selected="'+(v.key===state.active)+'">'+v.token+'</button>'
