@@ -350,7 +350,7 @@ rel="noopener">Github</a> and inspect the code or download from github.</div>
 </div>
 <script>
 "use strict";
-var BUILD = 'v43 · 2026-09-22';
+var BUILD = 'v44 · 2026-09-28';
 var VAULTS_URL = 'https://pulsestrategy369.com/vaults'; /* ★ EDIT HERE: the one place that controls every 'Vaults' link on this page */
 var LAUNCH_URL = 'https://pulsestrategy369.com/launch'; /* ★ EDIT HERE: PulseStrategy Launcher */
 var WHITEPAPER_URL = 'https://pulsestrategy369.com/whitepaper';
@@ -1254,7 +1254,10 @@ try{
     if(cid !== 369) document.querySelector('.psbar').insertAdjacentHTML('afterbegin',
       '<span class="badge fail">Wrong chain: ' + cid + '</span> ');
   }catch(e){}
-  tick(); setInterval(tick, 6000); setInterval(()=>{refreshPls();refreshHex();}, 60000);
+  tick();
+  setInterval(()=>{ if(!document.hidden) tick(); }, 6000);
+  setInterval(()=>{ if(document.hidden) return; refreshPls(); refreshHex(); }, 60000);
+  document.addEventListener('visibilitychange', ()=>{ if(!document.hidden) tick(); });
   loadVaultStats(); refreshPls(); refreshHex();
   routeFromUrl();
   window.addEventListener('hashchange', routeFromUrl);
