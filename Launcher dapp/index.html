@@ -488,7 +488,7 @@ pre.json{background:var(--panel2);border:1px solid var(--line);border-radius:12p
     <a href="https://pulsestrategy369.com" rel="noopener">PulseVerify</a> is the front page. The <a href="https://pulsestrategy369.com/whitepaper" rel="noopener">whitepaper</a> covers this launcher too — overview and how to. Download each page from its own footer.
   </div>
   <div>The contracts live on PulseChain and work without this page. This dapp reads the chain directly from your browser — no server, no database, no tracking.</div>
-  <div style="margin-top:10px"><a href="https://x.com/pulsestrategy" target="_blank" rel="noopener">@pulsestrategy</a> · the floor only rises · <span class="mono" id="buildTag">launcher v64 · 2026-09-28</span></div>
+  <div style="margin-top:10px"><a href="https://x.com/pulsestrategy" target="_blank" rel="noopener">@pulsestrategy</a> · the floor only rises · <span class="mono" id="buildTag">launcher v65 · 2026-09-29</span></div>
 </footer>
 </div>
 
@@ -1453,7 +1453,7 @@ let assetUsd={}, assetUsdAt=0, vaultTokUsd=0;
 function usdText(n){
   if(!(n>0)||!isFinite(n)) return "";
   if(n>=1e6) return "$"+(n/1e6).toFixed(2)+"M";
-  if(n>=1e3) return "$"+Math.round(n).toLocaleString("en-US");
+  if(n>=1e4) return "$"+Math.round(n).toLocaleString("en-US");
   if(n>=1) return "$"+n.toFixed(2);
   if(n>=0.01) return "$"+n.toFixed(4);
   if(n>=0.0001) return "$"+n.toFixed(6);
@@ -2865,13 +2865,8 @@ $("pxRemBtn") && ($("pxRemBtn").onclick=async()=>{
 async function findPair(a,b){
   const k=String(a).toLowerCase()+"|"+String(b).toLowerCase();
   if(Object.prototype.hasOwnProperty.call(pairAddrCache, k)) return pairAddrCache[k];
-  let found=null;
-  for(const f of PULSEX_FACTORIES){
-    try{
-      const p=await new ethers.Contract(f, FACT_PAIR_ABI, readProvider).getPair(a,b);
-      if(p && p!==ethers.ZeroAddress){ found=p; break; }
-    }catch(_){}
-  }
+  const deep=await pxPairDeep(a,b);
+  const found=deep ? deep.pair : null;
   pairAddrCache[k]=found;
   return found;
 }
