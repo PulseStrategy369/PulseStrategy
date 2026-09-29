@@ -711,7 +711,7 @@ try{
   }
 }catch(_){}
 
-const BUILD = "v83 \u00b7 2026-09-29";   // shown in the footer so users can tell builds apart
+const BUILD = "v84 \u00b7 2026-09-29";   // shown in the footer so users can tell builds apart
 const WC_PROJECT_ID = "dfa53b26ebcaa8d274b2a7f6ddc66cb0";   // free at https://cloud.reown.com (enables WalletConnect)
 /* Paste after Remix deploy of contracts/LPFeeShare.sol. Leave blank to hide the claim UI.
    Ownerless. Core deposits: protocol-fee wallet. Launch deposits: that vault's creator. */
@@ -1070,6 +1070,25 @@ async function activateVault(key){
   const cfg = VAULTS.find(v=>v.key===key);
   if(!cfg) return;
   pinFxVault(key);
+  lastBacking = null;
+  if($("backingNum")) $("backingNum").textContent = "·····";
+  if($("backingUsd")) $("backingUsd").style.display = "none";
+  if($("vaultBal")) $("vaultBal").textContent = "·····";
+  if($("supply")) $("supply").textContent = "·····";
+  if($("userTok")) $("userTok").textContent = "—";
+  if($("userAsset")) $("userAsset").textContent = "—";
+  if($("quota")) $("quota").textContent = "·····";
+  if($("mktChip")) $("mktChip").style.display = "none";
+  if($("inBal")) $("inBal").textContent = "";
+  if($("poolsList")) $("poolsList").innerHTML = "";
+  if($("lpPos")) $("lpPos").textContent = "Loading pool…";
+  if($("lpTokBal")) $("lpTokBal").textContent = "";
+  if($("lpQuoteBal")) $("lpQuoteBal").textContent = "";
+  if($("lpAddPrev")) $("lpAddPrev").textContent = "—";
+  if($("outAmt")) $("outAmt").textContent = "—";
+  if($("feeAmt")) $("feeAmt").textContent = "—";
+  epochSecs = null;
+  if($("epochTimer")) $("epochTimer").textContent = "·····";
   rememberVault(key);
   statusLockUntil = 0;
   { const box=$("lpFeeBox"); if(box){ delete box.dataset.copy; delete box.dataset.on; } }
@@ -3496,14 +3515,15 @@ function pairPickRead(){
 function pairPickGet(a,b){
   const row=pairPickRead()[pairPickKey(a,b)];
   if(!row || !(row.at>0) || Date.now()-row.at>PAIR_TTL) return undefined;
-  if(row.pair==null) return null;
-  return typeof row.pair==="string" ? row.pair : undefined;
+  if(typeof row.pair!=="string" || !row.pair) return undefined;
+  return { pair:row.pair, factory: typeof row.factory==="string" ? row.factory : "" };
 }
-function pairPickSet(a,b,pair){
+function pairPickSet(a,b,pair,factory){
+  if(!pair || !factory) return;
   const o=pairPickRead();
   const now=Date.now();
-  Object.keys(o).forEach(k=>{ if(!o[k] || !(o[k].at>0) || now-o[k].at>PAIR_TTL) delete o[k]; });
-  o[pairPickKey(a,b)]={ pair: pair||null, at: now };
+  Object.keys(o).forEach(k=>{ if(!o[k] || !(o[k].at>0) || now-o[k].at>PAIR_TTL || !o[k].pair) delete o[k]; });
+  o[pairPickKey(a,b)]={ pair, factory, at: now };
   try{ localStorage.setItem(PAIR_LS, JSON.stringify(o)); }catch(_){}
 }
 const backDeltaMemo={};
@@ -3574,9 +3594,9 @@ async function loadBackingDelta(){
 /* ---------- DEX market price vs backing ---------- */
 async function findPairInfo(a, b){
   const saved=pairPickGet(a,b);
-  if(saved!==undefined){
-    if(!saved) return null;
-    return { pair:saved, factory:PULSEX_FACTORIES[1], router:PULSEX_V2_ROUTER };
+  if(saved && saved.pair && saved.factory){
+    const router=PULSEX_ROUTER_OF[String(saved.factory).toLowerCase()]||PULSEX_V2_ROUTER;
+    return { pair:saved.pair, factory:saved.factory, router };
   }
   let best=null, bestLiq=-1n;
   for(const f of PULSEX_FACTORIES){
@@ -3591,7 +3611,7 @@ async function findPairInfo(a, b){
       }
     }catch(_){}
   }
-  pairPickSet(a,b, best?best.pair:null);
+  if(best && best.pair && best.factory) pairPickSet(a,b, best.pair, best.factory);
   return best;
 }
 async function findPair(a, b){
@@ -3599,7 +3619,7 @@ async function findPair(a, b){
   if(Object.prototype.hasOwnProperty.call(pairAddrCache, k)) return pairAddrCache[k];
   const i=await findPairInfo(a,b);
   const p=i?i.pair:null;
-  pairAddrCache[k]=p;
+  if(p) pairAddrCache[k]=p;
   return p;
 }
 /* how many B you get for 1 A, from pool reserves (spot, ignores fees/slippage) */
