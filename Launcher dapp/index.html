@@ -237,7 +237,7 @@ pre.json{background:var(--panel2);border:1px solid var(--line);border-radius:12p
       <p id="seedPrev" style="color:var(--mut);font-size:12px;margin-top:8px;line-height:1.6">You receive vault tokens at backing +4.5%. Min 10 of the chosen asset, in the same transaction as the 10,000 PLS fee. That puts the token in your wallet. The rest of this 7-day epoch stays uncapped, like PLSstr.</p>
     </div>
     <div style="height:14px"></div>
-    <p style="color:var(--mut);font-size:12px;line-height:1.6;margin:0 2px 12px">Launch costs <b style="color:var(--text)">10,000 PLS</b> plus at least <b style="color:var(--text)">10</b> of the backing asset (and a little gas). Empty vaults cannot be created. Immutable — no switch, no waiver.</p>
+    <p id="launchCost" style="color:var(--mut);font-size:12px;line-height:1.6;margin:0 2px 12px">Launch costs <b style="color:var(--text)">10,000 PLS</b> plus at least <b style="color:var(--text)">10</b> of the backing asset (and a little gas). Empty vaults cannot be created. Immutable — no switch, no waiver.</p>
     <button class="action wide" id="createBtn">Connect wallet to launch</button>
     <div class="status" id="createStatus"></div>
     <div id="createdBox" class="created" style="display:none">
@@ -270,7 +270,7 @@ pre.json{background:var(--panel2);border:1px solid var(--line);border-radius:12p
 
 <!-- BOARD -->
 <section id="tab-board" class="panel">
-  <h2>Leaderboard <small>Rank = vault TVL + PulseX depth. Switch PLS / USD for price, cap, TVL, depth, and volume. Floor is backing-per-token. 24h / 7d from chain logs — no indexer.</small></h2>
+  <h2>Leaderboard <small>Rank = vault TVL + PulseX depth. Switch PLS / USD for price, cap, TVL, depth, and volume. Floor is backing-per-token. 24h change from chain logs — no indexer.</small></h2>
   <div class="unitbar">
     <button class="chip chipbtn" id="refreshBoard">Refresh from chain</button>
     <button class="chip chipbtn" data-u="PLS" id="unitPls">PLS</button>
@@ -280,10 +280,11 @@ pre.json{background:var(--panel2);border:1px solid var(--line);border-radius:12p
     <button class="chip chipbtn" id="showJson">View JSON</button>
   </div>
   <div id="boardTop" class="board"></div>
-  <h2>Top 50 <small>Compact. Click a row to open the vault.</small></h2>
+  <h2 id="boardRestTitle">Top by TVL <small>Biggest vault TVL + pool depth first. Click a row to open it.</small></h2>
   <div id="boardRest" class="board"></div>
+  <button type="button" class="chip chipbtn" id="loadMoreBoard" style="display:none">Load 5 more</button>
   <pre class="json" id="jsonOut" style="display:none;margin-top:16px"></pre>
-  <p class="note">Full list lives on the factory. Anyone can query <span class="mono">vaultCount()</span> / <span class="mono">allVaults()</span> or replay <span class="mono">VaultCreated</span>. This page only paints 10 + 50. The snapshot file is a cache, not an authority.</p>
+  <p class="note" id="boardCapNote">Top 5 by TVL, then 5 more at a time, up to 25. Launch token stays marked. Download snapshot saves the rows on screen.</p>
 </section>
 
 <!-- VAULT -->
@@ -296,6 +297,7 @@ pre.json{background:var(--panel2);border:1px solid var(--line);border-radius:12p
   <section class="ratchet">
     <div style="font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--mut);margin-bottom:8px" id="eyebrow">Backing per token</div>
     <div class="backing"><span id="backingNum">·····</span><span class="unit" id="backingUnit"></span></div>
+    <div class="backdelta" id="backingUsd" style="display:none;color:var(--mut)"></div>
     <div class="backdelta" id="backDelta" style="display:none"></div>
     <div class="youfloor" id="youFloor" style="display:none"></div>
     <div class="rail" aria-hidden="true"><div class="teeth"></div><div class="trail" id="railTrail"></div><div class="pawl" id="railPawl"></div></div>
@@ -375,6 +377,7 @@ pre.json{background:var(--panel2);border:1px solid var(--line);border-radius:12p
           <button type="button" class="maxbtn" id="pxPayMax">MAX</button>
         </div>
         <div id="pxPayBal" style="font-size:12px;color:var(--mut);margin-top:8px"></div>
+        <div id="pxPayUsd" style="font-size:12px;color:var(--mut);margin-top:2px"></div>
       </div>
       <div class="field" style="margin-top:10px">
         <label for="pxGotAmt">You receive</label>
@@ -382,6 +385,7 @@ pre.json{background:var(--panel2);border:1px solid var(--line);border-radius:12p
           <input id="pxGotAmt" inputmode="decimal" placeholder="0.0" autocomplete="off" readonly>
           <select id="pxGotSel" class="paysel" aria-label="Receive"></select>
         </div>
+        <div id="pxGotUsd" style="font-size:12px;color:var(--mut);margin-top:8px"></div>
       </div>
       <div class="preview">
         <div class="row"><span>Route</span><span id="pxVia">—</span></div>
@@ -484,7 +488,7 @@ pre.json{background:var(--panel2);border:1px solid var(--line);border-radius:12p
     <a href="https://pulsestrategy369.com" rel="noopener">PulseVerify</a> is the front page. The <a href="https://pulsestrategy369.com/whitepaper" rel="noopener">whitepaper</a> covers this launcher too — overview and how to. Download each page from its own footer.
   </div>
   <div>The contracts live on PulseChain and work without this page. This dapp reads the chain directly from your browser — no server, no database, no tracking.</div>
-  <div style="margin-top:10px"><a href="https://x.com/pulsestrategy" target="_blank" rel="noopener">@pulsestrategy</a> · the floor only rises · <span class="mono" id="buildTag">launcher v50 · 2026-09-23</span></div>
+  <div style="margin-top:10px"><a href="https://x.com/pulsestrategy" target="_blank" rel="noopener">@pulsestrategy</a> · the floor only rises · <span class="mono" id="buildTag">launcher v64 · 2026-09-28</span></div>
 </footer>
 </div>
 
@@ -742,6 +746,10 @@ function liveComma(el){
   try{ el.setSelectionRange(pos, pos); }catch(_){}
 }
 function esc(s){return String(s||"").replace(/&/g,"\u0026amp;").replace(/</g,"\u0026lt;").replace(/>/g,"\u0026gt;").replace(/"/g,"\u0026quot;").replace(/'/g,"\u0026#39;");}
+function pvAddr(addr){
+  if(!addr) return "—";
+  return '<a class="clink mono" href="'+CHAIN.explorer+addr+'">'+esc(addr)+'</a>';
+}
 const assetSym = a => (ASSETS.find(x=>x.addr.toLowerCase()===String(a).toLowerCase())||{}).sym || "ASSET";
 
 let rpcIndex=0;
@@ -763,6 +771,8 @@ let mode="mint", bal={asset:0n,token:0n}, previewOut=0n, needsApproval=false;
 let cur=null, epochSecs=null, epochFetched=0, lastBacking=null;
 let mktQuota={open:false, tok:0}, mktGen=0;
 let pickAsset=ASSETS[0].addr, pickQuota=1000, lastSnapshot=null, plsUsd=null, boardUnit="PLS";
+let boardRanked=[], boardShown=5;
+const BOARD_PAGE=5, BOARD_MAX=25;
 try{ if(localStorage.getItem("ps_board_unit")==="USD") boardUnit="USD"; }catch(_){}
 
 /* tabs */
@@ -783,32 +793,50 @@ function pickedAsset(){ return ASSETS.find(a=>a.addr.toLowerCase()===pickAsset.t
 function parseSeedAmt(){
   const a=pickedAsset();
   try{
-    const raw=String($("seedAmt").value||"").trim();
+    const raw=cleanNum($("seedAmt").value);
     if(!raw) return 0n;
     return ethers.parseUnits(raw, a.dec);
   }catch(_){ return null; }
 }
+let seedGen=0;
 async function paintSeed(){
+  const gen=++seedGen;
   const a=pickedAsset();
   $("seedSym").textContent=a.sym;
   const min=MIN_SEED_TOKENS * 10n ** BigInt(a.dec);
   const seed=parseSeedAmt();
+  let seedN=0;
+  try{ if(seed && seed>0n) seedN=Number(ethers.formatUnits(seed, a.dec)); }catch(_){}
+  try{ await loadAssetUsd(); }catch(_){}
+  if(gen!==seedGen) return;
+  const depU=seedN>0 ? usdText(usdRaw(a.sym, seedN)) : "";
   let line="Min 10 "+a.sym+". You receive vault tokens at backing +4.5% in the same transaction as the 10,000 PLS fee. This week stays uncapped, like PLSstr.";
-  if(seed===null){ $("seedPrev").textContent="Enter a valid amount (min 10)."; }
+  if(seed===null) line="Enter a valid amount (min 10).";
   else{
-    const out = seed * 10000n / 10450n;
-    line="You receive ~"+fmt(out,a.dec,4)+" vault tokens after the 4.5% premium. Min 10 "+a.sym+". Genesis epoch stays uncapped until it rolls.";
-    if(seed>0n && seed<min) line="Need at least 10 "+a.sym+" to launch.";
+    const out=seed * 10000n / 10450n;
+    line="You receive ~"+fmt(out,a.dec,4)+" vault tokens after the 4.5% premium"
+      +(depU?" · depositing "+depU:"")
+      +". Min 10 "+a.sym+". Genesis epoch stays uncapped until it rolls.";
+    if(seed>0n && seed<min) line="Need at least 10 "+a.sym+" to launch"+(depU?" · this amount is "+depU:"")+".";
   }
   $("seedPrev").textContent=line;
+  const cost=$("launchCost");
+  if(cost){
+    cost.innerHTML='Launch costs <b style="color:var(--text)">10,000 PLS</b> plus '
+      +(depU?'this mint <b style="color:var(--text)">'+depU+'</b> of '+a.sym+' (min 10)':'at least <b style="color:var(--text)">10</b> of the backing asset')
+      +' and a little gas. Empty vaults cannot be created. Immutable — no switch, no waiver.';
+  }
   const balEl=$("seedBal");
-  if(!account || !readProvider){ balEl.textContent=""; return; }
+  if(!account || !readProvider){ balEl.textContent=depU?("This mint "+depU):""; return; }
   try{
     const erc=new ethers.Contract(a.addr, ERC20_ABI, readProvider);
     const [bal,dec]=await Promise.all([erc.balanceOf(account), erc.decimals().catch(()=>a.dec)]);
+    if(gen!==seedGen) return;
     a.dec=Number(dec);
-    balEl.textContent="Balance: "+fmt(bal,a.dec,4)+" "+a.sym;
-  }catch(_){ balEl.textContent=""; }
+    const balN=Number(ethers.formatUnits(bal, a.dec));
+    const balU=usdText(usdRaw(a.sym, balN));
+    balEl.textContent="Balance: "+fmt(bal,a.dec,4)+" "+a.sym+(balU?" · "+balU:"")+(depU?"  ·  this "+depU:"");
+  }catch(_){ balEl.textContent=depU?("This mint "+depU):""; }
 }
 ASSETS.forEach((a,i)=>{
   const b=document.createElement("button");
@@ -1149,7 +1177,7 @@ $("createBtn").onclick=async()=>{
           const parsed=iface.parseLog(log);
           if(parsed && parsed.name==="Minted"){
             const b=Number(ethers.formatEther(parsed.args.newBackingPerToken));
-            if(account) cacheFirstMint(vault, account, b, { tx:rec.hash, block:rec.blockNumber });
+            if(account) cacheFirstMint(vault, account, b, { block: rec.blockNumber, assetIn: String(seed) });
           }
         }catch(_){}
       }
@@ -1382,9 +1410,10 @@ async function openVault(addr, switchTab){
   }
   $("backingUnit").textContent=aSym;
   const bd=$("backDelta"); if(bd) bd.style.display="none";
+  const bu=$("backingUsd"); if(bu) bu.style.display="none";
   const yf=$("youFloor"); if(yf) yf.style.display="none";
   $("railNote").textContent="The ratchet only moves right. 3.5% of every mint and 0.5% of every redeem stay in "+aSym+".";
-  $("vaultMeta").innerHTML='Vault <span class="mono">'+addr+'</span><br>Creator <span class="mono">'+creator+'</span> · backing '+aSym+' · start quota '+(Number(iq)/100)+'% · <span id="vaultSrcfy">Sourcify…</span>';
+  $("vaultMeta").innerHTML='Vault '+pvAddr(addr)+'<br>Creator '+pvAddr(creator)+' · backing '+esc(aSym)+' · start quota '+(Number(iq)/100)+'% · <span id="vaultSrcfy">Sourcify…</span>';
   sourcifyLookup(addr).then(m=>{
     const el=$("vaultSrcfy"); if(!el) return;
     if(m){
@@ -1420,13 +1449,68 @@ async function openVault(addr, switchTab){
 }
 
 /* reads */
+let assetUsd={}, assetUsdAt=0, vaultTokUsd=0;
+function usdText(n){
+  if(!(n>0)||!isFinite(n)) return "";
+  if(n>=1e6) return "$"+(n/1e6).toFixed(2)+"M";
+  if(n>=1e3) return "$"+Math.round(n).toLocaleString("en-US");
+  if(n>=1) return "$"+n.toFixed(2);
+  if(n>=0.01) return "$"+n.toFixed(4);
+  if(n>=0.0001) return "$"+n.toFixed(6);
+  const decimals=Math.min(12, Math.max(2, 3-Math.floor(Math.log10(n))));
+  return "$"+n.toFixed(decimals).replace(/0+$/,"").replace(/\.$/,"");
+}
+async function loadAssetUsd(){
+  if(assetUsd.PLS && Date.now()-assetUsdAt<60000){
+    vaultTokUsd=(cur && lastBacking>0 && assetUsd[cur.cfg.assetSym]) ? assetUsd[cur.cfg.assetSym]*lastBacking : 0;
+    return;
+  }
+  try{ if(!plsUsd) await loadPlsUsd(); }catch(_){}
+  if(!plsUsd || !(plsUsd.usdPer>0)) return;
+  const rows=[{sym:"HEX",addr:HEX_ADDR,dec:8},{sym:"vPLS",addr:"0x79BB3A0Ee435f957ce4f54eE8c3CFADc7278da0C",dec:18}].concat(ASSETS);
+  const next={PLS:plsUsd.usdPer, WPLS:plsUsd.usdPer};
+  for(const a of rows){
+    if(String(a.addr).toLowerCase()===WPLS.toLowerCase()){ next[a.sym]=plsUsd.usdPer; continue; }
+    try{
+      const p=await findPair(a.addr, WPLS);
+      if(!p) continue;
+      const res=await pairReserves(p);
+      const wIs0=res.t0.toLowerCase()===WPLS.toLowerCase();
+      const tok=Number(ethers.formatUnits(wIs0?res.r1:res.r0, a.dec));
+      const w=Number(ethers.formatUnits(wIs0?res.r0:res.r1, 18));
+      if(tok>0 && w>0) next[a.sym]=(w/tok)*plsUsd.usdPer;
+    }catch(_){}
+  }
+  assetUsd=next; assetUsdAt=Date.now();
+  vaultTokUsd=(cur && lastBacking>0 && assetUsd[cur.cfg.assetSym]) ? assetUsd[cur.cfg.assetSym]*lastBacking : 0;
+}
+function usdRaw(sym, amount){
+  if(!(amount>0)||!isFinite(amount)) return 0;
+  if(cur && sym===cur.cfg.token && vaultTokUsd>0) return vaultTokUsd*amount;
+  const px=assetUsd[sym];
+  if(!(px>0)) return 0;
+  return px*amount;
+}
+function usdJoin(text, sym, amount){
+  const n=usdRaw(sym, amount);
+  if(!(n>0)) return text;
+  const u=usdText(n);
+  return u ? text+" · "+u : text;
+}
+function usdStat(text, sym, amount){
+  const n=usdRaw(sym, amount);
+  const u=n>0 ? usdText(n) : "";
+  return text+(u ? '<div style="font-family:IBM Plex Mono,monospace;font-size:11px;color:var(--mut);margin-top:3px">'+u+"</div>" : "");
+}
 async function refresh(){
   if(!cur) return;
   if(!rpcHealthy && !(await ensureRpc())){ setStatus("All RPCs unreachable.","err"); return; }
   if(account){
     try{
       const ua=await cur.ar.balanceOf(account);
-      bal.asset=ua; $("userAsset").textContent=fmt(ua,cur.aDec)+" "+cur.cfg.assetSym;
+      bal.asset=ua;
+      const an=Number(ethers.formatUnits(ua, cur.aDec));
+      $("userAsset").innerHTML=usdStat(fmt(ua,cur.aDec)+" "+cur.cfg.assetSym, cur.cfg.assetSym, an);
     }catch(_){}
   }else if($("userAsset")) $("userAsset").textContent="—";
   try{
@@ -1437,17 +1521,33 @@ async function refresh(){
     ]);
     lastBacking=parseFloat(ethers.formatEther(backing));
     $("backingNum").textContent=lastBacking.toFixed(4);
+    await loadAssetUsd();
+    if($("backingUsd")){
+      const u=vaultTokUsd>0?usdText(vaultTokUsd):"";
+      const ax=cur && assetUsd[cur.cfg.assetSym] ? usdText(assetUsd[cur.cfg.assetSym]) : "";
+      if(u){
+        $("backingUsd").textContent=u+" each"+(ax ? " · "+lastBacking.toFixed(4)+" × "+ax : "");
+        $("backingUsd").style.display="block";
+      } else $("backingUsd").style.display="none";
+    }
+    if(account && bal.asset!=null && $("userAsset")){
+      const an2=Number(ethers.formatUnits(bal.asset, cur.aDec));
+      $("userAsset").innerHTML=usdStat(fmt(bal.asset,cur.aDec)+" "+cur.cfg.assetSym, cur.cfg.assetSym, an2);
+    }
     const pct=Math.min(96, 8+lastBacking*18);
     $("railTrail").style.width=pct+"%"; $("railPawl").style.left=pct+"%";
-    $("vaultBal").textContent=fmt(vb,cur.aDec)+" "+cur.cfg.assetSym;
+    const heldN=Number(ethers.formatUnits(vb, cur.aDec));
+    $("vaultBal").innerHTML=usdStat(fmt(vb,cur.aDec)+" "+cur.cfg.assetSym, cur.cfg.assetSym, heldN);
     $("supply").textContent=fmt(ts,cur.tDec)+" "+cur.cfg.token;
-    $("quota").textContent=(genesis||quota>=MAXU/2n)?"unlimited (genesis)":fmt(quota,cur.tDec)+" "+cur.cfg.token;
+    $("quota").textContent=(genesis||quota>=MAXU/2n)?"unlimited (genesis)":usdJoin(fmt(quota,cur.tDec)+" "+cur.cfg.token, cur.cfg.token, Number(ethers.formatUnits(quota, cur.tDec)));
     $("qBps").textContent=(genesis||quota>=MAXU/2n)?"uncapped this epoch":((Number(qbps)/100)+"% of supply");
     mktQuota={ open: genesis || quota>0n, tok: (genesis||quota>=MAXU/2n) ? Infinity : Number(ethers.formatUnits(quota, cur.tDec)) };
     epochSecs=Number(tnext); epochFetched=Date.now();
     if(account){
       const ut=await cur.vr.balanceOf(account);
-      bal.token=ut; $("userTok").textContent=fmt(ut,cur.tDec)+" "+cur.cfg.token;
+      bal.token=ut;
+      const tn=Number(ethers.formatUnits(ut, cur.tDec));
+      $("userTok").innerHTML=usdStat(fmt(ut,cur.tDec)+" "+cur.cfg.token, cur.cfg.token, tn);
     }else if($("userTok")) $("userTok").textContent="—";
     paintInBal();
     setStatus("");
@@ -1460,36 +1560,61 @@ async function refresh(){
 }
 const MINTED_TOPIC   = "0x5a3358a3d27a5373c0df2604662088d37894d56b7cfd27f315770440f4e0d919";
 const REDEEMED_TOPIC = "0x76cd0cedf979345ca241ce6de696a520a8efc860c6c10d9db2a7953307c237fc";
+const backDeltaMemo={};
+let backDeltaSpan=7;
+const mint0Miss=new Set();
+const pairAddrCache={};
 async function loadBackingDelta(){
   const el=$("backDelta"); if(!el) return;
-  el.style.display="none";
-  if(!cur || !cur.cfg.vault || !(lastBacking>0)) return;
+  if(!cur || !cur.vr || !cur.cfg.vault){ el.style.display="none"; return; }
   const vault=cur.cfg.vault;
-  const perDay=Math.max(1, Math.round(86400/CHAIN.blockTimeSec));
+  const key=vault.toLowerCase();
+  const hit=backDeltaMemo[key];
+  if(hit && Date.now()-hit.at<10*60*1000){
+    el.textContent=hit.text; el.style.display="block"; return;
+  }
+  let nowBn;
+  try{ nowBn=await cur.vr.backingPerToken(); }catch(_){ return; }
+  if(!cur || cur.cfg.vault!==vault) return;
+  const now=Number(ethers.formatEther(nowBn));
+  if(!(now>0)) return;
+  lastBacking=now;
   let head;
   try{ head=await readProvider.getBlockNumber(); }catch(_){ return; }
-  for(const days of [7,3,1]){
-    let logs;
+  const perDay=Math.max(1, Math.round(86400/CHAIN.blockTimeSec));
+  const from=Math.max(0, head-7*perDay);
+  const word=log=>{
+    const d=(log.data||"0x").replace(/^0x/,"");
+    if(d.length<64) return null;
+    try{ const n=Number(ethers.formatEther(BigInt("0x"+d.slice(-64)))); return n>0?n:null; }catch(_){ return null; }
+  };
+  const span=(a,b)=>readProvider.getLogs({
+    address:vault, topics:[[MINTED_TOPIC, REDEEMED_TOPIC]],
+    fromBlock:Math.max(0,a), toBlock:b
+  });
+  let base=null;
+  for(let i=1;i<=8 && base==null;i++){
+    if(!cur || cur.cfg.vault!==vault) return;
+    const hi=from-(i-1)*7*perDay, lo=from-i*7*perDay;
+    if(hi<=1) break;
     try{
-      logs=await readProvider.getLogs({
-        address: vault,
-        topics: [[MINTED_TOPIC, REDEEMED_TOPIC]],
-        fromBlock: Math.max(0, head - days*perDay),
-        toBlock: head
-      });
-    }catch(_){ continue; }
-    if(!logs || !logs.length) return;
-    const d=(logs[0].data||"0x").replace(/^0x/,"");
-    if(d.length<64) return;
-    let base;
-    try{ base=Number(ethers.formatEther(BigInt("0x"+d.slice(-64)))); }catch(_){ return; }
-    if(!(base>0)) return;
-    if(cur.cfg.vault!==vault) return;
-    const pct=(lastBacking/base-1)*100;
-    el.textContent=(pct>=0?"+":"")+pct.toFixed(2)+"% in the last "+days+(days===1?" day":" days");
-    el.style.display="block";
-    return;
+      const prev=await span(lo, hi-1);
+      if(prev && prev.length) base=word(prev[prev.length-1]);
+    }catch(_){}
   }
+  if(base==null){
+    try{
+      const logs=await span(from, head);
+      if(logs && logs.length) base=word(logs[0]);
+    }catch(_){}
+  }
+  if(!(base>0)) base=now;
+  if(!cur || cur.cfg.vault!==vault) return;
+  let pct=(now/base-1)*100;
+  if(!(pct>0) || !isFinite(pct)) pct=0;
+  const text="Vault +"+pct.toFixed(2)+"% in 7 days";
+  el.textContent=text; el.style.display="block";
+  backDeltaMemo[key]={at:Date.now(), text};
 }
 function shareLaunchUrl(addr){
   const canon="https://pulsestrategy369.com/launch";
@@ -1541,57 +1666,100 @@ async function addLaunchToken(){
 function cacheFirstMint(vault, acct, backing, extra){
   if(!vault || !acct || !(backing>0)) return;
   const key="ps_mint0_"+String(vault).toLowerCase()+"_"+String(acct).toLowerCase();
-  try{ localStorage.setItem(key, JSON.stringify({ backing, ...(extra||{}) })); }catch(_){}
+  const ex=extra||{};
+  try{
+    localStorage.setItem(key, JSON.stringify({
+      backing, block: ex.block||0,
+      assetIn: ex.assetIn!=null ? String(ex.assetIn) : "0",
+      assetOut: "0",
+      scannedTo: ex.block||0,
+      at: 0
+    }));
+  }catch(_){}
 }
 async function firstMintOf(vault, acct, createdAt){
   const key="ps_mint0_"+String(vault).toLowerCase()+"_"+String(acct).toLowerCase();
-  try{
-    const c=JSON.parse(localStorage.getItem(key)||"null");
-    if(c && c.backing>0) return c;
-  }catch(_){}
+  if(mint0Miss.has(key)) return null;
   const topic1="0x"+acct.slice(2).toLowerCase().padStart(64,"0");
+  const topics=[[MINTED_TOPIC, REDEEMED_TOPIC], topic1];
+  let cached=null;
+  try{ cached=JSON.parse(localStorage.getItem(key)||"null"); }catch(_){}
+  const fresh=cached && cached.assetIn!=null && cached.scannedTo && Date.now()-(cached.at||0)<10*60*1000;
+  if(fresh && cached.backing>0) return cached;
   let head;
-  try{ head=await readProvider.getBlockNumber(); }catch(_){ return null; }
+  try{ head=await readProvider.getBlockNumber(); }catch(_){ return cached && cached.backing>0 ? cached : null; }
+  const acc={ assetIn:0n, assetOut:0n, backing:0, block:0 };
+  const fold=logs=>{
+    for(const log of logs||[]){
+      const topic=String((log.topics&&log.topics[0])||"").toLowerCase();
+      const d=(log.data||"0x").replace(/^0x/,"");
+      const block=parseInt(log.blockNumber,16)||0;
+      if(topic===MINTED_TOPIC.toLowerCase() && d.length>=192){
+        acc.assetIn += BigInt("0x"+d.slice(0,64));
+        const b=Number(ethers.formatEther(BigInt("0x"+d.slice(128,192))));
+        if(b>0 && (!acc.block || block<acc.block)){ acc.block=block; acc.backing=b; }
+      }else if(topic===REDEEMED_TOPIC.toLowerCase() && d.length>=128){
+        acc.assetOut += BigInt("0x"+d.slice(64,128));
+      }
+    }
+  };
+  const save=()=>{
+    if(!(acc.backing>0)) return null;
+    const rec={ backing:acc.backing, block:acc.block||0, assetIn:acc.assetIn.toString(), assetOut:acc.assetOut.toString(), scannedTo:head, at:Date.now() };
+    try{ localStorage.setItem(key, JSON.stringify(rec)); }catch(_){}
+    return rec;
+  };
+  if(cached && cached.assetIn!=null && cached.scannedTo){
+    acc.assetIn=BigInt(cached.assetIn||"0");
+    acc.assetOut=BigInt(cached.assetOut||"0");
+    acc.backing=cached.backing;
+    acc.block=cached.block||0;
+    const from=Number(cached.scannedTo)+1;
+    if(from<=head){
+      try{
+        const logs=await readProvider.getLogs({ address:vault, topics, fromBlock:from, toBlock:head });
+        fold(logs);
+      }catch(_){ return cached; }
+    }
+    return save() || cached;
+  }
   const perDay=Math.max(1, Math.round(86400/CHAIN.blockTimeSec));
-  let oldest=null;
+  let saw=false;
   if(createdAt){
     const ago=Math.max(0, Math.floor(Date.now()/1000)-Number(createdAt));
     const from=Math.max(0, head - Math.ceil(ago/CHAIN.blockTimeSec) - 80);
     try{
-      const logs=await readProvider.getLogs({
-        address: vault, topics:[MINTED_TOPIC, topic1], fromBlock: from, toBlock: head
-      });
-      if(logs && logs.length) oldest=logs[0];
+      const logs=await readProvider.getLogs({ address:vault, topics, fromBlock:from, toBlock:head });
+      if(logs && logs.length){ fold(logs); saw=true; }
     }catch(_){}
   }
-  if(!oldest){
+  if(!saw){
     let chunk=30, endDays=0;
     while(endDays<400){
       const to=Math.max(0, head - endDays*perDay);
       const from=Math.max(0, head - (endDays+chunk)*perDay);
       if(to<=0) break;
       try{
-        const logs=await readProvider.getLogs({
-          address: vault, topics:[MINTED_TOPIC, topic1], fromBlock: from, toBlock: to
-        });
-        if(logs && logs.length) oldest=logs[0];
-        if(from===0) break;
-        endDays+=chunk;
+        const logs=await readProvider.getLogs({ address:vault, topics, fromBlock:from, toBlock:to });
+        if(logs && logs.length){ fold(logs); saw=true; }
       }catch(_){
         if(chunk>7){ chunk=7; continue; }
-        endDays+=chunk;
       }
+      if(from===0) break;
+      endDays+=chunk;
     }
   }
-  if(!oldest) return null;
-  const d=(oldest.data||"0x").replace(/^0x/,"");
-  if(d.length<64) return null;
-  let backing;
-  try{ backing=Number(ethers.formatEther(BigInt("0x"+d.slice(-64)))); }catch(_){ return null; }
-  if(!(backing>0)) return null;
-  const rec={ backing, block:parseInt(oldest.blockNumber,16), tx:oldest.transactionHash };
-  cacheFirstMint(vault, acct, backing, rec);
-  return rec;
+  if(!saw || !(acc.backing>0)){ mint0Miss.add(key); return null; }
+  return save();
+}
+function staleYouFloor(){
+  if(!account || !cur || !cur.cfg.vault) return;
+  const key="ps_mint0_"+cur.cfg.vault.toLowerCase()+"_"+account.toLowerCase();
+  mint0Miss.delete(key);
+  try{
+    const c=JSON.parse(localStorage.getItem(key)||"null");
+    if(c){ c.at=0; localStorage.setItem(key, JSON.stringify(c)); }
+  }catch(_){}
 }
 async function loadYouFloor(){
   const el=$("youFloor"); if(!el) return;
@@ -1599,10 +1767,14 @@ async function loadYouFloor(){
   if(!account || !cur || !cur.cfg.vault || !(lastBacking>0)) return;
   const vault=cur.cfg.vault;
   const rec=await firstMintOf(vault, account, cur.cfg.createdAt);
-  if(!cur || cur.cfg.vault!==vault) return;
-  if(!rec || !(rec.backing>0)) return;
-  const pct=(lastBacking/rec.backing - 1)*100;
-  el.textContent=(pct>=0?"+":"")+pct.toFixed(2)+"% since you minted · from "+rec.backing.toFixed(4);
+  if(!cur || cur.cfg.vault!==vault || !rec || !(rec.backing>0)) return;
+  const putIn=Number(ethers.formatUnits(BigInt(rec.assetIn||"0"), cur.aDec));
+  if(!(putIn>0)) return;
+  const tookOut=Number(ethers.formatUnits(BigInt(rec.assetOut||"0"), cur.aDec));
+  const held=Number(ethers.formatUnits(bal.token||0n, cur.tDec))*lastBacking*0.995;
+  const up=tookOut+held-putIn;
+  if(!(up>0)) return;
+  el.textContent="You +"+(up/putIn*100).toFixed(2)+"%";
   el.style.display="block";
 }
 function tickEpoch(){
@@ -1612,13 +1784,25 @@ function tickEpoch(){
   $("epochTimer").textContent=(d?d+"d ":"")+Math.floor(s/3600)+"h "+Math.floor((s%3600)/60)+"m";
 }
 setInterval(tickEpoch,1000);
-setInterval(refresh,15000);
+setInterval(()=>{ if(!document.hidden) refresh(); }, 15000);
+document.addEventListener("visibilitychange", ()=>{ if(!document.hidden) refresh(); });
 
 function paintInBal(){
   const el=$("inBal"); if(!el) return;
   if(!cur || !account){ el.textContent=""; return; }
-  if(mode==="mint") el.textContent="Balance: "+fmt(bal.asset,cur.aDec)+" "+cur.cfg.assetSym;
-  else el.textContent="Balance: "+fmt(bal.token,cur.tDec)+" "+cur.cfg.token;
+  if(mode==="mint"){
+    const n=Number(ethers.formatUnits(bal.asset,cur.aDec));
+    let t=usdJoin("Balance: "+fmt(bal.asset,cur.aDec)+" "+cur.cfg.assetSym, cur.cfg.assetSym, n);
+    const typed=parseFloat(cleanNum($("amt").value)||"");
+    if(typed>0){ const u=usdText(usdRaw(cur.cfg.assetSym, typed)); if(u) t+="  ·  this "+u; }
+    el.textContent=t;
+  }else{
+    const n=Number(ethers.formatUnits(bal.token,cur.tDec));
+    let t=usdJoin("Balance: "+fmt(bal.token,cur.tDec)+" "+cur.cfg.token, cur.cfg.token, n);
+    const typed=parseFloat(cleanNum($("amt").value)||"");
+    if(typed>0){ const u=usdText(usdRaw(cur.cfg.token, typed)); if(u) t+="  ·  this "+u; }
+    el.textContent=t;
+  }
 }
 function setMode(m){
   mode=m;
@@ -1644,7 +1828,7 @@ $("amt").addEventListener("input",updatePreview);
 
 async function updatePreview(){
   const v=cleanNum($("amt").value); previewOut=0n;
-  if(!cur||!v||!(parseFloat(v)>0)){ $("outAmt").textContent="—"; $("feeAmt").textContent="—"; updateActionState(); return; }
+  if(!cur||!v||!(parseFloat(v)>0)){ $("outAmt").textContent="—"; $("feeAmt").textContent="—"; paintInBal(); updateActionState(); return; }
   try{
     if(mode==="mint"){
       const amt=ethers.parseUnits(v,cur.aDec);
@@ -1653,16 +1837,17 @@ async function updatePreview(){
         $("outAmt").textContent="0 — epoch quota filled";
         $("feeAmt").textContent="—";
       }else{
-        $("outAmt").textContent=fmt(out,cur.tDec)+" "+cur.cfg.token;
-        $("feeAmt").textContent=fmt(amt*450n/10450n,cur.aDec)+" "+cur.cfg.assetSym;
+        $("outAmt").textContent=usdJoin(fmt(out,cur.tDec)+" "+cur.cfg.token, cur.cfg.token, Number(ethers.formatUnits(out, cur.tDec)));
+        $("feeAmt").textContent=usdJoin(fmt(amt*450n/10450n,cur.aDec)+" "+cur.cfg.assetSym, cur.cfg.assetSym, Number(ethers.formatUnits(amt*450n/10450n, cur.aDec)));
       }
     }else{
       const amt=ethers.parseUnits(v,cur.tDec);
       const [out,fee]=await cur.vr.previewRedeem(amt); previewOut=out;
-      $("outAmt").textContent=fmt(out,cur.aDec)+" "+cur.cfg.assetSym;
-      $("feeAmt").textContent=fee===0n?"0 (full-supply waiver)":fmt(fee,cur.aDec)+" "+cur.cfg.assetSym;
+      $("outAmt").textContent=usdJoin(fmt(out,cur.aDec)+" "+cur.cfg.assetSym, cur.cfg.assetSym, Number(ethers.formatUnits(out, cur.aDec)));
+      $("feeAmt").textContent=fee===0n?"0 (full-supply waiver)":usdJoin(fmt(fee,cur.aDec)+" "+cur.cfg.assetSym, cur.cfg.assetSym, Number(ethers.formatUnits(fee, cur.aDec)));
     }
   }catch(_){ $("outAmt").textContent="—"; $("feeAmt").textContent="—"; }
+  paintInBal();
   updateActionState();
 }
 
@@ -1712,7 +1897,7 @@ async function doAction(){
       const tx=await cur.vault.redeem(amt, previewOut*995n/1000n); await tx.wait();
       setStatus("Redeemed.","ok");
     }
-    $("amt").value=""; await refresh();
+    $("amt").value=""; staleYouFloor(); await refresh();
   }catch(e){
     let m=e.shortMessage||e.message||"Failed";
     if(/MintQuotaExceeded/.test(m)) m="Epoch mint quota exhausted — buy on PulseX or wait.";
@@ -2291,7 +2476,7 @@ async function paintPxDeal(pay, got, amt, route){
     if(btn && account) btn.textContent="Swap on PulseX";
   }
   const min=route.got*BigInt(10000-pxSlipBps)/10000n;
-  setPxEl("pxMin", fmt(min, got.dec, 4)+" "+got.sym);
+  setPxEl("pxMin", usdJoin(fmt(min, got.dec, 4)+" "+got.sym, got.sym, Number(ethers.formatUnits(min, got.dec))));
   return min;
 }
 
@@ -2302,11 +2487,19 @@ async function quotePxSwap(){
   if(!account){ if(btn) btn.textContent="Connect wallet"; }
   else if(btn) btn.textContent="Swap on PulseX";
   if(pay){
-    try{ if($("pxPayBal")) $("pxPayBal").textContent="Balance: "+fmt(await pxBal(pay), pay.dec, 4)+" "+pay.sym; }catch(_){}
+    try{
+      const bag=await pxBal(pay);
+      const n=Number(ethers.formatUnits(bag, pay.dec));
+      if($("pxPayBal")) $("pxPayBal").textContent=usdJoin("Balance: "+fmt(bag, pay.dec, 4)+" "+pay.sym, pay.sym, n);
+    }catch(_){}
   }
+  if($("pxPayUsd")) $("pxPayUsd").textContent="";
+  if($("pxGotUsd")) $("pxGotUsd").textContent="";
   const raw=cleanNum($("pxPayAmt")?.value);
   if(!raw || !(parseFloat(raw)>0) || !pay || !got){
     if($("pxGotAmt")) $("pxGotAmt").value="";
+    if($("pxPayUsd")) $("pxPayUsd").textContent="";
+    if($("pxGotUsd")) $("pxGotUsd").textContent="";
     if($("pxVia")) $("pxVia").textContent="—";
     if($("pxMin")) $("pxMin").textContent="—";
     return;
@@ -2316,7 +2509,11 @@ async function quotePxSwap(){
     if($("pxVia")) $("pxVia").textContent=wrap?"WPLS wrap · 1 PLS = 1 WPLS":"Same token";
     if(wrap){
       if($("pxGotAmt")) $("pxGotAmt").value=raw;
-      if($("pxMin")) $("pxMin").textContent=raw+" "+got.sym;
+      const payN=Number(raw);
+      const payU=usdText(usdRaw("PLS", payN));
+      if($("pxPayUsd")) $("pxPayUsd").textContent=payU?"Paying "+payU:"";
+      if($("pxGotUsd")) $("pxGotUsd").textContent=payU?"Receiving "+payU:"";
+      if($("pxMin")) $("pxMin").textContent=usdJoin(raw+" "+got.sym, "PLS", payN);
       let amt; try{ amt=ethers.parseUnits(raw, 18); }catch(_){ return; }
       window._pxSwap={ wrap:true, amt, pay, got, min:amt };
     }else if($("pxGotAmt")) $("pxGotAmt").value="";
@@ -2327,6 +2524,14 @@ async function quotePxSwap(){
     const route=await pxBestSwap(pay.addr, got.addr, amt);
     if(!route){ if($("pxVia")) $("pxVia").textContent="no PulseX path — create the pool first"; if($("pxGotAmt")) $("pxGotAmt").value=""; return; }
     if($("pxGotAmt")) $("pxGotAmt").value=commaNum(ethers.formatUnits(route.got, got.dec), 6);
+    if($("pxPayUsd")){
+      const u=usdText(usdRaw(pay.sym, Number(ethers.formatUnits(amt, pay.dec))));
+      $("pxPayUsd").textContent=u?"Paying "+u:"";
+    }
+    if($("pxGotUsd")){
+      const u=usdText(usdRaw(got.sym, Number(ethers.formatUnits(route.got, got.dec))));
+      $("pxGotUsd").textContent=u?"Receiving "+u:"";
+    }
     if($("pxVia")) $("pxVia").textContent=route.via+(pay.native?" (PLS)":"");
     const min=await paintPxDeal(pay, got, amt, route);
     window._pxSwap={ route, amt, min:min||route.got*BigInt(10000-pxSlipBps)/10000n, pay, got };
@@ -2338,8 +2543,14 @@ async function quotePxAdd(){
   const q=pxSpec($("pxQuoteSel")?.value||"PLS");
   if($("pxTokSym")) $("pxTokSym").textContent=cur.cfg.token;
   if(account){
-    try{ $("pxTokBal").textContent="Balance: "+fmt(await new ethers.Contract(cur.cfg.vault, ERC20_ABI, readProvider).balanceOf(account), cur.tDec, 4)+" "+cur.cfg.token; }catch(_){}
-    try{ $("pxQuoteBal").textContent="Balance: "+fmt(await pxBal(q), q.dec, 4)+" "+q.sym; }catch(_){}
+    try{
+      const bag=await new ethers.Contract(cur.cfg.vault, ERC20_ABI, readProvider).balanceOf(account);
+      $("pxTokBal").textContent=usdJoin("Balance: "+fmt(bag, cur.tDec, 4)+" "+cur.cfg.token, cur.cfg.token, Number(ethers.formatUnits(bag, cur.tDec)));
+    }catch(_){}
+    try{
+      const bag=await pxBal(q);
+      $("pxQuoteBal").textContent=usdJoin("Balance: "+fmt(bag, q.dec, 4)+" "+q.sym, q.sym, Number(ethers.formatUnits(bag, q.dec)));
+    }catch(_){}
   }
   const pair=await paintPxPoolLine();
   const tokRaw=cleanNum($("pxTokAmt")?.value);
@@ -2352,7 +2563,7 @@ async function quotePxAdd(){
     const one=10n**BigInt(cur.tDec);
     fair=await fairQuoteForTokens(one, q);
     if(fair && $("pxFairT")){
-      $("pxFairT").textContent="1 "+cur.cfg.token+" ≈ "+fmt(fair, q.dec, 6)+" "+q.sym;
+      $("pxFairT").textContent="1 "+cur.cfg.token+" ≈ "+fmt(fair, q.dec, 6)+" "+q.sym+(usdText(usdRaw(q.sym, Number(ethers.formatUnits(fair, q.dec))))?" · "+usdText(usdRaw(q.sym, Number(ethers.formatUnits(fair, q.dec)))):"");
       $("pxFairD").textContent="From vault backing ("+(lastBacking?lastBacking.toFixed(4):"—")+" "+cur.cfg.assetSym+" per token), converted to "+q.sym+" on PulseX. Seed at this ratio so the pool isn’t cheaper than redeeming.";
     }else if($("pxFairT")){
       $("pxFairT").textContent="Pair with the backing asset or PLS for a fair start";
@@ -2390,7 +2601,13 @@ async function quotePxAdd(){
     }catch(_){}
   }
   const tNow=cleanNum($("pxTokAmt")?.value), qNow=cleanNum($("pxQuoteAmt")?.value);
-  if($("pxAddPrev")) $("pxAddPrev").textContent=(tNow||"—")+" "+cur.cfg.token+" + "+(qNow||"—")+" "+q.sym;
+  if($("pxAddPrev")){
+    const tN=parseFloat(tNow)||0, qN=parseFloat(qNow)||0;
+    let line=(tNow||"—")+" "+cur.cfg.token+" + "+(qNow||"—")+" "+q.sym;
+    const sum=usdRaw(cur.cfg.token, tN)+usdRaw(q.sym, qN);
+    if(sum>0) line+=" · "+usdText(sum);
+    $("pxAddPrev").textContent=line;
+  }
   const skewEl=$("pxAddSkew");
   if(skewEl){
     try{
@@ -2452,11 +2669,17 @@ async function quotePxRem(){
     const tokIs0=t0.toLowerCase()===cur.cfg.vault.toLowerCase();
     const rT=tokIs0?r0:r1, rQ=tokIs0?r1:r0;
     const outT=burn*rT/ts, outQ=burn*rQ/ts;
+    const outTn=Number(ethers.formatUnits(outT, cur.tDec));
+    const outQn=Number(ethers.formatUnits(outQ, q.dec));
+    const qSym=q.native?"PLS":q.sym;
     if($("pxRemLp")) $("pxRemLp").textContent=fmtLp(burn)+" LP";
     if($("pxRemShare")) $("pxRemShare").textContent=sharePct(burn,ts)+"% of the pool";
-    if($("pxRemTok")) $("pxRemTok").textContent=fmt(outT, cur.tDec, 4)+" "+cur.cfg.token;
-    if($("pxRemQuote")) $("pxRemQuote").textContent=fmt(outQ, q.dec, 4)+" "+q.sym+(q.native?" (as PLS)":"");
-    if($("pxRemPrev")) $("pxRemPrev").textContent=fmt(outT, cur.tDec, 4)+" "+cur.cfg.token+" + "+fmt(outQ, q.dec, 4)+" "+(q.native?"PLS":q.sym);
+    if($("pxRemTok")) $("pxRemTok").textContent=usdJoin(fmt(outT, cur.tDec, 4)+" "+cur.cfg.token, cur.cfg.token, outTn);
+    if($("pxRemQuote")) $("pxRemQuote").textContent=usdJoin(fmt(outQ, q.dec, 4)+" "+q.sym+(q.native?" (as PLS)":""), qSym, outQn);
+    let recv=fmt(outT, cur.tDec, 4)+" "+cur.cfg.token+" + "+fmt(outQ, q.dec, 4)+" "+qSym;
+    const sum=usdRaw(cur.cfg.token, outTn)+usdRaw(qSym, outQn);
+    if(sum>0) recv+=" · "+usdText(sum);
+    if($("pxRemPrev")) $("pxRemPrev").textContent=recv;
     window._pxRem={ pair, burn, outT, outQ, q };
   }catch(_){ clear(); }
 }
@@ -2640,13 +2863,17 @@ $("pxRemBtn") && ($("pxRemBtn").onclick=async()=>{
 /* leaderboard */
 
 async function findPair(a,b){
+  const k=String(a).toLowerCase()+"|"+String(b).toLowerCase();
+  if(Object.prototype.hasOwnProperty.call(pairAddrCache, k)) return pairAddrCache[k];
+  let found=null;
   for(const f of PULSEX_FACTORIES){
     try{
       const p=await new ethers.Contract(f, FACT_PAIR_ABI, readProvider).getPair(a,b);
-      if(p && p!==ethers.ZeroAddress) return p;
+      if(p && p!==ethers.ZeroAddress){ found=p; break; }
     }catch(_){}
   }
-  return null;
+  pairAddrCache[k]=found;
+  return found;
 }
 async function pairReserves(pair){
   const c=new ethers.Contract(pair, PAIR_ABI, readProvider);
@@ -2662,12 +2889,12 @@ function mktToWei(n, dec){
 }
 function uniOut(amountIn, reserveIn, reserveOut){
   if(amountIn<=0n||reserveIn<=0n||reserveOut<=0n) return 0n;
-  const ain=amountIn*997n;
-  return ain*reserveOut/(reserveIn*1000n+ain);
+  const ain=amountIn*9971n;
+  return ain*reserveOut/(reserveIn*10000n+ain);
 }
 function uniIn(amountOutW, reserveIn, reserveOut){
   if(amountOutW<=0n||reserveIn<=0n||reserveOut<=0n||amountOutW>=reserveOut) return 0n;
-  return reserveIn*amountOutW*1000n/((reserveOut-amountOutW)*997n)+1n;
+  return reserveIn*amountOutW*10000n/((reserveOut-amountOutW)*9971n)+1n;
 }
 async function spotVs(token, tDec, quote, qDec){
   const p=await pxPair(PULSEX_V2_FACTORY, token, quote);
@@ -2758,8 +2985,9 @@ async function paintLaunchMkt(){
           +" · profit "+commaNum(ticket.profit, 2)+" "+sym;
       }else extra="Outside the band, but fees and price impact eat the edge.";
     }
+    const mUsd=usdText(usdRaw(sym, px));
     box.style.display="block";
-    box.innerHTML='<span class="chip '+(prem?"prem":"disc")+'">Market '+px.toFixed(4)+" "+esc(sym)+" · "+(prem?"+":"")+diff.toFixed(1)+"% "+(prem?"premium":"discount")+'</span>'
+    box.innerHTML='<span class="chip '+(prem?"prem":"disc")+'">Market '+px.toFixed(4)+" "+esc(sym)+(mUsd?" · "+mUsd:"")+" · "+(prem?"+":"")+diff.toFixed(1)+"% "+(prem?"premium":"discount")+'</span>'
       +'<div style="margin-top:8px;font-size:13px;color:var(--text)">'+esc(rec)+'</div>'
       +(extra?'<div style="margin-top:4px;font-size:12px;color:var(--mut)">'+esc(extra)+'</div>':'');
   }catch(_){ if(gen===mktGen) box.style.display="none"; }
@@ -2785,7 +3013,7 @@ async function toWpls(token, amount, dec){
 }
 
 const SYNC_TOPIC = "0x1c411e9a96e071241c2f21f7726b17ae89e3cab4c78be50e062b03a9fffbbad1";
-const SWAP_TOPIC = "0xd78ad95fa46c994b6551d0da85fc3d2cd6ee11e89dad82c4f70f0bd2faa23fc8";
+const SWAP_TOPIC = "0xd78ad95fa46c994b6551d0da85fc275fe613ce37657fb8d5e3d130840159d822";
 const STABLES = [
   { sym:"DAI",  addr:"0xefD766cCb38EaF1dfd701853BFCe31359239F305", dec:18 },
   { sym:"USDC", addr:"0x15D38573d2feeb82e7ad5187aB8c1D52810B1f07", dec:6 }
@@ -2908,7 +3136,7 @@ function setBoardUnit(u){
 async function pairHistory(pair, tokenAddr, quoteAddr, nowT, nowQ){
   const res=await pairReserves(pair);
   const is0=res.t0.toLowerCase()===tokenAddr.toLowerCase();
-  const span=await getLogsSpan(pair, [SYNC_TOPIC], 7);
+  const span=await getLogsSpan(pair, [SYNC_TOPIC], 1);
   const nowPriceBn=nowT>0n ? nowQ * 10n**18n / nowT : 0n;
   const nowDepthBn=(await toWpls(tokenAddr, nowT, 18)) + (await toWpls(quoteAddr, nowQ, 18));
   const thenPrice=log=>{
@@ -2922,11 +3150,7 @@ async function pairHistory(pair, tokenAddr, quoteAddr, nowT, nowQ){
     return 0n;
   };
   const price24=chgInWindow(span.logs, span.head, span.perDay, 24, thenPrice, nowPriceBn);
-  const price7=chgInWindow(span.logs, span.head, span.perDay, span.days*24, thenPrice, nowPriceBn);
-  if(price7) price7.days=span.days;
   const depth24=chgInWindow(span.logs, span.head, span.perDay, 24, depthThen, nowDepthBn);
-  const depth7=chgInWindow(span.logs, span.head, span.perDay, span.days*24, depthThen, nowDepthBn);
-  if(depth7) depth7.days=span.days;
   let vol24="0";
   try{
     const sw=await getLogsSpan(pair, [SWAP_TOPIC], 1);
@@ -2942,18 +3166,16 @@ async function pairHistory(pair, tokenAddr, quoteAddr, nowT, nowQ){
     }
     vol24=(await toWpls(tokenAddr, volT, 18)).toString();
   }catch(_){}
-  return { price24, price7, depth24, depth7, vol24 };
+  return { price24, price7:null, depth24, depth7:null, vol24 };
 }
 
 async function vaultFloorChg(vault, nowBackingBn){
-  const span=await getLogsSpan(vault, [[MINTED_TOPIC, REDEEMED_TOPIC]], 7);
+  const span=await getLogsSpan(vault, [[MINTED_TOPIC, REDEEMED_TOPIC]], 1);
   const b24=chgInWindow(span.logs, span.head, span.perDay, 24, backingBn, nowBackingBn);
-  const b7=chgInWindow(span.logs, span.head, span.perDay, span.days*24, backingBn, nowBackingBn);
-  if(b7) b7.days=span.days;
-  return { floor24:b24, floor7:b7 };
+  return { floor24:b24, floor7:null };
 }
 
-async function scoreVault(addr){
+async function scoreVault(addr, withLogs){
   const vr=new ethers.Contract(addr, VAULT_ABI, readProvider);
   const info = FACTORY_ADDR ? await new ethers.Contract(FACTORY_ADDR, FACTORY_ABI, readProvider).infoOf(addr).catch(()=>null) : null;
   const [name,sym,asset,vb,ts,backing,iq,qb,creator,tDec,genesis] = await Promise.all([
@@ -2986,10 +3208,11 @@ async function scoreVault(addr){
   const tDecN=Number(tDec)||18;
   const aDecN=Number(aDec)||18;
   let dexPriceTxt=null, mcapWpls="0", priceWpls="0", vsVault=null, hist=null;
+  let rT=0n, rQ=0n;
   if(priced && priced.r0>0n && priced.r1>0n){
     const tokenIs0=priced.t0.toLowerCase()===addr.toLowerCase();
-    const rT=tokenIs0?priced.r0:priced.r1;
-    const rQ=tokenIs0?priced.r1:priced.r0;
+    rT=tokenIs0?priced.r0:priced.r1;
+    rQ=tokenIs0?priced.r1:priced.r0;
     if(rT>0n){
       const qPer=rQ * (10n**BigInt(tDecN)) / rT;
       dexPriceTxt=fmt(qPer, priced.q.dec, 4)+" "+priced.q.sym;
@@ -3001,10 +3224,13 @@ async function scoreVault(addr){
       const fairAsset=backing * (10n**BigInt(aDecN)) / (10n**18n);
       const fairW=await toWpls(asset, fairAsset, aDecN);
       if(fairW>0n && pxW>0n) vsVault=Number(pxW * 10000n / fairW)/100 - 100;
-      hist=await pairHistory(priced.pair, addr, priced.q.addr, rT, rQ);
     }
   }
-  const floor=await vaultFloorChg(addr, backing).catch(()=>({floor24:null,floor7:null}));
+  let floor={floor24:null,floor7:null};
+  if(withLogs){
+    if(priced && rT>0n) hist=await pairHistory(priced.pair, addr, priced.q.addr, rT, rQ);
+    floor=await vaultFloorChg(addr, backing).catch(()=>({floor24:null,floor7:null}));
+  }
   return {
     vault:addr, name, symbol:sym, creator, asset, assetSym:aSym, tDec:tDecN,
     createdAt: info ? Number(info.createdAt ?? info[6] ?? 0) : 0,
@@ -3018,7 +3244,7 @@ async function scoreVault(addr){
     depth24: hist&&hist.depth24, depth7: hist&&hist.depth7,
     vol24: hist?hist.vol24:"0",
     floor24: floor.floor24, floor7: floor.floor7,
-    pools
+    pools, scored:!!withLogs
   };
 }
 
@@ -3064,9 +3290,13 @@ function paintBoard(rows){
     const el=document.createElement("div");
     el.className="brow"+(pin?" pin":"");
     const price=r.priceWpls && r.priceWpls!=="0" ? moneyW(r.priceWpls) : (r.dexPriceTxt?esc(r.dexPriceTxt):"no pool");
-    const weekLab=(r.price7 && r.price7.days && r.price7.days!==7) ? r.price7.days+"d" : "7d";
+    const one=c=>{
+      if(!c || typeof c.pct!=="number" || !isFinite(c.pct)) return '<span class="chg-flat">—</span>';
+      const cls=c.pct>0.005?"chg-up":c.pct<-0.005?"chg-dn":"chg-flat";
+      return '<span class="'+cls+'">'+(c.pct>=0?"+":"")+c.pct.toFixed(2)+"%</span>";
+    };
     const creator=r.creator
-      ? '<a class="clink" href="'+CHAIN.explorer+r.creator+'" target="_blank" rel="noopener">'+esc(short(r.creator))+'</a>'
+      ? '<a class="clink" href="'+CHAIN.explorer+r.creator+'">'+esc(short(r.creator))+'</a>'
       : "—";
     const launched=fmtDate(r.createdAt);
     const age=r.createdAt ? Math.max(0, Math.floor((Date.now()/1000-r.createdAt)/86400)) : null;
@@ -3081,9 +3311,9 @@ function paintBoard(rows){
       +'<div class="sub">'+esc(sub)+'</div>'
       +'<div class="brow-metrics">'
       +bm("Price", esc(price))
-      +bm("Price 24h / "+weekLab, chgCell(r.price24, r.price7))
-      +bm("Floor 24h / "+weekLab, chgCell(r.floor24, r.floor7))
-      +bm("Depth 24h / "+weekLab, chgCell(r.depth24, r.depth7))
+      +bm("Price 24h", one(r.price24))
+      +bm("Floor 24h", one(r.floor24))
+      +bm("Depth 24h", one(r.depth24))
       +bm("Market cap", esc(moneyW(r.mcapWpls)))
       +bm("TVL", esc(moneyW(r.tvlWpls)))
       +bm("Pool depth", esc(moneyW(r.lpWpls)))
@@ -3098,19 +3328,86 @@ function paintBoard(rows){
     return el;
   };
   $("boardTop").innerHTML="";
-  const pinned = rows.find(r=>FEATURED.vault && r.vault.toLowerCase()===FEATURED.vault.toLowerCase());
-  if(pinned) $("boardTop").appendChild(paint(pinned));
-  rows.slice(0,10).forEach(r=>{
-    if(pinned && r.vault===pinned.vault) return;
-    $("boardTop").appendChild(paint(r));
-  });
+  const shown=new Set(rows.map(r=>r.vault.toLowerCase()));
+  const feat=(FEATURED.vault||"").toLowerCase();
+  const pinned=feat && boardRanked.find(r=>r.vault.toLowerCase()===feat);
+  if(pinned && !shown.has(feat)) $("boardTop").appendChild(paint(pinned));
   $("boardRest").innerHTML="";
-  rows.slice(0,50).forEach(r=> $("boardRest").appendChild(paint(r)));
+  rows.forEach(r=> $("boardRest").appendChild(paint(r)));
+  const title=$("boardRestTitle");
+  if(title) title.style.display = rows.length ? "" : "none";
+}
+
+function sortBoard(rows){
+  rows.sort((x,y)=> (BigInt(y.scoreWpls) > BigInt(x.scoreWpls) ? 1 : BigInt(y.scoreWpls) < BigInt(x.scoreWpls) ? -1 : 0));
+  rows.forEach((r,i)=> r.rank=i+1);
+  return rows;
+}
+function pageRows(){
+  return boardRanked.slice(0, Math.min(boardShown, BOARD_MAX, boardRanked.length));
+}
+function rememberBoard(){
+  const shown=pageRows();
+  lastSnapshot={
+    factory: FACTORY_ADDR||null, chainId:369, generatedAt:new Date().toISOString(),
+    featured: FEATURED.vault||null, unit: boardUnit, plsUsd,
+    loaded: shown.length, ranked: boardRanked.length, vaults: shown
+  };
+}
+function updateLoadMore(){
+  const btn=$("loadMoreBoard");
+  const note=$("boardCapNote");
+  const shown=Math.min(boardShown, boardRanked.length);
+  const cap=Math.min(BOARD_MAX, boardRanked.length);
+  const left=Math.max(0, cap-shown);
+  if(btn){
+    if(left>0){
+      const n=Math.min(BOARD_PAGE, left);
+      btn.style.display="";
+      btn.disabled=false;
+      btn.textContent="Load next "+n;
+    }else btn.style.display="none";
+  }
+  if(!note || !boardRanked.length) return;
+  if(shown>=boardRanked.length) note.textContent="All "+shown+" vault"+(shown===1?"":"s")+", biggest TVL first. Download snapshot saves this list.";
+  else if(shown>=BOARD_MAX) note.textContent="25 biggest loaded. "+(boardRanked.length-25)+" smaller stay on the factory. Download snapshot saves these 25.";
+  else note.textContent="Showing the "+shown+" biggest of "+boardRanked.length+". Next button loads the next ranks.";
+}
+async function scoreAddrs(list, withLogs){
+  const out=[];
+  const BATCH=withLogs?2:4;
+  for(let i=0;i<list.length;i+=BATCH){
+    if(!withLogs){
+      $("boardTop").innerHTML='<div class="note">Ranking '+(Math.min(i+BATCH, list.length))+' of '+list.length+' by TVL…</div>';
+    }
+    const part=await Promise.all(list.slice(i, i+BATCH).map(a=>scoreVault(a, !!withLogs).catch(e=>{ console.warn("skip",a,e); return null; })));
+    out.push(...part.filter(Boolean));
+  }
+  return out;
+}
+async function fillLogs(rows){
+  const need=rows.filter(r=>!r.scored);
+  const BATCH=2;
+  for(let i=0;i<need.length;i+=BATCH){
+    const part=await Promise.all(need.slice(i, i+BATCH).map(r=>scoreVault(r.vault, true).catch(()=>null)));
+    part.forEach((full,idx)=>{
+      if(!full) return;
+      const rank=need[i+idx].rank;
+      Object.assign(need[i+idx], full, {rank, scored:true});
+    });
+  }
+}
+function showBoard(){
+  const rows=pageRows();
+  rememberBoard();
+  paintBoard(rows);
+  updateLoadMore();
 }
 
 async function loadBoard(){
-  $("boardTop").innerHTML='<div class="note">Reading factory + PulseX…</div>';
+  $("boardTop").innerHTML='<div class="note">Reading factory…</div>';
   $("boardRest").innerHTML="";
+  const more=$("loadMoreBoard"); if(more) more.style.display="none";
   if(!rpcHealthy && !(await ensureRpc())){ $("boardTop").innerHTML='<div class="note">RPC down.</div>'; return; }
   await loadPlsUsd();
   if(boardUnit==="USD" && !plsUsd) boardUnit="PLS";
@@ -3127,20 +3424,35 @@ async function loadBoard(){
     addrs=[FEATURED.vault, ...addrs];
   }
   if(!addrs.length){
+    boardRanked=[]; boardShown=BOARD_PAGE;
     $("boardTop").innerHTML='<div class="note">No vaults yet. Deploy the factory, set FACTORY_ADDR, then launch $LAUNCH.</div>';
     return;
   }
-  const rows=(await Promise.all(addrs.map(a=>scoreVault(a).catch(e=>{ console.warn("skip",a,e); return null; })))).filter(Boolean);
-  rows.sort((x,y)=> (BigInt(y.scoreWpls) > BigInt(x.scoreWpls) ? 1 : BigInt(y.scoreWpls) < BigInt(x.scoreWpls) ? -1 : 0));
-  rows.forEach((r,i)=> r.rank=i+1);
-  lastSnapshot={
-    factory: FACTORY_ADDR||null, chainId:369, generatedAt:new Date().toISOString(),
-    featured: FEATURED.vault||null, unit: boardUnit, plsUsd, vaults: rows
-  };
-  paintBoard(rows);
+  const few=addrs.length<=BOARD_PAGE;
+  boardRanked=sortBoard(await scoreAddrs(addrs, few));
+  boardShown=Math.min(BOARD_PAGE, boardRanked.length);
+  if(!few){
+    $("boardTop").innerHTML='<div class="note">Reading the '+boardShown+' biggest…</div>';
+    const page=pageRows();
+    const feat=(FEATURED.vault||"").toLowerCase();
+    const pin=feat && boardRanked.find(r=>r.vault.toLowerCase()===feat);
+    if(pin && !page.some(r=>r.vault.toLowerCase()===feat)) page.push(pin);
+    await fillLogs(page);
+  }
+  showBoard();
+}
+async function loadMoreBoard(){
+  if(boardShown>=BOARD_MAX || boardShown>=boardRanked.length) return;
+  const n=Math.min(BOARD_PAGE, BOARD_MAX-boardShown, boardRanked.length-boardShown);
+  const btn=$("loadMoreBoard");
+  if(btn){ btn.disabled=true; btn.textContent="Reading next "+n+"…"; }
+  boardShown+=n;
+  await fillLogs(pageRows());
+  showBoard();
 }
 
 $("refreshBoard").onclick=loadBoard;
+if($("loadMoreBoard")) $("loadMoreBoard").onclick=loadMoreBoard;
 if($("unitPls")) $("unitPls").onclick=()=>setBoardUnit("PLS");
 if($("unitUsd")) $("unitUsd").onclick=()=>setBoardUnit("USD");
 $("dlSnap").onclick=()=>{
@@ -3289,6 +3601,7 @@ async function loadHeldVaults(){
 
   await ensureRpc();
   await paintFactoryLink();
+  paintSeed();
   if(location.search.includes("api=1") || location.search.includes("json=1")){
     document.querySelector('[data-tab="board"]').click();
     $("jsonOut").style.display="block";
