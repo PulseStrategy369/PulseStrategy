@@ -61,7 +61,7 @@ header{display:flex;justify-content:space-between;align-items:center;padding:20p
 .chip.prem{color:var(--gold);border-color:rgba(217,169,78,.45)}
 .chip.disc{color:var(--mint);border-color:rgba(127,179,232,.45)}
 .chipbtn{cursor:pointer;font-family:'Space Grotesk';background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:7px 12px;color:var(--mut)}
-.chipbtn:hover{border-color:var(--pulse);color:var(--text)}
+.chipbtn:hover,.chipbtn.on{border-color:var(--pulse);color:var(--text)}
 .panel{display:none}
 .panel.on{display:block}
 .feat{background:linear-gradient(180deg,rgba(78,143,217,.10),var(--panel));border:1px solid var(--line);border-radius:18px;padding:22px;margin-bottom:22px}
@@ -270,8 +270,10 @@ pre.json{background:var(--panel2);border:1px solid var(--line);border-radius:12p
 
 <!-- BOARD -->
 <section id="tab-board" class="panel">
-  <h2>Leaderboard <small>Rank = vault TVL + PulseX depth. Switch PLS / USD for price, cap, TVL, depth, and volume. Floor is backing-per-token. 24h change from chain logs — no indexer.</small></h2>
+  <h2>Leaderboard <small>Biggest is vault TVL + PulseX depth. Newest is factory order, latest first. Switch PLS / USD for price, cap, TVL, depth, and volume. Floor is backing-per-token. 24h change from chain logs — no indexer. A blank 24h means there is no reading yet, not a flat day.</small></h2>
   <div class="unitbar">
+    <button class="chip chipbtn on" type="button" id="sortBiggest">Biggest</button>
+    <button class="chip chipbtn" type="button" id="sortNewest">Newest</button>
     <button class="chip chipbtn" id="refreshBoard">Refresh from chain</button>
     <button class="chip chipbtn" data-u="PLS" id="unitPls">PLS</button>
     <button class="chip chipbtn" data-u="USD" id="unitUsd">USD</button>
@@ -283,6 +285,8 @@ pre.json{background:var(--panel2);border:1px solid var(--line);border-radius:12p
   <h2 id="boardRestTitle">Top by TVL <small>Biggest vault TVL + pool depth first. Click a row to open it.</small></h2>
   <div id="boardRest" class="board"></div>
   <button type="button" class="chip chipbtn" id="loadMoreBoard" style="display:none">Load 5 more</button>
+  <div id="boardMiss" class="board"></div>
+  <p class="note" id="boardFindNote" style="margin-top:10px"><a href="#vault" id="boardFind">Can't find a vault? Paste the vault address in the Vault tab.</a></p>
   <pre class="json" id="jsonOut" style="display:none;margin-top:16px"></pre>
   <p class="note" id="boardCapNote">Top 5 by TVL, then 5 more at a time, up to 25. Launch token stays marked. Download snapshot saves the rows on screen.</p>
 </section>
@@ -488,7 +492,7 @@ pre.json{background:var(--panel2);border:1px solid var(--line);border-radius:12p
     <a href="https://pulsestrategy369.com" rel="noopener">PulseVerify</a> is the front page. The <a href="https://pulsestrategy369.com/whitepaper" rel="noopener">whitepaper</a> covers this launcher too — overview and how to. Download each page from its own footer.
   </div>
   <div>The contracts live on PulseChain and work without this page. This dapp reads the chain directly from your browser — no server, no database, no tracking.</div>
-  <div style="margin-top:10px"><a href="https://x.com/pulsestrategy" target="_blank" rel="noopener">@pulsestrategy</a> · the floor only rises · <span class="mono" id="buildTag">launcher v65 · 2026-09-29</span></div>
+  <div style="margin-top:10px"><a href="https://x.com/pulsestrategy" target="_blank" rel="noopener">@pulsestrategy</a> · the floor only rises · <span class="mono" id="buildTag">launcher v66 · 2026-09-29</span></div>
 </footer>
 </div>
 
@@ -771,9 +775,10 @@ let mode="mint", bal={asset:0n,token:0n}, previewOut=0n, needsApproval=false;
 let cur=null, epochSecs=null, epochFetched=0, lastBacking=null;
 let mktQuota={open:false, tok:0}, mktGen=0;
 let pickAsset=ASSETS[0].addr, pickQuota=1000, lastSnapshot=null, plsUsd=null, boardUnit="PLS";
-let boardRanked=[], boardShown=5;
+let boardRanked=[], boardShown=5, boardAddrs=[], boardSort="biggest", boardGen=0;
 const BOARD_PAGE=5, BOARD_MAX=25;
 try{ if(localStorage.getItem("ps_board_unit")==="USD") boardUnit="USD"; }catch(_){}
+try{ if(localStorage.getItem("ps_board_sort")==="newest") boardSort="newest"; }catch(_){}
 
 /* tabs */
 document.querySelectorAll(".navtab[data-tab]").forEach(b=>{
@@ -2246,7 +2251,31 @@ async function pxPair(factory, a, b){
   }catch(_){}
   return null;
 }
+const PAIR_LS="ps_px_pair_v1";
+const PAIR_TTL=24*60*60*1000;
+function pairPickKey(a,b){
+  const x=String(a).toLowerCase(), y=String(b).toLowerCase();
+  return x<y ? x+"|"+y : y+"|"+x;
+}
+function pairPickRead(){
+  try{ return JSON.parse(localStorage.getItem(PAIR_LS)||"{}"); }catch(_){ return {}; }
+}
+function pairPickGet(a,b){
+  const row=pairPickRead()[pairPickKey(a,b)];
+  if(!row || !(row.at>0) || Date.now()-row.at>PAIR_TTL) return undefined;
+  if(row.pair==null) return null;
+  return typeof row.pair==="string" ? row.pair : undefined;
+}
+function pairPickSet(a,b,pair){
+  const o=pairPickRead();
+  const now=Date.now();
+  Object.keys(o).forEach(k=>{ if(!o[k] || !(o[k].at>0) || now-o[k].at>PAIR_TTL) delete o[k]; });
+  o[pairPickKey(a,b)]={ pair: pair||null, at: now };
+  try{ localStorage.setItem(PAIR_LS, JSON.stringify(o)); }catch(_){}
+}
 async function pxPairDeep(a,b){
+  const saved=pairPickGet(a,b);
+  if(saved!==undefined) return saved ? { pair:saved, cached:true } : null;
   let best=null, liq=-1n;
   for(const f of [PULSEX_V2_FACTORY, PULSEX_V1_FACTORY]){
     const p=await pxPair(f,a,b);
@@ -2257,6 +2286,7 @@ async function pxPairDeep(a,b){
       if(L>liq){ liq=L; best={pair:p, factory:f, v2:f.toLowerCase()===PULSEX_V2_FACTORY.toLowerCase()}; }
     }catch(_){}
   }
+  pairPickSet(a,b, best?best.pair:null);
   return best;
 }
 function pxPaths(tokenIn, tokenOut){
@@ -3038,14 +3068,21 @@ async function getLogsSpan(address, topics, daysMax){
   }
   return { logs:[], head, perDay, days:0 };
 }
+function logBlock(l){
+  const n=l && l.blockNumber;
+  if(typeof n==="number") return n;
+  if(typeof n==="bigint") return Number(n);
+  if(typeof n==="string") return n.startsWith("0x") ? parseInt(n,16) : parseInt(n,10);
+  return 0;
+}
 function chgInWindow(logs, head, perDay, hours, thenBnFn, nowBn){
-  if(!nowBn || nowBn===0n) return null;
-  if(!logs || !logs.length) return { pct:0, hours };
+  if(!nowBn || nowBn===0n || !head) return null;
+  if(!logs || !logs.length) return null;
   const from=head - Math.round(hours*perDay/24);
-  const inWin=logs.filter(l=>parseInt(l.blockNumber,16)>=from);
-  if(!inWin.length) return { pct:0, hours };
+  const inWin=logs.filter(l=>logBlock(l)>=from);
+  if(!inWin.length) return null;
   const then=thenBnFn(inWin[0]);
-  if(!then || then===0n) return { pct:0, hours };
+  if(!then || then===0n) return null;
   return { pct: Number((nowBn - then) * 10000n / then) / 100, hours };
 }
 function backingBn(log){
@@ -3125,7 +3162,8 @@ function setBoardUnit(u){
   try{ localStorage.setItem("ps_board_unit", boardUnit); }catch(_){}
   if($("unitPls")) $("unitPls").classList.toggle("on", boardUnit==="PLS");
   if($("unitUsd")) $("unitUsd").classList.toggle("on", boardUnit==="USD");
-  if(lastSnapshot) paintBoard(lastSnapshot.vaults);
+  if(boardRanked.length) showBoard();
+  else if(lastSnapshot) paintBoard(lastSnapshot.vaults);
 }
 
 async function pairHistory(pair, tokenAddr, quoteAddr, nowT, nowQ){
@@ -3170,7 +3208,7 @@ async function vaultFloorChg(vault, nowBackingBn){
   return { floor24:b24, floor7:null };
 }
 
-async function scoreVault(addr, withLogs){
+async function scoreVault(addr, withLogs, factoryIndex){
   const vr=new ethers.Contract(addr, VAULT_ABI, readProvider);
   const info = FACTORY_ADDR ? await new ethers.Contract(FACTORY_ADDR, FACTORY_ABI, readProvider).infoOf(addr).catch(()=>null) : null;
   const [name,sym,asset,vb,ts,backing,iq,qb,creator,tDec,genesis] = await Promise.all([
@@ -3239,7 +3277,8 @@ async function scoreVault(addr, withLogs){
     depth24: hist&&hist.depth24, depth7: hist&&hist.depth7,
     vol24: hist?hist.vol24:"0",
     floor24: floor.floor24, floor7: floor.floor7,
-    pools, scored:!!withLogs
+    pools, scored:!!withLogs, failed:false,
+    factoryIndex: typeof factoryIndex==="number" ? factoryIndex : -1
   };
 }
 
@@ -3279,11 +3318,20 @@ function paintBoard(rows){
     $("unitUsd").classList.toggle("on", boardUnit==="USD");
     $("unitUsd").disabled=!plsUsd;
   }
+  if($("sortBiggest")) $("sortBiggest").classList.toggle("on", boardSort!=="newest");
+  if($("sortNewest")) $("sortNewest").classList.toggle("on", boardSort==="newest");
   const bm=(k,v)=>'<div class="bm"><div class="k">'+k+'</div><div class="v">'+v+'</div></div>';
   const paint=r=>{
-    const pin = FEATURED.vault && r.vault.toLowerCase()===FEATURED.vault.toLowerCase();
     const el=document.createElement("div");
-    el.className="brow"+(pin?" pin":"");
+    el.className="brow"+(FEATURED.vault && r.vault && r.vault.toLowerCase()===FEATURED.vault.toLowerCase()?" pin":"");
+    if(r.failed){
+      el.innerHTML='<div class="rk">—</div><div><div class="nm">Couldn\'t load — retry</div>'
+        +'<div class="sub mono">'+esc(r.vault)+'</div>'
+        +'<div class="sub">Still on the factory. Tap to read it again.</div></div>';
+      el.onclick=()=>retryVault(r);
+      return el;
+    }
+    const pin = FEATURED.vault && r.vault.toLowerCase()===FEATURED.vault.toLowerCase();
     const price=r.priceWpls && r.priceWpls!=="0" ? moneyW(r.priceWpls) : (r.dexPriceTxt?esc(r.dexPriceTxt):"no pool");
     const one=c=>{
       if(!c || typeof c.pct!=="number" || !isFinite(c.pct)) return '<span class="chg-flat">—</span>';
@@ -3325,36 +3373,77 @@ function paintBoard(rows){
   $("boardTop").innerHTML="";
   const shown=new Set(rows.map(r=>r.vault.toLowerCase()));
   const feat=(FEATURED.vault||"").toLowerCase();
-  const pinned=feat && boardRanked.find(r=>r.vault.toLowerCase()===feat);
+  const pinned=feat && boardRanked.find(r=>!r.failed && r.vault.toLowerCase()===feat);
   if(pinned && !shown.has(feat)) $("boardTop").appendChild(paint(pinned));
   $("boardRest").innerHTML="";
   rows.forEach(r=> $("boardRest").appendChild(paint(r)));
   const title=$("boardRestTitle");
-  if(title) title.style.display = rows.length ? "" : "none";
+  if(title){
+    title.style.display = rows.length ? "" : "none";
+    title.innerHTML = boardSort==="newest"
+      ? 'Newest <small>Latest factory index first. Click a row to open it.</small>'
+      : 'Top by TVL <small>Biggest vault TVL + pool depth first. Click a row to open it.</small>';
+  }
+  const missEl=$("boardMiss");
+  if(missEl){
+    missEl.innerHTML="";
+    boardRanked.filter(r=>r.failed && !shown.has(r.vault.toLowerCase())).forEach(r=> missEl.appendChild(paint(r)));
+  }
 }
 
+function idxOf(r){ return r && typeof r.factoryIndex==="number" ? r.factoryIndex : -1; }
+function newestFirst(list){
+  return list.slice().sort((a,b)=> (b.factoryIndex??-1)-(a.factoryIndex??-1));
+}
+function failedVault(addr, factoryIndex){
+  return {
+    vault:addr, failed:true,
+    factoryIndex: typeof factoryIndex==="number" ? factoryIndex : -1,
+    name:"", symbol:"", creator:null, asset:"", assetSym:"",
+    tDec:18, createdAt:0, pools:[], scored:true,
+    priceWpls:"0", mcapWpls:"0", tvlWpls:"0", lpWpls:"0", vol24:"0",
+    scoreWpls:"0", price24:null, floor24:null, depth24:null, vsVault:null,
+    backingPerToken:"", totalSupply:"0", genesis:false, currentQuotaBps:0
+  };
+}
 function sortBoard(rows){
-  rows.sort((x,y)=> (BigInt(y.scoreWpls) > BigInt(x.scoreWpls) ? 1 : BigInt(y.scoreWpls) < BigInt(x.scoreWpls) ? -1 : 0));
-  rows.forEach((r,i)=> r.rank=i+1);
+  if(boardSort==="newest"){
+    rows.sort((a,b)=> idxOf(b)-idxOf(a) || String(a.vault).localeCompare(String(b.vault)));
+  }else{
+    const bad=rows.filter(r=>r.failed);
+    const ok=rows.filter(r=>!r.failed);
+    ok.sort((x,y)=>{
+      const a=BigInt(y.scoreWpls||"0"), b=BigInt(x.scoreWpls||"0");
+      return a>b ? 1 : a<b ? -1 : 0;
+    });
+    rows=ok.concat(bad);
+  }
+  let n=0;
+  rows.forEach(r=>{ r.rank = r.failed ? null : ++n; });
   return rows;
 }
 function pageRows(){
-  return boardRanked.slice(0, Math.min(boardShown, BOARD_MAX, boardRanked.length));
+  if(boardSort==="newest") return boardRanked.slice(0, Math.min(boardShown, BOARD_MAX, boardRanked.length));
+  const ok=boardRanked.filter(r=>!r.failed);
+  return ok.slice(0, Math.min(boardShown, BOARD_MAX, ok.length));
 }
 function rememberBoard(){
-  const shown=pageRows();
+  const shown=pageRows().filter(r=>!r.failed);
   lastSnapshot={
     factory: FACTORY_ADDR||null, chainId:369, generatedAt:new Date().toISOString(),
-    featured: FEATURED.vault||null, unit: boardUnit, plsUsd,
-    loaded: shown.length, ranked: boardRanked.length, vaults: shown
+    featured: FEATURED.vault||null, unit: boardUnit, sort: boardSort, plsUsd,
+    loaded: shown.length, ranked: boardAddrs.length || boardRanked.length, vaults: shown
   };
 }
 function updateLoadMore(){
   const btn=$("loadMoreBoard");
   const note=$("boardCapNote");
-  const shown=Math.min(boardShown, boardRanked.length);
-  const cap=Math.min(BOARD_MAX, boardRanked.length);
-  const left=Math.max(0, cap-shown);
+  const total=boardAddrs.length || boardRanked.length;
+  const pageable=boardSort==="newest" ? total : boardRanked.filter(r=>!r.failed).length;
+  const cap=Math.min(BOARD_MAX, pageable);
+  const left=Math.max(0, cap-boardShown);
+  const page=pageRows();
+  const failedN=boardRanked.filter(r=>r.failed).length;
   if(btn){
     if(left>0){
       const n=Math.min(BOARD_PAGE, left);
@@ -3363,34 +3452,58 @@ function updateLoadMore(){
       btn.textContent="Load next "+n;
     }else btn.style.display="none";
   }
-  if(!note || !boardRanked.length) return;
-  if(shown>=boardRanked.length) note.textContent="All "+shown+" vault"+(shown===1?"":"s")+", biggest TVL first. Download snapshot saves this list.";
-  else if(shown>=BOARD_MAX) note.textContent="25 biggest loaded. "+(boardRanked.length-25)+" smaller stay on the factory. Download snapshot saves these 25.";
-  else note.textContent="Showing the "+shown+" biggest of "+boardRanked.length+". Next button loads the next ranks.";
+  if(!note) return;
+  if(!total){ note.textContent="Top 5 by TVL, then 5 more at a time, up to 25."; return; }
+  const word=boardSort==="newest"?"newest":"biggest";
+  let t="Showing the "+page.length+" "+word+" of "+total+".";
+  if(failedN) t+=" "+failedN+" couldn't load.";
+  if(boardSort!=="newest" && boardShown>=BOARD_MAX && total>BOARD_MAX){
+    t="25 biggest loaded. "+(total-BOARD_MAX)+" smaller stay on the factory.";
+    if(failedN) t+=" "+failedN+" couldn't load.";
+  }
+  note.textContent=t;
 }
 async function scoreAddrs(list, withLogs){
+  const items=list.map(x=> typeof x==="string" ? {addr:x, factoryIndex:-1} : x);
   const out=[];
   const BATCH=withLogs?2:4;
-  for(let i=0;i<list.length;i+=BATCH){
+  for(let i=0;i<items.length;i+=BATCH){
     if(!withLogs){
-      $("boardTop").innerHTML='<div class="note">Ranking '+(Math.min(i+BATCH, list.length))+' of '+list.length+' by TVL…</div>';
+      $("boardTop").innerHTML='<div class="note">Ranking '+(Math.min(i+BATCH, items.length))+' of '+items.length+' by TVL…</div>';
     }
-    const part=await Promise.all(list.slice(i, i+BATCH).map(a=>scoreVault(a, !!withLogs).catch(e=>{ console.warn("skip",a,e); return null; })));
-    out.push(...part.filter(Boolean));
+    const part=await Promise.all(items.slice(i, i+BATCH).map(it=> scoreVault(it.addr, !!withLogs, it.factoryIndex).catch(e=>{
+      console.warn("skip", it.addr, e);
+      return failedVault(it.addr, it.factoryIndex);
+    })));
+    out.push(...part);
   }
   return out;
 }
 async function fillLogs(rows){
-  const need=rows.filter(r=>!r.scored);
+  const need=rows.filter(r=>r && !r.failed && !r.scored);
   const BATCH=2;
   for(let i=0;i<need.length;i+=BATCH){
-    const part=await Promise.all(need.slice(i, i+BATCH).map(r=>scoreVault(r.vault, true).catch(()=>null)));
+    const part=await Promise.all(need.slice(i, i+BATCH).map(r=>scoreVault(r.vault, true, r.factoryIndex).catch(()=>null)));
     part.forEach((full,idx)=>{
       if(!full) return;
       const rank=need[i+idx].rank;
-      Object.assign(need[i+idx], full, {rank, scored:true});
+      const factoryIndex=need[i+idx].factoryIndex;
+      Object.assign(need[i+idx], full, {rank, factoryIndex, scored:true, failed:false});
     });
   }
+}
+async function retryVault(r){
+  const gen=boardGen;
+  const full=await scoreVault(r.vault, true, r.factoryIndex).catch(e=>{
+    console.warn("skip", r.vault, e);
+    return null;
+  });
+  if(gen!==boardGen) return;
+  const row=full || failedVault(r.vault, r.factoryIndex);
+  const i=boardRanked.findIndex(x=>x.vault && x.vault.toLowerCase()===String(r.vault).toLowerCase());
+  if(i>=0) boardRanked[i]=row; else boardRanked.push(row);
+  boardRanked=sortBoard(boardRanked);
+  showBoard();
 }
 function showBoard(){
   const rows=pageRows();
@@ -3400,11 +3513,15 @@ function showBoard(){
 }
 
 async function loadBoard(){
+  const gen=++boardGen;
   $("boardTop").innerHTML='<div class="note">Reading factory…</div>';
   $("boardRest").innerHTML="";
+  if($("boardMiss")) $("boardMiss").innerHTML="";
   const more=$("loadMoreBoard"); if(more) more.style.display="none";
   if(!rpcHealthy && !(await ensureRpc())){ $("boardTop").innerHTML='<div class="note">RPC down.</div>'; return; }
+  if(gen!==boardGen) return;
   await loadPlsUsd();
+  if(gen!==boardGen) return;
   if(boardUnit==="USD" && !plsUsd) boardUnit="PLS";
   let addrs=[];
   if(FACTORY_ADDR){
@@ -3415,39 +3532,122 @@ async function loadBoard(){
       $("boardTop").innerHTML='<div class="note">Factory unreadable. Set FACTORY_ADDR.</div>'; return;
     }
   }
-  if(FEATURED.vault && !addrs.some(a=>a.toLowerCase()===FEATURED.vault.toLowerCase())){
-    addrs=[FEATURED.vault, ...addrs];
+  if(gen!==boardGen) return;
+  boardAddrs=addrs.map((a,i)=>({addr:a, factoryIndex:i}));
+  if(FEATURED.vault && !boardAddrs.some(x=>x.addr.toLowerCase()===FEATURED.vault.toLowerCase())){
+    boardAddrs.push({addr:FEATURED.vault, factoryIndex:-1});
   }
-  if(!addrs.length){
+  if(!boardAddrs.length){
     boardRanked=[]; boardShown=BOARD_PAGE;
     $("boardTop").innerHTML='<div class="note">No vaults yet. Deploy the factory, set FACTORY_ADDR, then launch $LAUNCH.</div>';
     return;
   }
-  const few=addrs.length<=BOARD_PAGE;
-  boardRanked=sortBoard(await scoreAddrs(addrs, few));
-  boardShown=Math.min(BOARD_PAGE, boardRanked.length);
-  if(!few){
-    $("boardTop").innerHTML='<div class="note">Reading the '+boardShown+' biggest…</div>';
-    const page=pageRows();
-    const feat=(FEATURED.vault||"").toLowerCase();
-    const pin=feat && boardRanked.find(r=>r.vault.toLowerCase()===feat);
-    if(pin && !page.some(r=>r.vault.toLowerCase()===feat)) page.push(pin);
-    await fillLogs(page);
+  if(boardSort==="newest"){
+    boardShown=Math.min(BOARD_PAGE, boardAddrs.length);
+    $("boardTop").innerHTML='<div class="note">Reading the '+boardShown+' newest…</div>';
+    const slice=newestFirst(boardAddrs).slice(0, boardShown);
+    const scored=await scoreAddrs(slice, true);
+    if(gen!==boardGen) return;
+    boardRanked=sortBoard(scored);
+  }else{
+    const few=boardAddrs.length<=BOARD_PAGE;
+    const scored=await scoreAddrs(boardAddrs, few);
+    if(gen!==boardGen) return;
+    boardRanked=sortBoard(scored);
+    boardShown=Math.min(BOARD_PAGE, boardRanked.filter(r=>!r.failed).length);
+    if(!few){
+      $("boardTop").innerHTML='<div class="note">Reading the '+boardShown+' biggest…</div>';
+      const page=pageRows();
+      const feat=(FEATURED.vault||"").toLowerCase();
+      const pin=feat && boardRanked.find(r=>!r.failed && r.vault.toLowerCase()===feat);
+      if(pin && !page.some(r=>r.vault.toLowerCase()===feat)) page.push(pin);
+      await fillLogs(page);
+      if(gen!==boardGen) return;
+    }
   }
   showBoard();
 }
 async function loadMoreBoard(){
-  if(boardShown>=BOARD_MAX || boardShown>=boardRanked.length) return;
-  const n=Math.min(BOARD_PAGE, BOARD_MAX-boardShown, boardRanked.length-boardShown);
+  const total=boardAddrs.length || boardRanked.length;
+  const pageable=boardSort==="newest" ? total : boardRanked.filter(r=>!r.failed).length;
+  const cap=Math.min(BOARD_MAX, pageable);
+  if(boardShown>=cap) return;
+  const n=Math.min(BOARD_PAGE, cap-boardShown);
   const btn=$("loadMoreBoard");
   if(btn){ btn.disabled=true; btn.textContent="Reading next "+n+"…"; }
-  boardShown+=n;
-  await fillLogs(pageRows());
+  const gen=++boardGen;
+  if(boardSort==="newest"){
+    const want=Math.min(cap, boardShown+n);
+    const have=new Set(boardRanked.map(r=>r.vault.toLowerCase()));
+    const missing=newestFirst(boardAddrs).slice(0, want).filter(x=>!have.has(x.addr.toLowerCase()));
+    if(missing.length){
+      const moreRows=await scoreAddrs(missing, true);
+      if(gen!==boardGen) return;
+      boardRanked=sortBoard(boardRanked.concat(moreRows));
+    }
+    boardShown=want;
+    await fillLogs(pageRows());
+    if(gen!==boardGen) return;
+  }else{
+    boardShown+=n;
+    await fillLogs(pageRows());
+    if(gen!==boardGen) return;
+  }
+  showBoard();
+}
+async function setBoardSort(mode){
+  const next=mode==="newest"?"newest":"biggest";
+  if(next===boardSort && boardRanked.length) return;
+  boardSort=next;
+  try{ localStorage.setItem("ps_board_sort", boardSort); }catch(_){}
+  if($("sortBiggest")) $("sortBiggest").classList.toggle("on", boardSort!=="newest");
+  if($("sortNewest")) $("sortNewest").classList.toggle("on", boardSort==="newest");
+  if(!boardAddrs.length){ loadBoard(); return; }
+  const gen=++boardGen;
+  if(boardSort==="newest"){
+    const want=Math.min(BOARD_PAGE, boardAddrs.length);
+    const have=new Set(boardRanked.map(r=>r.vault.toLowerCase()));
+    const missing=newestFirst(boardAddrs).slice(0, want).filter(x=>!have.has(x.addr.toLowerCase()));
+    if(missing.length){
+      $("boardTop").innerHTML='<div class="note">Reading the '+want+' newest…</div>';
+      const moreRows=await scoreAddrs(missing, true);
+      if(gen!==boardGen) return;
+      boardRanked=boardRanked.concat(moreRows);
+    }
+    boardRanked=sortBoard(boardRanked);
+    boardShown=want;
+    await fillLogs(pageRows());
+    if(gen!==boardGen) return;
+  }else{
+    const have=new Set(boardRanked.map(r=>r.vault.toLowerCase()));
+    const rest=boardAddrs.filter(x=>!have.has(x.addr.toLowerCase()));
+    if(rest.length){
+      $("boardTop").innerHTML='<div class="note">Ranking the rest by TVL…</div>';
+      const moreRows=await scoreAddrs(rest, false);
+      if(gen!==boardGen) return;
+      boardRanked=boardRanked.concat(moreRows);
+    }
+    boardRanked=sortBoard(boardRanked);
+    boardShown=Math.min(BOARD_PAGE, boardRanked.filter(r=>!r.failed).length);
+    await fillLogs(pageRows());
+    if(gen!==boardGen) return;
+  }
   showBoard();
 }
 
 $("refreshBoard").onclick=loadBoard;
 if($("loadMoreBoard")) $("loadMoreBoard").onclick=loadMoreBoard;
+if($("sortBiggest")) $("sortBiggest").onclick=()=>setBoardSort("biggest");
+if($("sortNewest")) $("sortNewest").onclick=()=>setBoardSort("newest");
+if($("boardFind")) $("boardFind").onclick=(e)=>{
+  e.preventDefault();
+  const tab=document.querySelector('.navtab[data-tab="vault"]');
+  if(tab) tab.click();
+  const inp=$("vaultIn");
+  if(inp){ inp.focus(); try{ inp.scrollIntoView({block:"center"}); }catch(_){} }
+};
+if($("sortBiggest")) $("sortBiggest").classList.toggle("on", boardSort!=="newest");
+if($("sortNewest")) $("sortNewest").classList.toggle("on", boardSort==="newest");
 if($("unitPls")) $("unitPls").onclick=()=>setBoardUnit("PLS");
 if($("unitUsd")) $("unitUsd").onclick=()=>setBoardUnit("USD");
 $("dlSnap").onclick=()=>{
