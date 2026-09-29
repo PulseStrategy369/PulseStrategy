@@ -68,6 +68,7 @@ header{display:flex;justify-content:space-between;align-items:center;padding:20p
 .chip.prem{color:var(--gold,#D9A94E);border-color:rgba(217,169,78,.45)}
 .chip.disc{color:var(--mint);border-color:rgba(127,179,232,.45)}
 .backdelta{font-family:'IBM Plex Mono';font-size:13px;color:var(--mint);margin-top:-6px;letter-spacing:.02em}
+.subusd{font-family:'IBM Plex Mono';font-size:11px;color:var(--mut);margin-top:3px;letter-spacing:.02em}
 .youfloor{font-family:'IBM Plex Mono';font-size:13px;color:var(--mint);margin-top:4px;letter-spacing:.02em}
 .chip.on{color:var(--mint);border-color:rgba(127,179,232,.40)}
 .sr-only{position:absolute;left:-9999px}
@@ -287,6 +288,7 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--violet);outline
 <section class="ratchet" aria-label="Backing per token">
   <div class="eyebrow" id="eyebrow">Backing per token</div>
   <div class="backing"><span id="backingNum">·····</span><span class="unit" id="backingUnit"></span></div>
+  <div class="backdelta" id="backingUsd" style="display:none;color:var(--mut)"></div>
   <div class="backdelta" id="backDelta" style="display:none"></div>
   <div class="youfloor" id="youFloor" style="display:none"></div>
   <div class="rail" aria-hidden="true">
@@ -329,6 +331,7 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--violet);outline
         <button type="button" class="maxbtn" id="xSwapMax">MAX</button>
       </div>
       <div class="bal" id="xSwapBal"></div>
+      <div class="bal" id="xPayUsd"></div>
     </div>
     <div class="field" style="margin-top:10px">
       <label for="xSwapOut">You receive</label>
@@ -336,6 +339,7 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--violet);outline
         <input id="xSwapOut" inputmode="decimal" placeholder="0.0" autocomplete="off" readonly>
         <select id="xGotSel" class="paysel" aria-label="Receive"></select>
       </div>
+      <div class="bal" id="xGotUsd"></div>
     </div>
     <div class="preview">
       <div class="row"><span>Route</span><span id="xSwapVia">—</span></div>
@@ -707,7 +711,7 @@ try{
   }
 }catch(_){}
 
-const BUILD = "v74 \u00b7 2026-09-22";   // shown in the footer so users can tell builds apart
+const BUILD = "v81 \u00b7 2026-09-28";   // shown in the footer so users can tell builds apart
 const WC_PROJECT_ID = "dfa53b26ebcaa8d274b2a7f6ddc66cb0";   // free at https://cloud.reown.com (enables WalletConnect)
 /* Paste after Remix deploy of contracts/LPFeeShare.sol. Leave blank to hide the claim UI.
    Ownerless. Core deposits: protocol-fee wallet. Launch deposits: that vault's creator. */
@@ -1069,6 +1073,7 @@ async function activateVault(key){
   statusLockUntil = 0;
   { const box=$("lpFeeBox"); if(box){ delete box.dataset.copy; delete box.dataset.on; } }
   { const bd = $("backDelta"); if(bd) bd.style.display = "none"; }
+  { const bu = $("backingUsd"); if(bu) bu.style.display = "none"; }
   { const yf = $("youFloor"); if(yf) yf.style.display = "none"; }
   { const tl = $("tradeLink"); if(tl) tl.style.display = "none"; }
   document.querySelectorAll(".vpill").forEach(p=>p.setAttribute("aria-selected", p.dataset.key===key));
@@ -1181,21 +1186,28 @@ async function paintVouch(){
   if(rate>0n) lastVplsRate=Number(ethers.formatUnits(rate, PLS_DEC));
   if($("vMin")) $("vMin").textContent=fmt(min, PLS_DEC, 0)+" PLS";
   if(account){
-    try{ $("vPlsBal").textContent="Balance: "+fmt(await readProvider.getBalance(account), PLS_DEC, 4)+" PLS"; }catch(_){}
+    try{
+      const pls=await readProvider.getBalance(account);
+      $("vPlsBal").textContent=withUsd("Balance: "+fmt(pls, PLS_DEC, 4)+" PLS", "PLS", Number(ethers.formatEther(pls)));
+    }catch(_){}
     try{
       const b=await new ethers.Contract(VOUCH_VPLS, VPLS_ABI, readProvider).balanceOf(account);
-      $("vVplsBal").textContent="Balance: "+fmt(b, PLS_DEC, 4)+" vPLS";
+      $("vVplsBal").textContent=withUsd("Balance: "+fmt(b, PLS_DEC, 4)+" vPLS", "vPLS", Number(ethers.formatEther(b)));
     }catch(_){}
   }
   const plsIn=parsePls($("vPlsAmt"));
   if($("vOut")){
-    if(plsIn && rate>0n) $("vOut").textContent=fmt(plsIn * 10n**18n / rate, PLS_DEC, 4)+" vPLS";
-    else $("vOut").textContent="—";
+    if(plsIn && rate>0n){
+      const out=plsIn * 10n**18n / rate;
+      $("vOut").textContent=withUsd(fmt(out, PLS_DEC, 4)+" vPLS", "vPLS", Number(ethers.formatEther(out)));
+    }else $("vOut").textContent="—";
   }
   const vIn=parsePls($("vVplsAmt"));
   if($("vUnOut")){
-    if(vIn && rate>0n) $("vUnOut").textContent=fmt(vIn * rate / 10n**18n, PLS_DEC, 4)+" PLS";
-    else $("vUnOut").textContent="—";
+    if(vIn && rate>0n){
+      const out=vIn * rate / 10n**18n;
+      $("vUnOut").textContent=withUsd(fmt(out, PLS_DEC, 4)+" PLS", "PLS", Number(ethers.formatEther(out)));
+    }else $("vUnOut").textContent="—";
   }
   loadVouchClaims();
   paintVplsReco(rate);
@@ -1354,7 +1366,8 @@ async function paintHttPreview(){
   if(account){
     try{
       const hx=new ethers.Contract(HEX_ADDR, ERC20_ABI, readProvider);
-      $("hexBal").textContent="Balance: "+fmt(await hx.balanceOf(account), HEX_DEC, 4)+" HEX";
+      const bag=await hx.balanceOf(account);
+      $("hexBal").textContent=withUsd("Balance: "+fmt(bag, HEX_DEC, 4)+" HEX", "HEX", Number(ethers.formatUnits(bag, HEX_DEC)));
     }catch(_){ $("hexBal").textContent=""; }
   }else if($("hexBal")) $("hexBal").textContent="";
   hexCurrentDay().then(d=>paintHttDays(d)).catch(()=>{});
@@ -1813,7 +1826,7 @@ async function paintSwapDeal(pfx, pay, got, amt, route){
     if(btn && account) btn.textContent="Swap on PulseX";
   }
   const min=route.got*BigInt(10000-swapSlipBps)/10000n;
-  setEl(pfx+"SwapMin", fmt(min, got.dec, 4)+" "+got.sym);
+  setEl(pfx+"SwapMin", withUsd(fmt(min, got.dec, 4)+" "+got.sym, got.sym, Number(ethers.formatUnits(min, got.dec))));
 }
 
 async function quoteVaultSwap(){
@@ -1827,12 +1840,15 @@ async function quoteVaultSwap(){
     try{
       const bag=pay.native? await readProvider.getBalance(account)
         : await new ethers.Contract(pay.addr, ERC20_ABI, readProvider).balanceOf(account);
-      if($("xSwapBal")) $("xSwapBal").textContent="Balance: "+fmt(bag, pay.dec, 4)+" "+pay.sym;
+      if($("xSwapBal")) $("xSwapBal").textContent = withUsd("Balance: "+fmt(bag, pay.dec, 4)+" "+pay.sym, pay.sym, Number(ethers.formatUnits(bag, pay.dec)));
+      if($("xPayUsd")) $("xPayUsd").textContent = "";
     }catch(_){ if($("xSwapBal")) $("xSwapBal").textContent=""; }
   }else if($("xSwapBal")) $("xSwapBal").textContent="";
   const raw=cleanNum($("xSwapIn")?.value);
   if(!raw || !(parseFloat(raw)>0) || !pay || !got){
     if($("xSwapOut")) $("xSwapOut").value="";
+    if($("xGotUsd")) $("xGotUsd").textContent="";
+    if($("xPayUsd")) $("xPayUsd").textContent="";
     if($("xSwapVia")) $("xSwapVia").textContent="—";
     if($("xSwapMin")) $("xSwapMin").textContent="—";
     ["xSwapPool","xSwapSpot","xSwapExec","xSwapImp","xSwapShare","xSwapVs","xSwapSafe"].forEach(id=>{ if($(id)) $(id).textContent="—"; });
@@ -1843,7 +1859,11 @@ async function quoteVaultSwap(){
     if($("xSwapVia")) $("xSwapVia").textContent=wrap?"WPLS wrap · 1 PLS = 1 WPLS":"Same token";
     if(wrap){
       if($("xSwapOut")) $("xSwapOut").value=raw;
-      if($("xSwapMin")) $("xSwapMin").textContent=raw+" "+got.sym;
+      const payN = Number(raw);
+      const payU = usdOf("PLS", payN);
+      if($("xPayUsd")) $("xPayUsd").textContent = payU ? "Paying "+payU : "";
+      if($("xGotUsd")) $("xGotUsd").textContent = payU ? "Receiving "+payU : "";
+      if($("xSwapMin")) $("xSwapMin").textContent = withUsd(raw+" "+got.sym, "PLS", payN);
       let amt; try{ amt=ethers.parseUnits(raw, 18);}catch(_){return;}
       window._xSwap={ wrap:true, amt, pay, got, min:amt };
     }else if($("xSwapOut")) $("xSwapOut").value="";
@@ -1854,9 +1874,17 @@ async function quoteVaultSwap(){
     const route=await quoteBestSwap(pay.addr, got.addr, amt);
     if(!route){ if($("xSwapVia")) $("xSwapVia").textContent="no PulseX path"; if($("xSwapOut")) $("xSwapOut").value=""; return; }
     if($("xSwapOut")) $("xSwapOut").value=commaNum(ethers.formatUnits(route.got, got.dec), 6);
+    if($("xGotUsd")){
+      const u = usdOf(got.sym, Number(ethers.formatUnits(route.got, got.dec)));
+      $("xGotUsd").textContent = u ? "Receiving "+u : "";
+    }
+    if($("xPayUsd")){
+      const u = usdOf(pay.sym, Number(ethers.formatUnits(amt, pay.dec)));
+      $("xPayUsd").textContent = u ? "Paying "+u : "";
+    }
     if($("xSwapVia")) $("xSwapVia").textContent=route.via+(pay.native?" (PLS)":"");
     const min=route.got*BigInt(10000-swapSlipBps)/10000n;
-    if($("xSwapMin")) $("xSwapMin").textContent=fmt(min, got.dec, 4)+" "+got.sym;
+    if($("xSwapMin")) $("xSwapMin").textContent = withUsd(fmt(min, got.dec, 4)+" "+got.sym, got.sym, Number(ethers.formatUnits(min, got.dec)));
     window._xSwap={ route, amt, min, pay, got };
     await paintSwapDeal("x", pay, got, amt, route);
   }catch(_){ if($("xSwapOut")) $("xSwapOut").value=""; }
@@ -1933,7 +1961,7 @@ async function quoteBuy(which){
     try{
       const bag=spec.native ? await readProvider.getBalance(account)
         : await new ethers.Contract(spec.addr, ERC20_ABI, readProvider).balanceOf(account);
-      if(balEl) balEl.textContent="Balance: "+fmt(bag, spec.dec, 4)+" "+spec.sym;
+      if(balEl) balEl.textContent=withUsd("Balance: "+fmt(bag, spec.dec, 4)+" "+spec.sym, spec.sym, Number(ethers.formatUnits(bag, spec.dec)));
     }catch(_){ if(balEl) balEl.textContent=""; }
   }else if(balEl) balEl.textContent="";
   const raw=($(pfx+"SwapIn")?.value||"").trim();
@@ -1949,8 +1977,8 @@ async function quoteBuy(which){
     if(!route){ if(outEl) outEl.textContent="no PulseX path"; if(viaEl) viaEl.textContent="—"; return; }
     if(viaEl) viaEl.textContent=route.via+(spec.native?" (PLS)":"");
     const got=route.got;
-    if(outEl) outEl.textContent=fmt(got, outDec, 4)+" "+outSym;
-    if(minEl) minEl.textContent=fmt(got*99n/100n, outDec, 4);
+    if(outEl) outEl.textContent=withUsd(fmt(got, outDec, 4)+" "+outSym, outSym, Number(ethers.formatUnits(got, outDec)));
+    if(minEl) minEl.textContent=withUsd(fmt(got*99n/100n, outDec, 4)+" "+outSym, outSym, Number(ethers.formatUnits(got*99n/100n, outDec)));
     window["_"+which+"Swap"]={ route, amt, min:got*99n/100n, spec, outSym };
   }catch(_){ if(outEl) outEl.textContent="—"; }
 }
@@ -2434,7 +2462,14 @@ async function paintLp(){
       const myTok=ts>0n?lp*hop.rIn/ts:0n;
       const myQ=ts>0n?lp*hop.rOut/ts:0n;
       pos="Pool "+short(hop.pair)+" · "+fmt(hop.rIn, cur.tDec, 2)+" "+cur.cfg.token+" / "+fmt(hop.rOut, q.dec, 2)+" "+q.sym;
-      if(account) pos+=" · you own "+sharePct(lp,ts)+"% = "+fmt(myTok,cur.tDec,4)+" "+cur.cfg.token+" + "+fmt(myQ,q.dec,4)+" "+q.sym;
+      const qSym=q.native?"PLS":q.sym;
+      const poolUsd=usdAmt(cur.cfg.token, Number(ethers.formatUnits(hop.rIn, cur.tDec)))+usdAmt(qSym, Number(ethers.formatUnits(hop.rOut, q.dec)));
+      if(poolUsd>0) pos+=" · "+fmtUsd(poolUsd);
+      if(account){
+        pos+=" · you own "+sharePct(lp,ts)+"% = "+fmt(myTok,cur.tDec,4)+" "+cur.cfg.token+" + "+fmt(myQ,q.dec,4)+" "+qSym;
+        const mine=usdAmt(cur.cfg.token, Number(ethers.formatUnits(myTok, cur.tDec)))+usdAmt(qSym, Number(ethers.formatUnits(myQ, q.dec)));
+        if(mine>0) pos+=" · "+fmtUsd(mine);
+      }
       window._lp={ hop, ts, lp, q };
     }catch(e){
       pos="Pool "+short(hop.pair)+" found, but a read failed. Try another RPC.";
@@ -2450,10 +2485,14 @@ async function quoteLpAdd(){
   const q=lpQuoteSpec();
   const hop=await lpPairFor(q);
   if(account){
-    try{ $("lpTokBal").textContent="Balance: "+fmt(await new ethers.Contract(cur.cfg.vault, ERC20_ABI, readProvider).balanceOf(account), cur.tDec, 4)+" "+cur.cfg.token; }catch(_){}
+    try{
+      const bag=await new ethers.Contract(cur.cfg.vault, ERC20_ABI, readProvider).balanceOf(account);
+      $("lpTokBal").textContent=withUsd("Balance: "+fmt(bag, cur.tDec, 4)+" "+cur.cfg.token, cur.cfg.token, Number(ethers.formatUnits(bag, cur.tDec)));
+    }catch(_){}
     try{
       const bag=q.native?await readProvider.getBalance(account):await new ethers.Contract(q.addr, ERC20_ABI, readProvider).balanceOf(account);
-      $("lpQuoteBal").textContent="Balance: "+fmt(bag, q.dec, 4)+" "+q.sym;
+      const sym=q.native?"PLS":q.sym;
+      $("lpQuoteBal").textContent=withUsd("Balance: "+fmt(bag, q.dec, 4)+" "+sym, sym, Number(ethers.formatUnits(bag, q.dec)));
     }catch(_){}
   }
   const tokRaw=cleanNum($("lpTokAmt")?.value), qRaw=cleanNum($("lpQuoteAmt")?.value);
@@ -2474,7 +2513,14 @@ async function quoteLpAdd(){
     }catch(_){}
   }
   const tNow=cleanNum($("lpTokAmt")?.value), qNow=cleanNum($("lpQuoteAmt")?.value);
-  if($("lpAddPrev")) $("lpAddPrev").textContent=(tNow||"—")+" "+cur.cfg.token+" + "+(qNow||"—")+" "+q.sym;
+  if($("lpAddPrev")){
+    const tN=parseFloat(tNow)||0, qN=parseFloat(qNow)||0;
+    const qSym=q.native?"PLS":q.sym;
+    let line=(tNow||"—")+" "+cur.cfg.token+" + "+(qNow||"—")+" "+qSym;
+    const sum=usdAmt(cur.cfg.token, tN)+usdAmt(qSym, qN);
+    if(sum>0) line+=" · "+fmtUsd(sum);
+    $("lpAddPrev").textContent=line;
+  }
   const skew=$("lpAddSkew");
   if(skew && lastBacking && tNow && qNow && parseFloat(tNow)>0 && parseFloat(qNow)>0){
     try{
@@ -2522,7 +2568,13 @@ async function quoteLpRem(){
   const outT=burn*s.hop.rIn/s.ts, outQ=burn*s.hop.rOut/s.ts;
   if($("lpRemLp")) $("lpRemLp").textContent=fmtLp(burn);
   if($("lpRemShare")) $("lpRemShare").textContent=sharePct(burn,s.ts)+"% of the pool";
-  if($("lpRemPrev")) $("lpRemPrev").textContent=fmt(outT, cur.tDec, 4)+" "+cur.cfg.token+" + "+fmt(outQ, q.dec, 4)+" "+(q.native?"PLS":q.sym);
+  const outN=Number(ethers.formatUnits(outT, cur.tDec));
+  const qN=Number(ethers.formatUnits(outQ, q.dec));
+  const qSym=q.native?"PLS":q.sym;
+  let recv=fmt(outT, cur.tDec, 4)+" "+cur.cfg.token+" + "+fmt(outQ, q.dec, 4)+" "+qSym;
+  const sum=usdAmt(cur.cfg.token, outN)+usdAmt(qSym, qN);
+  if(sum>0) recv+=" · "+fmtUsd(sum);
+  if($("lpRemPrev")) $("lpRemPrev").textContent=recv;
   window._lpRem={ burn, outT, outQ, q, pair:s.hop.pair };
 }
 function feeShareConfigured(){
@@ -2867,8 +2919,26 @@ async function loadPools(cfg){
         const c1 = new ethers.Contract(t1, SYM_ABI, readProvider);
         const [s0,s1,d0,d1] = await Promise.all([c0.symbol(),c1.symbol(),c0.decimals(),c1.decimals()]);
         const now = await pairSnapshot(pair, null);
-        $("pd"+i).textContent = fmt(now.r0,Number(d0),2)+" "+s0+" · "+fmt(now.r1,Number(d1),2)+" "+s1;
-        // APR: try 7d, then 3d, then 1d windows
+        await loadUsdFx();
+        const n0=Number(ethers.formatUnits(now.r0, Number(d0)));
+        const n1=Number(ethers.formatUnits(now.r1, Number(d1)));
+        const u0=usdAmt(s0, n0), u1=usdAmt(s1, n1);
+        const depth=$("pd"+i);
+        depth.textContent = fmt(now.r0,Number(d0),2)+" "+s0+" · "+fmt(now.r1,Number(d1),2)+" "+s1;
+        if(u0+u1>0){
+          const sub=document.createElement("div");
+          sub.className="subusd";
+          sub.textContent=(u0>0 && u1>0) ? fmtUsd(u0+u1)+" in this pool" : (fmtUsd(u0||u1)+" priced side");
+          depth.appendChild(sub);
+        }
+        const ck=pools[i].address.toLowerCase();
+        const cached=aprMemo[ck];
+        if(cached && Date.now()-cached.at<10*60*1000){
+          const el=$("pa"+i);
+          el.innerHTML=cached.html;
+          if(cached.mut) el.style.color="var(--mut)";
+          return;
+        }
         const daysList = [7,3,1];
         let apr = null, days = 7;
         for (const d of daysList){
@@ -2886,8 +2956,10 @@ async function loadPools(cfg){
         if (apr === null){
           el.innerHTML = 'n/a<small>pool too new or RPC lacks history</small>';
           el.style.color = "var(--mut)";
+          aprMemo[ck]={at:Date.now(), html:el.innerHTML, mut:true};
         } else {
           el.innerHTML = (apr>=0? apr.toFixed(2) : "0.00") + '%<small>trailing '+days+'d fee APR</small>';
+          aprMemo[ck]={at:Date.now(), html:el.innerHTML, mut:false};
         }
       }catch(e){
         $("pd"+i).textContent = "unreadable";
@@ -2896,6 +2968,102 @@ async function loadPools(cfg){
     })();
   }
   paintLp();
+}
+
+const USD_DAI = "0xefD766cCb38EaF1dfd701853BFCe31359239F305";
+const USD_DAI_WPLS = "0xe56043671df55de5cdf8459710433c10324de0ae";
+const USD_HEX_WPLS = "0x19bb45a7270177e303dee6eaa6f5ad700812ba98";
+const USD_VPLS_WPLS = "0x46814b3f18d90625b6e166bc2917bb64a635d797";
+const HTT_HEX_PAIR = {
+  "HEXstr-3000":"0xbb4d05c1663f079c1d9e0a4a6ee5a877cfe34f72",
+  "HEXstr-4000":"0x9165909161c95b4bfe0bc4d46d3da6e5b2d2fb69",
+  "HEXstr-5000":"0x290e43f97a071f7513f55b534b2c196b9efa364c",
+  "HEXstr-6000":"0xc6cac89798aadbc2983beaf55cb98ce0c07af42d",
+  "HEXstr-7000":"0x0d37481cd2c2e1a309a159fd08d9f6efd0a1f224"
+};
+let usdFx = null, usdFxAt = 0;
+function spotQuote(token, tDec, quote, qDec, t0, r0, r1){
+  const a = token.toLowerCase(), b = quote.toLowerCase(), z = t0.toLowerCase();
+  if(z !== a && z !== b) return null;
+  const rT = z === a ? r0 : r1, rQ = z === a ? r1 : r0;
+  const A = Number(ethers.formatUnits(rT, tDec)), B = Number(ethers.formatUnits(rQ, qDec));
+  return (A > 0 && B > 0) ? B / A : null;
+}
+function fmtUsd(n){
+  if(!(n > 0) || !isFinite(n)) return "";
+  if(n >= 1e9) return "$" + (n / 1e9).toFixed(2) + "B";
+  if(n >= 1e6) return "$" + (n / 1e6).toFixed(2) + "M";
+  if(n >= 1e3) return "$" + n.toLocaleString("en-US", {maximumFractionDigits: 0});
+  if(n >= 1) return "$" + n.toLocaleString("en-US", {minimumFractionDigits: 2, maximumFractionDigits: 2});
+  if(n >= 0.01) return "$" + n.toFixed(4);
+  if(n >= 0.0001) return "$" + n.toFixed(6);
+  const decimals = Math.min(12, Math.max(2, 3 - Math.floor(Math.log10(n))));
+  return "$" + n.toFixed(decimals).replace(/0+$/, "").replace(/\.$/, "");
+}
+async function loadUsdFx(){
+  const key = cur && cur.cfg ? cur.cfg.key : "";
+  if(usdFx && usdFx.forKey === key && Date.now() - usdFxAt < 60000) return usdFx;
+  try{
+    const dai = new ethers.Contract(USD_DAI_WPLS, PAIR_ABI, readProvider);
+    const hex = new ethers.Contract(USD_HEX_WPLS, PAIR_ABI, readProvider);
+    const vpls = new ethers.Contract(USD_VPLS_WPLS, PAIR_ABI, readProvider);
+    const jobs = [dai.token0(), dai.getReserves(), hex.token0(), hex.getReserves(), vpls.token0(), vpls.getReserves()];
+    const httPair = HTT_HEX_PAIR[key];
+    if(httPair){
+      const hp = new ethers.Contract(httPair, PAIR_ABI, readProvider);
+      jobs.push(hp.token0(), hp.getReserves());
+    }
+    const r = await Promise.all(jobs);
+    const usdPerWpls = spotQuote(WPLS, 18, USD_DAI, 18, r[0], r[1][0], r[1][1]);
+    const wplsPerHex = spotQuote(HEX_ADDR, 8, WPLS, 18, r[2], r[3][0], r[3][1]);
+    const plsPerVpls = spotQuote("0x79BB3A0Ee435f957ce4f54eE8c3CFADc7278da0C", 18, WPLS, 18, r[4], r[5][0], r[5][1]);
+    let httHex = null;
+    if(httPair && cur){
+      httHex = spotQuote(cur.cfg.assetAddr, 8, HEX_ADDR, 8, r[6], r[7][0], r[7][1]);
+    }
+    usdFx = { forKey:key, usdPerWpls, usdPerHex: (usdPerWpls > 0 && wplsPerHex > 0) ? usdPerWpls * wplsPerHex : null, plsPerVpls, httHex };
+    usdFxAt = Date.now();
+  }catch(e){}
+  return usdFx;
+}
+function usdAmt(sym, amount){
+  if(!usdFx || !(usdFx.usdPerWpls > 0) || !(amount > 0) || !isFinite(amount)) return 0;
+  const s = String(sym || "");
+  let usd = 0;
+  if(s === "PLS" || s === "WPLS") usd = amount * usdFx.usdPerWpls;
+  else if(s === "HEX") usd = usdFx.usdPerHex ? amount * usdFx.usdPerHex : 0;
+  else if(s === "vPLS") usd = usdFx.plsPerVpls > 0 ? amount * usdFx.plsPerVpls * usdFx.usdPerWpls : 0;
+  else if(/^HTT-/.test(s) && usdFx.httHex > 0 && usdFx.usdPerHex) usd = amount * usdFx.httHex * usdFx.usdPerHex;
+  else if(cur && s === cur.cfg.token && lastBacking > 0) return usdAmt(cur.cfg.assetSym, amount * lastBacking);
+  return (usd > 0 && isFinite(usd)) ? usd : 0;
+}
+function usdOf(sym, amount){
+  const n = usdAmt(sym, amount);
+  return n ? fmtUsd(n) : "";
+}
+function paintInBalLine(){
+  if(!$("inBal") || !cur) return;
+  if(!account){ $("inBal").textContent = ""; return; }
+  const minting = mode==="mint";
+  const balSym = minting ? cur.cfg.assetSym : cur.cfg.token;
+  const balAmt = minting ? bal.asset : bal.token;
+  const balDec = minting ? cur.aDec : cur.tDec;
+  const n = Number(ethers.formatUnits(balAmt||0n, balDec));
+  let line = withUsd("Balance: "+fmt(balAmt, balDec)+" "+balSym, balSym, n);
+  const typed = parseFloat(cleanNum($("amt") && $("amt").value || ""));
+  if(typed > 0){
+    const u = usdOf(balSym, typed);
+    if(u) line += "  ·  this " + u;
+  }
+  $("inBal").textContent = line;
+}
+function withUsd(text, sym, amount){
+  const u = usdOf(sym, amount);
+  return u ? text + " · " + u : text;
+}
+function statHtml(text, sym, amount){
+  const u = usdOf(sym, amount);
+  return text + (u ? '<div class="subusd">' + u + "</div>" : "");
 }
 
 /* ---------- reads ---------- */
@@ -2917,8 +3085,9 @@ async function refresh(){
     try{
       const ua = await cur.ar.balanceOf(account);
       bal.asset=ua;
-      $("userAsset").textContent=fmt(ua,cur.aDec);
-      if(mode==="mint") $("inBal").textContent="Balance: "+fmt(ua,cur.aDec);
+      const an = Number(ethers.formatUnits(ua, cur.aDec));
+      $("userAsset").innerHTML = statHtml(fmt(ua,cur.aDec), cur.cfg.assetSym, an);
+      if(mode==="mint") paintInBalLine();
     }catch(e){ console.error("asset balance read failed",e); rpcHealthy=false; }
   }
 
@@ -2936,19 +3105,35 @@ async function refresh(){
     lastBacking = parseFloat(ethers.formatEther(backing));
     $("backingNum").textContent=lastBacking.toFixed(4);
     setRail(backing);
+    await loadUsdFx();
+    const floorUsd = usdOf(cur.cfg.token, 1);
+    const assetPx = usdOf(cur.cfg.assetSym, 1);
+    if($("backingUsd")){
+      if(floorUsd){
+        $("backingUsd").textContent = floorUsd + " each" + (assetPx ? " · " + lastBacking.toFixed(4) + " × " + assetPx : "");
+        $("backingUsd").style.display = "block";
+      } else $("backingUsd").style.display = "none";
+    }
     updateMarket();
-    loadBackingDelta();
-    loadYouFloor();
-    $("vaultBal").textContent=fmt(vb,cur.aDec)+" "+cur.cfg.assetSym;
+    if(account && bal.asset!=null){
+      const an = Number(ethers.formatUnits(bal.asset, cur.aDec));
+      $("userAsset").innerHTML = statHtml(fmt(bal.asset, cur.aDec), cur.cfg.assetSym, an);
+      if(mode==="mint") paintInBalLine();
+    }
+    const heldN = Number(ethers.formatUnits(vb, cur.aDec));
+    $("vaultBal").innerHTML = statHtml(fmt(vb,cur.aDec)+" "+cur.cfg.assetSym, cur.cfg.assetSym, heldN);
     $("supply").textContent=fmt(ts,cur.tDec);
-    $("quota").textContent=quota>=MAXU/2n?"unlimited (genesis)":fmt(quota,cur.tDec)+" "+cur.cfg.token;
+    $("quota").textContent=quota>=MAXU/2n?"unlimited (genesis)":withUsd(fmt(quota,cur.tDec)+" "+cur.cfg.token, cur.cfg.token, Number(ethers.formatUnits(quota, cur.tDec)));
     epochSecs=Number(tnext); epochFetched=Date.now();
+    loadBackingDelta();
     if(account){
       const ut = await cur.vr.balanceOf(account);
       bal.token=ut;
-      $("userTok").textContent=fmt(ut,cur.tDec);
-      if(mode==="redeem") $("inBal").textContent="Balance: "+fmt(ut,cur.tDec);
+      const tn = Number(ethers.formatUnits(ut, cur.tDec));
+      $("userTok").innerHTML = statHtml(fmt(ut,cur.tDec), cur.cfg.token, tn);
+      if(mode==="redeem") paintInBalLine();
     }
+    loadYouFloor();
     setStatus("");
     if(httMaturity()){ paintHttPreview(); loadHsiList(); loadHttHoldings(); paintHexReco(); }
     if(cur && cur.cfg.key==="PLSstr") paintVouch();
@@ -2965,25 +3150,32 @@ function tickEpoch(){
   const d=Math.floor(s/86400);s%=86400;
   $("epochTimer").textContent=(d?d+"d ":"")+Math.floor(s/3600)+"h "+Math.floor((s%3600)/60)+"m";
 }
-setInterval(tickEpoch,1000); setInterval(refresh,15000);
+setInterval(tickEpoch,1000);
+setInterval(()=>{ if(!document.hidden) refresh(); }, 15000);
+document.addEventListener("visibilitychange", ()=>{ if(!document.hidden) refresh(); });
 
 /* ---------- preview ---------- */
 async function updatePreview(){
   const v=cleanNum($("amt").value); previewOut=0n;
-  if(!cur||!cur.vr||!v||isNaN(parseFloat(v))||parseFloat(v)<=0){$("outAmt").textContent="—";$("feeAmt").textContent="—";updateActionState();return;}
+  if(!cur||!cur.vr||!v||isNaN(parseFloat(v))||parseFloat(v)<=0){$("outAmt").textContent="—";$("feeAmt").textContent="—";paintInBalLine();updateActionState();return;}
   try{
     if(mode==="mint"){
       const amt=ethers.parseUnits(v,cur.aDec);
       const out=await cur.vr.previewMint(amt); previewOut=out;
-      $("outAmt").textContent=fmt(out,cur.tDec)+" "+cur.cfg.token;
-      $("feeAmt").textContent=fmt(amt*450n/10450n,cur.aDec)+" "+cur.cfg.assetSym;
+      const outN = Number(ethers.formatUnits(out, cur.tDec));
+      const feeN = Number(ethers.formatUnits(amt*450n/10450n, cur.aDec));
+      $("outAmt").textContent = withUsd(fmt(out,cur.tDec)+" "+cur.cfg.token, cur.cfg.token, outN);
+      $("feeAmt").textContent = withUsd(fmt(amt*450n/10450n,cur.aDec)+" "+cur.cfg.assetSym, cur.cfg.assetSym, feeN);
     }else{
       const amt=ethers.parseUnits(v,cur.tDec);
       const [out,fee]=await cur.vr.previewRedeem(amt); previewOut=out;
-      $("outAmt").textContent=fmt(out,cur.aDec)+" "+cur.cfg.assetSym;
-      $("feeAmt").textContent=fee===0n?"0 (full-supply waiver)":fmt(fee,cur.aDec)+" "+cur.cfg.assetSym;
+      const outN = Number(ethers.formatUnits(out, cur.aDec));
+      const feeN = fee===0n ? 0 : Number(ethers.formatUnits(fee, cur.aDec));
+      $("outAmt").textContent = withUsd(fmt(out,cur.aDec)+" "+cur.cfg.assetSym, cur.cfg.assetSym, outN);
+      $("feeAmt").textContent = fee===0n ? "0 (full-supply waiver)" : withUsd(fmt(fee,cur.aDec)+" "+cur.cfg.assetSym, cur.cfg.assetSym, feeN);
     }
   }catch(e){$("outAmt").textContent="—";$("feeAmt").textContent="—";}
+  paintInBalLine();
   updateActionState();
 }
 $("amt").addEventListener("input",updatePreview);
@@ -3006,7 +3198,7 @@ function setCardTab(t){
   $("inLabel").textContent=mode==="mint"?"You deposit":"You redeem";
   $("inSym").textContent=mode==="mint"?cur.cfg.assetSym:cur.cfg.token;
   $("feeLabel").textContent=mode==="mint"?"Mint premium (4.5%: 4.0% vault, 0.5% protocol fee)":"Redemption fee (0.5%, stays in the vault)";
-  $("inBal").textContent=account?"Balance: "+(mode==="mint"?fmt(bal.asset,cur.aDec):fmt(bal.token,cur.tDec)):"";
+  paintInBalLine();
   $("amt").value=""; updatePreview();
 }
 function setMode(m){ setCardTab(m); }
@@ -3205,7 +3397,7 @@ async function doAction(){
       const tx=await cur.vault.redeem(amt,minOut); await tx.wait();
       setStatusHtml("Redeemed."+txLink(tx.hash)+dismissLink(),"ok",120);
     }
-    $("amt").value=""; await refresh(); await updatePreview();
+    $("amt").value=""; staleYouFloor(); await refresh(); await updatePreview();
   }catch(e){
     let m=e.shortMessage||e.message||"Transaction failed";
     if(/MintQuotaExceeded/.test(m)) m="Epoch mint quota is exhausted — buy on the DEX or wait for the next epoch.";
@@ -3233,37 +3425,70 @@ let lastBacking = null;
 const MINTED_TOPIC   = "0x5a3358a3d27a5373c0df2604662088d37894d56b7cfd27f315770440f4e0d919";
 const REDEEMED_TOPIC = "0x76cd0cedf979345ca241ce6de696a520a8efc860c6c10d9db2a7953307c237fc";
 
+const pairAddrCache={};
+const backDeltaMemo={};
+let backDeltaSpan=7;
+const mint0Miss=new Set();
+const aprMemo={};
 async function loadBackingDelta(){
   const el = $("backDelta"); if(!el) return;
-  el.style.display = "none";
-  if(!cur || !cur.cfg.vault || !(lastBacking > 0)) return;
+  if(!cur || !cur.vr || !cur.cfg.vault){ el.style.display = "none"; return; }
   const vault = cur.cfg.vault;
-  const perDay = Math.max(1, Math.round(86400 / CHAIN.blockTimeSec));
-  let head;
-  try{ head = await readProvider.getBlockNumber(); }catch(e){ return; }
-  for(const days of [7, 3, 1]){
-    let logs;
-    try{
-      logs = await readProvider.getLogs({
-        address: vault,
-        topics: [[MINTED_TOPIC, REDEEMED_TOPIC]],
-        fromBlock: Math.max(0, head - days * perDay),
-        toBlock: head
-      });
-    }catch(e){ continue; }               // window too wide for this RPC — try smaller
-    if(!logs || !logs.length) return;    // query worked, nothing happened: say nothing
-    const d = (logs[0].data || "0x").replace(/^0x/, "");
-    if(d.length < 64) return;
-    let base;
-    try{ base = Number(ethers.formatEther(BigInt("0x" + d.slice(-64)))); }catch(e){ return; }
-    if(!(base > 0)) return;
-    if(cur.cfg.vault !== vault) return;  // vault switched mid-query
-    const pct = (lastBacking / base - 1) * 100;
-    el.textContent = (pct >= 0 ? "+" : "") + pct.toFixed(2) + "% in the last "
-                   + days + (days === 1 ? " day" : " days");
+  const key = vault.toLowerCase();
+  const hit = backDeltaMemo[key];
+  if(hit && Date.now()-hit.at < 10*60*1000){
+    el.textContent = hit.text;
     el.style.display = "block";
     return;
   }
+  let nowBn;
+  try{ nowBn = await cur.vr.backingPerToken(); }catch(e){ return; }
+  if(!cur || cur.cfg.vault !== vault) return;
+  const now = Number(ethers.formatEther(nowBn));
+  if(!(now > 0)) return;
+  lastBacking = now;
+  let head;
+  try{ head = await readProvider.getBlockNumber(); }catch(e){ return; }
+  const perDay = Math.max(1, Math.round(86400 / CHAIN.blockTimeSec));
+  const from = Math.max(0, head - 7 * perDay);
+  const word = log => {
+    const d = (log.data || "0x").replace(/^0x/, "");
+    if(d.length < 64) return null;
+    try{ const n = Number(ethers.formatEther(BigInt("0x" + d.slice(-64)))); return n > 0 ? n : null; }catch(e){ return null; }
+  };
+  const span = async (a, b) => readProvider.getLogs({
+    address: vault,
+    topics: [[MINTED_TOPIC, REDEEMED_TOPIC]],
+    fromBlock: Math.max(0, a),
+    toBlock: b
+  });
+  let base = null;
+  try{
+    for(let i = 1; i <= 8 && base == null; i++){
+      if(!cur || cur.cfg.vault !== vault) return;
+      const hi = from - (i - 1) * 7 * perDay;
+      const lo = from - i * 7 * perDay;
+      if(hi <= 1) break;
+      try{
+        const prev = await span(lo, hi - 1);
+        if(prev && prev.length) base = word(prev[prev.length - 1]);
+      }catch(e){}
+    }
+  }catch(e){}
+  if(base == null){
+    try{
+      const logs = await span(from, head);
+      if(logs && logs.length) base = word(logs[0]);
+    }catch(e){}
+  }
+  if(!(base > 0)) base = now;
+  if(!cur || cur.cfg.vault !== vault) return;
+  let pct = (now / base - 1) * 100;
+  if(!(pct > 0) || !isFinite(pct)) pct = 0;
+  const text = "Vault +" + pct.toFixed(2) + "% in 7 days";
+  el.textContent = text;
+  el.style.display = "block";
+  backDeltaMemo[key] = {at:Date.now(), text};
 }
 
 /* ---------- DEX market price vs backing ---------- */
@@ -3284,8 +3509,12 @@ async function findPairInfo(a, b){
   return best;
 }
 async function findPair(a, b){
+  const k=String(a).toLowerCase()+"|"+String(b).toLowerCase();
+  if(Object.prototype.hasOwnProperty.call(pairAddrCache, k)) return pairAddrCache[k];
   const i=await findPairInfo(a,b);
-  return i?i.pair:null;
+  const p=i?i.pair:null;
+  pairAddrCache[k]=p;
+  return p;
 }
 /* how many B you get for 1 A, from pool reserves (spot, ignores fees/slippage) */
 async function pairPrice(tokenA, decA, tokenB, decB){
@@ -3349,57 +3578,87 @@ async function addTokenToWallet(){
 }
 async function firstMintOf(vault, acct, createdAt){
   const key="ps_mint0_"+String(vault).toLowerCase()+"_"+String(acct).toLowerCase();
-  try{
-    const c=JSON.parse(localStorage.getItem(key)||"null");
-    if(c && c.backing>0) return c;
-  }catch(_){}
+  if(mint0Miss.has(key)) return null;
   const topic1="0x"+acct.slice(2).toLowerCase().padStart(64,"0");
+  const topics=[[MINTED_TOPIC, REDEEMED_TOPIC], topic1];
+  let cached=null;
+  try{ cached=JSON.parse(localStorage.getItem(key)||"null"); }catch(_){}
+  const fresh=cached && cached.assetIn!=null && cached.scannedTo && Date.now()-(cached.at||0)<10*60*1000;
+  if(fresh && cached.backing>0) return cached;
   let head;
-  try{ head=await readProvider.getBlockNumber(); }catch(_){ return null; }
+  try{ head=await readProvider.getBlockNumber(); }catch(_){ return cached && cached.backing>0 ? cached : null; }
+  const acc={ assetIn:0n, assetOut:0n, backing:0, block:0 };
+  const fold=logs=>{
+    for(const log of logs||[]){
+      const topic=String((log.topics&&log.topics[0])||"").toLowerCase();
+      const d=(log.data||"0x").replace(/^0x/,"");
+      const block=parseInt(log.blockNumber,16)||0;
+      if(topic===MINTED_TOPIC.toLowerCase() && d.length>=192){
+        acc.assetIn += BigInt("0x"+d.slice(0,64));
+        const b=Number(ethers.formatEther(BigInt("0x"+d.slice(128,192))));
+        if(b>0 && (!acc.block || block<acc.block)){ acc.block=block; acc.backing=b; }
+      }else if(topic===REDEEMED_TOPIC.toLowerCase() && d.length>=128){
+        acc.assetOut += BigInt("0x"+d.slice(64,128));
+      }
+    }
+  };
+  const save=()=>{
+    if(!(acc.backing>0)) return null;
+    const rec={ backing:acc.backing, block:acc.block||0, assetIn:acc.assetIn.toString(), assetOut:acc.assetOut.toString(), scannedTo:head, at:Date.now() };
+    try{ localStorage.setItem(key, JSON.stringify(rec)); }catch(_){}
+    return rec;
+  };
+  if(cached && cached.assetIn!=null && cached.scannedTo){
+    acc.assetIn=BigInt(cached.assetIn||"0");
+    acc.assetOut=BigInt(cached.assetOut||"0");
+    acc.backing=cached.backing;
+    acc.block=cached.block||0;
+    const from=Number(cached.scannedTo)+1;
+    if(from<=head){
+      try{
+        const logs=await readProvider.getLogs({ address:vault, topics, fromBlock:from, toBlock:head });
+        fold(logs);
+      }catch(_){ return cached; }
+    }
+    return save() || cached;
+  }
   const perDay=Math.max(1, Math.round(86400/CHAIN.blockTimeSec));
-  let fromBlock=0;
+  let saw=false;
   if(createdAt){
     const ago=Math.max(0, Math.floor(Date.now()/1000)-Number(createdAt));
-    fromBlock=Math.max(0, head - Math.ceil(ago/CHAIN.blockTimeSec) - 80);
-  }
-  let oldest=null;
-  if(createdAt && fromBlock>=0){
+    const from=Math.max(0, head - Math.ceil(ago/CHAIN.blockTimeSec) - 80);
     try{
-      const logs=await readProvider.getLogs({
-        address: vault, topics:[MINTED_TOPIC, topic1], fromBlock, toBlock: head
-      });
-      if(logs && logs.length) oldest=logs[0];
+      const logs=await readProvider.getLogs({ address:vault, topics, fromBlock:from, toBlock:head });
+      if(logs && logs.length){ fold(logs); saw=true; }
     }catch(_){}
   }
-  if(!oldest){
-    let chunk=30, endDays=0, maxDays=400;
-    while(endDays<maxDays){
+  if(!saw){
+    let chunk=30, endDays=0;
+    while(endDays<400){
       const to=Math.max(0, head - endDays*perDay);
       const from=Math.max(0, head - (endDays+chunk)*perDay);
       if(to<=0) break;
-      let logs=null;
       try{
-        logs=await readProvider.getLogs({
-          address: vault, topics:[MINTED_TOPIC, topic1], fromBlock: from, toBlock: to
-        });
+        const logs=await readProvider.getLogs({ address:vault, topics, fromBlock:from, toBlock:to });
+        if(logs && logs.length){ fold(logs); saw=true; }
       }catch(_){
         if(chunk>7){ chunk=7; continue; }
-        endDays+=chunk; continue;
       }
-      if(logs && logs.length) oldest=logs[0];
       if(from===0) break;
       endDays+=chunk;
     }
   }
-  if(!oldest) return null;
-  const d=(oldest.data||"0x").replace(/^0x/,"");
-  if(d.length<64) return null;
-  let backing;
-  try{ backing=Number(ethers.formatEther(BigInt("0x"+d.slice(-64)))); }catch(_){ return null; }
-  if(!(backing>0)) return null;
-  const rec={ backing, block:parseInt(oldest.blockNumber,16), tx:oldest.transactionHash };
-  try{ localStorage.setItem(key, JSON.stringify(rec)); }catch(_){}
-  return rec;
+  if(!saw || !(acc.backing>0)){ mint0Miss.add(key); return null; }
+  return save();
+}
+function staleYouFloor(){
+  if(!account || !cur || !cur.cfg.vault) return;
+  const key="ps_mint0_"+cur.cfg.vault.toLowerCase()+"_"+account.toLowerCase();
+  mint0Miss.delete(key);
+  try{
+    const c=JSON.parse(localStorage.getItem(key)||"null");
+    if(c){ c.at=0; localStorage.setItem(key, JSON.stringify(c)); }
+  }catch(_){}
 }
 async function loadYouFloor(){
   const el=$("youFloor"); if(!el) return;
@@ -3407,10 +3666,14 @@ async function loadYouFloor(){
   if(!account || !cur || !cur.cfg.vault || !(lastBacking>0)) return;
   const vault=cur.cfg.vault;
   const rec=await firstMintOf(vault, account, cur.cfg.createdAt);
-  if(!cur || cur.cfg.vault!==vault) return;
-  if(!rec || !(rec.backing>0)) return;
-  const pct=(lastBacking/rec.backing - 1)*100;
-  el.textContent=(pct>=0?"+":"")+pct.toFixed(2)+"% since you minted · from "+rec.backing.toFixed(4);
+  if(!cur || cur.cfg.vault!==vault || !rec || !(rec.backing>0)) return;
+  const putIn=Number(ethers.formatUnits(BigInt(rec.assetIn||"0"), cur.aDec));
+  if(!(putIn>0)) return;
+  const tookOut=Number(ethers.formatUnits(BigInt(rec.assetOut||"0"), cur.aDec));
+  const held=Number(ethers.formatUnits(bal.token||0n, cur.tDec))*lastBacking*0.995;
+  const up=tookOut+held-putIn;
+  if(!(up>0)) return;
+  el.textContent="You +"+(up/putIn*100).toFixed(2)+"%";
   el.style.display="block";
 }
 async function updateMarket(){
@@ -3435,7 +3698,8 @@ async function updateMarket(){
     const diff = (price / lastBacking - 1) * 100;
     const prem = diff >= 0;
     chip.className = "chip " + (prem ? "prem" : "disc");
-    chip.textContent = "Market " + price.toFixed(4) + " " + cfg.assetSym + " · " +
+    chip.textContent = "Market " + price.toFixed(4) + " " + cfg.assetSym +
+                       (usdOf(cfg.assetSym, price) ? " · " + usdOf(cfg.assetSym, price) : "") + " · " +
                        (prem ? "+" : "") + diff.toFixed(1) + "% " + (prem ? "premium" : "discount");
     chip.title = prem
       ? "Trading above backing — minting gets you more than buying at this price."
