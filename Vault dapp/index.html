@@ -711,7 +711,7 @@ try{
   }
 }catch(_){}
 
-const BUILD = "v82 \u00b7 2026-09-29";   // shown in the footer so users can tell builds apart
+const BUILD = "v83 \u00b7 2026-09-29";   // shown in the footer so users can tell builds apart
 const WC_PROJECT_ID = "dfa53b26ebcaa8d274b2a7f6ddc66cb0";   // free at https://cloud.reown.com (enables WalletConnect)
 /* Paste after Remix deploy of contracts/LPFeeShare.sol. Leave blank to hide the claim UI.
    Ownerless. Core deposits: protocol-fee wallet. Launch deposits: that vault's creator. */
@@ -3484,6 +3484,28 @@ const MINTED_TOPIC   = "0x5a3358a3d27a5373c0df2604662088d37894d56b7cfd27f3157704
 const REDEEMED_TOPIC = "0x76cd0cedf979345ca241ce6de696a520a8efc860c6c10d9db2a7953307c237fc";
 
 const pairAddrCache={};
+const PAIR_LS="ps_px_pair_v1";
+const PAIR_TTL=24*60*60*1000;
+function pairPickKey(a,b){
+  const x=String(a).toLowerCase(), y=String(b).toLowerCase();
+  return x<y ? x+"|"+y : y+"|"+x;
+}
+function pairPickRead(){
+  try{ return JSON.parse(localStorage.getItem(PAIR_LS)||"{}"); }catch(_){ return {}; }
+}
+function pairPickGet(a,b){
+  const row=pairPickRead()[pairPickKey(a,b)];
+  if(!row || !(row.at>0) || Date.now()-row.at>PAIR_TTL) return undefined;
+  if(row.pair==null) return null;
+  return typeof row.pair==="string" ? row.pair : undefined;
+}
+function pairPickSet(a,b,pair){
+  const o=pairPickRead();
+  const now=Date.now();
+  Object.keys(o).forEach(k=>{ if(!o[k] || !(o[k].at>0) || now-o[k].at>PAIR_TTL) delete o[k]; });
+  o[pairPickKey(a,b)]={ pair: pair||null, at: now };
+  try{ localStorage.setItem(PAIR_LS, JSON.stringify(o)); }catch(_){}
+}
 const backDeltaMemo={};
 let backDeltaSpan=7;
 const mint0Miss=new Set();
@@ -3551,6 +3573,11 @@ async function loadBackingDelta(){
 
 /* ---------- DEX market price vs backing ---------- */
 async function findPairInfo(a, b){
+  const saved=pairPickGet(a,b);
+  if(saved!==undefined){
+    if(!saved) return null;
+    return { pair:saved, factory:PULSEX_FACTORIES[1], router:PULSEX_V2_ROUTER };
+  }
   let best=null, bestLiq=-1n;
   for(const f of PULSEX_FACTORIES){
     try{
@@ -3564,6 +3591,7 @@ async function findPairInfo(a, b){
       }
     }catch(_){}
   }
+  pairPickSet(a,b, best?best.pair:null);
   return best;
 }
 async function findPair(a, b){
