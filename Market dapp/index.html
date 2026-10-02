@@ -9,6 +9,7 @@
 <title>PulseStrategy Market Desk · the floor only rises</title>
 <meta name="description" content="Live backing vs DEX in USD, WPLS and HEX. HTT yield, vPLS vs Vouch, size and impact. Six vaults, on-chain, no server.">
 <meta name="theme-color" content="#0b0b10">
+<link rel="alternate" type="application/json" href="https://pulsestrategy369.com/pulsestrategy.json" title="PulseStrategy protocol manifest">
 <link rel="icon" id="favicon" type="image/png" href="">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Michroma&family=Space+Grotesk:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
@@ -214,7 +215,7 @@ button:focus-visible,select:focus-visible,a:focus-visible,input:focus-visible{ou
 <footer>
   <a href="#" id="dlLink" class="dl-cta">Download this page</a>
   <p style="margin-top:16px">Nothing on this page is financial advice.</p>
-  <div style="margin-top:10px"><a href="https://x.com/pulsestrategy" target="_blank" rel="noopener">@pulsestrategy</a> · the floor only rises · <span class="mono">build v13 · 2026-09-29</span> · <a href="https://github.com/PulseStrategy369/PulseStrategy" target="_blank" rel="noopener">GitHub</a></div>
+  <div style="margin-top:10px"><a href="https://x.com/pulsestrategy" target="_blank" rel="noopener">@pulsestrategy</a> · the floor only rises · <span class="mono">build v15 · 2026-10-01</span> · <a href="https://github.com/PulseStrategy369/PulseStrategy" target="_blank" rel="noopener">GitHub</a></div>
 </footer>
 </div>
 
@@ -418,6 +419,48 @@ function toWei(n, dec){
 }
 let state = { vaults:[], htt:[], vouch:{}, fx:{}, head:0, fetchedAt:0, active:"PLSstr", side:"buy", unit:"vault", hours:3, extra:0, trades:[], tvlUsd:null, bag:null, wallet:"" };
 let autoWallet = false;
+const MULTICALL3="0xcA11bde05977b3631167028862bE2a173976CA11";
+const MC_IFACE=new ethers.Interface(["function tryAggregate(bool requireSuccess, (address target, bytes callData)[] calls) payable returns ((bool success, bytes returnData)[])"]);
+async function jsonBatch(calls){
+  const out=[];
+  const url=CHAIN.rpcs[rpcIndex];
+  for(let i=0;i<calls.length;i+=32){
+    const slice=calls.slice(i,i+32);
+    const payload=slice.map((c,idx)=>({jsonrpc:"2.0",id:idx,method:"eth_call",params:[{to:c.to,data:c.data},"latest"]}));
+    const res=await fetch(url,{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify(payload)});
+    if(!res.ok) throw new Error("RPC HTTP "+res.status);
+    const j=await res.json();
+    if(!Array.isArray(j)) throw new Error("RPC batch not supported");
+    const byId=new Map(j.map(x=>[x.id,x]));
+    for(let idx=0; idx<slice.length; idx++){
+      const row=byId.get(idx);
+      out.push((!row || row.error || !row.result || row.result==="0x") ? null : row.result);
+    }
+  }
+  return out;
+}
+async function multiTry(calls){
+  if(!calls.length) return [];
+  const out=[];
+  const CHUNK=80;
+  for(let i=0;i<calls.length;i+=CHUNK){
+    const slice=calls.slice(i, i+CHUNK);
+    try{
+      const data=MC_IFACE.encodeFunctionData("tryAggregate", [false, slice.map(c=>({target:c.to, callData:c.data}))]);
+      const raw=await provider.call({to:MULTICALL3, data});
+      const rows=MC_IFACE.decodeFunctionResult("tryAggregate", raw)[0];
+      for(const r of rows){
+        const ok=Array.isArray(r)?r[0]:r.success;
+        const ret=Array.isArray(r)?r[1]:r.returnData;
+        out.push(ok && ret && ret!=="0x" ? ret : null);
+      }
+    }catch(e){
+      console.warn("multicall", e);
+      out.push(...await jsonBatch(slice));
+    }
+  }
+  return out;
+}
 
 async function loadDesk(fullTape){
   if(fullTape===false && document.hidden) return;
@@ -426,15 +469,47 @@ async function loadDesk(fullTape){
     $("status").className = "note";
   }
   if(!await ensureRpc()){ $("status").textContent="All RPC endpoints failed — pick another."; $("status").className="note err"; return; }
+  try{
   const head = await provider.getBlockNumber();
-  const vpls = new ethers.Contract(VPLS, VPLS_ABI, provider);
-  const vpair = new ethers.Contract(VPLS_PAIR, PAIR_ABI, provider);
-  const dpair = new ethers.Contract(DAI_WPLS, PAIR_ABI, provider);
-  const hpair = new ethers.Contract(HEX_WPLS, PAIR_ABI, provider);
-  const [rate, vt0, vres, dt0, dres, ht0, hres] = await Promise.all([
-    vpls.getRate(), vpair.token0(), vpair.getReserves(),
-    dpair.token0(), dpair.getReserves(), hpair.token0(), hpair.getReserves()
-  ]);
+  const vplsI = new ethers.Interface(VPLS_ABI);
+  const pairI = new ethers.Interface(PAIR_ABI);
+  const vaultI = new ethers.Interface(VAULT_ABI);
+  const calls = [
+    {to:VPLS, data:vplsI.encodeFunctionData("getRate"), tag:"rate", iface:vplsI, fn:"getRate"},
+    {to:VPLS_PAIR, data:pairI.encodeFunctionData("token0"), tag:"vt0", iface:pairI, fn:"token0"},
+    {to:VPLS_PAIR, data:pairI.encodeFunctionData("getReserves"), tag:"vres", iface:pairI, fn:"getReserves"},
+    {to:DAI_WPLS, data:pairI.encodeFunctionData("token0"), tag:"dt0", iface:pairI, fn:"token0"},
+    {to:DAI_WPLS, data:pairI.encodeFunctionData("getReserves"), tag:"dres", iface:pairI, fn:"getReserves"},
+    {to:HEX_WPLS, data:pairI.encodeFunctionData("token0"), tag:"ht0", iface:pairI, fn:"token0"},
+    {to:HEX_WPLS, data:pairI.encodeFunctionData("getReserves"), tag:"hres", iface:pairI, fn:"getReserves"}
+  ];
+  for(const cfg of VAULTS){
+    for(const fn of ["backingPerToken","vaultBalance","totalSupply","mintQuotaRemaining","timeToNextEpoch"])
+      calls.push({to:cfg.vault, data:vaultI.encodeFunctionData(fn), tag:cfg.key+":"+fn, iface:vaultI, fn});
+    calls.push({to:cfg.pair, data:pairI.encodeFunctionData("token0"), tag:cfg.key+":t0", iface:pairI, fn:"token0"});
+    calls.push({to:cfg.pair, data:pairI.encodeFunctionData("getReserves"), tag:cfg.key+":res", iface:pairI, fn:"getReserves"});
+    calls.push({to:cfg.pair, data:pairI.encodeFunctionData("totalSupply"), tag:cfg.key+":lp", iface:pairI, fn:"totalSupply"});
+    if(cfg.htt){
+      calls.push({to:cfg.htt.pair, data:pairI.encodeFunctionData("token0"), tag:cfg.key+":ht0", iface:pairI, fn:"token0"});
+      calls.push({to:cfg.htt.pair, data:pairI.encodeFunctionData("getReserves"), tag:cfg.key+":hres", iface:pairI, fn:"getReserves"});
+    }
+  }
+  const raw = await multiTry(calls);
+  const bag = {};
+  raw.forEach((data,i)=>{
+    const c=calls[i];
+    if(!data){ bag[c.tag]=null; return; }
+    try{ bag[c.tag]=c.iface.decodeFunctionResult(c.fn, data); }
+    catch(_){ bag[c.tag]=null; }
+  });
+  const rate = bag.rate && bag.rate[0];
+  const vt0 = bag.vt0 && bag.vt0[0];
+  const vres = bag.vres;
+  const dt0 = bag.dt0 && bag.dt0[0];
+  const dres = bag.dres;
+  const ht0 = bag.ht0 && bag.ht0[0];
+  const hres = bag.hres;
+  if(rate==null || !vres || !dres || !hres) throw new Error("fx read");
   const usdPerWpls = quotePer(WPLS,18,DAI,18,dt0,dres[0],dres[1]);
   const wplsPerHex = quotePer(HEX,8,WPLS,18,ht0,hres[0],hres[1]);
   const usdPerHex = (usdPerWpls!=null && wplsPerHex!=null) ? usdPerWpls*wplsPerHex : null;
@@ -452,12 +527,17 @@ async function loadDesk(fullTape){
   const htt = [];
   const px = {};
   for(const cfg of VAULTS){
-    const vr = new ethers.Contract(cfg.vault, VAULT_ABI, provider);
-    const pr = new ethers.Contract(cfg.pair, PAIR_ABI, provider);
-    const [backing, bal, sup, quota, tnext, t0, res, lpSup] = await Promise.all([
-      vr.backingPerToken(), vr.vaultBalance(), vr.totalSupply(), vr.mintQuotaRemaining(), vr.timeToNextEpoch(),
-      pr.token0(), pr.getReserves(), pr.totalSupply()
-    ]);
+    const backingR = bag[cfg.key+":backingPerToken"];
+    const balR = bag[cfg.key+":vaultBalance"];
+    const supR = bag[cfg.key+":totalSupply"];
+    const quotaR = bag[cfg.key+":mintQuotaRemaining"];
+    const tnextR = bag[cfg.key+":timeToNextEpoch"];
+    const t0R = bag[cfg.key+":t0"];
+    const res = bag[cfg.key+":res"];
+    const lpR = bag[cfg.key+":lp"];
+    if(!backingR || !balR || !supR || !quotaR || !tnextR || !t0R || !res || !lpR) continue;
+    const backing = backingR[0], bal = balR[0], sup = supR[0], quota = quotaR[0], tnext = tnextR[0];
+    const t0 = t0R[0], lpSup = lpR[0];
     const back = n18(backing);
     const dex = quotePer(cfg.vault, cfg.tokenDec, cfg.quote, cfg.quoteDec, t0, res[0], res[1]);
     const dep = depthOf(cfg.vault, cfg.tokenDec, cfg.quote, cfg.quoteDec, t0, res[0], res[1]);
@@ -465,8 +545,10 @@ async function loadDesk(fullTape){
     let httPair = null;
     if(cfg.key==="PLSstr") assetInQuote = vouchDex;
     else if(cfg.htt){
-      const hp = new ethers.Contract(cfg.htt.pair, PAIR_ABI, provider);
-      const [ht0b, hresb] = await Promise.all([hp.token0(), hp.getReserves()]);
+      const ht0bR = bag[cfg.key+":ht0"];
+      const hresb = bag[cfg.key+":hres"];
+      if(!ht0bR || !hresb) continue;
+      const ht0b = ht0bR[0];
       httPair = {t0:ht0b, r0:hresb[0], r1:hresb[1], addr:cfg.htt.pair};
       assetInQuote = quotePer(cfg.asset, 8, HEX, 8, ht0b, hresb[0], hresb[1]);
       const price = assetInQuote;
@@ -513,6 +595,13 @@ async function loadDesk(fullTape){
   else if(prevHead && head>prevHead) await loadTape(false, {from: prevHead+1, to: head});
   else if(state.trades && state.trades.length) paintTapeList();
   if(state.wallet && !autoWallet){ autoWallet = true; lookupWallet(state.wallet); }
+  }catch(e){
+    console.error(e);
+    if(fullTape!==false){
+      $("status").textContent="Desk read failed — tap refresh.";
+      $("status").className="note err";
+    }
+  }
 }
 function ilPct(k){
   if(!(k>0)||!isFinite(k)) return null;
@@ -605,22 +694,7 @@ function lastSwapLab(trades, r){
 }
 async function batchCall(calls){
   if(!calls.length) return [];
-  const out=[];
-  const url=CHAIN.rpcs[rpcIndex];
-  for(let i=0;i<calls.length;i+=32){
-    const slice=calls.slice(i,i+32);
-    const payload=slice.map((c,idx)=>({jsonrpc:"2.0",id:idx,method:"eth_call",params:[{to:c.to,data:c.data},"latest"]}));
-    const res=await fetch(url,{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify(payload)});
-    if(!res.ok) throw new Error("RPC HTTP "+res.status);
-    const j=await res.json();
-    if(!Array.isArray(j)) throw new Error("RPC batch not supported");
-    const byId=new Map(j.map(x=>[x.id,x]));
-    for(let idx=0; idx<slice.length; idx++){
-      const row=byId.get(idx);
-      out.push((!row || row.error || !row.result || row.result==="0x") ? null : row.result);
-    }
-  }
-  return out;
+  return multiTry(calls);
 }
 async function fetchWallet(address){
   const addr=parseWallet(address);
