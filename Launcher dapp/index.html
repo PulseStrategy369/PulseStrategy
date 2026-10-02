@@ -9,6 +9,7 @@
 <title>PulseStrategy Launcher · the floor only rises</title>
 <meta name="description" content="Launch an immutable vault token on PulseChain. Backing per token only ratchets upward — no admin keys, no pause, redemption never gated.">
 <meta name="theme-color" content="#0b0b10">
+<link rel="alternate" type="application/json" href="https://pulsestrategy369.com/pulsestrategy.json" title="PulseStrategy protocol manifest">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Michroma&family=Space+Grotesk:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
@@ -31,6 +32,8 @@ body::after{content:"";position:fixed;top:0;left:0;right:0;height:2px;z-index:80
 .wrap{max-width:1440px;width:100%;margin:0 auto;padding:0 32px 80px}
 a{color:var(--violet);text-decoration:none}
 a:hover{text-decoration:underline}
+#boardFind{color:var(--mut)}
+#boardFind:hover{color:var(--text)}
 h2{font-family:'Michroma';font-weight:400;font-size:15px;letter-spacing:.05em;margin:36px 0 14px;text-transform:uppercase}
 h2 small{display:block;font-family:'Space Grotesk';font-weight:400;font-size:12px;letter-spacing:0;text-transform:none;color:var(--mut);margin-top:4px}
 header{display:flex;justify-content:space-between;align-items:center;padding:20px 0 16px;position:sticky;top:0;background:rgba(11,11,16,.86);backdrop-filter:saturate(1.15) blur(16px);-webkit-backdrop-filter:saturate(1.15) blur(16px);border-bottom:1px solid var(--line);z-index:5;gap:12px;flex-wrap:nowrap}
@@ -465,7 +468,7 @@ pre.json{background:var(--panel2);border:1px solid var(--line);border-radius:12p
       <button class="action wide" id="pxRemBtn">Remove liquidity</button>
     </div>
     <div class="status" id="pxStatus"></div>
-    <p class="px-lead" style="margin:12px 0 0">Router <span class="mono">0x165C3410fC91EF562C50559f7d2289fEbed552d9</span> · factory v2. 1% slippage. New pools are PulseX v2.</p>
+    <p class="px-lead" style="margin:12px 0 0">Router <span class="mono">0x165C3410fC91EF562C50559f7d2289fEbed552d9</span> · factory v2. 0.5% slippage. New pools are PulseX v2.</p>
   </section>
 
   <div class="note" id="vaultMeta">Vault: not open</div>
@@ -492,7 +495,7 @@ pre.json{background:var(--panel2);border:1px solid var(--line);border-radius:12p
     <a href="https://pulsestrategy369.com" rel="noopener">PulseVerify</a> is the front page. The <a href="https://pulsestrategy369.com/whitepaper" rel="noopener">whitepaper</a> covers this launcher too — overview and how to. Download each page from its own footer.
   </div>
   <div>The contracts live on PulseChain and work without this page. This dapp reads the chain directly from your browser — no server, no database, no tracking.</div>
-  <div style="margin-top:10px"><a href="https://x.com/pulsestrategy" target="_blank" rel="noopener">@pulsestrategy</a> · the floor only rises · <span class="mono" id="buildTag">launcher v67 · 2026-09-29</span></div>
+  <div style="margin-top:10px"><a href="https://x.com/pulsestrategy" target="_blank" rel="noopener">@pulsestrategy</a> · the floor only rises · <span class="mono" id="buildTag">launcher v75 · 2026-10-01</span></div>
 </footer>
 </div>
 
@@ -552,11 +555,9 @@ try{
 const WC_PROJECT_ID = "dfa53b26ebcaa8d274b2a7f6ddc66cb0";
 const WPLS = "0xA1077a294dDE1B09bB078844df40758a5D0f9a27";
 const HEX_ADDR = "0x2b591e99afE9f32eAA6214f7B7629768c40Eeb39";
-const PULSEX_V1_FACTORY = "0x1715a3E4A142d8b698131108995174F37aEBA10D";
 const PULSEX_V2_FACTORY = "0x29eA7545DEf87022BAdc76323F373EA1e707C523";
-const PULSEX_V1_ROUTER = "0x98bf93ebf5c380C0e6Ae8e192A7e2AE08edAcc02";
 const PULSEX_V2_ROUTER = "0x165C3410fC91EF562C50559f7d2289fEbed552d9";
-const PULSEX_FACTORIES = [PULSEX_V1_FACTORY, PULSEX_V2_FACTORY];
+const PULSEX_FACTORIES = [PULSEX_V2_FACTORY];
 const ASSETS = [
   { sym:"PLSX",   addr:"0x95B303987A60C71504D99Aa1b13B4DA07b0790ab", dec:18 },
   { sym:"PLSstr", addr:"0x71ff5C9C9938E39E819246ef939FFb5Fd228922d", dec:18 },
@@ -1913,7 +1914,7 @@ async function doAction(){
 }
 
 /* PulseX v2 on the open vault */
-let pxTab="add", pxLastLp="tok", pxHasPool=false, pxSlipBps=100, pxRemPct=0;
+let pxTab="add", pxLastLp="tok", pxHasPool=false, pxSlipBps=50, pxRemPct=0;
 function setPxStatus(m,c=""){ const s=$("pxStatus"); if(s){ s.textContent=m||""; s.className="status "+(c||""); } }
 function feeShareConfigured(){
   return !!(LP_FEE_SHARE && ethers.isAddress(LP_FEE_SHARE) && LP_FEE_SHARE !== ethers.ZeroAddress);
@@ -2204,20 +2205,30 @@ function pxOptHtml(selected, includeVault){
 async function detectPxQuote(){
   if(!cur) return null;
   const vault=cur.cfg.vault;
-  try{
-    const pls=await pxPair(PULSEX_V2_FACTORY, vault, WPLS);
-    if(pls) return quoteAssets().find(q=>q.sym==="PLS")||null;
-  }catch(_){}
-  let best=null, bestL=-1n;
+  const quotes=[];
+  const seen=new Set();
   for(const q of quoteAssets()){
-    if(q.addr.toLowerCase()===WPLS.toLowerCase()) continue;
+    const k=q.addr.toLowerCase();
+    if(seen.has(k) || k===vault.toLowerCase()) continue;
+    seen.add(k);
+    quotes.push(k===WPLS.toLowerCase()?{sym:"PLS", addr:WPLS, dec:18}:q);
+  }
+  const warm=[];
+  for(const q of quotes){
+    warm.push([vault, q.addr]);
+    warm.push([q.addr, WPLS]);
+  }
+  try{ await warmPairs(warm); }catch(_){}
+  let best=null, bestD=-1n;
+  for(const q of quotes){
+    const deep=pairMemo.get(pairPickKey(vault, q.addr));
+    if(!deep || !deep.pair) continue;
+    let depth=0n;
     try{
-      const p=await pxPair(PULSEX_V2_FACTORY, vault, q.addr);
-      if(!p) continue;
-      const {r0,r1}=await pairReserves(p);
-      const L=r0*r1;
-      if(L>bestL){ bestL=L; best=q; }
+      const {r0,r1,t0,t1}=await pairReserves(deep.pair);
+      depth=(await toWpls(t0, r0, 18))+(await toWpls(t1, r1, 18));
     }catch(_){}
+    if(depth>0n && depth>bestD){ bestD=depth; best=q; }
   }
   return best;
 }
@@ -2274,23 +2285,218 @@ function pairPickSet(a,b,pair,factory){
   o[pairPickKey(a,b)]={ pair, factory, at: now };
   try{ localStorage.setItem(PAIR_LS, JSON.stringify(o)); }catch(_){}
 }
-async function pxPairDeep(a,b){
-  const saved=pairPickGet(a,b);
-  if(saved && saved.pair && saved.factory){
-    return { pair:saved.pair, factory:saved.factory, cached:true, v2:saved.factory.toLowerCase()===PULSEX_V2_FACTORY.toLowerCase() };
+const MULTICALL3="0xcA11bde05977b3631167028862bE2a173976CA11";
+const MC_IFACE=new ethers.Interface(["function tryAggregate(bool requireSuccess, (address target, bytes callData)[] calls) payable returns ((bool success, bytes returnData)[])"]);
+const VAULT_IFACE=new ethers.Interface(VAULT_ABI);
+const FACTORY_IFACE=new ethers.Interface(FACTORY_ABI);
+const ERC_IFACE=new ethers.Interface(ERC20_ABI);
+const PAIR_IFACE=new ethers.Interface(PAIR_ABI);
+const FACTPAIR_IFACE=new ethers.Interface(FACT_PAIR_ABI);
+const coreMemo=new Map();
+const pairMemo=new Map();
+const reserveMemo=new Map();
+const assetMeta=new Map();
+function clearBoardMemos(){ coreMemo.clear(); pairMemo.clear(); reserveMemo.clear(); assetMeta.clear(); }
+function forgetVault(addr){
+  const a=String(addr||"").toLowerCase();
+  coreMemo.delete(a);
+  for(const k of [...pairMemo.keys()]){
+    if(!k.split("|").includes(a)) continue;
+    const rec=pairMemo.get(k);
+    if(rec && rec.pair) reserveMemo.delete(String(rec.pair).toLowerCase());
+    pairMemo.delete(k);
   }
-  let best=null, liq=-1n;
-  for(const f of [PULSEX_V2_FACTORY, PULSEX_V1_FACTORY]){
-    const p=await pxPair(f,a,b);
-    if(!p) continue;
+}
+async function multiTry(calls){
+  if(!calls.length) return [];
+  const out=[];
+  const CHUNK=80;
+  for(let i=0;i<calls.length;i+=CHUNK){
+    const slice=calls.slice(i, i+CHUNK);
+    let rows=null;
     try{
-      const {r0,r1}=await pairReserves(p);
-      const L=r0*r1;
-      if(L>liq){ liq=L; best={pair:p, factory:f, v2:f.toLowerCase()===PULSEX_V2_FACTORY.toLowerCase()}; }
-    }catch(_){}
+      const data=MC_IFACE.encodeFunctionData("tryAggregate", [false, slice.map(c=>({target:c.to, callData:c.data}))]);
+      const raw=await readProvider.call({to:MULTICALL3, data});
+      rows=MC_IFACE.decodeFunctionResult("tryAggregate", raw)[0];
+    }catch(_){
+      rows=await Promise.all(slice.map(async c=>{
+        try{ return {success:true, returnData:await readProvider.call({to:c.to, data:c.data})}; }
+        catch(__){ return {success:false, returnData:"0x"}; }
+      }));
+    }
+    for(const r of rows){
+      const ok=Array.isArray(r)?r[0]:r.success;
+      const ret=Array.isArray(r)?r[1]:r.returnData;
+      out.push(ok && ret && ret!=="0x" ? ret : null);
+    }
   }
-  if(best && best.pair && best.factory) pairPickSet(a,b, best.pair, best.factory);
-  return best;
+  return out;
+}
+function decFn(iface, fn, data){
+  if(!data) return null;
+  try{ return iface.decodeFunctionResult(fn, data); }catch(_){ return null; }
+}
+async function readVaultCores(addrs){
+  const need=addrs.filter(a=>a && !coreMemo.has(String(a).toLowerCase()));
+  const fns=["name","symbol","asset","vaultBalance","totalSupply","backingPerToken","initialQuotaBps","currentQuotaBps","creator","decimals","genesisUncapped"];
+  const calls=[];
+  for(const addr of need){
+    if(FACTORY_ADDR) calls.push({to:FACTORY_ADDR, data:FACTORY_IFACE.encodeFunctionData("infoOf",[addr]), kind:"info", addr});
+    for(const fn of fns) calls.push({to:addr, data:VAULT_IFACE.encodeFunctionData(fn), kind:fn, addr});
+  }
+  const raw=await multiTry(calls);
+  const buckets=new Map();
+  raw.forEach((data,i)=>{
+    const c=calls[i];
+    const k=String(c.addr).toLowerCase();
+    if(!buckets.has(k)) buckets.set(k, {});
+    buckets.get(k)[c.kind]=data;
+  });
+  for(const addr of need){
+    const k=String(addr).toLowerCase();
+    const b=buckets.get(k)||{};
+    const name=decFn(VAULT_IFACE,"name",b.name);
+    if(!name){ coreMemo.set(k, null); continue; }
+    const sym=decFn(VAULT_IFACE,"symbol",b.symbol);
+    const asset=decFn(VAULT_IFACE,"asset",b.asset);
+    const vb=decFn(VAULT_IFACE,"vaultBalance",b.vaultBalance);
+    const ts=decFn(VAULT_IFACE,"totalSupply",b.totalSupply);
+    const backing=decFn(VAULT_IFACE,"backingPerToken",b.backingPerToken);
+    const iq=decFn(VAULT_IFACE,"initialQuotaBps",b.initialQuotaBps);
+    const qb=decFn(VAULT_IFACE,"currentQuotaBps",b.currentQuotaBps);
+    const creator=decFn(VAULT_IFACE,"creator",b.creator);
+    const dec=decFn(VAULT_IFACE,"decimals",b.decimals);
+    const gen=decFn(VAULT_IFACE,"genesisUncapped",b.genesisUncapped);
+    const info=decFn(FACTORY_IFACE,"infoOf",b.info);
+    if(!asset||!vb||!ts||!backing){ coreMemo.set(k, null); continue; }
+    coreMemo.set(k, {
+      info, name:name[0], sym:sym?sym[0]:"?", asset:asset[0],
+      vb:vb[0], ts:ts[0], backing:backing[0],
+      iq:iq?iq[0]:0n, qb:qb?qb[0]:0n, creator:creator?creator[0]:null,
+      tDec:dec?Number(dec[0]):18, genesis:gen?!!gen[0]:false
+    });
+  }
+}
+async function readAssetMetas(addrs){
+  const need=[...new Set(addrs.filter(Boolean).map(a=>String(a).toLowerCase()))].filter(a=>!assetMeta.has(a));
+  if(!need.length) return;
+  const calls=[];
+  for(const a of need){
+    const addr=ethers.getAddress(a);
+    calls.push({to:addr, data:ERC_IFACE.encodeFunctionData("decimals"), a, fn:"decimals"});
+    calls.push({to:addr, data:ERC_IFACE.encodeFunctionData("symbol"), a, fn:"symbol"});
+  }
+  const raw=await multiTry(calls);
+  const acc=new Map();
+  raw.forEach((data,i)=>{
+    const c=calls[i];
+    if(!acc.has(c.a)) acc.set(c.a, {});
+    acc.get(c.a)[c.fn]=decFn(ERC_IFACE, c.fn, data);
+  });
+  for(const a of need){
+    const row=acc.get(a)||{};
+    assetMeta.set(a, {
+      dec: row.decimals ? Number(row.decimals[0]) : 18,
+      sym: row.symbol ? row.symbol[0] : assetSym(a)
+    });
+  }
+}
+async function warmReserves(pairs){
+  const need=[...new Set(pairs.filter(Boolean).map(p=>String(p).toLowerCase()))].filter(p=>p!==ethers.ZeroAddress.toLowerCase() && !reserveMemo.has(p));
+  if(!need.length) return;
+  const calls=[];
+  for(const p of need){
+    const addr=ethers.getAddress(p);
+    calls.push({to:addr, data:PAIR_IFACE.encodeFunctionData("getReserves"), p, fn:"getReserves"});
+    calls.push({to:addr, data:PAIR_IFACE.encodeFunctionData("token0"), p, fn:"token0"});
+    calls.push({to:addr, data:PAIR_IFACE.encodeFunctionData("token1"), p, fn:"token1"});
+  }
+  const raw=await multiTry(calls);
+  const acc=new Map();
+  raw.forEach((data,i)=>{
+    const c=calls[i];
+    if(!acc.has(c.p)) acc.set(c.p, {});
+    acc.get(c.p)[c.fn]=decFn(PAIR_IFACE, c.fn, data);
+  });
+  for(const p of need){
+    const b=acc.get(p)||{};
+    if(!b.getReserves || !b.token0 || !b.token1) continue;
+    reserveMemo.set(p, { r0:BigInt(b.getReserves[0]), r1:BigInt(b.getReserves[1]), t0:b.token0[0], t1:b.token1[0] });
+  }
+}
+async function warmPairs(list){
+  const unknown=[];
+  const have=[];
+  const seen=new Set();
+  for(const pair of list){
+    if(!pair || !pair[0] || !pair[1]) continue;
+    if(String(pair[0]).toLowerCase()===String(pair[1]).toLowerCase()) continue;
+    const k=pairPickKey(pair[0], pair[1]);
+    if(seen.has(k) || pairMemo.has(k)){
+      const rec=pairMemo.get(k);
+      if(rec && rec.pair) have.push(rec.pair);
+      continue;
+    }
+    seen.add(k);
+    const saved=pairPickGet(pair[0], pair[1]);
+    if(saved && saved.pair && saved.factory && saved.factory.toLowerCase()===PULSEX_V2_FACTORY.toLowerCase()){
+      const rec={ pair:saved.pair, factory:saved.factory, cached:true, v2:saved.factory.toLowerCase()===PULSEX_V2_FACTORY.toLowerCase() };
+      pairMemo.set(k, rec);
+      have.push(saved.pair);
+    }else unknown.push([pair[0], pair[1], k]);
+  }
+  if(unknown.length){
+    const calls=[];
+    for(const [a,b,k] of unknown){
+      for(const f of [PULSEX_V2_FACTORY]){
+        calls.push({to:f, data:FACTPAIR_IFACE.encodeFunctionData("getPair",[a,b]), k, f, a, b});
+      }
+    }
+    const raw=await multiTry(calls);
+    const cands=new Map();
+    raw.forEach((data,i)=>{
+      const rec=decFn(FACTPAIR_IFACE,"getPair",data);
+      const p=rec && rec[0];
+      if(!p || p===ethers.ZeroAddress) return;
+      const c=calls[i];
+      if(!cands.has(c.k)) cands.set(c.k, []);
+      cands.get(c.k).push({pair:p, f:c.f, a:c.a, b:c.b});
+      have.push(p);
+    });
+    await warmReserves(have);
+    for(const [a,b,k] of unknown){
+      let best=null, liq=-1n;
+      for(const c of (cands.get(k)||[])){
+        const res=reserveMemo.get(String(c.pair).toLowerCase());
+        if(!res) continue;
+        const L=res.r0*res.r1;
+        if(L>liq){ liq=L; best={pair:c.pair, factory:c.f, v2:c.f.toLowerCase()===PULSEX_V2_FACTORY.toLowerCase()}; }
+      }
+      pairMemo.set(k, best);
+      if(best) pairPickSet(a, b, best.pair, best.factory);
+    }
+  }else if(have.length) await warmReserves(have);
+}
+async function warmBoard(addrs){
+  await readVaultCores(addrs);
+  const assets=[];
+  const pairs=[];
+  for(const addr of addrs){
+    const c=coreMemo.get(String(addr).toLowerCase());
+    if(!c) continue;
+    assets.push(c.asset);
+    for(const q of boardQuotes()) pairs.push([addr, q.addr]);
+    pairs.push([c.asset, WPLS]);
+  }
+  for(const q of boardQuotes()) pairs.push([q.addr, WPLS]);
+  await readAssetMetas(assets);
+  await warmPairs(pairs);
+}
+async function pxPairDeep(a,b){
+  const k=pairPickKey(a,b);
+  if(pairMemo.has(k)) return pairMemo.get(k);
+  await warmPairs([[a,b]]);
+  return pairMemo.has(k) ? pairMemo.get(k) : null;
 }
 function pxPaths(tokenIn, tokenOut){
   const a=tokenIn.toLowerCase(), b=tokenOut.toLowerCase();
@@ -2328,7 +2534,7 @@ function pxLabel(addr){
 async function pxBestSwap(tokenIn, tokenOut, amt){
   const paths=pxPaths(tokenIn, tokenOut);
   let best=null;
-  for(const router of [PULSEX_V2_ROUTER, PULSEX_V1_ROUTER]){
+  for(const router of [PULSEX_V2_ROUTER]){
     const rc=new ethers.Contract(router, ROUTER_ABI, readProvider);
     for(const path of paths){
       try{
@@ -2904,9 +3110,11 @@ async function findPair(a,b){
   return found;
 }
 async function pairReserves(pair){
-  const c=new ethers.Contract(pair, PAIR_ABI, readProvider);
-  const [r,t0,t1]=await Promise.all([c.getReserves(), c.token0(), c.token1()]);
-  return { r0:BigInt(r[0]), r1:BigInt(r[1]), t0, t1 };
+  const k=String(pair).toLowerCase();
+  if(reserveMemo.has(k)) return reserveMemo.get(k);
+  await warmReserves([pair]);
+  if(reserveMemo.has(k)) return reserveMemo.get(k);
+  throw new Error("reserves");
 }
 function mktToWei(n, dec){
   if(!(n>0) || !isFinite(n)) return 0n;
@@ -2925,13 +3133,15 @@ function uniIn(amountOutW, reserveIn, reserveOut){
   return reserveIn*amountOutW*10000n/((reserveOut-amountOutW)*9971n)+1n;
 }
 async function spotVs(token, tDec, quote, qDec){
-  const p=await pxPair(PULSEX_V2_FACTORY, token, quote);
-  if(!p) return null;
-  const {r0,r1,t0}=await pairReserves(p);
+  const deep=await pxPairDeep(token, quote);
+  if(!deep) return null;
+  const {r0,r1,t0}=await pairReserves(deep.pair);
   const tokenIs0=t0.toLowerCase()===token.toLowerCase();
   const rT=tokenIs0?r0:r1, rQ=tokenIs0?r1:r0;
   if(rT===0n||rQ===0n) return null;
-  return { px: Number(ethers.formatUnits(rQ, qDec))/Number(ethers.formatUnits(rT, tDec)), rT, rQ, qDec, tDec };
+  let depth=0n;
+  try{ depth=(await toWpls(token, rT, tDec))+(await toWpls(quote, rQ, qDec)); }catch(_){}
+  return { px: Number(ethers.formatUnits(rQ, qDec))/Number(ethers.formatUnits(rT, tDec)), rT, rQ, qDec, tDec, depth, pair:deep.pair };
 }
 function bestLaunchArb(band, backing, pool, bridge){
   if(!pool || !(backing>0)) return null;
@@ -2980,19 +3190,40 @@ async function paintLaunchMkt(){
   const gen=++mktGen;
   const vault=cur.cfg.vault, asset=cur.cfg.assetAddr, sym=cur.cfg.assetSym, tok=cur.cfg.token;
   try{
-    let pool=await spotVs(vault, cur.tDec, asset, cur.aDec);
-    let px=pool?pool.px:null;
-    let bridge=null;
-    if(px==null){
-      for(const b of quoteAssets()){
-        if(b.addr.toLowerCase()===asset.toLowerCase()) continue;
-        const tB=await spotVs(vault, cur.tDec, b.addr, b.dec);
-        if(!tB) continue;
-        const aB=await spotVs(asset, cur.aDec, b.addr, b.dec);
-        if(aB && aB.px>0){ px=tB.px/aB.px; pool=tB; bridge=aB; break; }
-      }
+    const seen=new Set();
+    const uniq=[];
+    for(const b0 of quoteAssets()){
+      const key=b0.addr.toLowerCase();
+      if(seen.has(key) || key===vault.toLowerCase()) continue;
+      seen.add(key);
+      uniq.push(key===WPLS.toLowerCase()?{sym:"PLS", addr:WPLS, dec:18}:b0);
+    }
+    const warm=[];
+    for(const b of uniq){
+      warm.push([vault, b.addr]);
+      warm.push([b.addr, WPLS]);
+      if(asset && b.addr.toLowerCase()!==asset.toLowerCase()) warm.push([asset, b.addr]);
+    }
+    if(asset) warm.push([asset, WPLS]);
+    try{ await warmPairs(warm); }catch(_){}
+    if(gen!==mktGen || !cur || cur.cfg.vault!==vault) return;
+    const cands=[];
+    for(const b of uniq){
+      const hit=await spotVs(vault, cur.tDec, b.addr, b.dec);
+      if(hit) cands.push(Object.assign(hit, {sym:b.sym, addr:b.addr}));
     }
     if(gen!==mktGen || !cur || cur.cfg.vault!==vault) return;
+    cands.sort((a,b)=> (b.depth||0n)>(a.depth||0n) ? 1 : (a.depth===b.depth ? 0 : -1));
+    const best=cands[0];
+    if(!best){ box.style.display="none"; return; }
+    let px=best.px, bridge=null, pool=best, poolName=best.sym;
+    if(best.addr.toLowerCase()!==asset.toLowerCase()){
+      const aB=await spotVs(asset, cur.aDec, best.addr, best.qDec);
+      if(gen!==mktGen || !cur || cur.cfg.vault!==vault) return;
+      if(!aB || !(aB.px>0)){ box.style.display="none"; return; }
+      px=best.px/aB.px;
+      bridge=aB;
+    }
     if(!(px>0)){ box.style.display="none"; return; }
     const diff=(px/lastBacking-1)*100;
     const prem=diff>=0;
@@ -3011,13 +3242,14 @@ async function paintLaunchMkt(){
         extra=ticket.label+" · size "+commaNum(ticket.size, 2)+" "+tok
           +" · trade "+commaNum(ticket.worth, 2)+" "+sym
           +" · profit "+commaNum(ticket.profit, 2)+" "+sym;
-      }else extra="Outside the band, but fees and price impact eat the edge.";
+      }
     }
+    if(gen!==mktGen || !cur || cur.cfg.vault!==vault) return;
     const mUsd=usdText(usdRaw(sym, px));
     box.style.display="block";
-    box.innerHTML='<span class="chip '+(prem?"prem":"disc")+'">Market '+px.toFixed(4)+" "+esc(sym)+(mUsd?" · "+mUsd:"")+" · "+(prem?"+":"")+diff.toFixed(1)+"% "+(prem?"premium":"discount")+'</span>'
-      +'<div style="margin-top:8px;font-size:13px;color:var(--text)">'+esc(rec)+'</div>'
-      +(extra?'<div style="margin-top:4px;font-size:12px;color:var(--mut)">'+esc(extra)+'</div>':'');
+    box.innerHTML='<div><span class="chip '+(prem?"prem":"disc")+'" style="display:inline-block;max-width:100%;white-space:normal;line-height:1.45;box-sizing:border-box">Market '+px.toFixed(4)+" "+esc(sym)+(mUsd?" · "+mUsd:"")+" · "+(prem?"+":"")+diff.toFixed(1)+"% "+(prem?"premium":"discount")+" · "+esc(poolName)+" pool"+'</span></div>'
+      +'<div style="margin-top:10px;font-size:13px;color:var(--text);line-height:1.4">'+esc(rec)+'</div>'
+      +(extra?'<div style="margin-top:6px;font-size:12px;color:var(--mut);line-height:1.4">'+esc(extra)+'</div>':'');
   }catch(_){ if(gen===mktGen) box.style.display="none"; }
 }
 const pxCache={};
@@ -3119,7 +3351,7 @@ async function loadPlsUsd(){
   plsUsd=null;
   const cands=[];
   for(const s of STABLES){
-    for(const f of [PULSEX_V1_FACTORY, PULSEX_V2_FACTORY]){
+    for(const f of [PULSEX_V2_FACTORY]){
       try{
         const p=await pxPair(f, WPLS, s.addr);
         if(!p) continue;
@@ -3167,12 +3399,13 @@ function fmtUsd(wplsBn){
   if(abs===0) return "$0";
   return sign+"<$0.00000001";
 }
-function moneyW(wplsStr){
-  if(wplsStr==null || wplsStr==="" || wplsStr==="0") return "—";
+function moneyW(wplsStr, zeroAsZero){
+  if(wplsStr==null || wplsStr==="") return "—";
   try{
     const bn=BigInt(wplsStr);
-    if(bn===0n) return "—";
+    if(bn===0n && !zeroAsZero) return "—";
     if(boardUnit==="USD" && plsUsd) return fmtUsd(bn);
+    if(bn===0n) return "0 PLS";
     return fmtCompact(bn)+" PLS";
   }catch(_){ return "—"; }
 }
@@ -3212,7 +3445,7 @@ async function pairHistory(pair, tokenAddr, quoteAddr, nowT, nowQ){
   const res=await pairReserves(pair);
   const is0=res.t0.toLowerCase()===tokenAddr.toLowerCase();
   const span=await getLogsSpan(pair, [[SYNC_TOPIC, SWAP_TOPIC, MINT_TOPIC, BURN_TOPIC]], 1);
-  if(!span.ok) return { price24:readFailed(), price7:null, depth24:readFailed(), depth7:null, vol24:"0" };
+  if(!span.ok) return { price24:readFailed(), price7:null, depth24:readFailed(), depth7:null, vol24:null };
   const from=span.head - span.perDay;
   const logs=(span.logs||[]).slice().sort(byLogOrder);
   let volT=0n;
@@ -3222,7 +3455,7 @@ async function pairHistory(pair, tokenAddr, quoteAddr, nowT, nowQ){
     volT += is0 ? (a0in+a0out) : (a1in+a1out);
   }
   let vol24="0";
-  try{ vol24=(await toWpls(tokenAddr, volT, 18)).toString(); }catch(_){}
+  try{ vol24=(await toWpls(tokenAddr, volT, 18)).toString(); }catch(_){ vol24=null; }
   const syncs=logs.filter(l=>topic0(l)===SYNC_TOPIC && logBlock(l)>=from);
   if(!syncs.length) return { price24:flatDay(), price7:null, depth24:flatDay(), depth7:null, vol24 };
   const pre=preRawReserves(syncs[0], logs);
@@ -3281,15 +3514,16 @@ async function vaultFloorChg(vault, nowBackingBn){
 }
 
 async function scoreVault(addr, withLogs, factoryIndex){
-  const vr=new ethers.Contract(addr, VAULT_ABI, readProvider);
-  const info = FACTORY_ADDR ? await new ethers.Contract(FACTORY_ADDR, FACTORY_ABI, readProvider).infoOf(addr).catch(()=>null) : null;
-  const [name,sym,asset,vb,ts,backing,iq,qb,creator,tDec,genesis] = await Promise.all([
-    vr.name(), vr.symbol(), vr.asset(), vr.vaultBalance(), vr.totalSupply(),
-    vr.backingPerToken(), vr.initialQuotaBps(), vr.currentQuotaBps(), vr.creator(),
-    vr.decimals().catch(()=>18), vr.genesisUncapped().catch(()=>false)
-  ]);
-  const ar=new ethers.Contract(asset, ERC20_ABI, readProvider);
-  const [aDec,aSym]=await Promise.all([ar.decimals(), ar.symbol().catch(()=>assetSym(asset))]);
+  if(!coreMemo.has(String(addr).toLowerCase())){
+    try{ await warmBoard([addr]); }catch(e){ console.warn("multicall", addr, e); }
+  }
+  const core=coreMemo.get(String(addr).toLowerCase());
+  if(!core) throw new Error("unread");
+  const {info,name,sym,asset,vb,ts,backing,iq,qb,creator,genesis}=core;
+  const tDec=core.tDec;
+  const meta=assetMeta.get(String(asset).toLowerCase());
+  const aDec=meta?meta.dec:18;
+  const aSym=meta?meta.sym:assetSym(asset);
   const tvlW=await toWpls(asset, vb, Number(aDec));
   const found=(await Promise.all(boardQuotes().map(async q=>{
     try{
@@ -3302,17 +3536,23 @@ async function scoreVault(addr, withLogs, factoryIndex){
   let lpW=0n;
   const pools=[];
   for(const p of found){
+    let side=0n;
     try{
-      lpW += await toWpls(p.t0, p.r0, 18) + await toWpls(p.t1, p.r1, 18);
+      side = await toWpls(p.t0, p.r0, 18) + await toWpls(p.t1, p.r1, 18);
     }catch(_){}
+    p.depthW=side;
+    lpW += side;
     pools.push({ dex:"PulseX", pair:p.pair, token0:p.t0, token1:p.t1, quote:p.q.sym, reserve0:p.r0.toString(), reserve1:p.r1.toString() });
   }
-  found.sort((a,b)=> a.L===b.L ? 0 : (b.L>a.L ? 1 : -1));
-  const wplsP=found.find(p=>p.q.addr.toLowerCase()===WPLS.toLowerCase());
-  const priced=(wplsP && found[0] && wplsP.L*5n>=found[0].L) ? wplsP : found[0];
+  found.sort((a,b)=>{
+    const da=a.depthW||0n, db=b.depthW||0n;
+    if(da!==db) return db>da ? 1 : -1;
+    return a.L===b.L ? 0 : (b.L>a.L ? 1 : -1);
+  });
+  const priced=found[0]||null;
   const tDecN=Number(tDec)||18;
   const aDecN=Number(aDec)||18;
-  let dexPriceTxt=null, mcapWpls="0", priceWpls="0", vsVault=null, hist=null;
+  let dexPriceTxt=null, mcapWpls="0", priceWpls="0", vsVault=null, vsQuote=null, hist=null;
   let rT=0n, rQ=0n;
   if(priced && priced.r0>0n && priced.r1>0n){
     const tokenIs0=priced.t0.toLowerCase()===addr.toLowerCase();
@@ -3326,10 +3566,23 @@ async function scoreVault(addr, withLogs, factoryIndex){
       mcapWpls=mcap.toString();
       const pxW=await toWpls(priced.q.addr, qPer, priced.q.dec);
       priceWpls=pxW.toString();
-      const fairAsset=backing * (10n**BigInt(aDecN)) / (10n**18n);
-      const fairW=await toWpls(asset, fairAsset, aDecN);
-      if(fairW>0n && pxW>0n) vsVault=Number(pxW * 10000n / fairW)/100 - 100;
     }
+  }
+  const vsOf=async(pool)=>{
+    if(!pool || !(pool.r0>0n) || !(pool.r1>0n)) return null;
+    const tokenIs0=pool.t0.toLowerCase()===addr.toLowerCase();
+    const rTv=tokenIs0?pool.r0:pool.r1, rQv=tokenIs0?pool.r1:pool.r0;
+    if(rTv===0n) return null;
+    const qPer=rQv * (10n**BigInt(tDecN)) / rTv;
+    const pxW=await toWpls(pool.q.addr, qPer, pool.q.dec);
+    const fairAsset=backing * (10n**BigInt(aDecN)) / (10n**18n);
+    const fairW=await toWpls(asset, fairAsset, aDecN);
+    if(!(fairW>0n && pxW>0n)) return null;
+    return Number(pxW * 10000n / fairW)/100 - 100;
+  };
+  if(priced){
+    vsVault=await vsOf(priced);
+    vsQuote=priced.q.sym;
   }
   let floor={floor24:null,floor7:null};
   if(withLogs){
@@ -3344,10 +3597,10 @@ async function scoreVault(addr, withLogs, factoryIndex){
     vaultBalance: vb.toString(), totalSupply: ts.toString(),
     tvlWpls: tvlW.toString(), lpWpls: lpW.toString(),
     scoreWpls: (tvlW+lpW).toString(),
-    mcapWpls, priceWpls, dexPriceTxt, vsVault,
+    mcapWpls, priceWpls, dexPriceTxt, vsVault, vsQuote,
     price24: hist&&hist.price24, price7: hist&&hist.price7,
     depth24: hist&&hist.depth24, depth7: hist&&hist.depth7,
-    vol24: hist?hist.vol24:"0",
+    vol24: hist ? hist.vol24 : (withLogs ? "0" : null),
     floor24: floor.floor24, floor7: floor.floor7,
     pools, scored:!!withLogs, failed:false,
     factoryIndex: typeof factoryIndex==="number" ? factoryIndex : -1
@@ -3378,11 +3631,15 @@ function chgCell(a,b){
   };
   return bit(a)+' <span class="chg-flat">/</span> '+bit(b);
 }
-function vsCell(v){
-  if(v==null || !isFinite(v)) return "—";
-  const cls=v>0.5?"chg-up":v<-0.5?"chg-dn":"chg-flat";
-  const lab=v>=0 ? v.toFixed(2)+"% premium" : Math.abs(v).toFixed(2)+"% discount";
-  return '<span class="'+cls+'">'+lab+"</span>";
+function vsCell(r){
+  const line=(v,q)=>{
+    if(v==null || !isFinite(v)) return "";
+    const cls=v>0.5?"chg-up":v<-0.5?"chg-dn":"chg-flat";
+    const lab=v>=0 ? v.toFixed(2)+"% premium" : Math.abs(v).toFixed(2)+"% discount";
+    return '<div class="'+cls+'">'+lab+(q?" · "+esc(q)+" pool":"")+'</div>';
+  };
+  const html=line(r && r.vsVault, r && r.vsQuote)+line(r && r.vsAlt, r && r.vsAltQuote);
+  return html || "—";
 }
 function paintBoard(rows){
   if($("unitPls")) $("unitPls").classList.toggle("on", boardUnit==="PLS");
@@ -3435,8 +3692,10 @@ function paintBoard(rows){
       +bm("Market cap", esc(moneyW(r.mcapWpls)))
       +bm("TVL", esc(moneyW(r.tvlWpls)))
       +bm("Pool depth", esc(moneyW(r.lpWpls)))
-      +bm("Vol 24h", esc(moneyW(r.vol24)))
-      +bm("Vs vault", vsCell(r.vsVault))
+      +bm("Vol 24h", (r.vol24==null || r.vol24==="")
+        ? '<span class="chg-flat" title="24h log read failed">—</span>'
+        : esc(moneyW(r.vol24, true)))
+      +bm("Vs vault", vsCell(r))
       +bm("Supply", esc(fmtCompact(BigInt(r.totalSupply||"0"), r.tDec||18)+" "+(r.symbol||"")))
       +bm("Creator", creator)
       +bm("Launched", esc(launched)+(age!=null?" · "+age+"d":""))
@@ -3542,6 +3801,7 @@ function updateLoadMore(){
 }
 async function scoreAddrs(list, withLogs){
   const items=list.map(x=> typeof x==="string" ? {addr:x, factoryIndex:-1} : x);
+  try{ await warmBoard(items.map(it=>it.addr)); }catch(e){ console.warn("multicall", e); }
   const out=[];
   const BATCH=withLogs?2:4;
   for(let i=0;i<items.length;i+=BATCH){
@@ -3572,6 +3832,8 @@ async function fillLogs(rows){
 async function retryVault(r){
   const gen=boardGen;
   const addr=String(r.vault||"").toLowerCase();
+  forgetVault(r.vault);
+  try{ await warmBoard([r.vault]); }catch(_){}
   const full=await scoreVault(r.vault, true, r.factoryIndex).catch(e=>{
     console.warn("skip", r.vault, e);
     return null;
@@ -3602,6 +3864,7 @@ function showBoard(){
 
 async function loadBoard(){
   const gen=++boardGen;
+  clearBoardMemos();
   $("boardTop").innerHTML='<div class="note">Reading factory…</div>';
   $("boardRest").innerHTML="";
   if($("boardMiss")) $("boardMiss").innerHTML="";
