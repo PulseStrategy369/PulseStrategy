@@ -711,7 +711,7 @@ try{
   }
 }catch(_){}
 
-const BUILD = "v84 \u00b7 2026-09-29";   // shown in the footer so users can tell builds apart
+const BUILD = "v87 \u00b7 2026-10-01";   // shown in the footer so users can tell builds apart
 const WC_PROJECT_ID = "dfa53b26ebcaa8d274b2a7f6ddc66cb0";   // free at https://cloud.reown.com (enables WalletConnect)
 /* Paste after Remix deploy of contracts/LPFeeShare.sol. Leave blank to hide the claim UI.
    Ownerless. Core deposits: protocol-fee wallet. Launch deposits: that vault's creator. */
@@ -868,13 +868,10 @@ const BRIDGES = [                                 // routing hops for market pri
   { addr:"0xefD766cCb38EaF1dfd701853BFCe31359239F305", dec:18 }   // DAI
 ];
 const PULSEX_FACTORIES = [
-  "0x1715a3E4A142d8b698131108995174F37aEBA10D",  // PulseX v1
-  "0x29eA7545DEf87022BAdc76323F373EA1e707C523"   // PulseX v2
+  "0x29eA7545DEf87022BAdc76323F373EA1e707C523"   // PulseX v2 only. No vault pool is on v1.
 ];
-const PULSEX_V1_ROUTER = "0x98bf93ebf5c380C0e6Ae8e192A7e2AE08edAcc02";
 const PULSEX_V2_ROUTER = "0x165C3410fC91EF562C50559f7d2289fEbed552d9";
 const PULSEX_ROUTER_OF = {
-  "0x1715a3e4a142d8b698131108995174f37aeba10d": PULSEX_V1_ROUTER,
   "0x29ea7545def87022badc76323f373ea1e707c523": PULSEX_V2_ROUTER
 };
 const ROUTER_ABI = [
@@ -1649,7 +1646,7 @@ function swapCandidatePaths(tokenIn, tokenOut){
 async function quoteBestSwap(tokenIn, tokenOut, amt){
   const paths=swapCandidatePaths(tokenIn, tokenOut);
   let best=null;
-  for(const router of [PULSEX_V2_ROUTER, PULSEX_V1_ROUTER]){
+  for(const router of [PULSEX_V2_ROUTER]){
     const rc=new ethers.Contract(router, ROUTER_ABI, readProvider);
     for(const path of paths){
       try{
@@ -1696,7 +1693,7 @@ function fillVaultSwapSelects(){
   got.innerHTML=html(gotV);
 }
 let swapVaultKey=null;
-let swapSlipBps=100;
+let swapSlipBps=50;
 function paintSlipChips(el, curBps, onPick){
   if(!el) return;
   el.innerHTML=[50,100,300,500,1000,1500].map(b=>{
@@ -3045,21 +3042,26 @@ async function loadUsdFx(){
   const same = (usdFx && usdFx.forKey === key && !usdFx.partial) ? usdFx : null;
   pinFxVault(key);
   try{
-    const dai = new ethers.Contract(USD_DAI_WPLS, PAIR_ABI, readProvider);
-    const hex = new ethers.Contract(USD_HEX_WPLS, PAIR_ABI, readProvider);
-    const vpls = new ethers.Contract(USD_VPLS_WPLS, PAIR_ABI, readProvider);
-    const jobs = [dai.token0(), dai.getReserves(), hex.token0(), hex.getReserves(), vpls.token0(), vpls.getReserves()];
+    const jobs=[];
+    const add=(addr)=>{
+      jobs.push({to:addr, data:V_PAIR_IFACE.encodeFunctionData("token0"), fn:"token0"});
+      jobs.push({to:addr, data:V_PAIR_IFACE.encodeFunctionData("getReserves"), fn:"getReserves"});
+    };
+    add(USD_DAI_WPLS); add(USD_HEX_WPLS); add(USD_VPLS_WPLS);
     const httPair = HTT_HEX_PAIR[key];
-    if(httPair){
-      const hp = new ethers.Contract(httPair, PAIR_ABI, readProvider);
-      jobs.push(hp.token0(), hp.getReserves());
+    if(httPair) add(httPair);
+    const raw=await multiTry(jobs);
+    const r=[];
+    for(let i=0;i<raw.length;i+=2){
+      const t0=decFn(V_PAIR_IFACE,"token0",raw[i]);
+      const rs=decFn(V_PAIR_IFACE,"getReserves",raw[i+1]);
+      r.push(t0?t0[0]:null, rs||[0n,0n,0]);
     }
-    const r = await Promise.all(jobs);
     const usdPerWpls = spotQuote(WPLS, 18, USD_DAI, 18, r[0], r[1][0], r[1][1]);
     const wplsPerHex = spotQuote(HEX_ADDR, 8, WPLS, 18, r[2], r[3][0], r[3][1]);
     const plsPerVpls = spotQuote("0x79BB3A0Ee435f957ce4f54eE8c3CFADc7278da0C", 18, WPLS, 18, r[4], r[5][0], r[5][1]);
     let httHex = null;
-    if(httPair && assetAddr){
+    if(httPair && assetAddr && r[6] && r[7]){
       httHex = spotQuote(assetAddr, 8, HEX_ADDR, 8, r[6], r[7][0], r[7][1]);
     }
     if(cur && cur.cfg && cur.cfg.key === key){
@@ -3151,30 +3153,53 @@ async function refresh(){
     if(cur.cfg.vault) cur.vr = new ethers.Contract(cur.cfg.vault, VAULT_ABI, readProvider);
   }
 
-  // Asset balance is independent of the vault contract existing — fetch it
-  // whenever a wallet is connected, vault-configured or not.
-  if(account){
-    try{
-      const ua = await cur.ar.balanceOf(account);
-      if(!still()) return;
-      bal.asset=ua;
-      const an = Number(ethers.formatUnits(ua, cur.aDec));
-      $("userAsset").innerHTML = statHtml(fmt(ua,cur.aDec), cur.cfg.assetSym, an);
-      if(mode==="mint") paintInBalLine();
-    }catch(e){ console.error("asset balance read failed",e); rpcHealthy=false; }
-  }
-
   if(!cur.vr){
+    if(account && cur.cfg.assetAddr){
+      try{
+        const raw=await multiTry([{to:cur.cfg.assetAddr, data:V_ERC_IFACE.encodeFunctionData("balanceOf",[account])}]);
+        const dec=decFn(V_ERC_IFACE,"balanceOf",raw[0]);
+        if(dec && still()){
+          bal.asset=dec[0];
+          const an=Number(ethers.formatUnits(dec[0], cur.aDec));
+          $("userAsset").innerHTML=statHtml(fmt(dec[0],cur.aDec), cur.cfg.assetSym, an);
+          if(mode==="mint") paintInBalLine();
+        }
+      }catch(_){}
+    }
     $("backingNum").textContent="1.0000";
     setStatus(cur.cfg.name+" is not configured yet: set its vault address in this file","err");
     return;
   }
 
   try{
-    const [backing,vb,ts,quota,tnext]=await Promise.all([
-      cur.vr.backingPerToken(),cur.vr.vaultBalance(),
-      cur.vr.totalSupply(),cur.vr.mintQuotaRemaining(),cur.vr.timeToNextEpoch()
-    ]);
+    const calls=[
+      {to:cur.cfg.vault, data:V_VAULT_IFACE.encodeFunctionData("backingPerToken"), fn:"backingPerToken"},
+      {to:cur.cfg.vault, data:V_VAULT_IFACE.encodeFunctionData("vaultBalance"), fn:"vaultBalance"},
+      {to:cur.cfg.vault, data:V_VAULT_IFACE.encodeFunctionData("totalSupply"), fn:"totalSupply"},
+      {to:cur.cfg.vault, data:V_VAULT_IFACE.encodeFunctionData("mintQuotaRemaining"), fn:"mintQuotaRemaining"},
+      {to:cur.cfg.vault, data:V_VAULT_IFACE.encodeFunctionData("timeToNextEpoch"), fn:"timeToNextEpoch"}
+    ];
+    if(account){
+      calls.push({to:cur.cfg.assetAddr, data:V_ERC_IFACE.encodeFunctionData("balanceOf",[account]), fn:"balanceOf", erc:true});
+      calls.push({to:cur.cfg.vault, data:V_VAULT_IFACE.encodeFunctionData("balanceOf",[account]), fn:"balanceOf", erc:true, tok:true});
+    }
+    const raw=await multiTry(calls);
+    const got={};
+    raw.forEach((data,i)=>{
+      const c=calls[i];
+      const iface=c.erc?V_ERC_IFACE:V_VAULT_IFACE;
+      const dec=decFn(iface, c.fn, data);
+      got[c.tok?"tokBal":c.erc?"assetBal":c.fn]=dec?dec[0]:null;
+    });
+    if(got.backingPerToken==null) throw new Error("vault read");
+    if(!still()) return;
+    if(account && got.assetBal!=null){
+      bal.asset=got.assetBal;
+      const an = Number(ethers.formatUnits(got.assetBal, cur.aDec));
+      $("userAsset").innerHTML = statHtml(fmt(got.assetBal,cur.aDec), cur.cfg.assetSym, an);
+      if(mode==="mint") paintInBalLine();
+    }
+    const backing=got.backingPerToken, vb=got.vaultBalance, ts=got.totalSupply, quota=got.mintQuotaRemaining, tnext=got.timeToNextEpoch;
     if(!still()) return;
     lastBacking = parseFloat(ethers.formatEther(backing));
     $("backingNum").textContent=lastBacking.toFixed(4);
@@ -3201,12 +3226,11 @@ async function refresh(){
     $("quota").textContent=quota>=MAXU/2n?"unlimited (genesis)":withUsd(fmt(quota,cur.tDec)+" "+cur.cfg.token, cur.cfg.token, Number(ethers.formatUnits(quota, cur.tDec)));
     epochSecs=Number(tnext); epochFetched=Date.now();
     loadBackingDelta();
-    if(account){
-      const ut = await cur.vr.balanceOf(account);
+    if(account && got.tokBal!=null){
       if(!still()) return;
-      bal.token=ut;
-      const tn = Number(ethers.formatUnits(ut, cur.tDec));
-      $("userTok").innerHTML = statHtml(fmt(ut,cur.tDec), cur.cfg.token, tn);
+      bal.token=got.tokBal;
+      const tn = Number(ethers.formatUnits(got.tokBal, cur.tDec));
+      $("userTok").innerHTML = statHtml(fmt(got.tokBal,cur.tDec), cur.cfg.token, tn);
       if(mode==="redeem") paintInBalLine();
     }
     loadYouFloor();
@@ -3592,25 +3616,69 @@ async function loadBackingDelta(){
 }
 
 /* ---------- DEX market price vs backing ---------- */
+const MULTICALL3 = "0xcA11bde05977b3631167028862bE2a173976CA11";
+const MC_IFACE = new ethers.Interface(["function tryAggregate(bool requireSuccess, (address target, bytes callData)[] calls) payable returns ((bool success, bytes returnData)[])"]);
+const V_VAULT_IFACE = new ethers.Interface(VAULT_ABI);
+const V_PAIR_IFACE = new ethers.Interface(PAIR_ABI);
+const V_ERC_IFACE = new ethers.Interface(ERC20_ABI);
+const V_FACT_IFACE = new ethers.Interface(FACTORY_ABI);
+async function multiTry(calls){
+  if(!calls.length) return [];
+  const out=[];
+  const CHUNK=80;
+  for(let i=0;i<calls.length;i+=CHUNK){
+    const slice=calls.slice(i, i+CHUNK);
+    let rows=null;
+    try{
+      const data=MC_IFACE.encodeFunctionData("tryAggregate", [false, slice.map(c=>({target:c.to, callData:c.data}))]);
+      const raw=await readProvider.call({to:MULTICALL3, data});
+      rows=MC_IFACE.decodeFunctionResult("tryAggregate", raw)[0];
+    }catch(_){
+      rows=await Promise.all(slice.map(async c=>{
+        try{ return {success:true, returnData:await readProvider.call({to:c.to, data:c.data})}; }
+        catch(__){ return {success:false, returnData:"0x"}; }
+      }));
+    }
+    for(const r of rows){
+      const ok=Array.isArray(r)?r[0]:r.success;
+      const ret=Array.isArray(r)?r[1]:r.returnData;
+      out.push(ok && ret && ret!=="0x" ? ret : null);
+    }
+  }
+  return out;
+}
+function decFn(iface, fn, data){
+  if(!data) return null;
+  try{ return iface.decodeFunctionResult(fn, data); }catch(_){ return null; }
+}
 async function findPairInfo(a, b){
   const saved=pairPickGet(a,b);
-  if(saved && saved.pair && saved.factory){
+  if(saved && saved.pair && saved.factory && saved.factory.toLowerCase()===PULSEX_FACTORIES[0].toLowerCase()){
     const router=PULSEX_ROUTER_OF[String(saved.factory).toLowerCase()]||PULSEX_V2_ROUTER;
     return { pair:saved.pair, factory:saved.factory, router };
   }
+  const calls=PULSEX_FACTORIES.map(f=>({to:f, data:V_FACT_IFACE.encodeFunctionData("getPair",[a,b]), f}));
+  const raw=await multiTry(calls);
+  const hits=[];
+  raw.forEach((data,i)=>{
+    const rec=decFn(V_FACT_IFACE,"getPair",data);
+    const p=rec && rec[0];
+    if(p && p!==ethers.ZeroAddress) hits.push({p, f:calls[i].f});
+  });
+  if(!hits.length) return null;
+  const rcalls=hits.map(h=>({to:h.p, data:V_PAIR_IFACE.encodeFunctionData("getReserves"), h}));
+  const rraw=await multiTry(rcalls);
   let best=null, bestLiq=-1n;
-  for(const f of PULSEX_FACTORIES){
-    try{
-      const p = await new ethers.Contract(f, FACTORY_ABI, readProvider).getPair(a, b);
-      if(!p || p===ethers.ZeroAddress) continue;
-      const [r0,r1] = await new ethers.Contract(p, PAIR_ABI, readProvider).getReserves();
-      const liq = BigInt(r0) * BigInt(r1);
-      if(liq>bestLiq){
-        bestLiq=liq;
-        best={ pair:p, factory:f, router:PULSEX_ROUTER_OF[f.toLowerCase()]||PULSEX_V2_ROUTER };
-      }
-    }catch(_){}
-  }
+  rraw.forEach((data,i)=>{
+    const rec=decFn(V_PAIR_IFACE,"getReserves",data);
+    if(!rec) return;
+    const liq=BigInt(rec[0])*BigInt(rec[1]);
+    if(liq>bestLiq){
+      const f=rcalls[i].h.f;
+      bestLiq=liq;
+      best={ pair:rcalls[i].h.p, factory:f, router:PULSEX_ROUTER_OF[f.toLowerCase()]||PULSEX_V2_ROUTER };
+    }
+  });
   if(best && best.pair && best.factory) pairPickSet(a,b, best.pair, best.factory);
   return best;
 }
