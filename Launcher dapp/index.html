@@ -36,7 +36,13 @@ a:hover{text-decoration:underline}
 #boardFind:hover{color:var(--text)}
 h2{font-family:'Michroma';font-weight:400;font-size:15px;letter-spacing:.05em;margin:36px 0 14px;text-transform:uppercase}
 h2 small{display:block;font-family:'Space Grotesk';font-weight:400;font-size:12px;letter-spacing:0;text-transform:none;color:var(--mut);margin-top:4px}
-header{display:flex;justify-content:space-between;align-items:center;padding:20px 0 16px;position:sticky;top:0;background:rgba(11,11,16,.86);backdrop-filter:saturate(1.15) blur(16px);-webkit-backdrop-filter:saturate(1.15) blur(16px);border-bottom:1px solid var(--line);z-index:5;gap:12px;flex-wrap:nowrap}
+header{display:flex;justify-content:space-between;align-items:center;padding:20px 0 10px;position:static;background:transparent;border-bottom:none;z-index:5;gap:12px;flex-wrap:nowrap}
+.topbar{position:sticky;top:0;z-index:5;background:rgba(11,11,16,.92);backdrop-filter:saturate(1.15) blur(16px);-webkit-backdrop-filter:saturate(1.15) blur(16px);margin:0 -32px;padding:0 32px 12px;border-bottom:1px solid var(--line)}
+.pager{display:flex;gap:6px;padding:5px;background:var(--panel);border:1px solid var(--line);border-radius:14px}
+.pager .pagetab{flex:1;justify-content:center;background:var(--panel2);border:1px solid var(--line);color:var(--text);border-radius:10px;box-shadow:inset 0 1px 0 rgba(255,255,255,.04)}
+.pager .pagetab:hover{border-color:var(--pulse);color:#fff}
+.pager .pagetab.on{background:linear-gradient(135deg,#6FA8DC,var(--pulse) 48%,var(--pulse-deep));color:#fff;border-color:transparent;box-shadow:0 6px 16px -10px rgba(78,143,217,.8)}
+.navtab.out::after{content:" \2197";font-size:10px;opacity:.75}
 .brand{display:flex;align-items:center;gap:12px}
 .brand img,.brand svg{width:36px;height:36px;flex:none;display:block;background:transparent;object-fit:contain;border-radius:0}
 .brand .name{font-family:'Michroma';font-weight:400;font-size:13px;letter-spacing:.16em}
@@ -91,6 +97,11 @@ header{display:flex;justify-content:space-between;align-items:center;padding:20p
 .action.wide{width:100%;border-radius:13px;padding:16px 0;font-family:'Michroma';font-weight:400;letter-spacing:.03em;background:linear-gradient(135deg,#6FA8DC,var(--pulse) 45%,var(--pulse-deep));color:#fff;border:none}
 .action.wide:disabled{opacity:.4;cursor:not-allowed}
 .action.approve{background:linear-gradient(135deg,#A34A38,var(--violet) 45%,var(--violet-deep))}
+.portal-px .action.wide:not(.approve){
+  background:linear-gradient(155deg,#6dffb8 0%,#00e56e 100%);
+  color:#04140a;
+  box-shadow:inset 0 0 0 1px rgba(240,0,0,.28), 0 8px 16px -12px rgba(0,229,110,.28), 0 0 10px rgba(127,179,232,.14);
+}
 .status{margin-top:12px;font-size:13px;min-height:18px;text-align:center;color:var(--mut);word-break:break-word}
 .status.ok{color:var(--mint)} .status.err{color:var(--danger)}
 .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--line);border:1px solid var(--line);border-radius:16px;overflow:hidden;margin:16px 0}
@@ -178,6 +189,7 @@ pre.json{background:var(--panel2);border:1px solid var(--line);border-radius:12p
 </head>
 <body>
 <div class="wrap">
+<div class="topbar">
 <header>
   <div class="brand">
     <img id="brandLogo" alt="PulseStrategy" width="38" height="38">
@@ -187,16 +199,19 @@ pre.json{background:var(--panel2);border:1px solid var(--line);border-radius:12p
     </div>
   </div>
   <div class="hdr-right">
-    <a class="navtab" id="homeTab" href="https://pulsestrategy369.com">PulseVerify</a>
-    <a class="navtab" id="whitepaperTab" href="https://pulsestrategy369.com/whitepaper">Whitepaper</a>
-    <button class="navtab on" data-tab="launch">Launch</button>
-    <button class="navtab" data-tab="board">Board</button>
-    <button class="navtab" data-tab="vault">Vault</button>
+    <a class="navtab out" id="homeTab" href="https://pulsestrategy369.com">PulseVerify</a>
+    <a class="navtab out" id="whitepaperTab" href="https://pulsestrategy369.com/whitepaper">Whitepaper</a>
     <label for="rpcSel" class="sr-only">RPC endpoint</label>
     <select id="rpcSel" class="rpcsel" title="RPC endpoint this dapp reads from"></select>
     <button id="connectBtn">Connect</button>
   </div>
 </header>
+<nav class="pager" aria-label="This page">
+  <button class="navtab pagetab on" data-tab="launch">Launch</button>
+  <button class="navtab pagetab" data-tab="board">Board</button>
+  <button class="navtab pagetab" data-tab="vault">Vault</button>
+</nav>
+</div>
 
 <div class="trust">
   <span class="chip on">● Immutable — no admin keys</span>
@@ -375,7 +390,8 @@ pre.json{background:var(--panel2);border:1px solid var(--line);border-radius:12p
       <button class="tab" id="pxTabRem">Remove LP</button>
     </div>
 
-    <div id="pxPaneSwap" style="display:none">
+    <div id="pxPaneSwap" class="portal-px" style="display:none">
+      <p class="px-lead"><b style="color:var(--text)">Swap.</b> This talks to a PulseX pool, not a PulseStrategy contract. We are not affiliated with PulseX. We like their protocol, so this page uses their pools.</p>
       <div class="field">
         <label for="pxPayAmt">You pay</label>
         <div class="amt-row">
@@ -407,10 +423,11 @@ pre.json{background:var(--panel2);border:1px solid var(--line);border-radius:12p
         <div class="row"><span>Min received</span><span id="pxMin">—</span></div>
       </div>
       <p class="px-lead" id="pxWarn" style="margin:8px 0 12px">New launch pools are often thin. Check impact before you sign.</p>
-      <button class="action wide" id="pxSwapBtn">Swap on PulseX</button>
+      <button class="action wide" id="pxSwapBtn" disabled>Swap on PulseX</button>
     </div>
 
-    <div id="pxPaneAdd">
+    <div id="pxPaneAdd" class="portal-px">
+      <p class="px-lead"><b style="color:var(--text)">Add liquidity on PulseX.</b> You put both tokens into a PulseX pool. This talks to PulseX, not a PulseStrategy contract.</p>
       <div class="rec-card" id="pxFairBox" style="background:var(--panel2);border:1px solid var(--line);border-radius:14px;padding:12px;margin:0 0 12px">
         <div style="font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--mint);margin-bottom:6px">Fair start price</div>
         <div id="pxFairT" style="font-size:14px;font-weight:600;margin-bottom:4px">Reading vault backing…</div>
@@ -439,10 +456,11 @@ pre.json{background:var(--panel2);border:1px solid var(--line);border-radius:12p
         <div class="row"><span>You deposit</span><span id="pxAddPrev">—</span></div>
         <div class="row"><span>Vs backing</span><span id="pxAddSkew">—</span></div>
       </div>
-      <button class="action wide" id="pxAddBtn">Add liquidity</button>
+      <button class="action wide" id="pxAddBtn" disabled>Add liquidity on PulseX</button>
     </div>
 
-    <div id="pxPaneRem" style="display:none">
+    <div id="pxPaneRem" class="portal-px" style="display:none">
+      <p class="px-lead"><b style="color:var(--text)">Remove liquidity on PulseX.</b> You burn LP tokens and take both tokens back from the pool.</p>
       <div class="field">
         <label>Pair asset</label>
         <div class="amt-row">
@@ -465,7 +483,7 @@ pre.json{background:var(--panel2);border:1px solid var(--line);border-radius:12p
         <div class="row"><span></span><span id="pxRemTok">—</span></div>
         <div class="row"><span></span><span id="pxRemQuote">—</span></div>
       </div>
-      <button class="action wide" id="pxRemBtn">Remove liquidity</button>
+      <button class="action wide" id="pxRemBtn" disabled>Remove liquidity on PulseX</button>
     </div>
     <div class="status" id="pxStatus"></div>
     <p class="px-lead" style="margin:12px 0 0">Router <span class="mono">0x165C3410fC91EF562C50559f7d2289fEbed552d9</span> · factory v2. 0.5% slippage. New pools are PulseX v2.</p>
@@ -495,7 +513,7 @@ pre.json{background:var(--panel2);border:1px solid var(--line);border-radius:12p
     <a href="https://pulsestrategy369.com" rel="noopener">PulseVerify</a> is the front page. The <a href="https://pulsestrategy369.com/whitepaper" rel="noopener">whitepaper</a> covers this launcher too — overview and how to. Download each page from its own footer.
   </div>
   <div>The contracts live on PulseChain and work without this page. This dapp reads the chain directly from your browser — no server, no database, no tracking.</div>
-  <div style="margin-top:10px"><a href="https://x.com/pulsestrategy" target="_blank" rel="noopener">@pulsestrategy</a> · the floor only rises · <span class="mono" id="buildTag">launcher v75 · 2026-10-01</span></div>
+  <div style="margin-top:10px"><a href="https://x.com/pulsestrategy" target="_blank" rel="noopener">@pulsestrategy</a> · the floor only rises · <span class="mono" id="buildTag">launcher v81 · 2026-10-07</span></div>
 </footer>
 </div>
 
@@ -2735,6 +2753,8 @@ async function quotePxSwap(){
   if($("pxPayUsd")) $("pxPayUsd").textContent="";
   if($("pxGotUsd")) $("pxGotUsd").textContent="";
   const raw=cleanNum($("pxPayAmt")?.value);
+  const hasSwap=!!(raw && parseFloat(raw)>0 && pay && got);
+  if(btn) btn.disabled=!!account && !hasSwap;
   if(!raw || !(parseFloat(raw)>0) || !pay || !got){
     if($("pxGotAmt")) $("pxGotAmt").value="";
     if($("pxPayUsd")) $("pxPayUsd").textContent="";
@@ -2796,7 +2816,7 @@ async function quotePxAdd(){
   const qRaw=cleanNum($("pxQuoteAmt")?.value);
   const btn=$("pxAddBtn");
   if(!account){ if(btn) btn.textContent="Connect wallet"; }
-  else if(btn) btn.textContent=pair?"Add liquidity":"Create PulseX v2 pool";
+  else if(btn) btn.textContent=pair?"Add liquidity on PulseX":"Create PulseX v2 pool";
   let fair=null;
   try{
     const one=10n**BigInt(cur.tDec);
@@ -2861,6 +2881,7 @@ async function quotePxAdd(){
       }else skewEl.textContent="—";
     }catch(_){ skewEl.textContent="—"; }
   }
+  if(btn) btn.disabled=!!account && !(parseFloat(tNow)>0 && parseFloat(qNow)>0);
 }
 
 function paintPxPct(){
@@ -2880,15 +2901,18 @@ async function quotePxRem(){
   const q=pxSpec($("pxRemSel")?.value||"PLS");
   const pair=await pxPair(PULSEX_V2_FACTORY, cur.cfg.vault, q.addr);
   const btn=$("pxRemBtn");
-  if(!account){ if(btn) btn.textContent="Connect wallet"; }
-  else if(btn) btn.textContent="Remove liquidity";
+  const arm=on=>{
+    if(!btn) return;
+    if(!account){ btn.disabled=false; btn.textContent="Connect wallet"; return; }
+    btn.textContent="Remove liquidity on PulseX";
+    btn.disabled=!on;
+  };
   const clear=()=>{
     ["pxRemLp","pxRemShare","pxRemTok","pxRemQuote","pxRemPrev"].forEach(id=>{ if($(id)) $(id).textContent="—"; });
   };
   if(!pair){
     if($("pxLpBal")) $("pxLpBal").textContent="No v2 pool vs "+q.sym+".";
-    clear();
-    return;
+    clear(); arm(false); return;
   }
   window._pxPair=pair;
   let lp=0n, ts=0n;
@@ -2900,9 +2924,9 @@ async function quotePxRem(){
   }catch(_){}
   paintPxPct();
   const p=Math.max(0, Math.min(100, Number(pxRemPct)||0));
-  if(p<=0 || ts===0n || lp===0n){ clear(); return; }
+  if(p<=0 || ts===0n || lp===0n){ clear(); arm(false); return; }
   const burn=p>=100 ? lp : lp*BigInt(Math.round(p))/100n;
-  if(burn===0n){ clear(); return; }
+  if(burn===0n){ clear(); arm(false); return; }
   try{
     const {r0,r1,t0}=await pairReserves(pair);
     const tokIs0=t0.toLowerCase()===cur.cfg.vault.toLowerCase();
@@ -2920,7 +2944,8 @@ async function quotePxRem(){
     if(sum>0) recv+=" · "+usdText(sum);
     if($("pxRemPrev")) $("pxRemPrev").textContent=recv;
     window._pxRem={ pair, burn, outT, outQ, q };
-  }catch(_){ clear(); }
+    arm(true);
+  }catch(_){ clear(); arm(false); }
 }
 
 async function paintPx(){
