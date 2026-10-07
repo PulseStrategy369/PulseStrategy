@@ -111,6 +111,27 @@ header{display:flex;justify-content:space-between;align-items:center;padding:20p
 .claim-banner{background:rgba(127,179,232,.08);border:1px solid rgba(127,179,232,.35);border-radius:14px;padding:14px;margin:0 0 14px}
 .claim-banner b{color:var(--mint)}
 .swap-note{font-size:12px;color:var(--mut);margin:8px 2px 0;line-height:1.5}
+.who{font-size:13px;line-height:1.5;color:var(--text);background:var(--panel2);border:1px solid var(--line);border-left:3px solid var(--mint);border-radius:12px;padding:10px 12px;margin:0 0 14px}
+.who.px{border-left-color:#00e56e;box-shadow:inset 0 0 0 1px rgba(240,0,0,.12), 0 0 10px rgba(127,179,232,.08)}
+.portal-px .action:not(.approve){
+  background:linear-gradient(155deg,#6dffb8 0%,#00e56e 100%);
+  color:#04140a;
+  box-shadow:inset 0 0 0 1px rgba(240,0,0,.28), 0 8px 16px -12px rgba(0,229,110,.28), 0 0 10px rgba(127,179,232,.14);
+}
+.portal-vouch .who{border-left-color:#4a8fe6;box-shadow:0 0 10px rgba(127,179,232,.08)}
+.portal-vouch .action:not(.approve){
+  background:linear-gradient(155deg,#ffb06a 0%,#f08030 100%);
+  color:#1a1008;
+  box-shadow:inset 8px 0 12px -10px rgba(74,143,230,.85), 0 8px 16px -12px rgba(240,128,48,.28), 0 0 10px rgba(127,179,232,.14);
+}
+.portal-act .who{border-left-color:#a04090;box-shadow:0 0 10px rgba(127,179,232,.08)}
+.portal-act .action:not(.approve){
+  background:linear-gradient(105deg,#f06060 0%,#a04090 50%,#3040b0 100%);
+  color:#fff;
+  box-shadow:0 8px 16px -12px rgba(144,32,128,.28), 0 0 10px rgba(127,179,232,.14);
+}
+.fn{font-size:13px;line-height:1.5;color:var(--mut);margin:0 0 12px}
+.fn b{color:var(--text);font-weight:600}
 .pos-grid{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--line);border:1px solid var(--line);border-radius:14px;overflow:hidden;margin:0 0 14px}
 .pos-grid .stat{background:var(--panel2)}
 .paysel{
@@ -149,7 +170,7 @@ header{display:flex;justify-content:space-between;align-items:center;padding:20p
 /* action card */
 .card{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:20px;box-shadow:inset 0 1px 0 rgba(255,255,255,.05),0 28px 64px -34px rgba(0,0,0,.78);max-width:760px;margin-left:auto;margin-right:auto}
 .tabs{display:flex;gap:6px;margin-bottom:18px}
-.tab{flex:1;font-family:'Michroma';font-weight:400;font-size:12px;letter-spacing:.05em;padding:12px 0;border-radius:11px;border:1px solid transparent;background:transparent;color:var(--mut);cursor:pointer}
+.tab{flex:1;font-family:'Michroma';font-weight:400;font-size:11px;letter-spacing:.02em;padding:12px 6px;border-radius:11px;border:1px solid transparent;background:transparent;color:var(--mut);cursor:pointer;line-height:1.25}
 .tab[aria-selected="true"]{background:var(--panel2);color:var(--text);border-color:var(--line)}
 .field{background:var(--panel2);border:1px solid var(--line);border-radius:13px;padding:15px;margin-bottom:12px;transition:border-color .15s}
 .field:focus-within{border-color:var(--violet)}
@@ -317,12 +338,13 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--violet);outline
 
 <section class="card" aria-label="Swap, mint or redeem">
   <div class="tabs" role="tablist">
-    <button class="tab" role="tab" id="tabSwap" aria-selected="true">Swap</button>
-    <button class="tab" role="tab" id="tabMint" aria-selected="false">Mint</button>
+    <button class="tab" role="tab" id="tabSwap" aria-selected="false">Swap</button>
+    <button class="tab" role="tab" id="tabMint" aria-selected="true">Mint</button>
     <button class="tab" role="tab" id="tabRedeem" aria-selected="false">Redeem</button>
   </div>
+  <p class="who" id="cardNote"><b>Mint.</b> You put the backing asset into this PulseStrategy vault and receive vault tokens. This talks to a PulseStrategy contract.</p>
 
-  <div id="swapPane">
+  <div id="swapPane" class="portal-px" style="display:none">
     <div class="field">
       <label for="xSwapIn">You pay</label>
       <div class="amt-row">
@@ -353,11 +375,11 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--violet);outline
       <div class="row"><span>Max slippage</span><span class="slipchips" id="xSlip"></span></div>
       <div class="row"><span>Min received</span><span id="xSwapMin">—</span></div>
     </div>
-    <p class="swap-note" id="xSwapWarn">Pools here can be thin. Check impact before you sign. PulseStrategy does not operate PulseX.</p>
-    <button class="action" id="xSwapBtn" type="button">Swap on PulseX</button>
+    <p class="swap-note" id="xSwapWarn">Pools here can be thin. Check impact before you sign.</p>
+    <button class="action" id="xSwapBtn" type="button" disabled>Swap on PulseX</button>
   </div>
 
-  <div id="mrPane" style="display:none">
+  <div id="mrPane">
     <div class="field">
       <label id="inLabel" for="amt">You deposit</label>
       <div class="amt-row">
@@ -376,9 +398,9 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--violet);outline
   <div class="status" id="status"></div>
 </section>
 
-<section id="vouchBox" class="vouch-box" style="display:none" aria-label="Stake PLS for vPLS">
+<section id="vouchBox" class="vouch-box portal-vouch" style="display:none" aria-label="Stake PLS for vPLS">
   <h3>Get vPLS · then mint PLSstr</h3>
-  <p>PLSstr is backed by vPLS. Stake PLS through Vouch, then mint above — or swap PLS for PLSstr on the Swap tab. PulseStrategy is not affiliated with Vouch or PulseX — we use vPLS because it earns validator yield.</p>
+  <p class="who">Stake and unstake talk to Vouch contracts, not PulseStrategy. We are not affiliated with Vouch. We like their protocol, so this page uses their vPLS.</p>
   <div class="rec-card" id="vRec">
     <div class="rec-k">Recommended</div>
     <div class="rec-t" id="vRecT">Checking the vPLS market…</div>
@@ -394,6 +416,7 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--violet);outline
     <button class="tab" id="vUnTab">Unstake</button>
   </div>
   <div id="vStakePane">
+    <p class="fn"><b>Stake.</b> You lock PLS in a Vouch contract and receive vPLS. Use that vPLS to mint PLSstr above.</p>
     <div class="field" style="margin:0 0 12px">
       <label for="vPlsAmt">You stake</label>
       <div class="amt-row">
@@ -408,9 +431,10 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--violet);outline
       <div class="row"><span>You receive</span><span id="vOut">—</span></div>
       <div class="row"><span>Minimum</span><span id="vMin">10,000 PLS</span></div>
     </div>
-    <button class="action" id="vStakeBtn">Connect wallet</button>
+    <button class="action" id="vStakeBtn" disabled>Connect wallet</button>
   </div>
   <div id="vUnPane" style="display:none">
+    <p class="fn"><b>Unstake.</b> You return vPLS to a Vouch contract and claim PLS back.</p>
     <div class="field" style="margin:0 0 12px">
       <label for="vVplsAmt">You unstake</label>
       <div class="amt-row">
@@ -423,7 +447,7 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--violet);outline
     <div class="preview" style="padding-bottom:12px">
       <div class="row"><span>You receive</span><span id="vUnOut">—</span></div>
     </div>
-    <button class="action" id="vUnBtn">Connect wallet</button>
+    <button class="action" id="vUnBtn" disabled>Connect wallet</button>
     <div class="hsi-head">Pending PLS claims</div>
     <div class="hsi-list" id="vClaimList"><div class="hsi-empty">None.</div></div>
   </div>
@@ -433,15 +457,16 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--violet);outline
 
 <section id="httBox" class="vouch-box" style="display:none" aria-label="HTT and Actuator">
   <h3 id="httTitle">Use HEXstr with HTT</h3>
-  <p id="httLead">HEXstr is backed by HTT. You don’t need to create a HEX stake. Recommended: buy this HTT on PulseX, then deposit it above. PulseStrategy is not affiliated with Actuator or PulseX.</p>
-  <div id="hexClaimBanner" class="claim-banner" style="display:none">
+  <p id="httLead">You do not need a HEX stake to use this vault. Buy HTT on PulseX, then mint above.</p>
+  <p class="who">Creating or managing a delegated HSI talks to Actuator Finance contracts, not PulseStrategy. We are not affiliated with Actuator Finance. We like their protocol, so this vault uses their tokens.</p>
+  <div id="hexClaimBanner" class="claim-banner portal-act" style="display:none">
     <div class="hsi-head" style="margin:0 0 6px">Claim HEX</div>
-    <p style="margin:0 0 10px"><b id="hexClaimAmt">—</b> HEX is waiting in Actuator for HTT you hold. You do not need another frontend.</p>
+    <p style="margin:0 0 10px"><b id="hexClaimAmt">—</b> HEX is waiting in Actuator. This claim talks to an Actuator contract, not PulseStrategy.</p>
     <button class="action" id="hexClaimGo" type="button">Claim HEX</button>
   </div>
   <div class="tabs" role="tablist">
-    <button class="tab" id="hexTabBtnHtt" aria-selected="true">HTT</button>
-    <button class="tab" id="hexTabBtnHsi">HSI & Actuator</button>
+    <button class="tab" id="hexTabBtnHtt" aria-selected="true">HTT Stats</button>
+    <button class="tab" id="hexTabBtnHsi">Actuator Finance HSI</button>
   </div>
 
   <div id="hexPaneHtt">
@@ -464,9 +489,9 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--violet);outline
     <p class="swap-note">Want HTT or HEXstr? Use Swap above — HEX or PLS into this vault’s HTT, or into HEXstr. Then Mint if you bought HTT.</p>
   </div>
 
-  <div id="hexPaneHsi" style="display:none">
-    <div class="adv-note">Already have a HEX stake? You can manage it here. HEXstr does not require you to create one — buy HTT on the HTT tab if you just want vault exposure. If you do want your own Actuator-backed HSI, everything below talks to Actuator’s contracts from this file. PulseStrategy is not affiliated with Actuator.</div>
+  <div id="hexPaneHsi" class="portal-act" style="display:none">
     <div class="field" style="margin:0 0 12px">
+      <p class="fn"><b>Create a stake.</b> You create a HEX stake instance and delegate it to Actuator Finance so it can mint HTT. This talks to Actuator contracts.</p>
       <label for="hexAmt">Create delegated HSI · HEX to stake</label>
       <div class="amt-row">
         <input id="hexAmt" inputmode="decimal" placeholder="0.0" autocomplete="off">
@@ -480,8 +505,9 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--violet);outline
       <div class="row"><span>Ends / HTT series</span><span id="httEnds">—</span></div>
       <div class="row"><span>You receive</span><span>delegated HSI · mint HTT separately</span></div>
     </div>
-    <button class="action" id="httBtn">Connect wallet</button>
+    <button class="action" id="httBtn" disabled>Connect wallet</button>
     <div class="field" style="margin:14px 0 0">
+      <p class="fn"><b>Delegate.</b> Point an HSI you already own at Actuator so it can mint HTT. This talks to Actuator contracts.</p>
       <label for="hsiNft">Or delegate an existing HSI NFT</label>
       <div class="amt-row">
         <input id="hsiNft" inputmode="numeric" placeholder="token id" autocomplete="off">
@@ -490,11 +516,11 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--violet);outline
     </div>
     <div class="status" id="httStatus"></div>
     <div class="hsi-head">Your delegated stakes</div>
-    <p style="margin-bottom:10px">Mint only HTT for this vault’s day, up to Actuator’s extractable. You can mint again later as the stake earns. Retire HTT before end-stake if you want the HEX back on the HSI.</p>
+    <p class="fn">Mint HTT from your stake, up to what Actuator allows. You can mint again later as the stake earns. This talks to Actuator, not PulseStrategy.</p>
     <div class="hsi-list" id="httList"><div class="hsi-empty">Connect to load delegated HSIs.</div></div>
     <div id="httRedeemWrap" style="display:none">
       <div class="hsi-head">Redeem HTT for HEX</div>
-      <p style="margin-bottom:10px">Open on the HTT’s HEX day, for holders with or without a stake. 1 HTT = 1 HEX after backing stakes are ended. PulseStrategy does not custody this HEX — it sits in Actuator.</p>
+      <p class="fn"><b>Redeem HTT.</b> Turn HTT back into HEX on Actuator. 1 HTT = 1 HEX after the backing stakes end. This talks to Actuator, not PulseStrategy.</p>
       <div class="hsi-list" id="httHold"></div>
       <div id="httRedeemCustom" style="display:none">
         <div class="field" style="margin:12px 0 12px">
@@ -512,7 +538,7 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--violet);outline
           </div>
           <div class="bal" id="redBal"></div>
         </div>
-        <button class="action" id="redBtn">Redeem HTT</button>
+        <button class="action" id="redBtn" disabled>Redeem HTT</button>
       </div>
     </div>
   </div>
@@ -523,7 +549,7 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--violet);outline
   <div id="poolsList"></div>
   <div class="card" id="lpBox" style="margin-top:14px">
     <div style="font-family:'Michroma';font-size:12px;letter-spacing:.1em;text-transform:uppercase;margin:0 0 8px">Manage PulseX LP</div>
-    <p class="swap-note" style="margin:0 0 12px">Add or remove liquidity for this vault’s pool from this file. PulseStrategy does not operate PulseX.</p>
+    <p class="who px" style="margin:0 0 12px">Adding or removing liquidity talks to a PulseX pool, not a PulseStrategy contract. We are not a DEX. We are not affiliated with PulseX. We like their protocol, so this page uses their pools.</p>
     <div class="note" id="lpPos" style="margin:0 0 14px">Open a vault to load the pool.</div>
     <div id="lpFeeBox" class="note" style="display:none;margin:0 0 14px">
       <div style="font-family:'Michroma';font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--gold);margin-bottom:8px">Protocol LP rewards</div>
@@ -548,7 +574,8 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--violet);outline
       <button class="tab" id="lpTabAdd" aria-selected="true">Add</button>
       <button class="tab" id="lpTabRem">Remove</button>
     </div>
-    <div id="lpPaneAdd">
+    <div id="lpPaneAdd" class="portal-px">
+      <p class="fn"><b>Add liquidity on PulseX.</b> You put both tokens into a PulseX pool and receive LP tokens.</p>
       <div class="field">
         <label for="lpTokAmt">Vault token</label>
         <div class="amt-row">
@@ -571,9 +598,10 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--violet);outline
         <div class="row"><span>You deposit</span><span id="lpAddPrev">—</span></div>
         <div class="row"><span>Vs vault</span><span id="lpAddSkew">—</span></div>
       </div>
-      <button class="action" id="lpAddBtn" type="button">Add liquidity</button>
+      <button class="action" id="lpAddBtn" type="button" disabled>Add liquidity on PulseX</button>
     </div>
-    <div id="lpPaneRem" style="display:none">
+    <div id="lpPaneRem" class="portal-px" style="display:none">
+      <p class="fn"><b>Remove liquidity on PulseX.</b> You burn LP tokens and take both tokens back from the pool.</p>
       <div class="bal" id="lpBurnBal" style="margin:0 0 12px"></div>
       <div class="pctrow" id="lpPctRow">
         <button type="button" data-p="25">25%</button>
@@ -588,7 +616,7 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--violet);outline
         <div class="row"><span>Pool share</span><span id="lpRemShare">—</span></div>
         <div class="row"><span>You receive</span><span id="lpRemPrev">—</span></div>
       </div>
-      <button class="action" id="lpRemBtn" type="button">Remove liquidity</button>
+      <button class="action" id="lpRemBtn" type="button" disabled>Remove liquidity on PulseX</button>
     </div>
     <div class="status" id="lpStatus"></div>
   </div>
@@ -711,7 +739,7 @@ try{
   }
 }catch(_){}
 
-const BUILD = "v87 \u00b7 2026-10-01";   // shown in the footer so users can tell builds apart
+const BUILD = "v94 \u00b7 2026-10-07";   // shown in the footer so users can tell builds apart
 const WC_PROJECT_ID = "dfa53b26ebcaa8d274b2a7f6ddc66cb0";   // free at https://cloud.reown.com (enables WalletConnect)
 /* Paste after Remix deploy of contracts/LPFeeShare.sol. Leave blank to hide the claim UI.
    Ownerless. Core deposits: protocol-fee wallet. Launch deposits: that vault's creator. */
@@ -1124,7 +1152,7 @@ async function activateVault(key){
 
   bal={asset:0n, token:0n}; previewOut=0n; $("amt").value="";
   swapVaultKey=null; lpVaultKey=null;
-  setCardTab("swap");
+  setCardTab("mint");
   loadPools(cfg);
   paintBackingSources();
   await refresh();
@@ -1149,7 +1177,7 @@ function paintBackingSources(){
     if(isHex){
       const sym=cur.cfg.assetSym;
       if($("httTitle")) $("httTitle").textContent="Use "+cur.cfg.token+" with "+sym;
-      if($("httLead")) $("httLead").textContent="You don't need to stake HEX to use this vault. Buy "+sym+" on PulseX, then deposit it above. HSI & Actuator is the advanced path if you already have a HEX stake. PulseStrategy is not affiliated with Actuator or PulseX.";
+      if($("httLead")) $("httLead").textContent="You don't need a HEX stake to use this vault. Buy "+sym+" on PulseX, then mint above.";
       if($("hSwapSym")) $("hSwapSym").textContent=sym;
       if(hexUiTab==="pos") hexUiTab="htt";
       setHexUiTab(hexUiTab||"htt");
@@ -1187,8 +1215,8 @@ async function paintVouch(){
     if($("vPlsBal")) $("vPlsBal").textContent="";
     if($("vVplsBal")) $("vVplsBal").textContent="";
   }else{
-    if(stakeBtn) stakeBtn.textContent="Stake PLS for vPLS";
-    if(unBtn) unBtn.textContent="Unstake vPLS";
+    if(stakeBtn) stakeBtn.textContent="Stake PLS on Vouch";
+    if(unBtn) unBtn.textContent="Unstake vPLS on Vouch";
   }
   let rate=0n, min=10_000n*10n**18n;
   try{
@@ -1220,6 +1248,8 @@ async function paintVouch(){
     }else $("vOut").textContent="—";
   }
   const vIn=parsePls($("vVplsAmt"));
+  if(stakeBtn) stakeBtn.disabled=!!account && !plsIn;
+  if(unBtn) unBtn.disabled=!!account && !vIn;
   if($("vUnOut")){
     if(vIn && rate>0n){
       const out=vIn * rate / 10n**18n;
@@ -1324,8 +1354,16 @@ async function hexCurrentDay(){
 }
 function syncHttWalletUi(){
   const btn=$("httBtn");
-  if(btn) btn.textContent=account ? "Stake HEX into delegated HSI" : "Connect wallet";
-  if($("redBtn")) $("redBtn").textContent=account ? "Redeem HTT" : "Connect wallet";
+  if(btn){
+    btn.textContent=account ? "Create HSI on Actuator" : "Connect wallet";
+    btn.disabled=!!account && !parseHexAmt();
+  }
+  const red=$("redBtn");
+  if(red){
+    red.textContent=account ? "Redeem HTT" : "Connect wallet";
+    const rv=cleanNum($("redAmt")?.value);
+    red.disabled=!!account && !(rv && parseFloat(rv)>0);
+  }
 }
 function parseHexAmt(){
   const v=cleanNum($("hexAmt")?.value);
@@ -1839,7 +1877,7 @@ async function paintSwapDeal(pfx, pay, got, amt, route){
     if(warn) warn.textContent="Noticeable impact on a thin pool. Smaller size keeps more of the quoted price.";
     if(btn && account) btn.textContent="Swap on PulseX";
   }else{
-    if(warn) warn.textContent="Pools here can be thin. Check impact on the pool above before you sign. PulseStrategy does not operate PulseX.";
+    if(warn) warn.textContent="Pools here can be thin. Check impact on the pool above before you sign.";
     if(btn && account) btn.textContent="Swap on PulseX";
   }
   const min=route.got*BigInt(10000-swapSlipBps)/10000n;
@@ -1862,6 +1900,8 @@ async function quoteVaultSwap(){
     }catch(_){ if($("xSwapBal")) $("xSwapBal").textContent=""; }
   }else if($("xSwapBal")) $("xSwapBal").textContent="";
   const raw=cleanNum($("xSwapIn")?.value);
+  const hasSwap=!!(raw && parseFloat(raw)>0 && pay && got);
+  if(btn) btn.disabled=!!account && !hasSwap;
   if(!raw || !(parseFloat(raw)>0) || !pay || !got){
     if($("xSwapOut")) $("xSwapOut").value="";
     if($("xGotUsd")) $("xGotUsd").textContent="";
@@ -2198,6 +2238,7 @@ $("vUnBtn") && ($("vUnBtn").onclick=async()=>{
 });
 
 $("hexAmt").addEventListener("input", ()=>paintHttPreview());
+$("redAmt") && $("redAmt").addEventListener("input", ()=>syncHttWalletUi());
 $("hexMax").onclick=async()=>{
   if(!account){ openSheet(); return; }
   try{
@@ -2515,7 +2556,7 @@ async function quoteLpAdd(){
   const tokRaw=cleanNum($("lpTokAmt")?.value), qRaw=cleanNum($("lpQuoteAmt")?.value);
   const btn=$("lpAddBtn");
   if(!account){ if(btn) btn.textContent="Connect wallet"; }
-  else if(btn) btn.textContent=hop?"Add liquidity":"Create PulseX v2 pool";
+  else if(btn) btn.textContent=hop?"Add liquidity on PulseX":"Create PulseX v2 pool";
   if(hop && hop.rIn>0n && hop.rOut>0n){
     try{
       if(lpLast==="tok" && tokRaw && parseFloat(tokRaw)>0){
@@ -2547,6 +2588,7 @@ async function quoteLpAdd(){
       skew.textContent=per.toFixed(4)+" "+q.sym+" per token · backing "+lastBacking.toFixed(4)+" "+cur.cfg.assetSym;
     }catch(_){ skew.textContent="—"; }
   }
+  if(btn) btn.disabled=!!account && !(parseFloat(tNow)>0 && parseFloat(qNow)>0);
 }
 function paintLpPct(){
   const p=Math.max(0, Math.min(100, Number(lpRemPct)||0));
@@ -2563,11 +2605,18 @@ function setLpPct(p){
 }
 async function quoteLpRem(){
   const s=window._lp, q=lpQuoteSpec();
+  const btn=$("lpRemBtn");
+  const arm=on=>{
+    if(!btn) return;
+    if(!account){ btn.disabled=false; btn.textContent="Connect wallet"; return; }
+    btn.textContent="Remove liquidity on PulseX";
+    btn.disabled=!on;
+  };
   paintLpPct();
   if(!s||!s.ts||s.ts===0n){
     ["lpRemShare","lpRemTok","lpRemQuote","lpRemPrev","lpRemLp"].forEach(id=>{ if($(id)) $(id).textContent="—"; });
     if($("lpBurnBal")) $("lpBurnBal").textContent="No LP in this wallet for this pool.";
-    return;
+    arm(false); return;
   }
   if($("lpBurnBal")) $("lpBurnBal").textContent=(s.ts<10n**15n)
     ? ("You own "+sharePct(s.lp,s.ts)+"% of the pool · LP units "+fmtLp(s.lp)+" (tiny is normal when HEX is 8 decimals)")
@@ -2575,12 +2624,12 @@ async function quoteLpRem(){
   const p=Math.max(0, Math.min(100, Number(lpRemPct)||0));
   if(p<=0 || s.lp===0n){
     ["lpRemShare","lpRemTok","lpRemQuote","lpRemPrev","lpRemLp"].forEach(id=>{ if($(id)) $(id).textContent="—"; });
-    return;
+    arm(false); return;
   }
   const burn=p>=100 ? s.lp : s.lp*BigInt(Math.round(p))/100n;
   if(burn===0n){
     ["lpRemShare","lpRemTok","lpRemQuote","lpRemPrev","lpRemLp"].forEach(id=>{ if($(id)) $(id).textContent="—"; });
-    return;
+    arm(false); return;
   }
   const outT=burn*s.hop.rIn/s.ts, outQ=burn*s.hop.rOut/s.ts;
   if($("lpRemLp")) $("lpRemLp").textContent=fmtLp(burn);
@@ -2593,6 +2642,7 @@ async function quoteLpRem(){
   if(sum>0) recv+=" · "+fmtUsd(sum);
   if($("lpRemPrev")) $("lpRemPrev").textContent=recv;
   window._lpRem={ burn, outT, outQ, q, pair:s.hop.pair };
+  arm(true);
 }
 function feeShareConfigured(){
   return !!(LP_FEE_SHARE && ethers.isAddress(LP_FEE_SHARE) && LP_FEE_SHARE !== ethers.ZeroAddress);
@@ -3282,7 +3332,7 @@ async function updatePreview(){
 $("amt").addEventListener("input",updatePreview);
 
 /* ---------- tabs ---------- */
-let cardTab="swap";
+let cardTab="mint";
 function setCardTab(t){
   cardTab=t;
   if(t==="mint"||t==="redeem") mode=t;
@@ -3294,8 +3344,17 @@ function setCardTab(t){
   if(t==="swap"){
     fillVaultSwapSelects();
     quoteVaultSwap();
-    return;
   }
+  const cardNotes={
+    swap:"<b>Swap.</b> This talks to a PulseX pool, not a PulseStrategy contract. We are not affiliated with PulseX. We like their protocol, so this page uses their pools.",
+    mint:"<b>Mint.</b> You put the backing asset into this PulseStrategy vault and receive vault tokens. This talks to a PulseStrategy contract.",
+    redeem:"<b>Redeem.</b> You give vault tokens back and take the backing asset out of this PulseStrategy vault. This talks to a PulseStrategy contract."
+  };
+  if($("cardNote")){
+    $("cardNote").classList.toggle("px", t==="swap");
+    $("cardNote").innerHTML=cardNotes[t]||cardNotes.mint;
+  }
+  if(t==="swap") return;
   $("inLabel").textContent=mode==="mint"?"You deposit":"You redeem";
   $("inSym").textContent=mode==="mint"?cur.cfg.assetSym:cur.cfg.token;
   $("feeLabel").textContent=mode==="mint"?"Mint premium (4.5%: 4.0% vault, 0.5% protocol fee)":"Redemption fee (0.5%, stays in the vault)";
