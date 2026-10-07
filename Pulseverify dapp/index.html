@@ -352,7 +352,7 @@ rel="noopener">Github</a> and inspect the code or download from github.</div>
 </div>
 <script>
 "use strict";
-var BUILD = 'v48 · 2026-10-01';
+var BUILD = 'v53 · 2026-10-07';
 var VAULTS_URL = 'https://pulsestrategy369.com/vaults'; /* ★ EDIT HERE: the one place that controls every 'Vaults' link on this page */
 var LAUNCH_URL = 'https://pulsestrategy369.com/launch'; /* ★ EDIT HERE: PulseStrategy Launcher */
 var WHITEPAPER_URL = 'https://pulsestrategy369.com/whitepaper';
@@ -385,7 +385,7 @@ function encTryAggregate(calls){
   for(const o of offs) arr += o.toString(16).padStart(64,'0');
   return '0xbce38bd7' + '0'.repeat(64) + (64).toString(16).padStart(64,'0') + arr + body;
 }
-function decTryAggregate(hex){
+function decTryAggregate(hex, full){
   const h = String(hex||'').replace(/^0x/,'').toLowerCase();
   if(h.length<128) throw new Error('short');
   const word = i => {
@@ -410,7 +410,7 @@ function decTryAggregate(hex){
     const start = (boff+1)*64;
     if(h.length < start + len*2) throw new Error('data');
     const data = '0x'+h.slice(start, start+len*2);
-    out.push(ok && len>0 ? data : null);
+    out.push(full ? {ok: word(base)!==0n, data: len>0 ? data : null} : (ok && len>0 ? data : null));
   }
   return out;
 }
@@ -1460,7 +1460,18 @@ const DANGER_SELECTORS = [
   {sel:'061c82d0', lbl:'setTaxFeePercent(uint256)', kind:'tax', why:'fee can be changed after you buy'},
   {sel:'0b78f9c0', lbl:'setFees(uint256,uint256)', kind:'tax', why:'fees can be changed after you buy'},
   {sel:'ec28438a', lbl:'setMaxTxAmount(uint256)', kind:'limit', why:'max tx can be dropped so you cannot sell'},
-  {sel:'5d0044ca', lbl:'setMaxWallet(uint256)', kind:'limit', why:'max wallet can be dropped so you cannot receive'}
+  {sel:'bc337182', lbl:'setMaxTx(uint256)', kind:'limit', why:'max tx can be dropped so you cannot sell'},
+  {sel:'5d0044ca', lbl:'setMaxWallet(uint256)', kind:'limit', why:'max wallet can be dropped so you cannot receive'},
+  {sel:'44337ea1', lbl:'addToBlacklist(address)', kind:'blacklist', why:'any wallet can be added to a block list'},
+  {sel:'537df3b6', lbl:'removeFromBlacklist(address)', kind:'blacklist', why:'any wallet can be added to a block list'},
+  {sel:'2e5bb6ff', lbl:'setTax(uint256)', kind:'tax', why:'the transfer tax can be changed after you buy'},
+  {sel:'c647b20e', lbl:'setTaxes(uint256,uint256)', kind:'tax', why:'buy and sell tax can be changed after you buy'},
+  {sel:'0cc835a3', lbl:'setBuyFee(uint256)', kind:'tax', why:'buy tax can be raised after you buy'},
+  {sel:'8b4cee08', lbl:'setSellFee(uint256)', kind:'tax', why:'sell tax can be raised after you buy'},
+  {sel:'8f02bb5b', lbl:'setTransferFee(uint256)', kind:'tax', why:'transfer tax can be raised after you buy'},
+  {sel:'1031e36e', lbl:'pauseTrading()', kind:'trading', why:'admin can turn selling off'},
+  {sel:'df8408fe', lbl:'excludeFromFee(address,bool)', kind:'fee', why:'the owner can excuse wallets from the fee, or point the fee at everyone else'},
+  {sel:'2836be24', lbl:'setExcluded(address,bool)', kind:'fee', why:'the owner can excuse wallets from the fee'}
 ];
 const ABI_TRAP_NAME = /^(approvet|approver|transfertoburn|blacklist|setblacklist|addblacklist|addbot|setbot|setbots|setsniper|enabletrading|opentrading|settrading|settradingenabled|setmaxtxamount|setmaxwallet|setwalletmax|excludefromfee|includeinfee|settaxfeepercent|setbuytax|setselltax|setfees|updatefees)$/i;
 function extractPush4(code){
@@ -1512,14 +1523,14 @@ function scanVerifiedTraps(meta){
     out.push({pen:25, lbl:'Verified source: wallet-flag shaped functions',
       det:'ABI exposes '+esc(generic.slice(0,6).join(', '))+(generic.length>6?'…':'')+'. A function shaped (address, bool) is how a honeypot flags a seller. It can also be a normal operator switch — read the name before treating this as final.'});
   }
-  const skipVar = /^(owner|_owner|newOwner|oldOwner|account|sender|recipient|from|to|spender|factory|factory_|router|pair|uniswapV2Pair|uniswapV2Router|WETH|WPLS|token0|token1|asset|protocolFee|creator|implementation|beacon)$/i;
+  const skipVar = /^(owner|_owner|newOwner|oldOwner|account|sender|recipient|from|to|spender|factory|factory_|router|pair|uniswapV2Pair|uniswapV2Router|WETH|WPLS|token0|token1|asset|protocolFee|creator|implementation|beacon|msgSender|_msgSender)$/i;
   const vars = new Set();
   let m, re = /address\s+(?:private|internal|public)?\s+(?:immutable\s+)?(\w+)/g;
   while((m = re.exec(src))) vars.add(m[1]);
   const hidden = [];
   for(const v of vars){
     if(skipVar.test(v) || v.length<3 || /_$/.test(v)) continue;
-    const gate = new RegExp('(?:\\b'+v+'\\b\\s*!?=\\s*(?:msg\\.sender|_msgSender\\(\\)))|(?:(?:msg\\.sender|_msgSender\\(\\))\\s*!?=\\s*\\b'+v+'\\b)');
+    const gate = new RegExp('(?:\\b'+v+'\\b\\s*(?:==|!=)\\s*(?:msg\\.sender|_msgSender\\(\\)))|(?:(?:msg\\.sender|_msgSender\\(\\))\\s*(?:==|!=)\\s*\\b'+v+'\\b)');
     if(gate.test(src)) hidden.push(v);
   }
   if(hidden.length){
@@ -1600,8 +1611,257 @@ async function findDexPair(token){
   });
   return best;
 }
+function hexBytes(hex){
+  const h = String(hex||'').replace(/^0x/,'').toLowerCase();
+  const a = new Uint8Array(h.length>>1);
+  for(let i=0;i<a.length;i++) a[i]=parseInt(h.substr(i*2,2),16);
+  return a;
+}
+function keccak256(data){
+  const u8 = data instanceof Uint8Array ? data : hexBytes(data);
+  const RC = [
+    0x0000000000000001n,0x0000000000008082n,0x800000000000808An,0x8000000080008000n,
+    0x000000000000808Bn,0x0000000080000001n,0x8000000080008081n,0x8000000000008009n,
+    0x000000000000008An,0x0000000000000088n,0x0000000080008009n,0x000000008000000An,
+    0x000000008000808Bn,0x800000000000008Bn,0x8000000000008089n,0x8000000000008003n,
+    0x8000000000008002n,0x8000000000000080n,0x000000000000800An,0x800000008000000An,
+    0x8000000080008081n,0x8000000000008080n,0x0000000080000001n,0x8000000080008008n
+  ];
+  const rot = (x,n) => ((x << n) | (x >> (64n-n))) & 0xffffffffffffffffn;
+  const st = new Array(25).fill(0n);
+  const rate = 136, n = u8.length, rem = (n+1)%rate, pad = rem===0 ? rate : rate-rem;
+  const msg = new Uint8Array(n+1+pad);
+  msg.set(u8); msg[n]=0x01; msg[n+pad]|=0x80;
+  const R = [[0,36,3,41,18],[1,44,10,45,2],[62,6,43,15,61],[28,55,25,21,56],[27,20,39,8,14]];
+  for(let off=0; off<msg.length; off+=rate){
+    for(let i=0;i<rate/8;i++){
+      let v=0n;
+      for(let b=0;b<8;b++) v |= BigInt(msg[off+i*8+b]) << BigInt(8*b);
+      st[i] ^= v;
+    }
+    const C = new Array(5);
+    for(let round=0; round<24; round++){
+      for(let x=0;x<5;x++) C[x]=st[x]^st[x+5]^st[x+10]^st[x+15]^st[x+20];
+      for(let x=0;x<5;x++){
+        const d = C[(x+4)%5] ^ rot(C[(x+1)%5], 1n);
+        for(let y=0;y<5;y++) st[x+5*y] ^= d;
+      }
+      const B = new Array(25);
+      for(let x=0;x<5;x++) for(let y=0;y<5;y++){
+        B[y+5*((2*x+3*y)%5)] = rot(st[x+5*y], BigInt(R[x][y]));
+      }
+      for(let x=0;x<5;x++) for(let y=0;y<5;y++){
+        st[x+5*y] = B[x+5*y] ^ ((~B[((x+1)%5)+5*y]) & B[((x+2)%5)+5*y]);
+      }
+      st[0] ^= RC[round];
+    }
+  }
+  let out='';
+  for(let i=0;i<4;i++){
+    let v=st[i];
+    for(let b=0;b<8;b++) out += Number((v >> BigInt(8*b)) & 0xffn).toString(16).padStart(2,'0');
+  }
+  return out;
+}
+function mapSlot(addr, slot){
+  return '0x'+keccak256(padA(addr)+padN(slot));
+}
+function eip1167Target(code){
+  const c = String(code||'').toLowerCase().replace(/^0x/,'');
+  if(!c.startsWith('363d3d373d3d3d363d73')) return null;
+  if(c.slice(60,90)!=='5af43d82803e903d91602b57fd5bf3') return null;
+  const addr = '0x'+c.slice(20,60);
+  return hexToBig(addr)===0n ? null : addr;
+}
+function hexQty(n){ const h=BigInt(n).toString(16); return '0x'+h; }
+function panicOf(data){
+  const h = String(data||'').replace(/^0x/,'').toLowerCase();
+  if(!h.startsWith('4e487b71') || h.length<8+64) return null;
+  return Number(BigInt('0x'+h.slice(8,72)));
+}
+const POWER_WORDS = [
+  {kind:'mint', re:/^(mint|mintto)$/i, say:'mint new tokens'},
+  {kind:'pause', re:/^(pause|unpause|pausetrading|setpause)$/i, say:'pause transfers'},
+  {kind:'trading', re:/^(settrading|settradingenabled|enabletrading|opentrading)$/i, say:'turn trading on or off'},
+  {kind:'fee', re:/^(setbuytax|setselltax|settaxfeepercent|setfees|updatefees|settax|settaxes|setbuyfee|setsellfee|settransferfee|setfee|excludefromfee|includeinfee|setexcluded)$/i, say:'change fees'},
+  {kind:'max', re:/^(setmaxtxamount|setmaxtx|setmaxwallet|setwalletmax|setmaxwalletamount)$/i, say:'change the max transaction or max wallet'},
+  {kind:'black', re:/^(blacklist|setblacklist|addblacklist|addtoblacklist|removefromblacklist|addbot|setbot|setbots|setsniper)$/i, say:'blacklist wallets'}
+];
+function feeCapText(src){
+  const s = stripSol(src);
+  if(!s) return '';
+  let m = s.match(/\b(?:MAX_(?:TAX|FEE)|maxTax|maxFee|taxCap|feeCap)\b[^;\n]{0,40}?(\d{1,3})/);
+  if(!m) m = s.match(/require\s*\([^;\n]{0,140}(?:tax|fee)[^;\n]{0,40}<=\s*(\d{1,3})\s*\)/i);
+  if(!m) return '';
+  const n = Number(m[1]);
+  if(!Number.isFinite(n)) return '';
+  return ' The source writes a fee ceiling of '+n+(n<=100?' (as written, usually percent).':' .')+' If that ceiling is missing, the setter can raise the fee as far as the function allows.';
+}
+function quietTakeback(src){
+  const s = stripSol(src);
+  if(!s) return null;
+  const parts = s.split(/\b(?:function|constructor)\s+/);
+  for(const part of parts.slice(1)){
+    const name = (part.match(/^([A-Za-z_]\w*)/)||[])[1]||'';
+    if(!name || /^(transferOwnership|renounceOwnership|_transferOwnership)$/i.test(name)) continue;
+    const head = part.slice(0, 800).replace(/address(?:\s+payable)?\s+(?:owner|_owner)\s*=/g, '');
+    if(!/\b_owner\s*=/.test(head) && !/\bowner\s*=/.test(head)) continue;
+    const gated = /\bonlyOwner\b/.test(head) || /(?:msg\.sender|_msgSender\(\))\s*==\s*(?:owner|_owner)/.test(head) || /(?:owner|_owner)\s*==\s*(?:msg\.sender|_msgSender\(\))/.test(head);
+    if(!gated) return name;
+  }
+  return null;
+}
+function scanWalletLists(src){
+  const s = stripSol(src);
+  if(!s) return [];
+  const names = [...s.matchAll(/mapping\s*\(\s*address\s*=>\s*bool\s*\)\s*(?:public|private|internal)?\s*(\w+)/gi)].map(m=>m[1]);
+  const out = [], seen = new Set();
+  for(const name of names){
+    if(seen.has(name)) continue;
+    seen.add(name);
+    const body = 'function\\s+_?(?:transfer|transferFrom|_transfer|_update)\\b[\\s\\S]{0,4500}';
+    const blocks = new RegExp(body+'(?:require\\s*\\(\\s*!?\\s*'+name+'\\s*\\[|if\\s*\\(\\s*'+name+'\\s*\\[[^\\]]{0,80}\\]\\s*\\)\\s*(?:revert|return))','i').test(s);
+    const used = !blocks && new RegExp(body+'\\b'+name+'\\b','i').test(s);
+    if(blocks) out.push({name, kind:'block'});
+    else if(used) out.push({name, kind:'fee'});
+  }
+  return out;
+}
+function powerSays(sels, abi){
+  const says = new Set();
+  const kindOf = {mint:'mint', pause:'pause', trading:'trading', tax:'fee', fee:'fee', limit:'max', blacklist:'black'};
+  DANGER_SELECTORS.forEach(h=>{
+    if(!sels.has(h.sel)) return;
+    const w = POWER_WORDS.find(p=>p.kind===(kindOf[h.kind]||h.kind));
+    if(w) says.add(w.say);
+  });
+  const fns = Array.isArray(abi) ? abi.filter(f=>f && f.type==='function' && f.stateMutability!=='view' && f.stateMutability!=='pure') : [];
+  for(const f of fns){
+    const hit = POWER_WORDS.find(p=>p.re.test(f.name||''));
+    if(hit) says.add(hit.say);
+  }
+  return [...says];
+}
+const TAX_DEXES = [
+  {name:'PulseX v1', addr:'0x1715a3E4A142d8b698131108995174F37aEBA10D', kind:'v2'},
+  {name:'PulseX v2', addr:'0x29eA7545DEf87022BAdc76323F373EA1e707C523', kind:'v2'},
+  {name:'9mm v2', addr:'0x3a0Fa7884dD93f3cd234bBE2A0958Ef04b05E13b', kind:'v2'},
+  {name:'9inch', addr:'0x5b9f077a77db37f3be0a5b5d31baeff4bc5c0bd7', kind:'v2'},
+  {name:'9mm v3', addr:'0xe50DbDC88E87a2C92984d794bcF3D1d76f619C68', kind:'v3'},
+  {name:'9inch v3', addr:'0xcfd33c867c9f031aadff7939cb8086ee5ae88c41', kind:'v3'},
+  {name:'Liberty', addr:'0x796fcbDC956b85797EFe21145Aa97599B7FB36a6', kind:'v3'}
+];
+const TAX_QUOTES = [
+  {sym:'WPLS', addr:WPLS},
+  {sym:'HEX', addr:'0x2b591e99afE9f32eAA6214f7B7629768c40Eeb39'},
+  {sym:'DAI', addr:'0xefD766cCb38EaF1dfd701853BFCe31359239F305'},
+  {sym:'USDC', addr:'0x15D38573d2feeb82e7ad5187aB8c1D52810B1f07'},
+  {sym:'PLSX', addr:'0x95B303987A60C71504D99Aa1b13B4DA07b0790ab'}
+];
+const V3_FEES = [100, 500, 2500, 3000, 10000];
+const TAX_PROBE = '0x63a9059cbb60e01b600052602435600452604435602452602060606044600060006004355af115610064573d156100395760605115610064575b6370a0823160e01b608052602435608452602060a06024608060006004355af11561006457602060a0f35b60006000fd';
+const TAX_SINK = '0x000000000000000000000000000000000000b0b1';
+function fmtTax(bps){ return (bps/100).toFixed(2)+'%'; }
+async function findBalSlot(token, holder){
+  const bal = hexToBig(await call(token, '0x70a08231'+padA(holder)));
+  if(bal===0n) return null;
+  const keys = [];
+  for(let s=0;s<12;s++) keys.push(mapSlot(holder, s));
+  const reads = await Promise.all(keys.map(k => rpc('eth_getStorageAt',[token, k, 'latest']).catch(()=>null)));
+  for(let s=0;s<reads.length;s++) if(reads[s] && hexToBig(reads[s])===bal) return s;
+  return null;
+}
+async function simSell(token, pair, slot, amt){
+  const mcSlot = mapSlot(MULTICALL3, slot);
+  const calls = [
+    {to:token, data:'0x70a08231'+padA(pair)},
+    {to:token, data:'0xa9059cbb'+padA(pair)+padN(amt)},
+    {to:token, data:'0x70a08231'+padA(pair)}
+  ];
+  const state = {};
+  state[token] = {stateDiff:{}};
+  state[token].stateDiff[mcSlot] = hexQty(amt*100n);
+  const raw = await rpc('eth_call', [{to:MULTICALL3, data:encTryAggregate(calls)}, 'latest', state]);
+  const rows = decTryAggregate(raw, true);
+  const tr = rows[1];
+  if(!tr || !tr.ok){
+    const code = panicOf(tr && tr.data);
+    return code===17 ? {err:'odd'} : {err:'revert'};
+  }
+  if(tr.data && hexToBig(tr.data)===0n) return {err:'revert'};
+  const before = hexToBig(rows[0] && rows[0].data), after = hexToBig(rows[2] && rows[2].data);
+  if(after<before) return {err:'odd'};
+  const got = after-before;
+  if(got>amt) return {bps:0, more:true};
+  return {bps: Number((amt-got)*10000n/amt)};
+}
+async function simBuy(token, pair, amt, sinkBal){
+  const data = '0x'+'00'.repeat(4)+padA(token)+padA(TAX_SINK)+padN(amt);
+  const state = {};
+  state[pair] = {code:TAX_PROBE};
+  let raw;
+  try{ raw = await rpc('eth_call', [{to:pair, data}, 'latest', state]); }
+  catch(e){
+    return /execution reverted/i.test((e && e.message) || '') ? {err:'revert'} : {err:'odd'};
+  }
+  if(!raw || raw==='0x') return {err:'odd'};
+  const after = hexToBig(raw);
+  if(after<sinkBal) return {err:'odd'};
+  const got = after-sinkBal;
+  if(got>amt) return {bps:0, more:true};
+  return {bps: Number((amt-got)*10000n/amt)};
+}
+async function measureDexTax(token, dec){
+  const calls = [];
+  for(const d of TAX_DEXES){
+    for(const q of TAX_QUOTES){
+      if(q.addr.toLowerCase()===token.toLowerCase()) continue;
+      if(d.kind==='v3'){
+        for(const fee of V3_FEES) calls.push({to:d.addr, data:'0x1698ee82'+padA(token)+padA(q.addr)+padN(fee), d, q});
+      }else{
+        calls.push({to:d.addr, data:'0xe6a43905'+padA(token)+padA(q.addr), d, q});
+      }
+    }
+  }
+  const raw = await multiCall(calls);
+  const hits = [];
+  raw.forEach((hex,i)=>{
+    if(!hex || hexToBig(hex)===0n) return;
+    hits.push({pair:wordAddr(hex), dex:calls[i].d.name, quote:calls[i].q.sym});
+  });
+  if(!hits.length) return {pairs:[], slot:null};
+  const bals = await multiCall(hits.map(h=>({to:token, data:'0x70a08231'+padA(h.pair)})));
+  const best = new Map();
+  bals.forEach((hex,i)=>{
+    const bal = hexToBig(hex);
+    if(bal===0n) return;
+    const prev = best.get(hits[i].dex);
+    if(!prev || bal>prev.bal) best.set(hits[i].dex, {...hits[i], bal});
+  });
+  const picked = [...best.values()];
+  let slot = null;
+  for(const p of picked){
+    slot = await findBalSlot(token, p.pair);
+    if(slot!=null) break;
+  }
+  const sinkBal = hexToBig(await call(token, '0x70a08231'+padA(TAX_SINK)).catch(()=>'0x0'));
+  const unit = 10n ** BigInt(dec||18);
+  const out = await Promise.all(picked.map(async p=>{
+    let amt = unit;
+    if(p.bal<=amt) amt = p.bal/100n;
+    if(amt<1000n && p.bal>1000n) amt = 1000n;
+    if(amt===0n || slot==null) return {dex:p.dex, quote:p.quote, sell:{err:'odd'}, buy:{err:'odd'}};
+    const [sell, buy] = await Promise.all([
+      simSell(token, p.pair, slot, amt).catch(()=>({err:'odd'})),
+      simBuy(token, p.pair, amt, sinkBal).catch(()=>({err:'odd'}))
+    ]);
+    return {dex:p.dex, quote:p.quote, sell, buy};
+  }));
+  return {pairs:out, slot};
+}
 async function runSafety(){
   const addr = cur.addr, code = (cur.code||'').toLowerCase();
+  const isInc = addr.toLowerCase()==='0x2fa878ab3f87cc1c9737fc071108f904c0b0c95d';
   bodyLoading('Running live on-chain checks…');
   let score = 100; const rows = [];
   const push = (state,lbl,det,pen=0)=>{ rows.push(chkRow(state,lbl,det)); score -= pen; };
@@ -1621,25 +1881,18 @@ async function runSafety(){
     push('info','Source not verified', 'Without source, custom-named blacklist/mint (approvet, transferToburn, …) cannot be read. Selector lists miss those. Verify the contract or do not trust this score alone.');
   }
 
-  let owner = null, ownerLive = false, upgradeLive = false;
+  let owner = null, ownerLive = false, upgradeLive = false, ownerSkipped = false, noOwnerFn = false;
   try{
     let o = retWord(await call(addr,'0x8da5cb5b').catch(()=>null)) || retWord(await call(addr,'0x893d20e8').catch(()=>null));
-    if(!o){
-      push('pass','No owner() function','No standard ownership hook. An empty answer is not an owner.');
-    }else{
+    if(!o) noOwnerFn = true;
+    else {
       owner = wordAddr(o);
-      if(owner===ZERO.toLowerCase()||owner===DEAD.toLowerCase()){
-        if(srcTraps.some(t=>t.hard || /hidden admin/i.test(t.lbl)))
-          push('fail','owner() is zero — trap functions remain', 'Renounce cleared owner() only. The verified source still has the wallet-flag or burn functions.', 0);
-        else
-          push('pass','Ownership renounced','owner() returns the zero/dead address.');
-      }else{
-        ownerLive = true;
-        push('warn','Active owner', 'owner() = '+short(owner,6)+' — whoever holds this can call owner-only functions.', 12);
-      }
+      ownerLive = !(owner===ZERO.toLowerCase()||owner===DEAD.toLowerCase());
     }
-  }catch(e){ push('na','Ownership check skipped', e.message); }
+  }catch(e){ ownerSkipped = true; push('na','Ownership check skipped', e.message); }
 
+  let proxyRow = null;
+  const cloneOf = eip1167Target(code);
   try{
     const [impl, admin, beacon] = await Promise.all([
       rpc('eth_getStorageAt',[addr, IMPL_SLOT,'latest']),
@@ -1649,19 +1902,92 @@ async function runSafety(){
     const hasImpl = impl && hexToBig(impl)!==0n;
     const hasBeacon = beacon && hexToBig(beacon)!==0n;
     const adm = admin && hexToBig(admin)!==0n ? wordAddr(admin) : null;
+    const implAddr = hasImpl ? wordAddr(impl) : (hasBeacon ? wordAddr(beacon) : null);
+    const readAt = implAddr || cloneOf;
+    if(readAt){
+      try{
+        const ic = await rpc('eth_getCode',[readAt,'latest']);
+        if(ic && ic.length>4) extractPush4(ic).forEach(s=>sels.add(s));
+      }catch(e){}
+    }
     if(hasImpl || hasBeacon){
       upgradeLive = true;
       const where = hasImpl ? ('implementation '+short(wordAddr(impl),6)) : ('beacon '+short(wordAddr(beacon),6));
       if(adm && adm!==ZERO.toLowerCase() && adm!==DEAD.toLowerCase())
-        push('fail','Upgradeable proxy', 'Code can be swapped. '+where+'. Admin '+short(adm,6)+' is live.', 40);
+        proxyRow = ['fail','Upgradeable proxy', 'The code can be swapped later. '+where+'. Admin '+short(adm,6)+' is live. A clean scan today does not hold after an upgrade.', 40];
       else if(ownerLive)
-        push('fail','Upgradeable (UUPS / owner)', 'Proxy slot is set ('+where+') and owner() is live. The running code can still be replaced.', 40);
+        proxyRow = ['fail','Upgradeable (UUPS / owner)', 'Proxy slot is set ('+where+') and owner() is live. The running code can still be replaced. A clean scan today does not hold after an upgrade.', 40];
       else
-        push('warn','Proxy bytecode, admin burned', 'EIP-1967 slot is set ('+where+') but admin looks burned. Still not the same as immutable deployed code.', 8);
+        proxyRow = ['warn','Proxy slot is set', 'EIP-1967 slot is set ('+where+') but the admin looks burned. This is still not code that can never move.', 8];
+    }else if(cloneOf){
+      proxyRow = ['info','Minimal clone', 'This contract runs the code at '+short(cloneOf,6)+'. That address is fixed in the bytecode, so it cannot be repointed. The scan read that code. It is not an upgrade slot.', 0];
     }else{
-      push('pass','Not a standard proxy','No EIP-1967 implementation/beacon slot. Deployed bytecode is what runs.');
+      proxyRow = ['pass','Not a standard proxy','No EIP-1967 implementation or beacon slot, and not a minimal clone. The bytecode at this address is what runs.', 0];
     }
-  }catch(e){ push('na','Proxy check skipped', e.message); }
+  }catch(e){ proxyRow = ['na','Proxy check skipped', e.message, 0]; }
+
+  if(!ownerSkipped){
+    const srcText = flattenSources(meta);
+    const says = powerSays(sels, meta && meta.abi);
+    const cap = says.includes('change fees') ? feeCapText(srcText) : '';
+    const takeFn = quietTakeback(srcText);
+    let pending = null;
+    if(!noOwnerFn){
+      try{
+        const p = retWord(await call(addr,'0xe30c3978'));
+        if(p){
+          const a = wordAddr(p);
+          if(a!==ZERO.toLowerCase() && a!==DEAD.toLowerCase()) pending = a;
+        }
+      }catch(e){}
+    }
+    const hidden = srcTraps.some(t=>t.hard || /hidden admin/i.test(t.lbl));
+    const canHand = sels.has('f2fde38b') || (Array.isArray(meta && meta.abi) && meta.abi.some(f=>/^transferOwnership$/i.test(f.name||'')));
+    if(noOwnerFn && !says.length && !upgradeLive){
+      push('pass','No owner() function','No standard ownership hook. An empty answer is not an owner. Nothing in this scan can mint, pause, change fees, set a max wallet, or blacklist.');
+    }else if(noOwnerFn){
+      push('info','No owner() function', 'No standard owner() hook.'+(says.length?' The code still contains: '+says.join(', ')+'.':'')+(upgradeLive?' A proxy admin may still reach those.':''));
+    }else if(!ownerLive){
+      let det = 'Ownership is renounced. owner() is the zero address.';
+      if(says.length) det += ' These onlyOwner functions are still in the bytecode: '+says.join(', ')+'. With owner() at zero they cannot be called.';
+      if(hidden) det += ' Renounce did not remove the trap functions above.';
+      else if(pending) det += ' It can be taken back. pendingOwner() is '+short(pending,6)+'.';
+      else if(takeFn) det += ' It can be taken back. '+takeFn+'() writes owner without an onlyOwner check.';
+      else det += ' This scan did not find a way to set an owner again.';
+      if(cap) det += cap;
+      const quietly = !hidden && (pending || takeFn);
+      push(hidden||quietly?'fail':'pass', hidden||quietly?'owner() is zero — control remains':'Ownership renounced', det, quietly?35:0);
+    }else if(isInc){
+      push('info','INC farm, not a blank mint',
+        'owner() is the INC farm ('+short(owner,6)+'). The farm source mints only to itself, then pays stakers. It cannot mint INC into a chosen wallet. The farm owner can change the reward rate up to 1 INC per second. That cap is a constant and cannot be raised. Not scored.');
+    }else{
+      const who = owner==='0xb2ca4a66d3e57a5a9a12043b6bad28249fe302d4' ? 'the INC farm' : '';
+      let det = (who ? 'owner() is '+who+' ('+short(owner,6)+').' : 'owner() is '+short(owner,6)+'.');
+      det += ' They can still: '+(says.length?says.join(', '):'call owner-only functions. No mint, pause, fee, max-wallet, or blacklist function was recognized')+'.';
+      det += ' Ownership has not been renounced.';
+      if(who) det += ' The farm mints INC as rewards. That mint key is live. It is not a burned owner.';
+      if(canHand) det += ' They can hand that role to someone else.';
+      if(pending) det += ' A handover is waiting. pendingOwner() is '+short(pending,6)+'.';
+      if(cap) det += cap;
+      else if(says.includes('change fees')) det += verified ? ' No fee ceiling was found in the verified source.' : ' Without verified source this scan cannot see whether the fee has a ceiling.';
+      push('warn','What the owner can still do', det, 12);
+    }
+  }
+  if(proxyRow) push(proxyRow[0], proxyRow[1], proxyRow[2], proxyRow[3]);
+
+  const walletLists = scanWalletLists(flattenSources(meta));
+  walletLists.forEach(L=>{
+    if(L.kind==='block'){
+      const live = ownerLive || upgradeLive || srcTraps.some(t=>t.hard || /hidden admin/i.test(t.lbl));
+      push(live?'fail':'info', 'Wallet list: '+L.name,
+        live
+          ? 'The verified source uses '+L.name+' inside transfer to revert or stop. An admin can add wallets to that list. That is a blacklist even when the function is not named blacklist().'
+          : 'The verified source uses '+L.name+' inside transfer to block a wallet. owner() is zero and no second admin was found, so this scan cannot see a way to add to it.',
+        live && !hardTrap ? 30 : 0);
+    }else{
+      push('info','Fee list: '+L.name, 'The verified source reads '+L.name+' inside transfer. That is a fee-exemption list, not by itself a transfer block.');
+    }
+  });
 
   try{
     const p = retWord(await call(addr,'0x5c975abb').catch(()=>null));
@@ -1684,6 +2010,10 @@ async function runSafety(){
       const deadly = h.kind==='blacklist'||h.kind==='pause'||h.kind==='upgrade'||h.kind==='trading'||h.kind==='mint';
       const already = srcTraps.length && (h.kind==='blacklist'||h.kind==='mint');
       if(already) return;
+      if(isInc && h.kind==='mint'){
+        push('info','mint(address,uint256) is the farm', 'Only the INC farm can call this. It mints to the farm, then to farmers. Not a mint into any wallet. Not scored.');
+        return;
+      }
       if(ownerLive || srcTraps.some(t=>/hidden admin/i.test(t.lbl))){
         push(deadly?'fail':'warn', h.lbl, h.why+' An admin path is live.', deadly?25:12);
       }else{
@@ -1724,6 +2054,8 @@ async function runSafety(){
             'This token also has backingPerToken + an on-chain redeem path. Unburned LP thins the DEX; it does not by itself drain that backing.');
         }else if(pct>=90){
           push('pass','LP '+pct.toFixed(1)+'% burned', pairDex+' LP sent to dead/zero — liquidity cannot be yanked by a wallet.');
+        }else if(isInc){
+          push('info','LP '+pct.toFixed(1)+'% burned', 'Not scored on the canonical INC contract. Unburned LP here is not treated as a wallet that can rug the token.');
         }else if(ownerLive || upgradeLive){
           push('warn','LP '+pct.toFixed(1)+'% burned', 'An admin path is live and the LP is not burned. A wallet may still be able to pull that liquidity.', 10);
         }else{
@@ -1745,6 +2077,32 @@ async function runSafety(){
     }else{
       push('info','No PulseX pair found', 'No v1/v2 pair vs WPLS, HEX, PLSX, INC, vPLS, DAI, or USDC. May be pre-launch or paired elsewhere. Not scored as a trap.');
     }
+    try{
+      const dec = cur.token.decimals!=null ? Number(cur.token.decimals) : 18;
+      const tax = await measureDexTax(addr, dec);
+      if(!tax.pairs.length){
+        push('info','Buy and sell tax', 'No pool on PulseX, 9mm, 9inch, or Liberty against WPLS, HEX, DAI, USDC, or PLSX. Not scored.');
+      }else{
+        let worst=0, blocked=false, measured=false;
+        const lines = tax.pairs.map(p=>{
+          const side = (label, r)=>{
+            if(!r || r.err==='odd' || (r.err && label!=='sell')) return label+' not measured';
+            if(r.err==='revert'){ blocked=true; return 'sell reverted'; }
+            measured = true;
+            const bps = r.bps<5 ? 0 : r.bps;
+            if(bps>worst) worst=bps;
+            return label+' '+(r.more && bps===0 ? 'received more than sent' : fmtTax(bps));
+          };
+          return p.dex+' vs '+p.quote+': '+side('sell', p.sell)+', '+side('buy', p.buy);
+        });
+        let state='pass', pen=0;
+        if(blocked){ state='fail'; pen=40; }
+        else if(worst>=1000){ state='fail'; pen=30; }
+        else if(worst>=500){ state='warn'; pen=12; }
+        else if(!measured){ state='info'; }
+        push(state, 'Buy and sell tax', lines.join('. ')+'. Measured with one token, or less if the pool is smaller. A tax that only starts above that size is not shown. Sell is what the pool receives. Buy is what a buyer receives from the pool.', pen);
+      }
+    }catch(e){ push('info','Tax not measured', esc((e && e.message) || 'simulation failed')); }
   }
 
   score = Math.max(0, Math.min(100, score));
@@ -1753,12 +2111,12 @@ async function runSafety(){
     <div class="score-ring">
       <div class="score-num" style="color:${grade[1]}">${score}</div>
       <div><div class="score-grade">Pulse Check™ grade: ${grade[0]}</div>
-      <div class="det" style="font-size:12px;color:var(--faint)">Live scan in your browser. Fails on known traps: honeypot transfers, freeze, hidden mint, live upgrade, and — when Sourcify has source — hidden admin / wallet flags / user-burn. Not financial advice.</div></div>
+      <div class="det" style="font-size:12px;color:var(--faint)">Live scan in your browser. Fails on known traps: honeypot transfers, a high measured tax, a wallet list that blocks sells, freeze, hidden mint, and code that can still be swapped. Not financial advice.</div></div>
     </div>
     ${rows.join('')}
     <div class="toolbar"><button class="btn-ghost" onclick="shareLink(event)">🔗 Share this scan</button></div>
-    <div class="small-note"><b>What this will fail:</b> LP cannot send, you cannot send to the LP, paused / trading-closed right now, a live owner who can mint / pause / blacklist / change tax / upgrade, and verified source that still gates those tricks on a second admin after owner() is zero.<br>
-    <b>What it still cannot see:</b> holder concentration, deployer history, locker contracts, and traps in <i>unverified</i> bytecode under names that are not in the dictionary. A missing function is skipped — an empty answer is not a live owner and not “trading closed.” A clean score means “no on-chain red flags we know how to test,” not “safe.”</div>`;
+    <div class="small-note"><b>What this will fail:</b> LP cannot send, you cannot send to the LP, a measured buy or sell tax of 10% or more, a sell into PulseX, 9mm, 9inch, or Liberty that reverts, a verified wallet list that blocks transfers while an admin can still write it, paused / trading-closed right now, a live owner who can mint / pause / blacklist / change tax / upgrade, code that can be swapped later, and verified source that still gates those tricks on a second admin after owner() is zero.<br>
+    <b>What it still cannot see:</b> holder concentration, deployer history, locker contracts, a tax that only applies above the one-token test, and traps in <i>unverified</i> bytecode under names that are not in the dictionary. A missing function is skipped — an empty answer is not a live owner and not “trading closed.” A clean score means “no on-chain red flags we know how to test,” not “safe.”</div>`;
 }
 
 /* ============ contract source & verification (client-side proof) ============ */
@@ -2923,7 +3281,7 @@ try{
           e.preventDefault();
           var a = document.createElement('a');
           a.href = URL.createObjectURL(new Blob([buf], {type:'text/html'}));
-          a.download = 'pulseverify-v48.html';
+          a.download = 'pulseverify-v53.html';
           a.click(); URL.revokeObjectURL(a.href);
         };
       });
