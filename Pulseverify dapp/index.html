@@ -371,7 +371,7 @@ rel="noopener">Github</a> and inspect the code or download from github.</div>
 </div>
 <script>
 "use strict";
-var BUILD = 'v61 · 2026-10-13';
+var BUILD = 'v62 · 2026-10-13';
 var VAULTS_URL = 'https://pulsestrategy369.com/vaults'; /* ★ EDIT HERE: the one place that controls every 'Vaults' link on this page */
 var LAUNCH_URL = 'https://pulsestrategy369.com/launch'; /* ★ EDIT HERE: PulseStrategy Launcher */
 var WHITEPAPER_URL = 'https://pulsestrategy369.com/whitepaper';
@@ -1481,8 +1481,8 @@ const DANGER_SELECTORS = [
   {sel:'ec28438a', lbl:'setMaxTxAmount(uint256)', kind:'limit', why:'max tx can be dropped so you cannot sell'},
   {sel:'bc337182', lbl:'setMaxTx(uint256)', kind:'limit', why:'max tx can be dropped so you cannot sell'},
   {sel:'5d0044ca', lbl:'setMaxWallet(uint256)', kind:'limit', why:'max wallet can be dropped so you cannot receive'},
-  {sel:'44337ea1', lbl:'addToBlacklist(address)', kind:'blacklist', why:'any wallet can be added to a block list'},
-  {sel:'537df3b6', lbl:'removeFromBlacklist(address)', kind:'blacklist', why:'any wallet can be added to a block list'},
+  {sel:'44337ea1', lbl:'addToBlacklist(address)', kind:'blacklist', why:'the owner can put a wallet on a list'},
+  {sel:'537df3b6', lbl:'removeFromBlacklist(address)', kind:'blacklist', why:'the owner can take a wallet off that list'},
   {sel:'2e5bb6ff', lbl:'setTax(uint256)', kind:'tax', why:'the transfer tax can be changed after you buy'},
   {sel:'c647b20e', lbl:'setTaxes(uint256,uint256)', kind:'tax', why:'buy and sell tax can be changed after you buy'},
   {sel:'0cc835a3', lbl:'setBuyFee(uint256)', kind:'tax', why:'buy tax can be raised after you buy'},
@@ -1712,7 +1712,8 @@ function quietTakeback(src){
     const name = (part.match(/^([A-Za-z_]\w*)/)||[])[1]||'';
     if(!name || /^(transferOwnership|renounceOwnership|_transferOwnership)$/i.test(name)) continue;
     const head = part.slice(0, 800).replace(/address(?:\s+payable)?\s+(?:owner|_owner)\s*=/g, '');
-    if(!/\b_owner\s*=/.test(head) && !/\bowner\s*=/.test(head)) continue;
+    const writes = /\b_owner\s*=(?!=)/.test(head) || /(?<![A-Za-z0-9_])owner\s*=(?!=)/.test(head);
+    if(!writes) continue;
     const gated = /\bonlyOwner\b/.test(head) || /(?:msg\.sender|_msgSender\(\))\s*==\s*(?:owner|_owner)/.test(head) || /(?:owner|_owner)\s*==\s*(?:msg\.sender|_msgSender\(\))/.test(head);
     if(!gated) return name;
   }
@@ -1721,16 +1722,30 @@ function quietTakeback(src){
 function scanWalletLists(src){
   const s = stripSol(src);
   if(!s) return [];
-  const names = [...s.matchAll(/mapping\s*\(\s*address\s*=>\s*bool\s*\)\s*(?:public|private|internal)?\s*(\w+)/gi)].map(m=>m[1]);
+  const names = [...s.matchAll(/mapping\s*\(\s*address(?:\s+\w+)?\s*=>\s*bool\s*\)\s*(?:public|private|internal)?\s*(\w+)/gi)].map(m=>m[1]);
   const out = [], seen = new Set();
   for(const name of names){
-    if(seen.has(name)) continue;
+    if(seen.has(name) || !name) continue;
     seen.add(name);
-    const body = 'function\\s+_?(?:transfer|transferFrom|_transfer|_update)\\b[\\s\\S]{0,4500}';
-    const blocks = new RegExp(body+'(?:require\\s*\\(\\s*!?\\s*'+name+'\\s*\\[|if\\s*\\(\\s*'+name+'\\s*\\[[^\\]]{0,80}\\]\\s*\\)\\s*(?:revert|return))','i').test(s);
-    const used = !blocks && new RegExp(body+'\\b'+name+'\\b','i').test(s);
-    if(blocks) out.push({name, kind:'block'});
-    else if(used) out.push({name, kind:'fee'});
+    const n = name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    if(new RegExp('(?:require\\s*\\(\\s*!\\s*'+n+'\\s*\\[|if\\s*\\(\\s*'+n+'\\s*\\[[^\\]]{0,80}\\]\\s*\\)\\s*(?:revert|return))','i').test(s)){
+      out.push({name, kind:'block'});
+      continue;
+    }
+    const ifRe = new RegExp('if\\s*\\(\\s*([^;]{0,220}?\\b'+n+'\\s*\\[[^\\]]{0,80}\\])\\s*\\)\\s*\\{([\\s\\S]{0,900}?)\\}','gi');
+    let m, taxPct = null, taxed = false, exempt = false;
+    while((m = ifRe.exec(s))){
+      const cond = m[1], body = m[2];
+      const moves = /_transfer\s*\(|_update\s*\(/.test(body);
+      const pct = body.match(/\*\s*(\d{1,3})\s*\)\s*\/\s*100|\*\s*(\d{1,3})\s*\/\s*100/);
+      const feeMath = !!pct || /\b(?:tax|fee)(?:Amount|Tokens)?\b/i.test(body);
+      if(!moves && !feeMath) continue;
+      const negated = new RegExp('!\\s*'+n+'\\s*\\[').test(cond);
+      if(negated){ if(feeMath || moves) exempt = true; }
+      else if(feeMath){ taxed = true; if(pct) taxPct = Number(pct[1]||pct[2]); }
+    }
+    if(taxed) out.push({name, kind:'tax', pct:taxPct});
+    else if(exempt) out.push({name, kind:'exempt'});
   }
   return out;
 }
@@ -2171,8 +2186,14 @@ async function runSafety(){
           ? 'The verified source uses '+L.name+' inside transfer to revert or stop. An admin can add wallets to that list. That is a blacklist even when the function is not named blacklist().'
           : 'The verified source uses '+L.name+' inside transfer to block a wallet. owner() is zero and no second admin was found, so this scan cannot see a way to add to it.',
         live && !hardTrap ? 30 : 0);
-    }else{
-      push('info','Fee list: '+L.name, 'The verified source reads '+L.name+' inside transfer. That is a fee-exemption list, not by itself a transfer block.');
+    }else if(L.kind==='tax'){
+      const live = ownerLive || upgradeLive || srcTraps.some(t=>t.hard || /hidden admin/i.test(t.lbl));
+      const pct = L.pct!=null ? ' The branch takes '+L.pct+'%.' : '';
+      push(live?'fail':'info', 'Wallet tax: '+L.name,
+        'When '+L.name+' is on for a wallet, that wallet pays a different tax than a normal transfer. A sell from a clean wallet still measures 0%.'+pct+' The owner can turn that tax on for any wallet.',
+        live && !hardTrap ? 30 : 0);
+    }else if(L.kind==='exempt'){
+      push('info','Fee list: '+L.name, 'The verified source skips the fee for wallets on '+L.name+'. That is an exemption list, not a transfer block.');
     }
   });
 
@@ -2197,6 +2218,7 @@ async function runSafety(){
       const deadly = h.kind==='blacklist'||h.kind==='pause'||h.kind==='upgrade'||h.kind==='trading'||h.kind==='mint';
       const already = srcTraps.length && (h.kind==='blacklist'||h.kind==='mint');
       if(already) return;
+      if(h.kind==='blacklist' && walletLists.some(L=>L.kind==='block'||L.kind==='tax')) return;
       if(isInc && h.kind==='mint'){
         push('info','mint(address,uint256) is the farm', 'Only the INC farm can call this. It mints to the farm, then to farmers. Not a mint into any wallet. Not scored.');
         return;
