@@ -371,7 +371,7 @@ rel="noopener">Github</a> and inspect the code or download from github.</div>
 </div>
 <script>
 "use strict";
-var BUILD = 'v62 · 2026-10-13';
+var BUILD = 'v63 · 2026-10-15';
 var VAULTS_URL = 'https://pulsestrategy369.com/vaults'; /* ★ EDIT HERE: the one place that controls every 'Vaults' link on this page */
 var LAUNCH_URL = 'https://pulsestrategy369.com/launch'; /* ★ EDIT HERE: PulseStrategy Launcher */
 var WHITEPAPER_URL = 'https://pulsestrategy369.com/whitepaper';
@@ -461,6 +461,7 @@ const FACTORIES = [
 ];
 const DEAD = '0x000000000000000000000000000000000000dEaD';
 const ZERO = '0x0000000000000000000000000000000000000000';
+const BURN369 = '0x0000000000000000000000000000000000000369';
 const TRANSFER_TOPIC = '0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef';
 const ERC20_ABI = '["function name() view returns (string)","function symbol() view returns (string)","function decimals() view returns (uint8)","function totalSupply() view returns (uint256)","function balanceOf(address) view returns (uint256)","function transfer(address,uint256) returns (bool)","function allowance(address,address) view returns (uint256)","function approve(address,uint256) returns (bool)","function transferFrom(address,address,uint256) returns (bool)"]';
 
@@ -611,7 +612,7 @@ function buildAddrLabels(){
   if(_addrLabels) return _addrLabels;
   const m = {};
   const add = (a,n)=>{ if(a) m[String(a).toLowerCase()] = n; };
-  add(WPLS,'WPLS'); add(DEAD,'dead'); add(ZERO,'zero');
+  add(WPLS,'WPLS'); add(DEAD,'dead'); add(ZERO,'zero'); add(BURN369,'burn');
   add('0x1715a3E4A142d8b698131108995174F37aEBA10D','PulseX v1 factory');
   add('0x29eA7545DEf87022BAdc76323F373EA1e707C523','PulseX v2 factory');
   add('0x98bf93ebf5c380C0e6Ae8e192A7e2AE08edAcc02','PulseX v1 router');
@@ -1461,8 +1462,8 @@ const DANGER_SELECTORS = [
   {sel:'f9f92be4', lbl:'blacklist(address)', kind:'blacklist', why:'any wallet can be blocked from sending'},
   {sel:'404e5129', lbl:'blacklist(address,bool)', kind:'blacklist', why:'any wallet can be blocked from sending'},
   {sel:'153b0d1e', lbl:'setBlacklist(address,bool)', kind:'blacklist', why:'any wallet can be blocked from sending'},
-  {sel:'6b254a9a', lbl:'approvet(address,bool)', kind:'blacklist', why:'hidden wallet flag used to block sells'},
-  {sel:'48f2f812', lbl:'approver(address,bool)', kind:'blacklist', why:'hidden wallet flag used to block sells'},
+  {sel:'6b254a9a', lbl:'approvet(address,bool)', kind:'blacklist', why:'blocks transfers to one address, such as the pool'},
+  {sel:'48f2f812', lbl:'approver(address,bool)', kind:'blacklist', why:'freezes that wallet so its transferable balance becomes zero'},
   {sel:'0df88456', lbl:'transferToburn(uint256)', kind:'mint', why:'admin mints; everyone else is burned to zero'},
   {sel:'ffecf516', lbl:'addBot(address)', kind:'blacklist', why:'addresses can be flagged and trapped'},
   {sel:'342aa8b5', lbl:'setBot(address,bool)', kind:'blacklist', why:'addresses can be flagged and trapped'},
@@ -1536,8 +1537,13 @@ function scanVerifiedTraps(meta){
     else if(ins==='address,bool' || ins==='address,bool[]' || ins==='address[],bool') generic.push(sig);
   }
   if(named.length){
+    const bare = named.map(s=>s.split('(')[0].toLowerCase());
+    const bits = [];
+    if(bare.includes('approver')) bits.push('approver(address,bool) freezes that wallet. Its transferable balance becomes zero');
+    if(bare.includes('approvet')) bits.push('approvet(address,bool) blocks transfers to that address, such as the pool. It does not freeze the wallet itself');
+    if(bare.includes('transfertoburn')) bits.push('transferToburn burns a normal caller and mints the hidden admin');
     out.push({pen:80, hard:true, lbl:'Verified source: honeypot functions',
-      det:'ABI exposes '+esc(named.slice(0,6).join(', '))+(named.length>6?'…':'')+'. approvet flags a wallet. transferToburn burns that wallet and mints the caller. owner() at zero does not remove them. The LP sell test can still pass, because the pool is left unflagged.'});
+      det:'ABI exposes '+esc(named.slice(0,6).join(', '))+(named.length>6?'…':'')+'. '+(bits.length?bits.join('. ')+'. ':'')+'owner() at zero does not remove them. They are not onlyOwner. The LP sell test can still pass, because the pool is left unflagged.'});
   }
   if(generic.length){
     out.push({pen:25, lbl:'Verified source: wallet-flag shaped functions',
@@ -1899,6 +1905,60 @@ const CANON_TOKENS = new Set([
   '0xf6f8db0aba00007681f8faf16a0fda1c9b030b11',
   '0xa1077a294dde1b09bb078844df40758a5d0f9a27'
 ]);
+function isBurnAddr(a){
+  const x = String(a||'').toLowerCase();
+  return x===ZERO.toLowerCase() || x===DEAD.toLowerCase() || x===BURN369;
+}
+function decodeAddressArray(hex){
+  if(!hex || typeof hex!=='string' || hex==='0x') return null;
+  const h = hex.replace(/^0x/,'').toLowerCase();
+  if(h.length<128) return null;
+  const off = parseInt(h.slice(0,64),16)*2;
+  if(!Number.isFinite(off) || off<0 || off+64>h.length) return null;
+  const n = parseInt(h.slice(off, off+64),16);
+  if(!Number.isFinite(n) || n<0 || n>5000) return null;
+  const out = [];
+  for(let i=0;i<n;i++){
+    const w = h.slice(off+64+i*64, off+64+(i+1)*64);
+    if(w.length<64) break;
+    out.push('0x'+w.slice(-40));
+  }
+  return out;
+}
+async function flagCounts(addr, code){
+  const has = s => String(code||'').includes('63'+s);
+  const out = {blacklist:null, frozen:null, blockedTo:null, partial:false};
+  if(has('3bbab179')){
+    try{
+      const list = decodeAddressArray(await call(addr,'0x3bbab179'));
+      if(list) out.blacklist = list.filter(a=>hexToBig(a)!==0n).length;
+    }catch(e){}
+  }
+  if(has('48f2f812') || has('6b254a9a')){
+    try{
+      const r = await fetch('https://api.scan.pulsechain.com/api/v2/addresses/'+addr+'/transactions');
+      if(r.ok){
+        const j = await r.json();
+        const items = j.items || [];
+        if(j.next_page_params) out.partial = true;
+        const frozen = {}, blocked = {};
+        for(const t of items.slice().reverse()){
+          const raw = String(t.raw_input||'').toLowerCase();
+          const ok = !t.status || t.status==='ok';
+          if(!ok || raw.length<10+128) continue;
+          const sig = raw.slice(0,10);
+          const who = '0x'+raw.slice(34, 74);
+          const on = hexToBig('0x'+raw.slice(74, 138))!==0n;
+          if(sig==='0x48f2f812') frozen[who] = on;
+          if(sig==='0x6b254a9a') blocked[who] = on;
+        }
+        if(has('48f2f812')) out.frozen = Object.values(frozen).filter(Boolean).length;
+        if(has('6b254a9a')) out.blockedTo = Object.values(blocked).filter(Boolean).length;
+      }
+    }catch(e){}
+  }
+  return out;
+}
 function decToBig(s){ try{ return BigInt(String(s||'0').split('.')[0]); }catch(e){ return 0n; } }
 function pctOf(part, whole){ return whole>0n ? Number(part*10000n/whole)/100 : 0; }
 function looksLocked(name){ return /lock|uncx|team finance|pinklock|gnosis|safe|multisig|vesting|timelock/i.test(name||''); }
@@ -2033,6 +2093,8 @@ async function runSafety(){
   const sBit = sourcifySrc ? ('Sourcify '+(sourcifyMeta.match||'match')) : 'not on Sourcify';
   const pBit = scanSrc ? ('PulseScan '+(scanMeta.partial?'partial match':'verified')) : (onScan ? 'PulseScan verified, source text missing' : (scanMeta ? 'not on PulseScan' : 'PulseScan unread'));
   const regLine = sBit+' · '+pBit;
+  const walletLists = scanWalletLists(flattenSources(meta));
+  const walletFlag = walletLists.some(L=>L.kind==='tax'||L.kind==='block');
 
   if(srcTraps.length){
     srcTraps.forEach(t => push('fail', t.lbl, t.det, t.pen));
@@ -2042,7 +2104,9 @@ async function runSafety(){
       ? ' The httManager gate is the Actuator contract, explained below.'
       : (officialVpls
         ? ' The minter gate is the Vouch deposit contract, explained below.'
-        : ' No hidden-admin gate, wallet-flag functions, XOR-zero, or admin-mint/user-burn pattern we look for.');
+        : (walletFlag
+          ? ' That source has a wallet list. The tax or block row below is that list. This is not a clean pass.'
+          : ' No hidden-admin gate, wallet-flag functions, XOR-zero, or admin-mint/user-burn pattern we look for.'));
     push('pass','Verified source scanned', regLine+'. '+from+tail);
   }else{
     push('warn','Source not verified', regLine+'. Custom-named traps stay invisible without source text. This scan will not show 100. The ceiling is 84.');
@@ -2144,15 +2208,26 @@ async function runSafety(){
     }else if(noOwnerFn){
       push('info','No owner() function', 'No standard owner() hook.'+(says.length?' The code still contains: '+says.join(', ')+'.':'')+(upgradeLive?' A proxy admin may still reach those.':''));
     }else if(!ownerLive){
-      let det = 'Ownership is renounced. owner() is the zero address.';
-      if(says.length) det += ' These onlyOwner functions are still in the bytecode: '+says.join(', ')+'. With owner() at zero they cannot be called.';
-      if(hidden) det += ' Renounce did not remove the trap functions above.';
-      else if(pending) det += ' It can be taken back. pendingOwner() is '+short(pending,6)+'.';
-      else if(takeFn) det += ' It can be taken back. '+takeFn+'() writes owner without an onlyOwner check.';
-      else det += ' This scan did not find a way to set an owner again.';
-      if(cap) det += cap;
-      const quietly = !hidden && (pending || takeFn);
-      push(hidden||quietly?'fail':'pass', hidden||quietly?'owner() is zero — control remains':'Ownership renounced', det, quietly?35:0);
+      if(hidden){
+        const bits = [];
+        const hasFn = s => code.includes('63'+s);
+        if(hasFn('48f2f812')) bits.push('approver freezes a wallet, so that wallet’s transferable balance becomes zero');
+        if(hasFn('6b254a9a')) bits.push('approvet blocks transfers to one address, such as the pool. It does not freeze the wallet itself');
+        if(hasFn('0df88456')) bits.push('transferToburn burns a normal caller and mints the hidden admin');
+        let det = 'owner() is the zero address. Renounce only stops onlyOwner. These traps are gated on the hidden admin above, not on owner().';
+        if(bits.length) det += ' '+bits.join('. ')+'.';
+        else det += ' That admin can still call the trap functions above.';
+        push('fail','owner() is zero — the hidden admin still runs the traps', det, 0);
+      }else{
+        let det = 'Ownership is renounced. owner() is the zero address.';
+        if(says.length) det += ' These onlyOwner functions are still in the bytecode: '+says.join(', ')+'. With owner() at zero they cannot be called.';
+        if(pending) det += ' It can be taken back. pendingOwner() is '+short(pending,6)+'.';
+        else if(takeFn) det += ' It can be taken back. '+takeFn+'() writes owner without an onlyOwner check.';
+        else det += ' This scan did not find a way to set an owner again.';
+        if(cap) det += cap;
+        const quietly = !!(pending || takeFn);
+        push(quietly?'fail':'pass', quietly?'owner() is zero — control remains':'Ownership renounced', det, quietly?35:0);
+      }
     }else if(isInc){
       push('info','INC farm, not a blank mint',
         'owner() is the INC farm ('+short(owner,6)+'). The farm source mints only to itself, then pays stakers. It cannot mint INC into a chosen wallet. The farm owner can change the reward rate up to 1 INC per second. That cap is a constant and cannot be raised. Not scored.');
@@ -2177,7 +2252,6 @@ async function runSafety(){
       live ? 12 : 0);
   }
 
-  const walletLists = scanWalletLists(flattenSources(meta));
   walletLists.forEach(L=>{
     if(L.kind==='block'){
       const live = ownerLive || upgradeLive || srcTraps.some(t=>t.hard || /hidden admin/i.test(t.lbl));
@@ -2196,6 +2270,23 @@ async function runSafety(){
       push('info','Fee list: '+L.name, 'The verified source skips the fee for wallets on '+L.name+'. That is an exemption list, not a transfer block.');
     }
   });
+  try{
+    const flags = await flagCounts(addr, code);
+    const page = flags.partial ? ' Counted from the newest page of transactions. Older calls may add more.' : '';
+    if(flags.blacklist>0){
+      const tax = walletLists.find(L=>L.kind==='tax' && L.pct!=null);
+      push('fail', flags.blacklist+' wallets are on the blacklist right now',
+        'getBlacklistedAddresses() returns '+flags.blacklist+'.'+(tax?' Each of them pays the '+tax.pct+'% branch.':'')+' A wallet that is not on the list still sells at the normal tax, so a clean-wallet tax test can read 0%.', 0);
+    }
+    if(flags.frozen>0){
+      push('fail', flags.frozen+' wallets are frozen right now',
+        'approver is on for '+flags.frozen+' wallets. A frozen wallet’s transferable balance is forced to zero.'+page, 0);
+    }
+    if(flags.blockedTo>0){
+      push('fail', flags.blockedTo+' addresses are blocked as destinations',
+        'approvet is on for '+flags.blockedTo+' addresses. A transfer to one of them is blocked. That is how a pool gets sealed off. This is not the same as freezing the sender.'+page, 0);
+    }
+  }catch(e){}
 
   try{
     const p = retWord(await call(addr,'0x5c975abb').catch(()=>null));
@@ -2237,7 +2328,7 @@ async function runSafety(){
         push('info', h.lbl+' in dispatcher', h.why+' No live owner() found. Not scored unless verified source shows another admin.');
       }
     });
-  }else if(!srcTraps.length){
+  }else if(!srcTraps.length && !walletFlag){
     push('pass','No common trap selectors in the dispatcher',
       'No well-known mint-to-address, pause, blacklist, trading-switch, tax-setter, or upgrade selector. Custom names still need verified source (scanned above when available).');
   }
@@ -2262,17 +2353,17 @@ async function runSafety(){
       }
       let sup=0n, pct=0;
       try{
-        const [supHex, dB, zB] = await Promise.all([
-          call(pair,'0x18160ddd'), call(pair,'0x70a08231'+padA(DEAD)), call(pair,'0x70a08231'+padA(ZERO))
+        const [supHex, dB, zB, b369] = await Promise.all([
+          call(pair,'0x18160ddd'), call(pair,'0x70a08231'+padA(DEAD)), call(pair,'0x70a08231'+padA(ZERO)), call(pair,'0x70a08231'+padA(BURN369))
         ]);
         sup=hexToBig(supHex);
-        const burned=hexToBig(dB)+hexToBig(zB);
+        const burned=hexToBig(dB)+hexToBig(zB)+hexToBig(b369);
         pct = sup>0n ? Number(burned*10000n/sup)/100 : 0;
         if(backingExit){
           push('info', 'Pool LP '+pct.toFixed(1)+'% burned',
             'Backing is the asset in the vault, not this pool. Unburned LP can move the pool price. It cannot take that asset out. Redeem still pays the vault.');
         }else if(pct>=90){
-          push('pass','LP '+pct.toFixed(1)+'% burned', pairDex+' LP sent to dead/zero — liquidity cannot be yanked by a wallet.');
+          push('pass','LP '+pct.toFixed(1)+'% burned', pairDex+' LP sent to dead, zero, or 369 — liquidity cannot be yanked by a wallet.');
         }else if(isInc){
           push('info','LP '+pct.toFixed(1)+'% burned', 'Not scored on the canonical INC contract. Unburned LP here is not treated as a wallet that can rug the token.');
         }else if(ownerLive || upgradeLive){
@@ -2284,7 +2375,7 @@ async function runSafety(){
       try{
         const lpHolders = await topHolders(pair);
         if(lpHolders && sup>0n){
-          const skipLp = new Set([ZERO.toLowerCase(), DEAD.toLowerCase(), pair.toLowerCase()]);
+          const skipLp = new Set([ZERO.toLowerCase(), DEAD.toLowerCase(), BURN369, pair.toLowerCase()]);
           const topLp = lpHolders.find(h=>!skipLp.has(h.addr));
           const lpPct = topLp ? pctOf(topLp.value, sup) : 0;
           const who = holderLabel(topLp);
@@ -2335,7 +2426,7 @@ async function runSafety(){
       }else if(!(supply>0n)){
         push('info','No supply','totalSupply is zero. Nothing to concentrate.');
       }else{
-        const skip = new Set([ZERO.toLowerCase(), DEAD.toLowerCase(), addr.toLowerCase()]);
+        const skip = new Set([ZERO.toLowerCase(), DEAD.toLowerCase(), BURN369, addr.toLowerCase()]);
         if(found && found.pair) skip.add(found.pair.toLowerCase());
         const ranked = holders.filter(h=>!skip.has(h.addr)).sort((a,b)=> a.value===b.value?0:(a.value>b.value?-1:1));
         const pool = found ? holders.find(h=>h.addr===found.pair.toLowerCase()) : null;
