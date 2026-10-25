@@ -216,6 +216,10 @@ details summary{outline:none}
 .navtab:hover{border-color:var(--violet);color:var(--text);text-decoration:none}
 .navtab.on{background:linear-gradient(90deg,#6FA8DC,var(--pulse));color:#fff;border-color:transparent}
 .navtab.on:hover{filter:brightness(1.12);color:#fff}
+.navtab.gamelink{color:var(--text);border-color:rgba(78,143,217,.65);box-shadow:0 0 0 1px rgba(78,143,217,.22),0 0 14px rgba(78,143,217,.22);animation:gameglow 3.2s ease-in-out infinite}
+.navtab.gamelink:hover{color:#fff;border-color:var(--pulse-soft)}
+@keyframes gameglow{0%,100%{box-shadow:0 0 0 1px rgba(78,143,217,.18),0 0 8px rgba(78,143,217,.14)}50%{box-shadow:0 0 0 1px rgba(127,179,232,.5),0 0 18px rgba(78,143,217,.36)}}
+@media(prefers-reduced-motion:reduce){.navtab.gamelink{animation:none}}
 footer{margin-top:36px;text-align:center;font-size:12px;color:var(--faint)}
 footer a{color:var(--muted)}
 .dl-cta{display:inline-block;padding:12px 22px;border:1px solid rgba(127,179,232,.5);border-radius:11px;background:rgba(78,143,217,.12);color:var(--teal) !important;font-family:var(--disp);font-size:13px;letter-spacing:.04em;margin-top:4px}
@@ -285,6 +289,7 @@ footer a.vaultlink{color:var(--teal);font-weight:600}
     <a class="navtab on vaultlink" href="https://pulsestrategy369.com/vaults">◆ PulseStrategy Vaults →</a>
     <a class="navtab launchlink" href="https://pulsestrategy369.com/launch">PulseStrategy Launcher →</a>
     <a class="navtab paperlink" href="https://pulsestrategy369.com/whitepaper">PulseStrategy Whitepaper →</a>
+    <a class="navtab gamelink holdlink" href="https://pulsestrategy369.com/hold">Hardest Holder Game</a>
   </div>
   <div class="toolbar">
     <button class="btn-ghost" onclick="showTools()">🧰 Tools</button>
@@ -371,10 +376,11 @@ rel="noopener">Github</a> and inspect the code or download from github.</div>
 </div>
 <script>
 "use strict";
-var BUILD = 'v63 · 2026-10-15';
+var BUILD = 'v64 · 2026-10-25';
 var VAULTS_URL = 'https://pulsestrategy369.com/vaults'; /* ★ EDIT HERE: the one place that controls every 'Vaults' link on this page */
 var LAUNCH_URL = 'https://pulsestrategy369.com/launch'; /* ★ EDIT HERE: PulseStrategy Launcher */
 var WHITEPAPER_URL = 'https://pulsestrategy369.com/whitepaper';
+var HOLD_URL = 'https://pulsestrategy369.com/hold';
 /* ================= RPC core ================= */
 let RPC = document.getElementById('rpcsel').value;
 let rpcId = 1;
@@ -3690,6 +3696,7 @@ try{
     document.querySelectorAll('a.vaultlink').forEach(function(a){ a.href = VAULTS_URL; });
     document.querySelectorAll('a.launchlink').forEach(function(a){ a.href = LAUNCH_URL; });
     document.querySelectorAll('a.paperlink').forEach(function(a){ a.href = WHITEPAPER_URL; });
+    document.querySelectorAll('a.holdlink').forEach(function(a){ a.href = HOLD_URL; });
     var dl = document.getElementById('dlLink'), hashEl = document.getElementById('fileHash');
     var _isLocal = location.protocol === 'file:' ||
       /^(localhost|127\.0\.0\.1|\[::1\])$/.test(location.hostname);
