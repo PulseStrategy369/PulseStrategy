@@ -1,0 +1,2703 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script>
+(function(){var W=980,m=document.querySelector('meta[name=viewport]');if(!m)return;var w=Math.min(screen.width||W,window.innerWidth||W);if(w<W)m.setAttribute('content','width='+W+', initial-scale='+(w/W).toFixed(4)+', minimum-scale=0.2, maximum-scale=5, user-scalable=yes');})();
+</script>
+<title>The Hardest Holder · PulseStrategy</title>
+<meta name="description" content="The Hardest Holder is a PulseChain game. Hold PLSstr harder than the wallet above you. A mint can lose at most 5%.">
+<link rel="icon" href="/favicon.ico" sizes="48x48">
+<link rel="icon" type="image/png" href="/favicon.png" sizes="144x144">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Space+Grotesk:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0b0b10; --card:#14141c; --card2:#1c1c26; --line:#2e2e3c;
+  --text:#F7F8FB; --muted:#C4C7D4; --faint:#8E94A6;
+  --acc:#4E8FD9; --acc2:#7BA7E8;
+  --sans:'Space Grotesk',system-ui,sans-serif;
+  --mono:'IBM Plex Mono',ui-monospace,monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:radial-gradient(900px 380px at 50% -80px, rgba(78,143,217,.18), transparent 60%),var(--bg);color:var(--text);font-family:var(--sans);font-size:16px;line-height:1.45;min-height:100vh}
+a{color:var(--acc2);text-decoration:none}
+button,input{font-family:inherit}
+.wrap{max-width:1440px;width:100%;margin:0 auto;padding:0 32px 80px}
+header{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;padding-top:20px}
+.hdr-right{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+.sr-only{position:absolute;left:-9999px}
+.brand{display:flex;align-items:center;gap:10px;min-width:0}
+.brand img{width:36px;height:36px;border-radius:9px}
+.brand b{display:block;font-weight:600;letter-spacing:-.02em}
+.brand span{display:block;color:var(--faint);font-size:12px}
+.conn{background:var(--card);color:var(--text);border:1px solid var(--line);border-radius:999px;padding:10px 14px;font-size:13px;cursor:pointer}
+.conn.on{border-color:rgba(78,143,217,.7);color:var(--acc2)}
+h1{font-size:34px;letter-spacing:-.03em;font-weight:600;margin:6px 0 6px}
+.lede{color:var(--muted);max-width:38em}
+.floor{margin:22px 0 8px;padding:18px 18px 16px;background:var(--card);border:1px solid var(--line);border-radius:18px;box-shadow:0 10px 30px rgba(0,0,0,.28)}
+.floor .k{font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--faint)}
+.floor .n{font-family:var(--mono);font-size:32px;color:var(--acc2);margin-top:4px}
+.floor .n.up{animation:floorpop .45s ease}
+@keyframes floorpop{40%{transform:scale(1.03)}100%{transform:none}}
+.floor .s{color:var(--faint);font-size:13px;margin-top:4px}
+.race{margin:14px 0 0;padding:16px 18px 14px;background:var(--card);border:1px solid var(--line);border-radius:18px}
+.race-top{display:flex;justify-content:space-between;gap:18px;align-items:center;flex-wrap:wrap}
+.race-main{display:flex;align-items:center;gap:16px;min-width:0}
+.vaultbox{position:relative;flex:none;width:92px;height:116px;filter:drop-shadow(0 8px 12px rgba(0,0,0,.35));perspective:220px}
+.vdoor{position:absolute;left:13%;top:16%;width:73%;height:71%;border-radius:6px;background:linear-gradient(160deg,#3a4254,#1c2230 55%,#121722);border:2px solid #9aa3b5;transform-origin:left center;transform:rotateY(-68deg);transition:transform .55s ease;box-shadow:inset 0 0 0 1px #4a5366}
+.vdoor i{position:absolute;left:50%;top:50%;width:16px;height:16px;margin:-8px 0 0 -8px;border-radius:50%;border:2px solid #d5dbe6;box-shadow:inset 0 0 0 3px #2a3142}
+.vdoor i:before,.vdoor i:after{content:"";position:absolute;left:50%;top:50%;background:#d5dbe6}
+.vdoor i:before{width:2px;height:12px;margin:-6px 0 0 -1px}
+.vdoor i:after{width:12px;height:2px;margin:-1px 0 0 -6px}
+.race.shut .vdoor{transform:rotateY(0deg)}
+.race-left{font-family:var(--mono);font-size:28px;color:var(--acc2);letter-spacing:-.03em;line-height:1.15}
+.race-sub{color:var(--muted);font-size:13px;margin-top:4px;max-width:40em}
+.clock{display:flex;align-items:baseline;gap:4px;font-family:var(--mono);margin-top:4px}
+.clock b{background:#0e0e14;border:1px solid var(--line);border-radius:8px;min-width:46px;text-align:center;padding:6px 6px 4px;font-size:22px;font-weight:500}
+.clock i{font-style:normal;color:var(--faint);font-size:11px;margin-right:6px}
+.race-foot{margin-top:8px;color:var(--faint);font-size:12px}
+.usd{font-family:var(--mono);font-size:13px;color:var(--muted);margin-top:2px;min-height:0}
+.shareacts{flex-wrap:wrap}
+.race.hot .race-left,.race.shut .race-left{color:#e7c56a}
+@media(prefers-reduced-motion:reduce){ .vdoor{transition:none} }
+.vaultbox .coin{transition:opacity .35s ease}
+.race.hot .vaultbox .coin circle:first-child{fill:#f2d98a}
+.race.shut .clock b{animation:racepulse 1s steps(2) infinite}
+@keyframes racepulse{50%{opacity:.45}}
+.grid{display:grid;grid-template-columns:1fr;gap:14px;margin-top:14px;min-width:0}
+.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:16px;box-shadow:0 10px 28px rgba(0,0,0,.25);min-width:0}
+.you{display:flex;gap:14px;align-items:flex-start;min-width:0}
+.you>div:last-child{min-width:0;padding-top:4px}
+#myGrip{flex:none;width:72px;min-width:72px;overflow:hidden}
+#myLine{overflow-wrap:anywhere}
+.grip{width:72px;height:72px;flex:none}
+.grip svg{width:100%;height:100%;display:block}
+.you h2{font-size:20px;font-weight:600}
+.you p{color:var(--muted);font-size:14px;margin-top:2px}
+.meter{position:relative;height:10px;border-radius:99px;background:#07070c;margin-top:6px;overflow:hidden;border:1px solid #2c2c3c;box-shadow:inset 0 0 0 1px rgba(0,0,0,.45)}
+.gauge .meter{height:22px;margin-top:0;border-radius:8px;background:
+  repeating-linear-gradient(90deg,rgba(255,255,255,.05) 0 1px,transparent 1px 12px),
+  linear-gradient(180deg,#101018,#07070c)}
+.meter i{display:block;height:100%;width:0;border-radius:inherit;background:linear-gradient(90deg,#1a3f78,#4E8FD9 62%,#f4f8ff);box-shadow:0 0 16px rgba(78,143,217,.55);position:relative}
+.gauge .meter i:after{content:"";position:absolute;right:0;top:0;bottom:0;width:3px;background:#fff;box-shadow:0 0 10px #9ec4f5}
+.meter.squeeze i{animation:squeeze .45s ease}
+.mlabel{display:flex;justify-content:space-between;gap:8px;margin-top:14px;font-size:12px;color:var(--faint);letter-spacing:.04em;text-transform:uppercase}
+.mlabel b{color:var(--acc2);font-weight:600;letter-spacing:0;text-transform:none}
+.gscale{display:flex;justify-content:space-between;margin-top:6px;font-size:11px;color:var(--faint)}
+.gscale b{color:var(--text);font-weight:500}
+@keyframes squeeze{40%{transform:scaleX(.92)}100%{transform:scaleX(1)}}
+.stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:14px}
+.stats div{background:var(--card2);border-radius:12px;padding:10px;min-width:0}
+.stats .k{color:var(--faint);font-size:11px;letter-spacing:.06em;text-transform:uppercase}
+.stats .v{font-family:var(--mono);font-size:13px;margin-top:3px}
+.chips{display:flex;gap:8px;margin-top:14px}
+.chip{flex:1;background:transparent;border:1px solid var(--line);color:var(--muted);border-radius:12px;padding:10px;cursor:pointer}
+.chip.on{border-color:var(--acc);color:var(--text)}
+label.amt{display:block;margin-top:12px;color:var(--faint);font-size:12px}
+input[type=text]{width:100%;margin-top:6px;background:#0c0c12;border:1px solid var(--line);color:var(--text);border-radius:12px;padding:14px;font-family:var(--mono);font-size:16px}
+.preview{margin-top:10px;color:var(--muted);font-size:14px;min-height:1.4em}
+.mintaim{margin-top:8px;color:var(--text);font-size:13px;line-height:1.45;white-space:pre-line}
+.actions{display:flex;gap:8px;margin-top:12px}
+.actions button{flex:1;border:0;border-radius:14px;padding:14px 10px;font-weight:600;cursor:pointer}
+.primary{background:linear-gradient(180deg,#6ea4e4,var(--acc));color:#fff}
+.ghost{background:var(--card2);color:var(--text);border:1px solid var(--line)!important}
+button:disabled{opacity:.4;cursor:default}
+.check{display:flex;gap:8px;align-items:flex-start;margin-top:10px;color:var(--muted);font-size:13px}
+.check input{margin-top:3px}
+.note{color:var(--faint);font-size:12px;margin-top:8px}
+.status{margin-top:10px;font-size:14px;color:var(--muted)}
+.status.err{color:#ff8d80}
+.status.ok{color:#b7d4f5}
+.board h2,.cliffcard h2{font-size:18px;margin-bottom:4px;display:flex;align-items:center;gap:8px}
+.board .sub,.cliffcard .sub{color:var(--faint);font-size:13px;margin-bottom:12px}
+.live{font-style:normal;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--acc2);font-weight:600}
+.live:before{content:"";display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--acc2);margin-right:6px;box-shadow:0 0 8px var(--acc2)}
+.eyebrow{margin-top:22px;font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--acc2)}
+.risk{margin-top:12px;padding:10px 12px;border-radius:12px;background:#10161f;border:1px solid rgba(78,143,217,.4);color:var(--muted);font-size:13px;line-height:1.45}
+.risk b{color:var(--text);font-weight:600}
+
+.b-stone{color:#c5ceda}
+.b-granite{color:#c5ced8}
+.b-steel{color:#e8eef6}
+.balrow{display:flex;justify-content:flex-end;margin-top:8px}
+.balrow span{font-family:var(--mono);font-size:12px;color:var(--acc2)}
+.fracs{display:flex;gap:6px;margin-top:8px}
+.fracs button{flex:1;background:#0c0c12;color:var(--muted);border:1px solid var(--line);border-radius:10px;padding:9px 6px;font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;cursor:pointer}
+.fracs button:hover{border-color:var(--acc);color:var(--text)}
+.divider{height:1px;background:var(--line);margin:16px 0 10px}
+.kicker{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:#e7b2aa;font-weight:600}
+.scorehow{color:var(--muted);margin-bottom:8px}
+.cliff{
+  position:relative;border-radius:18px;overflow:hidden;
+  background:
+    radial-gradient(80% 22% at 50% 0%, rgba(186,214,242,.35), transparent 70%),
+    radial-gradient(40% 30% at 18% 42%, rgba(255,255,255,.05), transparent 60%),
+    repeating-linear-gradient(118deg, rgba(255,255,255,.04) 0 2px, transparent 2px 28px),
+    repeating-linear-gradient(180deg, rgba(0,0,0,.2) 0 1px, transparent 1px 46px),
+    linear-gradient(180deg, #6d8eb3 0%, #3e5874 10%, #2a3848 18%, #465466 19%, #2c3644 48%, #1c232c 100%);
+  box-shadow:inset 0 0 48px rgba(0,0,0,.38);
+}
+.cliff:before{
+  content:"";position:absolute;inset:0;pointer-events:none;
+  background:
+    linear-gradient(90deg, rgba(0,0,0,.5), transparent 16%, transparent 84%, rgba(0,0,0,.55)),
+    repeating-linear-gradient(97deg, transparent 0 22px, rgba(0,0,0,.25) 22px 24px, transparent 24px 54px);
+}
+.ridge{position:absolute;left:0;right:0;top:0;height:96px;width:100%;z-index:1;pointer-events:none}
+.cloud{position:absolute;z-index:2;height:16px;border-radius:20px;background:rgba(255,255,255,.3);animation:drift 22s ease-in-out infinite}
+.cloud:before,.cloud:after{content:"";position:absolute;background:inherit;border-radius:50%}
+.cloud:before{width:26px;height:26px;left:10px;top:-13px}
+.cloud:after{width:20px;height:20px;left:32px;top:-9px}
+.c1{width:84px;left:7%;top:16px}
+.c2{width:68px;left:60%;top:32px;opacity:.75;animation-duration:28s;animation-delay:-6s}
+.c3{width:46px;left:36%;top:6px;opacity:.55;animation-duration:18s;animation-delay:-3s}
+@keyframes drift{50%{transform:translateX(26px)}}
+.ropeline{position:absolute;left:7%;top:58px;width:86%;height:calc(100% - 78px);z-index:1;pointer-events:none;opacity:.5}
+.ropeline path{fill:none;stroke:#e7d3b0;stroke-width:1.7;stroke-dasharray:5 8;animation:ropeslide 10s linear infinite}
+@keyframes ropeslide{to{stroke-dashoffset:-140}}
+.lipcrown{position:absolute;left:0;right:0;top:4px;z-index:4;display:flex;justify-content:center;pointer-events:none}
+.lipcrown svg{width:86px;height:54px;filter:drop-shadow(0 8px 12px rgba(0,0,0,.5));animation:bob 2.6s ease-in-out infinite}
+.climber{
+  position:absolute;display:flex;align-items:flex-end;gap:4px;
+  width:min(280px, 72%);color:#e7eef6;
+  animation:sway 3.8s ease-in-out infinite;
+}
+.climber.flip{flex-direction:row-reverse}
+.climber.king{animation:bob 2.5s ease-in-out infinite}
+.climber.slip{animation:slip 1.7s ease-in-out infinite}
+.climber.fall{animation:tumble 1.15s ease}
+.climber.ghost{animation:falloff 1.4s ease forwards;pointer-events:none;z-index:30}
+.climber.ghost .rope{opacity:0}
+.climber.climb .fig{animation:climbup 1.15s ease}
+@keyframes tumble{0%{translate:0 0;rotate:0}45%{translate:0 36px;rotate:22deg}100%{translate:0 0;rotate:0}}
+@keyframes falloff{0%{translate:0 0;rotate:0;opacity:1}30%{rotate:20deg}100%{translate:0 120px;rotate:62deg;opacity:0}}
+@keyframes climbup{0%{transform:translateY(64px)}60%{transform:translateY(-12px) rotate(-8deg)}100%{transform:translateY(0)}}
+.climber.you .tag{box-shadow:0 0 0 1px #4E8FD9, 0 10px 18px rgba(0,0,0,.35)}
+@keyframes sway{50%{translate:0 5px}}
+@keyframes bob{50%{translate:0 -7px}}
+@keyframes slip{40%{translate:-8px 10px;rotate:-7deg}75%{translate:3px 2px;rotate:3deg}}
+.fig{width:58px;height:78px;flex:none;overflow:visible;animation:reach 2.8s ease-in-out infinite;transform-origin:50% 28%}
+.climber:nth-child(2n) .fig{animation-duration:3.6s;animation-delay:-.6s}
+@keyframes reach{50%{transform:rotate(-7deg) translateY(3px)}}
+.fig .rope{fill:none;stroke:#e7d3b0;stroke-width:1.8;stroke-linecap:round}
+.fig .head{fill:#f4efe6;stroke:#1c140c;stroke-width:1.3}
+.fig .limb{fill:none;stroke:currentColor;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
+.fig .gear{fill:none;stroke:#7BA7E8;stroke-width:1.7;stroke-linejoin:round}
+.fig .biner{fill:#e7c56a;stroke:#6a5018;stroke-width:.7}
+.climber.b-paper{color:#f4efe4}
+.climber.b-copper{color:#e7a06a}
+.climber.b-iron{color:#c8c2ba}
+.climber.b-granite{color:#c9d2de}
+.climber.b-steel{color:#f4f7fb}
+.climber.b-ruby{color:#f0a0aa}
+.climber.b-diamond{color:#9ec4f5}
+.climber.b-crown{color:#f7f1d8}
+.climber:after{
+  content:"";position:absolute;left:6px;right:16%;bottom:-8px;height:5px;border-radius:3px;
+  background:linear-gradient(90deg,#9aa6b8,#3a4452);box-shadow:0 3px 0 rgba(0,0,0,.4);
+}
+.climber.flip:after{left:16%;right:6px}
+.tag{
+  display:flex;gap:6px;align-items:center;min-width:0;flex:1;
+  background:rgba(8,10,16,.8);border:1px solid rgba(255,255,255,.16);
+  border-radius:12px;padding:6px 8px 7px;box-shadow:0 8px 16px rgba(0,0,0,.3);
+}
+.tag .badge{width:28px;flex:none}
+.tag .badge svg{width:26px;height:26px}
+.tag .badge b{display:none}
+.tagbody{min-width:0}
+.tagtop{font-family:var(--mono);font-size:12px;white-space:nowrap}
+.tag a{color:#e7f1ff}
+.tag .rk{font-size:13px;font-weight:600;line-height:1.15}
+.tag .days{font-family:var(--mono);font-size:11px;color:#d5dbe6;line-height:1.25;margin-top:2px}
+.tag .sc{font-family:var(--mono);font-size:12px;color:#9ec4f5}
+.climber.king .tag{background:rgba(16,28,46,.9);border-color:rgba(231,197,106,.75)}
+.climber.king .fig{filter:drop-shadow(0 0 8px rgba(231,197,106,.9))}
+.park{position:relative;height:112px;margin-top:8px}
+.park .climber{top:8px!important;left:0!important;margin-left:0!important;width:min(460px,100%)!important;animation:none}
+.cliff.hit{animation:slam .45s ease}
+@keyframes slam{35%{filter:brightness(1.4)}}
+@media(prefers-reduced-motion:reduce){
+  .floor .n.up,.meter.squeeze i,.cliff.hit,.bark.pop,.lipcrown svg,.cloud,.ropeline path,.climber,.fig,.climber.fall,.climber.ghost,.climber.climb .fig,.race.shut .clock b{animation:none}
+}
+
+@media(min-width:980px){
+  .grid{grid-template-columns:minmax(0,1fr) minmax(360px,460px);align-items:start;gap:18px}
+  h1{font-size:52px}
+  #play{position:sticky;top:12px}
+}
+@media(max-width:700px){
+  .wrap{padding:14px 12px 72px}
+  h1{font-size:30px}
+  .tag .days{font-size:10px}
+}
+.rpcsel{font-family:var(--mono);font-size:11px;background:var(--card);color:var(--muted);
+  border:1px solid var(--line);border-radius:11px;padding:10px 8px;cursor:pointer;max-width:150px}
+.rpcsel:hover,.rpcsel:focus-visible{border-color:var(--acc);color:var(--text)}
+.rpcsel.custom{border-color:rgba(127,179,232,.45);color:var(--acc2)}
+select.pick{
+  appearance:none;-webkit-appearance:none;color-scheme:dark;
+  width:100%;margin-top:6px;cursor:pointer;
+  background:#0c0c12 url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'><path fill='%239398A8' d='M0 0l5 6 5-6z'/></svg>") no-repeat right 14px center;
+  border:1px solid var(--line);color:var(--text);border-radius:12px;
+  padding:13px 36px 13px 14px;font-family:var(--mono);font-size:14px;
+}
+select.pick:focus{outline:none;border-color:var(--acc)}
+select.pick option{background:#14141c;color:var(--text)}
+.hintline{color:var(--muted);font-size:13px;margin-top:6px}
+.badge{width:74px;display:flex;flex-direction:column;align-items:center;gap:2px;color:#9aa3b5}
+.badge svg{width:34px;height:34px;display:block}
+.badge b{font-size:10px;letter-spacing:.06em;text-transform:uppercase;font-weight:700;line-height:1.1;text-align:center}
+.b-paper{color:#f4efe4}
+.b-copper{color:#e08a52}
+.b-iron{color:#c8c2ba}
+.b-granite{color:#c9d2de}
+.b-steel{color:#e8eef6}
+.b-ruby{color:#e07080}
+.b-diamond,.b-crown{color:#8eb6ee}
+.b-crown svg{filter:drop-shadow(0 0 6px rgba(231,197,106,.8))}
+#myGrip .badge{width:72px}
+#myGrip .badge svg{width:48px;height:48px;display:block}
+#myGrip b{font-size:12px;letter-spacing:.08em}
+.youtag{display:inline-block;margin-left:6px;padding:1px 6px;border-radius:99px;background:#4E8FD9;color:#fff;font-size:10px;letter-spacing:.08em;font-weight:700}
+.yourow{margin-top:8px;border-top:1px solid var(--line);padding-top:8px}
+.links{display:flex;gap:14px;flex-wrap:wrap;margin-top:22px;font-size:14px}
+.bark{margin-top:12px;padding:12px 14px;border-radius:12px;background:#070b12;border:1px solid rgba(78,143,217,.45);color:#e7f1ff;font-weight:600;box-shadow:inset 0 0 18px rgba(78,143,217,.22)}
+.bark.pop{animation:barkpop .4s ease}
+@keyframes barkpop{40%{transform:scale(1.025)}}
+.sheet-back{position:fixed;inset:0;background:rgba(0,0,0,.55);display:none;z-index:40}
+.sheet{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);width:min(440px,calc(100% - 28px));background:var(--card);border:1px solid var(--line);border-radius:18px;padding:18px;z-index:41;display:none}
+.sheet.open,.sheet-back.open{display:block}
+.sheet h3{font-size:18px;margin:0 0 8px}
+.sheet p{color:var(--muted);font-size:14px}
+.sheet .actions{margin-top:16px}
+.wopt{display:block;width:100%;text-align:left;background:var(--card2);color:var(--text);border:1px solid var(--line);border-radius:12px;padding:12px;margin-top:8px;cursor:pointer;font-weight:600}
+.wopt small{display:block;color:var(--faint);font-weight:400;margin-top:2px}
+.sheetnote{margin-top:12px;color:var(--muted);font-size:13px;line-height:1.45}
+.dl-cta{display:inline-block;margin-top:6px;padding:12px 22px;border:1px solid rgba(127,179,232,.5);border-radius:11px;background:rgba(78,143,217,.12);color:var(--acc2);font-weight:600;letter-spacing:.02em}
+.dl-cta:hover{background:rgba(78,143,217,.16)}
+#verifyBlock{margin:28px auto 0;text-align:center;max-width:720px}
+.dllead{margin:14px auto 0;max-width:36em;color:var(--faint);font-size:14px}
+.dlbox{margin:16px auto 0;text-align:left;max-width:680px;border:1px solid var(--line);border-radius:16px;padding:16px 18px;color:var(--muted);font-size:14px;line-height:1.55}
+.dlbox b{color:var(--text)}
+.hashline{margin:16px auto 0;color:var(--faint);font-size:14px}
+.hashline span{display:block;margin-top:6px;font-family:var(--mono);word-break:break-all;color:var(--acc2);font-size:13px}
+.footline{margin:12px auto 0;max-width:42em;color:var(--faint);font-size:14px;line-height:1.5;text-align:center}
+.footend{margin:18px auto 0;max-width:42em;color:var(--faint);font-size:13px;text-align:center}
+.sitefoot{max-width:760px;margin:28px auto 0;text-align:center}
+.sitefoot .note{text-align:center}
+.sitefoot .links{justify-content:center}
+.boost{margin-top:8px;color:var(--muted);font-size:13px;line-height:1.4}
+.weekline{margin-top:10px;font-family:var(--mono);font-size:12px;color:var(--acc2);line-height:1.45;overflow-wrap:break-word}
+.chase{margin-top:6px;color:var(--text);font-size:13px;line-height:1.4}
+.localcopy{color:var(--acc2);font-size:15px}
+.tag .wk{color:#e7c56a}
+.mono{font-family:var(--mono)}
+.vswitch{margin:18px 0 0}
+.vswitch-lab{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--faint);margin-bottom:8px}
+.vaultbar{display:flex;gap:3px;flex-wrap:nowrap;overflow-x:auto;margin:0;padding:4px;background:var(--card2);border:1px solid var(--line);border-radius:14px;width:max-content;max-width:100%}
+.vpill{font-family:var(--sans);font-weight:600;font-size:13px;letter-spacing:.02em;padding:10px 14px;border-radius:11px;border:none;background:transparent;color:var(--faint);cursor:pointer;white-space:nowrap}
+.vpill:hover{color:var(--text);background:rgba(78,143,217,.12)}
+.vpill[aria-selected="true"]{color:#fff;background:linear-gradient(135deg,#6FA8DC,#4E8FD9 48%,#2E6BB5)}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <div class="brand">
+    <img src="data:image/png;base64,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" alt="">
+    <div><b>PulseStrategy</b><span id="brandTick">PLSstr · the floor only rises</span></div>
+  </div>
+  <div class="hdr-right">
+    <label for="rpcSel" class="sr-only">RPC endpoint</label>
+    <select id="rpcSel" class="rpcsel" title="RPC endpoint this dapp reads from"></select>
+    <button class="conn" id="conn" type="button">Connect wallet</button>
+  </div>
+</header>
+<p class="eyebrow">A PulseChain game</p>
+<h1>The Hardest Holder</h1>
+<p class="lede" id="lede">Hold PLS the hard way. Time on the wall weighs more than the size of the bag, and both still count. PLSstr in a wallet, a launch vault, or PulseX LP is a grip on the cliff. People who let go pay the ones still holding. The most that a minter can lose is 5% of their stack.</p>
+<div class="vswitch">
+  <div class="vswitch-lab">Choose vault · each one is its own wall</div>
+  <div class="vaultbar" id="vaultbar" role="tablist" aria-label="Choose vault"></div>
+</div>
+<div class="floor" id="floorBox">
+  <div class="k" id="floorK">Yield · backing per PLSstr</div>
+  <div class="n" id="floor">—</div>
+  <div class="usd" id="floorUsd"></div>
+  <div class="s" id="floorSub">Paid by mints and by hands that slip. It cannot go down.</div>
+</div>
+<section class="race" id="race" aria-label="Mint race">
+  <div class="race-top">
+    <div class="race-main">
+      <div class="vaultbox" id="barrel" aria-hidden="true">
+        <svg viewBox="0 0 100 124" width="92" height="114">
+          <rect x="6" y="8" width="88" height="110" rx="12" fill="#141820" stroke="#9aa3b5" stroke-width="3"/>
+          <rect x="14" y="20" width="72" height="88" rx="7" fill="#070b12" stroke="#4E8FD9" stroke-width="1.25"/>
+          <path d="M20 26 h14 l-8 74 h-8 z" fill="#fff" opacity=".06"/>
+          <g id="vaultCoins"></g>
+          <circle cx="50" cy="14" r="3.4" fill="#d5dbe6" stroke="#6e7584" stroke-width="1"/>
+          <circle cx="16" cy="16" r="1.5" fill="#6e7584"/>
+          <circle cx="84" cy="16" r="1.5" fill="#6e7584"/>
+          <circle cx="16" cy="110" r="1.5" fill="#6e7584"/>
+          <circle cx="84" cy="110" r="1.5" fill="#6e7584"/>
+        </svg>
+        <div class="vdoor" id="vdoor"><i></i></div>
+      </div>
+      <div>
+        <div class="k" id="raceK">This drop</div>
+        <div class="race-left" id="raceLeft">—</div>
+        <div class="race-sub" id="raceSub">Reading the gate…</div>
+      </div>
+    </div>
+    <div>
+      <div class="k">Next drop</div>
+      <div class="clock" id="raceClock" aria-live="polite"><b>--</b><i>d</i><b>--</b><i>h</i><b>--</b><i>m</i><b>--</b><i>s</i></div>
+    </div>
+  </div>
+  <div class="race-foot" id="raceFoot"></div>
+</section>
+<div class="grid">
+  <section class="card cliffcard">
+    <h2>The cliff <em class="live">Live</em></h2>
+    <p class="sub scorehow">The bag is the score. Wallet ×1, a launch vault ×2, LP ×4. It doubles every quarter you keep it. Six months is about 4×. Adding across different weeks bumps it more, up to +35%. A bigger bag can still pass. A much longer grip keeps the spot when the bags are close.</p>
+    <p class="sub" id="rival">Reading who is holding…</p>
+    <div id="board"><p class="note">Reading the chain…</p></div>
+    <div id="youExtra"></div>
+  </section>
+  <section class="card" id="play">
+    <div class="you">
+      <div id="myGrip"></div>
+      <div>
+        <h2 id="myRank">Connect to take a grip</h2>
+        <p id="myLine">Wallet required to mint or redeem. The board is public.</p>
+      </div>
+    </div>
+    <div class="gauge">
+      <div class="mlabel"><span>Grip vs #1</span><b id="gripPct">—</b></div>
+      <div class="meter" id="myMeter" aria-hidden="true"><i></i></div>
+      <div class="gscale"><span>You</span><b>Hardest Holder</b></div>
+    </div>
+    <p class="note">This meter is your score against the current #1, not your token count. The bag does the heavy lifting, and the score doubles every quarter it stays up. Six months is about 4×. Steady adds across different weeks bump it up to +35%. A bigger bag can still pass. Wallet ×1, launch vault ×2, LP ×4. Full means the crown is yours. It squeezes when backing per token rises.</p>
+    <div class="stats">
+      <div><div class="k">Holding</div><div class="v" id="stTok">—</div><div class="usd" id="stUsd"></div></div>
+      <div><div class="k">Time held</div><div class="v" id="stTime">—</div></div>
+      <div><div class="k">Score</div><div class="v" id="stScore">—</div></div>
+    </div>
+    <p class="weekline" id="stWeek" hidden></p>
+    <p class="chase" id="stChase" hidden></p>
+    <label class="amt" for="inSel">Put in</label>
+    <select class="pick" id="inSel" aria-label="What you put in">
+      <option value="vpls">vPLS — mint PLSstr</option>
+      <option value="pls">PLS — stake on Vouch, then mint</option>
+    </select>
+    <p class="hintline" id="inHint">Uses vPLS you already hold. Mint talks to the PulseStrategy vault.</p>
+    <p class="boost" id="boostLine"><a id="lpLink" href="https://pulsestrategy369.com/vaults?vault=PLSstr#lpBox">Boost your score</a> — PLSstr in LP counts ×4. Add it on the PLSstr vault.</p>
+    <div class="balrow"><span id="inBal">Balance —</span></div>
+    <label class="amt" id="amtLabel" for="amt">vPLS to mint</label>
+    <input id="amt" type="text" inputmode="decimal" autocomplete="off" placeholder="0.0">
+    <div class="fracs" data-side="in">
+      <button type="button" data-p="0.25">25%</button>
+      <button type="button" data-p="0.5">Half</button>
+      <button type="button" data-p="1">Max</button>
+    </div>
+    <div class="preview" id="preview">Enter an amount to preview.</div>
+    <p class="mintaim" id="mintAim">Points show once the wall is loaded.</p>
+    <p class="risk"><b>The most that a minter can lose is 5% of their stack.</b> You pay a 4.5% premium to mint. If you let go, another 0.5% stays behind. What stays in the vault raises the floor for everyone still holding.</p>
+    <p id="bark" class="bark">Grab the handle. Show the wall what you've got.</p>
+    <div class="actions">
+      <button class="primary" id="gripBtn" type="button" disabled>Test Your Grip</button>
+    </div>
+    <div class="divider"></div>
+    <p class="kicker">Let go</p>
+    <label class="amt" for="outSel">Take out</label>
+    <select class="pick" id="outSel" aria-label="What you take out">
+      <option value="vpls">vPLS</option>
+      <option value="pls">PLS — may need a Vouch claim</option>
+    </select>
+    <p class="hintline" id="outHint">Release Grip redeems PLSstr for vPLS. vPLS stays in this wallet.</p>
+    <div class="balrow"><span id="outBal">Balance —</span></div>
+    <label class="amt" id="outAmtLabel" for="outAmt">PLSstr to redeem</label>
+    <input id="outAmt" type="text" inputmode="decimal" autocomplete="off" placeholder="0.0">
+    <div class="fracs" data-side="out">
+      <button type="button" data-p="0.25">25%</button>
+      <button type="button" data-p="0.5">Half</button>
+      <button type="button" data-p="1">Max</button>
+    </div>
+    <div class="preview" id="outPreview">Enter PLSstr to see what letting go pays.</div>
+    <div class="actions">
+      <button class="ghost" id="relBtn" type="button" disabled>Release Grip</button>
+    </div>
+    <p class="note" id="affNote">Stake and unstake talk to Vouch. Mint and redeem talk to the PulseStrategy vault. We are not affiliated with Vouch. This is not a trade.</p>
+    <div class="status" id="status"></div>
+    <div class="actions shareacts">
+      <button class="ghost" id="shareBtn" type="button" disabled>Share your grip</button>
+    </div>
+  </section>
+</div>
+<div class="sitefoot">
+<p class="note">You are playing against the wallets on the wall. Score is bag size × where it sits × time. It doubles every quarter. Six months is about 4×, so a long hold beats a somewhat bigger bag, and a much bigger bag can still pass. Adding in different weeks bumps the score up to +35% more than one buy. One bag held half a year still gets the full time boost. Wallet ×1. Your share of a launch vault that holds this token ×2. This token in PulseX LP ×4. Moving into a vault or into LP does not reset the clock and is still holding. A sale marks Paper for 30 days, then it falls off. Two buys after the sale clear it immediately. The Hardest Holder and Diamond Hands only catch Paper if they sell more than 90% of the stack. A full exit leaves the wall. Only #1 is the Hardest Holder. The ladder is Paper, Copper, Iron, Granite, Steel, Ruby, Diamond Hands. The most that a minter can lose is 5% of their stack.</p>
+<div class="links">
+  <a href="https://pulsestrategy369.com/">PulseVerify</a>
+  <a href="https://pulsestrategy369.com/vaults">Vaults</a>
+  <a id="tokLink" href="https://pulsestrategy369.com/address/0x71ff5C9C9938E39E819246ef939FFb5Fd228922d">PLSstr contract</a>
+</div>
+<div id="verifyBlock">
+  <a href="#" id="dlLink" class="dl-cta">⬇ Download this app</a>
+  <div class="dllead">Run it locally on desktop or mobile — it works with no server, reading PulseChain directly from your browser.</div>
+  <div class="dlbox">
+    <b>Using a downloaded copy</b><br>
+    Everything here works as soon as you open it. Connecting a wallet to <i>sign</i> a mint or redeem takes one extra step, because browsers keep downloaded files separate from websites.<br><br>
+    <b>On a computer</b> — let your wallet see local files: open <span class="mono">chrome://extensions</span> (or <span class="mono">brave://extensions</span>), find your wallet, click <b>Details</b>, and turn on <b>Allow access to file URLs</b>. Then connect with <b>Browser wallet</b>.<br><br>
+    <b>On Android</b> — open the file using <b>Cx File Explorer</b>, a free app on the official Google Play store (<a href="https://play.google.com/store/apps/details?id=com.cxinventor.file.explorer" target="_blank" rel="noopener">get it here</a>). In its Open-with list, choose Chrome or Brave — the ones marked <b>HTTP</b>. WalletConnect then works normally.<br><br>
+    <b>On iPhone or iPad</b> — a downloaded copy is fine for reading, but iOS gives no equivalent way to serve it, so use <b>pulsestrategy369.com/hold</b> to connect a wallet.
+  </div>
+  <div class="hashline">SHA-256 of this file:<br><span id="fileHash">computing…</span></div>
+  <div class="footline">Cross-check the hash against the one published on our <a href="https://x.com/pulsestrategy" target="_blank" rel="noopener">X</a> / GitHub before trusting a downloaded copy.</div>
+  <div class="footline">This game, the vaults page, and PulseVerify are separate files. Download this one here, then grab the others from their own pages.</div>
+</div>
+<p class="footline" id="trustLine">The Hardest Holder reads public PulseChain RPC directly from your browser — no server, no database, no tracking. Scores, ranks, and the cliff are computed live on your device from public on-chain data.</p>
+<div class="footend">Free game from PulseStrategy · <a href="https://x.com/pulsestrategy" target="_blank" rel="noopener">@pulsestrategy</a> · the floor only rises · build <span id="buildTag"></span></div>
+</div>
+</div>
+<div class="sheet-back" id="back"></div>
+<div class="sheet" id="connectSheet">
+  <h3>Connect a wallet</h3>
+  <p>Actions need a signature. Reading the board does not.</p>
+  <button class="wopt" id="optInj" type="button">Browser wallet<small>MetaMask, Rabby, or your wallet’s browser</small></button>
+  <button class="wopt" id="optWc" type="button">WalletConnect<small>Phone wallet</small></button>
+  <p class="sheetnote" id="fileNote" style="display:none"></p>
+</div>
+<div class="sheet" id="confirmSheet">
+  <h3 id="cTitle">Confirm</h3>
+  <p id="cBody"></p>
+  <div class="actions">
+    <button class="ghost" id="cBack" type="button">Back</button>
+    <button class="primary" id="cGo" type="button">Confirm</button>
+  </div>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.15.0/ethers.umd.min.js"></script>
+<script src="https://unpkg.com/@walletconnect/ethereum-provider@2.21.1/dist/index.umd.js"></script>
+<script>
+"use strict";
+const BUILD = "hold v21 · 2026-10-25";
+const CHAIN_ID = 369, CHAIN_HEX = "0x171";
+const PUBLIC_RPCS = ["https://rpc.pulsechain.com","https://pulsechain-rpc.publicnode.com","https://rpc-pulsechain.g4mm4.io"];
+let RPCS = PUBLIC_RPCS.slice();
+try{
+  const savedRpc = localStorage.getItem("pv_rpc");
+  if(savedRpc && savedRpc.indexOf("pulsechainstats") !== -1) localStorage.removeItem("pv_rpc");
+  else if(savedRpc && (/^https:\/\/.+/.test(savedRpc) || (location.protocol !== "https:" && /^http:\/\/.+/.test(savedRpc)))){
+    RPCS = PUBLIC_RPCS.indexOf(savedRpc) !== -1
+      ? [savedRpc].concat(PUBLIC_RPCS.filter(function(u){ return u !== savedRpc; }))
+      : [savedRpc];
+  }
+}catch(_){}
+const WC_PROJECT_ID = "dfa53b26ebcaa8d274b2a7f6ddc66cb0";
+const HEX = "0x2b591e99afE9f32eAA6214f7B7629768c40Eeb39";
+const WPLS = "0xA1077a294dDE1B09bB078844df40758a5D0f9a27";
+const ROUTER = "0x165C3410fC91EF562C50559f7d2289fEbed552d9";
+const PLS_LEDE = "Hold PLS the hard way. Time on the wall weighs more than the size of the bag, and both still count. PLSstr in a wallet, a launch vault, or PulseX LP is a grip on the cliff. People who let go pay the ones still holding. The most that a minter can lose is 5% of their stack.";
+function hexLede(token){
+  return "Hold HEX the hard way. Time on the wall weighs more than the size of the bag, and both still count. "+token+" in a wallet or PulseX LP is a grip on this cliff. People who let go pay the ones still holding. The most that a minter can lose is 5% of their stack.";
+}
+const GAMES = [
+  {key:"PLSstr", token:"PLSstr", vault:"0x71ff5C9C9938E39E819246ef939FFb5Fd228922d", assetSym:"vPLS", asset:"0x79BB3A0Ee435f957ce4f54eE8c3CFADc7278da0C", dec:18, kind:"pls", lede:PLS_LEDE, pairs:["0x38b204b4f9c38a5115186b1E20d55884a97ed1de"]},
+  {key:"HEXstr-3000", token:"HEXstr-3000", vault:"0xd992b901474715accB07C5e933EDb8992715b4c2", assetSym:"HTT-3000", asset:"0xE9E1340A2b31d5D2a2dB28FB854a794E106b430a", dec:8, kind:"hex", day:"Feb 18, 2028", lede:hexLede("HEXstr-3000"), pairs:["0x8126066BdFe45d456735f7193F022B448BE67776"]},
+  {key:"HEXstr-4000", token:"HEXstr-4000", vault:"0x26E1C36F8fcd4fFD6cBf047E91be8E5E8829f61e", assetSym:"HTT-4000", asset:"0x3Cf372aA6aAa46eDc4B8da86294deC0DDecED632", dec:8, kind:"hex", day:"Nov 14, 2030", lede:hexLede("HEXstr-4000"), pairs:["0xD1cF5CA96788674C478Ba6C94f5297346910FFc4"]},
+  {key:"HEXstr-5000", token:"HEXstr-5000", vault:"0xa82d3b19929f412A72B5711d97b302d40B14f4F4", assetSym:"HTT-5000", asset:"0xE2D03779147A32064511dd2b9D37F66f3EeFAd7C", dec:8, kind:"hex", day:"Aug 10, 2033", lede:hexLede("HEXstr-5000"), pairs:["0xb34f93d1AaAA5E28bcf2379fdF1852773F469701"]},
+  {key:"HEXstr-6000", token:"HEXstr-6000", vault:"0x369206C9566F9982Ba14fd86897D512b6dBC6602", assetSym:"HTT-6000", asset:"0xcdBFaf528c7CeA55d0AEbdB93C218D6f23B24af3", dec:8, kind:"hex", day:"May 6, 2036", lede:hexLede("HEXstr-6000"), pairs:["0x09a48d046aF49b4D5152838C2623769Ef1787a18"]},
+  {key:"HEXstr-7000", token:"HEXstr-7000", vault:"0x9DeE9ee99228931AE9bF579407ff3608aFe231D3", assetSym:"HTT-7000", asset:"0x47810bb3ECDc6b080CeB2d39E769F21Ff14AB7E9", dec:8, kind:"hex", day:"Jan 31, 2039", lede:hexLede("HEXstr-7000"), pairs:["0x6F5a5387dd6aDAf5fE5A0340144162785fd6AC7F"]}
+];
+let game = GAMES[0];
+let TOKEN = game.vault;
+let ASSET = game.token;
+let VPLS = game.asset;
+let ASSET_SYM = game.assetSym;
+let DEC = game.dec;
+const DEPOSIT = "0x2D7Dcc5A1d90d08D484E38a4C99B8394daaF4B9e";
+const WITHDRAW = "0x1F082785Ca889388Ce523BF3de6781E40b99B060";
+const FACTORY = "0x1F3Ef0bf7fE0c6bEBD0ba1503734F87014dBa5e5";
+const PX_FACTORY = "0x29eA7545DEf87022BAdc76323F373EA1e707C523";
+const QUOTES = ["0xA1077a294dDE1B09bB078844df40758a5D0f9a27","0x2b591e99afE9f32eAA6214f7B7629768c40Eeb39","0x95B303987A60C71504D99Aa1b13B4DA07b0790ab","0x2fa878Ab3F87CC1C9737Fc071108F904c0B0C95d","0xefD766cCb38EaF1dfd701853BFCe31359239F305","0x15D38573d2feeb82e7ad5187aB8c1D52810B1f07","0x79BB3A0Ee435f957ce4f54eE8c3CFADc7278da0C","0x6B175474E89094C44Da98b954EedeAC495271d0F","0xF6f8Db0aBa00007681F8fAF16A0FDa1c9B030b11"];
+const DEAD = "0x000000000000000000000000000000000000dead";
+const BURN369 = "0x0000000000000000000000000000000000000369";
+const LP_MULT = 4;
+const VAULT_MULT = 2;
+const RANKS = [
+  {id:"paper", name:"Paper", word:"Paper", min:0},
+  {id:"copper", name:"Copper", word:"Copper", min:800},
+  {id:"iron", name:"Iron", word:"Iron", min:5e3},
+  {id:"granite", name:"Granite", word:"Granite", min:4e4},
+  {id:"steel", name:"Steel", word:"Steel", min:1.2e5},
+  {id:"ruby", name:"Ruby", word:"Ruby", min:1e6},
+  {id:"diamond", name:"Diamond Hands", word:"Diamond", min:2e7}
+];
+const DIAMOND = RANKS[RANKS.length-1].min;
+const VAULT_ABI = ["function mint(uint256,uint256) returns (uint256)","function redeem(uint256,uint256) returns (uint256)","function previewMint(uint256) view returns (uint256)","function previewRedeem(uint256) view returns (uint256,uint256)","function backingPerToken() view returns (uint256)","function balanceOf(address) view returns (uint256)","function allowance(address,address) view returns (uint256)","function mintQuotaRemaining() view returns (uint256)","function timeToNextEpoch() view returns (uint256)","function totalSupply() view returns (uint256)","function epochQuota() view returns (uint256)","function mintedThisEpoch() view returns (uint256)","function lastEpoch() view returns (uint256)","function currentEpoch() view returns (uint256)"];
+const ERC_ABI = ["function balanceOf(address) view returns (uint256)","function allowance(address,address) view returns (uint256)","function approve(address,uint256) returns (bool)"];
+const DEP_ABI = ["function deposit() payable","function minDeposit() view returns (uint256)","function getRate() view returns (uint256)","function depositEnabled() view returns (bool)"];
+const WD_ABI = ["function unstake(uint256)"];
+const VPLS_ABI = ["function balanceOf(address) view returns (uint256)","function allowance(address,address) view returns (uint256)","function approve(address,uint256) returns (bool)","function getRate() view returns (uint256)"];
+const PAIR_ABI = ["function getReserves() view returns (uint112,uint112,uint32)","function token0() view returns (address)","function token1() view returns (address)","function totalSupply() view returns (uint256)","function balanceOf(address) view returns (uint256)"];
+const FACTORY_ABI = ["function vaultCount() view returns (uint256)","function vaultsRange(uint256,uint256) view returns (address[])","function infoOf(address) view returns (address vault,address creator,address asset,string name,string symbol,uint256 initialQuotaBps,uint256 createdAt,uint256 seedAssetIn,uint256 tokensOut)"];
+const PX_ABI = ["function getPair(address,address) view returns (address)"];
+const ROUTER_ABI = ["function getAmountsOut(uint256,address[]) view returns (uint256[])","function swapExactTokensForTokens(uint256,uint256,address[],address,uint256) returns (uint256[])","function swapExactETHForTokens(uint256,address[],address,uint256) payable returns (uint256[])"];
+const $ = id => document.getElementById(id);
+let provider, signer, account, mode = "vpls";
+let rows = [], me = null, king = null, lastFloor = null, quote = null;
+let wcP = null;
+let bags = {pls:0n, back:0n, str:0n, hex:0n};
+let outQuote = null;
+let weekPer = null;
+let barkN = 0;
+let wallPrev = new Map();
+let passedAddr = null;
+let mintPerIn = null;
+let boardGen = 0;
+let race = null;
+
+function rankFor(score){
+  let r = RANKS[0];
+  for(const x of RANKS) if(score >= x.min) r = x;
+  return r;
+}
+function fmtN(n, dp){
+  if(n == null || !isFinite(n)) return "—";
+  if(n !== 0 && Math.abs(n) < 0.0001) return "<0.0001";
+  return n.toLocaleString("en-US", {maximumFractionDigits: dp});
+}
+function fmtScore(n){
+  if(!isFinite(n) || n <= 0) return "0";
+  if(n >= 1e9) return (n/1e9).toFixed(2)+"B";
+  if(n >= 1e6) return (n/1e6).toFixed(2)+"M";
+  if(n >= 1e3) return (n/1e3).toFixed(1)+"k";
+  return fmtN(n, 1);
+}
+function fmtTime(days){
+  if(!days || days <= 0) return "—";
+  if(days < 2) return Math.max(1, Math.round(days*24))+"h";
+  return fmtN(days, 1)+"d";
+}
+function short(a){ return a.slice(0,6)+"…"+a.slice(-4); }
+function human(bn, dec){
+  if(bn == null) return 0;
+  return Number(ethers.formatUnits(bn, dec == null ? DEC : dec));
+}
+function inDec(){
+  if(mode === "pls") return 18;
+  if(mode === "hex") return 8;
+  return DEC;
+}
+function paySym(){
+  if(mode === "pls") return "PLS";
+  if(mode === "hex") return "HEX";
+  return ASSET_SYM;
+}
+function who(addr){
+  if(!addr) return "";
+  const n = plsNames.get(String(addr).toLowerCase());
+  return n || short(addr);
+}
+function shareUrl(){
+  return "https://pulsestrategy369.com/hold?vault="+encodeURIComponent(game.key);
+}
+const PNS = "0xbd5133993FCDED5945c5539D9f032261F0d13170";
+const PNS_ABI = ["function resolver(bytes32) view returns (address)"];
+const PNS_RES_ABI = ["function name(bytes32) view returns (string)","function addr(bytes32) view returns (address)"];
+const plsNames = new Map();
+function namehash(name){
+  let node = ethers.ZeroHash;
+  if(!name) return node;
+  for(const label of String(name).split(".").reverse()){
+    node = ethers.keccak256(ethers.concat([node, ethers.keccak256(ethers.toUtf8Bytes(label))]));
+  }
+  return node;
+}
+function reverseNode(addr){
+  return namehash(String(addr).slice(2).toLowerCase()+".addr.reverse");
+}
+function paintNames(){
+  document.querySelectorAll("[data-who]").forEach(el => {
+    el.textContent = who(el.getAttribute("data-who"));
+  });
+  setRival();
+  paintMintAim();
+  paintChase();
+  if(account) $("conn").textContent = who(account);
+  if(passedAddr){
+    const line = "You passed "+who(passedAddr)+".";
+    const cur = $("bark") && $("bark").textContent || "";
+    if(cur.startsWith("You passed ") && cur !== line) $("bark").textContent = line;
+  }
+  if(me && (me.bal>0n || me.lp>0n || me.vault>0n)){
+    const max = rows.reduce((m,r)=>Math.max(m, r.score), 1);
+    paintMe(max);
+  }
+}
+async function loadNames(read, gen){
+  const addrs = [];
+  for(const r of rows.slice(0, 20)) addrs.push(r.addr);
+  if(account) addrs.push(account);
+  const need = [...new Set(addrs.map(a=>a.toLowerCase()))].filter(a => !plsNames.has(a));
+  if(!need.length){ if(gen === boardGen) paintNames(); return; }
+  const reg = new ethers.Contract(PNS, PNS_ABI, read);
+  for(let i=0;i<need.length;i+=6){
+    if(gen !== boardGen) return;
+    const part = need.slice(i, i+6);
+    const resolvers = await Promise.all(part.map(a => reg.resolver(reverseNode(a)).catch(()=>ethers.ZeroAddress)));
+    await Promise.all(part.map(async (a, idx) => {
+      const res = resolvers[idx];
+      if(!res || res === ethers.ZeroAddress){ plsNames.set(a, ""); return; }
+      try{
+        const r = new ethers.Contract(res, PNS_RES_ABI, read);
+        const nm = String(await r.name(reverseNode(a)) || "").trim();
+        if(!/^[a-z0-9-]+(\.[a-z0-9-]+)*\.pls$/i.test(nm) || nm.length > 64){ plsNames.set(a, ""); return; }
+        const node = namehash(nm.toLowerCase());
+        const fwd = await reg.resolver(node);
+        if(!fwd || fwd === ethers.ZeroAddress){ plsNames.set(a, ""); return; }
+        const got = await new ethers.Contract(fwd, PNS_RES_ABI, read).addr(node);
+        plsNames.set(a, got && got.toLowerCase()===a ? nm : "");
+      }catch(_){ plsNames.set(a, ""); }
+    }));
+  }
+  if(gen === boardGen) paintNames();
+}
+const USD_DAI = "0xefD766cCb38EaF1dfd701853BFCe31359239F305";
+const USD_DAI_WPLS = "0xe56043671df55de5cdf8459710433c10324de0ae";
+const USD_HEX_WPLS = "0x19bb45a7270177e303dee6eaa6f5ad700812ba98";
+const USD_VPLS_WPLS = "0x46814b3f18d90625b6e166bc2917bb64a635d797";
+const VPLS_ADDR = "0x79BB3A0Ee435f957ce4f54eE8c3CFADc7278da0C";
+const HTT_HEX_PAIR = {
+  "HEXstr-3000":"0xbb4d05c1663f079c1d9e0a4a6ee5a877cfe34f72",
+  "HEXstr-4000":"0x9165909161c95b4bfe0bc4d46d3da6e5b2d2fb69",
+  "HEXstr-5000":"0x290e43f97a071f7513f55b534b2c196b9efa364c",
+  "HEXstr-6000":"0xc6cac89798aadbc2983beaf55cb98ce0c07af42d",
+  "HEXstr-7000":"0x0d37481cd2c2e1a309a159fd08d9f6efd0a1f224"
+};
+let usdFx = null;
+function spotQuote(token, tDec, quote, qDec, t0, r0, r1){
+  const a = token.toLowerCase(), b = quote.toLowerCase(), z = String(t0).toLowerCase();
+  if(z !== a && z !== b) return 0;
+  const rT = z === a ? r0 : r1, rQ = z === a ? r1 : r0;
+  const A = Number(ethers.formatUnits(rT, tDec)), B = Number(ethers.formatUnits(rQ, qDec));
+  return (A > 0 && B > 0) ? B / A : 0;
+}
+function fmtUsd(n){
+  if(!(n > 0) || !isFinite(n)) return "";
+  if(n >= 1e9) return "$" + (n / 1e9).toFixed(2) + "B";
+  if(n >= 1e6) return "$" + (n / 1e6).toFixed(2) + "M";
+  if(n >= 1e4) return "$" + Math.round(n).toLocaleString("en-US");
+  if(n >= 1) return "$" + n.toLocaleString("en-US", {minimumFractionDigits:2, maximumFractionDigits:2});
+  if(n >= 0.01) return "$" + n.toFixed(4);
+  return "$" + n.toFixed(6).replace(/0+$/, "").replace(/\.$/, "");
+}
+function tokenUsd(amount){
+  if(!usdFx || !(lastFloor > 0) || !(amount > 0)) return 0;
+  const asset = amount * lastFloor;
+  if(game.kind === "pls"){
+    if(!(usdFx.plsPerVpls > 0) || !(usdFx.usdPerWpls > 0)) return 0;
+    return asset * usdFx.plsPerVpls * usdFx.usdPerWpls;
+  }
+  if(!(usdFx.httHex > 0) || !(usdFx.usdPerHex > 0)) return 0;
+  return asset * usdFx.httHex * usdFx.usdPerHex;
+}
+function payUsd(sym, amount){
+  if(!usdFx || !(amount > 0) || !isFinite(amount)) return 0;
+  if(sym === ASSET) return tokenUsd(amount);
+  if(sym === "PLS" || sym === "WPLS") return usdFx.usdPerWpls > 0 ? amount * usdFx.usdPerWpls : 0;
+  if(sym === "HEX") return usdFx.usdPerHex > 0 ? amount * usdFx.usdPerHex : 0;
+  if(sym === "vPLS") return usdFx.plsPerVpls > 0 && usdFx.usdPerWpls > 0 ? amount * usdFx.plsPerVpls * usdFx.usdPerWpls : 0;
+  if(game.kind === "hex" && usdFx.httHex > 0 && usdFx.usdPerHex > 0) return amount * usdFx.httHex * usdFx.usdPerHex;
+  if(game.kind === "pls" && usdFx.plsPerVpls > 0 && usdFx.usdPerWpls > 0) return amount * usdFx.plsPerVpls * usdFx.usdPerWpls;
+  return 0;
+}
+function usdTag(sym, amount){
+  const s = fmtUsd(sym === ASSET ? tokenUsd(amount) : payUsd(sym, amount));
+  return s ? " · "+s : "";
+}
+function mintMoney(amt, out){
+  if(amt == null || out == null) return "";
+  const inn = usdTag(paySym(), human(amt, inDec()));
+  const got = usdTag(ASSET, human(out, DEC));
+  if(!inn && !got) return "";
+  return " Put in "+(inn ? paySym()+inn : paySym())+", receive "+ASSET+(got||"")+".";
+}
+function paintUsd(){
+  const one = tokenUsd(1);
+  const el = $("floorUsd");
+  if(el) el.textContent = one ? fmtUsd(one)+" each" : "";
+  if(me && (me.bal>0n || me.lp>0n || me.vault>0n)){
+    const u = tokenUsd(human(heldOf(me)));
+    const s = $("stUsd");
+    if(s) s.textContent = u ? fmtUsd(u) : "";
+  }
+  paintBals();
+  paintMintAim();
+  paintChase();
+  if(me) paintWeek(me);
+  const pv = $("preview");
+  if(pv && quote && quote.amt && quote.out != null && !pv.textContent.includes("$")) pv.textContent += mintMoney(quote.amt, quote.out);
+  const ov = $("outPreview");
+  if(ov && outQuote && outQuote.amt && outQuote.redeemOut != null && !ov.textContent.includes("$")){
+    ov.textContent += " You let go of "+ASSET+usdTag(ASSET, human(outQuote.amt, DEC))+" and take out "+ASSET_SYM+usdTag(ASSET_SYM, human(outQuote.redeemOut, DEC))+".";
+  }
+}
+async function loadUsd(read){
+  const key = game.key;
+  if(usdFx && usdFx.key === key && Date.now() - usdFx.at < 60000){ paintUsd(); return; }
+  try{
+    async function spot(addr, token, tDec, quote, qDec){
+      const c = new ethers.Contract(addr, PAIR_ABI, read);
+      const [t0, rs] = await Promise.all([c.token0(), c.getReserves()]);
+      return spotQuote(token, tDec, quote, qDec, t0, rs[0], rs[1]);
+    }
+    const jobs = [
+      spot(USD_DAI_WPLS, WPLS, 18, USD_DAI, 18),
+      spot(USD_HEX_WPLS, HEX, 8, WPLS, 18),
+      spot(USD_VPLS_WPLS, VPLS_ADDR, 18, WPLS, 18)
+    ];
+    const htt = HTT_HEX_PAIR[key];
+    if(htt) jobs.push(spot(htt, game.asset, 8, HEX, 8));
+    const [usdPerWpls, wplsPerHex, plsPerVpls, httHex] = await Promise.all(jobs);
+    if(game.key !== key) return;
+    usdFx = {
+      key, at: Date.now(),
+      usdPerWpls, plsPerVpls: plsPerVpls || 0, httHex: httHex || 0,
+      usdPerHex: usdPerWpls > 0 && wplsPerHex > 0 ? usdPerWpls * wplsPerHex : 0
+    };
+    paintUsd();
+    if(race) paintRace();
+  }catch(_){}
+}
+function timeFactor(days){
+  const d = days > 0 ? days : 0;
+  return Math.pow(2, d / 91);
+}
+function dcaFactor(evts){
+  const outs = [];
+  const ins = [];
+  for(const e of evts){
+    if(!(e.amt > 0n)) continue;
+    if(e.dir > 0) ins.push(e);
+    else outs.push(e);
+  }
+  const weeks = new Set();
+  for(const inn of ins){
+    const moved = outs.some(o => Math.abs(o.ts - inn.ts) < 10*60*1000 && o.amt > inn.amt / 5n && inn.amt > o.amt / 5n);
+    if(moved) continue;
+    weeks.add(Math.floor(inn.ts / (7*86400000)));
+  }
+  if(weeks.size <= 1) return 1;
+  return 1 + Math.min(0.35, (weeks.size - 1) * 0.04);
+}
+function gripScore(amount, days, mult){
+  if(!(amount > 0)) return 0;
+  return amount * timeFactor(days) * mult;
+}
+function walletDays(){
+  return me && me.wDays > 0.05 ? me.wDays : 0;
+}
+function walletPerToken(){
+  return timeFactor(walletDays());
+}
+function plsstrToReach(target){
+  const score = me && me.score ? me.score : 0;
+  const gap = target - score;
+  if(gap <= 0) return 0;
+  const per = walletPerToken();
+  return per > 0 ? gap / per : null;
+}
+function mintPoints(outHuman){
+  return Math.max(0, outHuman * walletPerToken());
+}
+function compactTok(n){
+  if(!(n > 0)) return "0";
+  return n >= 1000 ? fmtScore(n) : fmtN(n, 2);
+}
+function needPhrase(need){
+  if(!(need > 0.5)) return "you are already there";
+  let t = "mint "+compactTok(need)+" "+ASSET+usdTag(ASSET, need)+" into the wallet";
+  if(mintPerIn > 0){
+    const inn = need / mintPerIn;
+    t += ", "+compactTok(inn)+" "+paySym()+usdTag(paySym(), inn);
+  }
+  const lp = need / LP_MULT;
+  t += ", or about "+compactTok(lp)+" into LP"+usdTag(ASSET, lp);
+  return t;
+}
+function paintMintAim(){
+  const el = $("mintAim");
+  if(!el) return;
+  if(!rows.length){ el.textContent = "Points show once the wall is loaded."; return; }
+  const lines = [];
+  const amt = parseAmt("amt");
+  if(quote && quote.out != null && amt && quote.amt === amt){
+    const pts = mintPoints(human(quote.out, DEC));
+    const days = walletDays();
+    const got = usdTag(ASSET, human(quote.out, DEC));
+    const spent = usdTag(paySym(), human(quote.amt, inDec()));
+    lines.push((days
+      ? "This mint joins your "+fmtTime(days)+" wallet grip and is worth +"+fmtScore(pts)+" points."
+      : "This mint is worth +"+fmtScore(pts)+" points now. A quarter on the wall doubles it.")
+      + (spent || got ? " Put in "+paySym()+spent+", receive "+ASSET+got+"." : ""));
+  }
+  const score = me && me.score ? me.score : 0;
+  if(me && me.crowned){
+    const nxt = rows.find(r=>r.place===2);
+    lines.push(nxt ? who(nxt.addr)+" needs "+fmtScore(me.score-nxt.score)+" points to take the crown." : "Nothing above you.");
+  }else{
+    if(!(me && me.weak)){
+      const rk = RANKS.find(r=>r.min > score + 1e-6);
+      if(rk){
+        const need = plsstrToReach(rk.min);
+        const gap = Math.max(0, rk.min - score);
+        lines.push(need <= 0.5
+          ? rk.name+" is already cleared."
+          : rk.name+" is "+fmtScore(gap)+" points away — "+needPhrase(need)+".");
+      }
+    }
+    const above = me && me.place ? rows.find(r=>r.place===me.place-1) : rows[rows.length-1];
+    if(above){
+      const gap = Math.max(0, above.score - score);
+      const need = plsstrToReach(above.score + Math.max(above.score * 0.000001, 0.01));
+      const whoName = me && me.place ? "Passing "+who(above.addr) : "Passing "+who(above.addr)+" onto the wall";
+      lines.push(need != null && need <= 0.5
+        ? whoName+" is already done."
+        : whoName+" is "+fmtScore(gap)+" points — "+needPhrase(need||0)+".");
+    }
+  }
+  el.textContent = lines.join("\n");
+}
+function setStatus(t, kind){ const s=$("status"); s.textContent=t||""; s.className="status"+(kind?" "+kind:""); }
+function badge(id, word){
+  const svg = {
+    idle:'<path d="M15 30V18M21 30V11M27 30V13M33 30V18" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/><path d="M11 30c0 8 5.5 12 13 12s13-4 13-12" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/>',
+    holder:'<ellipse cx="24" cy="24" rx="15" ry="15" fill="#e6c98a"/><ellipse cx="24" cy="24" rx="9" ry="9" fill="none" stroke="#6d4b28" stroke-width="1.7"/><ellipse cx="24" cy="24" rx="4" ry="4" fill="none" stroke="#6d4b28" stroke-width="1.4"/><circle cx="24" cy="24" r="1.5" fill="#6d4b28"/>',
+    weak:'<path d="M13 31c1 8 6 13 13 12 5 0 9-3 11-7" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/><path d="M16 30c1-8 2-12 3-14M23 29c1-9 2-13 2-15M30 30c1-7 1-10 1-12" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/><path d="M32 18c8-5 16 0 15 8 0 3-3 6-7 6-3 0-5-3-6-6 2-3 1-6-2-8z" fill="#f7f4ee" stroke="#d7d0c4" stroke-width="1.2"/><path d="M40 22c1 4 0 7-1 9" fill="none" stroke="#c3bbb2" stroke-width="1.1" stroke-linecap="round"/>',
+    paper:'<ellipse cx="24" cy="15" rx="13" ry="11" fill="#f7f3ea"/><ellipse cx="24" cy="15" rx="13" ry="11" fill="none" stroke="#c9bfb0" stroke-width="1.4"/><circle cx="24" cy="15" r="3.6" fill="#14120e"/><path d="M14 23h16v15c0 1.2-1 2-2 2H16c-1 0-2-.8-2-2z" fill="#f7f3ea" stroke="#c9bfb0" stroke-width="1.2"/><path d="M16 30h12M16 34h12" stroke="#e3d9cc" stroke-width="1"/>',
+    copper:'<ellipse cx="24" cy="24" rx="15" ry="15" fill="#d4783a"/><ellipse cx="24" cy="24" rx="9" ry="9" fill="none" stroke="#7a3b1c" stroke-width="1.6"/><circle cx="24" cy="24" r="2.4" fill="#7a3b1c"/>',
+    iron:'<path d="M8 16h32l-3 8H11z" fill="#9a938c"/><path d="M10 24h28l-2 10H12z" fill="#6e6862"/><path d="M14 26h20v5H14z" fill="#c5beb6"/>',
+    holder:'<ellipse cx="24" cy="24" rx="15" ry="15" fill="#e6c98a"/><ellipse cx="24" cy="24" rx="9" ry="9" fill="none" stroke="#6d4b28" stroke-width="1.7"/><ellipse cx="24" cy="24" rx="4" ry="4" fill="none" stroke="#6d4b28" stroke-width="1.4"/><circle cx="24" cy="24" r="1.5" fill="#6d4b28"/>',
+    stone:'<path d="M14 32c0-8 4-14 10-16 2 4 8 2 10-2 5 3 8 9 8 16 0 6-4 10-14 10s-14-4-14-8z" fill="#b7c0cc"/><path d="M20 24c2 3 7 2 9 6" fill="none" stroke="#5c6776" stroke-width="1.4"/>',
+    granite:'<path d="M10 30l6-14 8 4 6-10 8 8 4 12-6 8H16z" fill="#8e98a6"/><circle cx="22" cy="24" r="1.2" fill="#d5dbe6"/><circle cx="30" cy="28" r="1.1" fill="#d5dbe6"/><circle cx="26" cy="18" r="1" fill="#d5dbe6"/>',
+    steel:'<path d="M10 14h28v6H24v14h-4V20H10z" fill="#cfd6e0"/><path d="M10 14h28v6H10z" fill="#9aa6b5"/><path d="M20 20h8v14h-8z" fill="#e8edf3"/>',
+    ruby:'<path d="M24 5l14 12L24 43 10 17z" fill="#d23b52"/><path d="M10 17h28M24 5l-6 12 6 26 6-26z" fill="none" stroke="#4a1018" stroke-width="1.2"/>',
+    diamond:'<path d="M24 5l15 15L24 43 9 20z" fill="currentColor"/><path d="M9 20h30M24 5l-7 15 7 23 7-23z" fill="none" stroke="#0b0b10" stroke-width="1.3"/>',
+    crown:'<path d="M4 36 V28 L10 18 L16 28 L22 14 L24 6 L26 14 L32 28 L38 18 L44 28 V36" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linejoin="round" stroke-linecap="round"/><path d="M4 38 h40" stroke="#e7c56a" stroke-width="3.4" stroke-linecap="round"/><circle cx="10" cy="18" r="1.7" fill="#7BA7E8"/><circle cx="22" cy="14" r="1.5" fill="#7BA7E8"/><circle cx="24" cy="6" r="2" fill="#e7c56a"/><circle cx="26" cy="14" r="1.5" fill="#7BA7E8"/><circle cx="38" cy="18" r="1.7" fill="#7BA7E8"/>'
+  };
+  const d = svg[id] || svg.idle;
+  return '<div class="badge b-'+id+'"><svg viewBox="0 0 48 48" aria-hidden="true">'+d+'</svg><b>'+word+'</b></div>';
+}
+function paintGrip(el, id, word){ el.innerHTML = badge(id, word); }
+
+async function rpc(){
+  let last;
+  for(const url of RPCS){
+    try{
+      const p = new ethers.JsonRpcProvider(url, CHAIN_ID, {staticNetwork:true});
+      await p.getBlockNumber();
+      return p;
+    }catch(e){ last=e; }
+  }
+  throw last || new Error("RPC unreachable");
+}
+async function fetchHolders(token){
+  const out = [];
+  let page = null;
+  for(let i=0;i<4;i++){
+    const u = new URL("https://api.scan.pulsechain.com/api/v2/tokens/"+token+"/holders");
+    if(page) for(const [k,v] of Object.entries(page)) if(v!=null) u.searchParams.set(k, String(v));
+    const r = await fetch(u);
+    if(!r.ok) break;
+    const j = await r.json();
+    out.push(...(j.items||[]));
+    if(!j.next_page_params) break;
+    page = j.next_page_params;
+  }
+  return out;
+}
+async function transfersOf(addr, token){
+  const out = [];
+  let page = null;
+  for(let i=0;i<3;i++){
+    const u = new URL("https://api.scan.pulsechain.com/api/v2/addresses/"+addr+"/token-transfers");
+    u.searchParams.set("type","ERC-20");
+    u.searchParams.set("token", token);
+    if(page) for(const [k,v] of Object.entries(page)) if(v!=null) u.searchParams.set(k, String(v));
+    const r = await fetch(u);
+    if(!r.ok) break;
+    const j = await r.json();
+    out.push(...(j.items||[]));
+    if(!j.next_page_params) break;
+    page = j.next_page_params;
+  }
+  return out;
+}
+function weiOf(v){ try{ return BigInt(String(v||"0").split(".")[0]); }catch(_){ return 0n; } }
+function eventsOf(items, addr){
+  const me = addr.toLowerCase();
+  const seen = new Set();
+  const ev = [];
+  for(const t of items){
+    const id = (t.tx_hash||"")+"#"+(t.log_index??"");
+    if(seen.has(id)) continue;
+    seen.add(id);
+    const from = ((t.from&&t.from.hash)||"").toLowerCase();
+    const to = ((t.to&&t.to.hash)||"").toLowerCase();
+    const amt = weiOf(t.total && t.total.value);
+    const ts = Date.parse(t.timestamp||"");
+    if(!ts || amt<=0n) continue;
+    if(to===me && from!==me) ev.push({ts, dir:1, amt, to});
+    else if(from===me && to!==me) ev.push({ts, dir:-1, amt, to});
+  }
+  ev.sort((a,b)=>a.ts-b.ts);
+  return ev;
+}
+function asPls(ev, num, den){
+  if(den<=0n) return [];
+  return ev.map(e=>({ts:e.ts, dir:e.dir, amt: e.amt * num / den, to:e.to}));
+}
+function career(walletEv, lpEv, vaultEv, sinks){
+  const ev = [
+    ...walletEv.map(e=>({...e, k:"w"})),
+    ...lpEv.map(e=>({...e, k:"l"})),
+    ...vaultEv.map(e=>({...e, k:"v"}))
+  ].sort((a,b)=>a.ts-b.ts || a.dir-b.dir || (a.k<b.k?-1:1));
+  let w=0n,l=0n,v=0n, ws=null, ls=null, vs=null, diamond=false;
+  let carryS=null, carryT=0;
+  let lastSale=null, dump=null, buysAfterSale=0, buysAfterDump=0;
+  const now = Date.now();
+  function matchedMove(e){
+    if(e.dir<0 && e.k==="w" && sinks && sinks.has(e.to)) return true;
+    return ev.some(o => o!==e && o.dir===-e.dir && o.k!==e.k && Math.abs(o.ts-e.ts)<10*60*1000 && o.amt>e.amt/5n && e.amt>o.amt/5n);
+  }
+  function scoreAt(ts){
+    const dw = ws!=null ? (ts-ws)/86400000 : 0;
+    const dl = ls!=null ? (ts-ls)/86400000 : 0;
+    const dv = vs!=null ? (ts-vs)/86400000 : 0;
+    return gripScore(human(w), dw, 1) + gripScore(human(v), dv, VAULT_MULT) + gripScore(human(l), dl, LP_MULT);
+  }
+  for(const e of ev){
+    const bucket = e.k==="w" ? w : e.k==="l" ? l : v;
+    let next = e.dir>0 ? bucket+e.amt : (bucket>e.amt ? bucket-e.amt : 0n);
+    let start = e.k==="w" ? ws : e.k==="l" ? ls : vs;
+    const moved = e.dir<0 && (e.k!=="w" || (sinks && sinks.has(e.to)));
+    if(moved && start!=null){ carryS = start; carryT = e.ts; }
+    if(!matchedMove(e)){
+      if(e.dir<0){
+        const before = w+l+v;
+        const sold = e.amt<before ? e.amt : before;
+        if(before>0n && sold*100n>before){
+          lastSale = {at:e.ts, sold, before};
+          buysAfterSale = 0;
+          if(sold*10n > before*9n){ dump = lastSale; buysAfterDump = 0; }
+          if(e.k==="w") carryS = null;
+        }
+      }else if(lastSale && e.ts>=lastSale.at){
+        buysAfterSale++;
+        if(dump && e.ts>=dump.at) buysAfterDump++;
+      }
+    }
+    if(e.dir>0){
+      let born = e.ts;
+      if(carryS!=null && e.ts>=carryT && e.ts-carryT<10*60*1000 && carryS<born) born = carryS;
+      if(start==null || born<start) start = born;
+    }else if(next===0n) start = null;
+    if(e.k==="w"){ w=next; ws=start; }
+    else if(e.k==="l"){ l=next; ls=start; }
+    else { v=next; vs=start; }
+    if(scoreAt(e.ts) >= DIAMOND) diamond = true;
+    if(w===0n && l===0n && v===0n){ diamond = false; ws=ls=vs=null; carryS=null; }
+  }
+  const dw = ws!=null && w>0n ? (now-ws)/86400000 : 0;
+  const dl = ls!=null && l>0n ? (now-ls)/86400000 : 0;
+  const dv = vs!=null && v>0n ? (now-vs)/86400000 : 0;
+  return {wDays:dw, lpDays:dl, vDays:dv, diamond, lastSale, buysAfterSale, dump, buysAfterDump};
+}
+async function discover(read){
+  const factory = new ethers.Contract(FACTORY, FACTORY_ABI, read);
+  const px = new ethers.Contract(PX_FACTORY, PX_ABI, read);
+  const n = Number(await factory.vaultCount());
+  const list = n ? await factory.vaultsRange(0, Math.min(n, 80)) : [];
+  const vaults = [];
+  for(const addr of list){
+    const info = await factory.infoOf(addr);
+    if(String(info.asset).toLowerCase()!==TOKEN.toLowerCase()) continue;
+    const c = new ethers.Contract(addr, ["function vaultBalance() view returns (uint256)","function totalSupply() view returns (uint256)","function balanceOf(address) view returns (uint256)"], read);
+    const [backing, supply] = await Promise.all([c.vaultBalance(), c.totalSupply()]);
+    vaults.push({addr, symbol: info.symbol, backing, supply, c});
+  }
+  const pairs = [];
+  const seen = new Set();
+  for(const q of QUOTES){
+    let p;
+    try{ p = await px.getPair(TOKEN, q); }catch(_){ continue; }
+    if(!p || /^0x0{40}$/i.test(p) || seen.has(p.toLowerCase())) continue;
+    seen.add(p.toLowerCase());
+    const c = new ethers.Contract(p, PAIR_ABI, read);
+    const [t0, reserves, supply] = await Promise.all([c.token0(), c.getReserves(), c.totalSupply()]);
+    const reserve = t0.toLowerCase()===TOKEN.toLowerCase() ? reserves[0] : reserves[1];
+    pairs.push({addr:p, reserve, supply, c});
+  }
+  for(const addr of (game.pairs || [])){
+    if(!addr || seen.has(addr.toLowerCase())) continue;
+    try{
+      const c = new ethers.Contract(addr, PAIR_ABI, read);
+      const [t0, t1, reserves, supply] = await Promise.all([c.token0(), c.token1(), c.getReserves(), c.totalSupply()]);
+      const t0l = t0.toLowerCase(), t1l = t1.toLowerCase(), tok = TOKEN.toLowerCase();
+      if(t0l !== tok && t1l !== tok) continue;
+      seen.add(addr.toLowerCase());
+      const reserve = t0l === tok ? reserves[0] : reserves[1];
+      pairs.push({addr, reserve, supply, c});
+    }catch(_){}
+  }
+  return {vaults, pairs};
+}
+
+async function loadBoard(){
+  const gen = ++boardGen;
+  const read = await rpc();
+  if(gen !== boardGen) return;
+  const vault = new ethers.Contract(TOKEN, VAULT_ABI, read);
+  const floor = await vault.backingPerToken();
+  paintFloor(floor);
+  loadWeekFloor(read, floor);
+  loadUsd(read);
+  loadRace(read, gen);
+  const found = await discover(read);
+  const sinks = new Set([...found.pairs.map(p=>p.addr.toLowerCase()), ...found.vaults.map(v=>v.addr.toLowerCase())]);
+  const skip = new Set([TOKEN.toLowerCase(), FACTORY.toLowerCase(), PX_FACTORY.toLowerCase(), DEAD, BURN369, "0x0000000000000000000000000000000000000000", ...sinks]);
+  const [walletHolders, lpGroups, vaultGroups] = await Promise.all([
+    fetchHolders(TOKEN),
+    Promise.all(found.pairs.map(async p=>({p, items: await fetchHolders(p.addr)}))),
+    Promise.all(found.vaults.map(async v=>({v, items: await fetchHolders(v.addr)})))
+  ]);
+  const walletBal = {}, lpBal = {}, vaultBal = {};
+  const addrs = new Set();
+  function take(h){
+    const a = ((h.address&&h.address.hash)||"");
+    if(!a || skip.has(a.toLowerCase())) return "";
+    if(h.address && h.address.is_contract) return "";
+    addrs.add(a.toLowerCase());
+    return a.toLowerCase();
+  }
+  for(const h of walletHolders){
+    const a = take(h);
+    if(a) walletBal[a] = weiOf(h.value);
+  }
+  for(const g of lpGroups){
+    for(const h of g.items){
+      const a = take(h);
+      if(!a) continue;
+      const b = weiOf(h.value);
+      const pls = g.p.supply>0n ? b * g.p.reserve / g.p.supply : 0n;
+      lpBal[a] = (lpBal[a]||0n) + pls;
+    }
+  }
+  for(const g of vaultGroups){
+    for(const h of g.items){
+      const a = take(h);
+      if(!a) continue;
+      const b = weiOf(h.value);
+      const pls = g.v.supply>0n ? b * g.v.backing / g.v.supply : 0n;
+      vaultBal[a] = (vaultBal[a]||0n) + pls;
+    }
+  }
+  if(account) addrs.add(account.toLowerCase());
+  const sized = [...addrs].map(a=>({
+    a,
+    size: human(walletBal[a]||0n)+human(vaultBal[a]||0n)*VAULT_MULT+human(lpBal[a]||0n)*LP_MULT
+  })).sort((x,y)=>y.size-x.size);
+  const keep = new Set(sized.slice(0, 24).map(x=>x.a));
+  if(account) keep.add(account.toLowerCase());
+  const list = [...keep];
+  const built = [];
+  for(let i=0;i<list.length;i+=3){
+    const group = list.slice(i,i+3);
+    const part = await Promise.all(group.map(async addr=>{
+      let w = walletBal[addr]||0n;
+      let lp = lpBal[addr]||0n;
+      let vv = vaultBal[addr]||0n;
+      if(account && addr===account.toLowerCase()){
+        try{ w = await vault.balanceOf(account); }catch(_){}
+        lp = 0n;
+        for(const p of found.pairs){
+          try{
+            const b = await p.c.balanceOf(account);
+            if(p.supply>0n) lp += b * p.reserve / p.supply;
+          }catch(_){}
+        }
+        vv = 0n;
+        for(const v of found.vaults){
+          try{
+            const b = await v.c.balanceOf(account);
+            if(v.supply>0n) vv += b * v.backing / v.supply;
+          }catch(_){}
+        }
+      }
+      const [wItems, lpParts, vParts] = await Promise.all([
+        transfersOf(addr, TOKEN).catch(()=>[]),
+        Promise.all(found.pairs.map(p=>transfersOf(addr, p.addr).catch(()=>[]).then(items=>({items, p})))),
+        Promise.all(found.vaults.map(v=>transfersOf(addr, v.addr).catch(()=>[]).then(items=>({items, v}))))
+      ]);
+      const wEv = eventsOf(wItems, addr);
+      const lpEv = lpParts.flatMap(x=>asPls(eventsOf(x.items, addr), x.p.reserve, x.p.supply));
+      const vEv = vParts.flatMap(x=>asPls(eventsOf(x.items, addr), x.v.backing, x.v.supply));
+      const hist = career(wEv, lpEv, vEv, sinks);
+      const wDays = w>0n ? hist.wDays : 0;
+      const lpDays = lp>0n ? hist.lpDays : 0;
+      const vDays = vv>0n ? hist.vDays : 0;
+      const base = gripScore(human(w), wDays, 1) + gripScore(human(vv), vDays, VAULT_MULT) + gripScore(human(lp), lpDays, LP_MULT);
+      const dca = dcaFactor([...wEv, ...lpEv, ...vEv]);
+      const score = base * dca;
+      const diamond = score>=DIAMOND;
+      const weekAdded = weekNet(wEv) + weekNet(lpEv) + weekNet(vEv);
+      return {addr, bal:w, lp, vault:vv, wDays, lpDays, vDays, days: Math.max(wDays, lpDays, vDays), score, dca, diamond, weak:false, paperDays:0, lastSale: hist.lastSale, buysAfterSale: hist.buysAfterSale, dump: hist.dump, buysAfterDump: hist.buysAfterDump, weekAdded};
+    }));
+    built.push(...part);
+  }
+  built.sort((a,b)=>b.score-a.score);
+  if(gen !== boardGen) return;
+  let place = 0;
+  for(const r of built){
+    const any = r.bal>0n || r.lp>0n || r.vault>0n;
+    if(!any){ r.place = null; continue; }
+    r.place = ++place;
+    r.crowned = false;
+  }
+  const PAPER_MS = 30*86400000;
+  function paperLeft(sale, buys){
+    if(!sale) return 0;
+    if((buys||0) >= 2) return 0;
+    const left = sale.at + PAPER_MS - Date.now();
+    if(left <= 0) return 0;
+    return Math.max(1, Math.ceil(left/86400000));
+  }
+  for(const r of built){
+    if(!r.place){ r.weak = false; r.paperDays = 0; continue; }
+    const immune = r.place===1 || r.score>=DIAMOND;
+    r.paperDays = immune ? paperLeft(r.dump, r.buysAfterDump) : paperLeft(r.lastSale, r.buysAfterSale);
+    r.weak = r.paperDays > 0;
+  }
+  const top = built.find(r=>r.place && !r.weak);
+  if(top) top.crowned = true;
+  for(const r of built){
+    if(r.crowned) r.show = {id:"crown", name:"Hardest Holder", word:"#1"};
+    else if(r.weak) r.show = {id:"paper", name:"Paper", word:"Paper"};
+    else if(r.diamond && (r.bal>0n || r.lp>0n || r.vault>0n)) r.show = {id:"diamond", name:"Diamond Hands", word:"Diamond"};
+    else { const rk = rankFor(r.score); r.show = {id:rk.id, name:rk.name, word:rk.word}; }
+  }
+  rows = built.filter(r=>r.place);
+  me = account ? built.find(r=>r.addr.toLowerCase()===account.toLowerCase()) || null : null;
+  const max = rows.reduce((m,r)=>Math.max(m,r.score), 1);
+  const newKing = top ? top.addr.toLowerCase() : null;
+  let prev = null;
+  try{ prev = localStorage.getItem("hh_king_"+game.key); }catch(_){}
+  const flash = !!(newKing && prev && prev!==newKing);
+  if(flash) crown();
+  notePass();
+  paintBoard(max, flash);
+  paintMe(max);
+  loadNames(read, gen).catch(()=>{});
+  if(newKing){ try{ localStorage.setItem("hh_king_"+game.key, newKing); }catch(_){} }
+  king = newKing;
+}
+
+function raceNote(out){
+  if(!race || race.unlimited || out == null) return "";
+  if(race.left === 0n) return " The gate is shut until the next drop.";
+  if(out > race.left) return " That is more than the "+fmtN(human(race.left, DEC), 2)+" "+ASSET+" still in this drop.";
+  return "";
+}
+function setVault(pct){
+  const box = $("vaultCoins");
+  if(!box) return;
+  if(!box.childElementCount){
+    const xs = [28, 44, 60, 76];
+    const ys = [98, 84, 70, 56, 42];
+    let html = "";
+    for(const y of ys) for(const x of xs){
+      html += '<g class="coin"><circle cx="'+x+'" cy="'+y+'" r="6.4" fill="#e7c56a"/><circle cx="'+x+'" cy="'+y+'" r="4" fill="none" stroke="#8d6a2e" stroke-width="1"/><circle cx="'+(x-1.6)+'" cy="'+(y-1.8)+'" r="1.1" fill="#fff6d0"/></g>';
+    }
+    box.innerHTML = html;
+  }
+  const coins = box.querySelectorAll(".coin");
+  const show = Math.round(coins.length * Math.max(0, Math.min(100, pct)) / 100);
+  coins.forEach((c, i) => { c.style.opacity = i < show ? "1" : "0"; });
+}
+function paintRace(){
+  const el = $("race");
+  if(!el) return;
+  if(!race) return;
+  const s = Math.max(0, race.secs - Math.floor((Date.now() - race.at) / 1000));
+  if(s === 0 && !race.fired){
+    race.fired = true;
+    refresh();
+  }
+  const pad = n => String(n).padStart(2, "0");
+  const d = Math.floor(s / 86400);
+  const h = Math.floor((s % 86400) / 3600);
+  const m = Math.floor((s % 3600) / 60);
+  const sec = s % 60;
+  $("raceClock").innerHTML = "<b>"+pad(d)+"</b><i>d</i><b>"+pad(h)+"</b><i>h</i><b>"+pad(m)+"</b><i>m</i><b>"+pad(sec)+"</b><i>s</i>";
+  if(race.unlimited){
+    el.className = "race open";
+    $("raceK").textContent = "Open season";
+    $("raceLeft").textContent = "No cap";
+    $("raceSub").textContent = "This week has no mint limit. Take it before the gate changes.";
+    setVault(100);
+    $("raceFoot").textContent = "The vault stays full of coins until the next drop starts the 10% cap.";
+    return;
+  }
+  const leftN = human(race.left, DEC);
+  const capN = human(race.cap, DEC);
+  const taken = capN > 0 ? Math.max(0, Math.min(1, 1 - (leftN / capN))) : 1;
+  const soldOut = race.left === 0n;
+  el.className = "race" + (soldOut ? " shut" : taken >= 0.85 ? " hot" : "");
+  $("raceK").textContent = soldOut ? "Sold out" : "Still up for grabs";
+  $("raceLeft").textContent = soldOut ? "None left" : fmtN(leftN, leftN >= 100 ? 0 : 2) + " " + ASSET;
+  const pile = (!soldOut && !race.unlimited) ? tokenUsd(leftN) : 0;
+  $("raceSub").textContent = (soldOut
+    ? "This week's pile is gone. The next one opens when the clock hits zero."
+    : Math.round(taken * 100) + "% of this drop is already taken.")
+    + (pile ? " · "+fmtUsd(pile)+" still in it" : "");
+  const leftPct = Math.round((1 - taken) * 100);
+  setVault(soldOut ? 0 : leftPct);
+  $("raceFoot").textContent = soldOut
+    ? "The vault is empty. The door is shut until the next drop."
+    : "Coins leave the vault as wallets mint. When it is empty, the door shuts.";
+}
+async function loadRace(read, gen){
+  try{
+    const vault = new ethers.Contract(TOKEN, VAULT_ABI, read);
+    const [left, tnext, cap0, minted, lastEp, curEp] = await Promise.all([
+      vault.mintQuotaRemaining(),
+      vault.timeToNextEpoch(),
+      vault.epochQuota(),
+      vault.mintedThisEpoch(),
+      vault.lastEpoch(),
+      vault.currentEpoch()
+    ]);
+    if(gen !== boardGen) return;
+    const unlimited = left >= (1n << 255n);
+    const rolled = curEp !== lastEp;
+    race = {
+      left: unlimited ? 0n : left,
+      cap: unlimited ? 0n : (rolled ? left : cap0),
+      secs: Number(tnext),
+      at: Date.now(),
+      unlimited,
+      fired: false
+    };
+    paintRace();
+  }catch(_){}
+}
+function paintFloor(bn){
+  const n = human(bn, 18);
+  const el = $("floor");
+  el.textContent = n.toLocaleString("en-US", {minimumFractionDigits:6, maximumFractionDigits:6})+" "+ASSET_SYM;
+  if(lastFloor!=null && n>lastFloor){
+    el.classList.remove("up"); void el.offsetWidth; el.classList.add("up");
+    document.querySelectorAll(".meter").forEach(m=>{ m.classList.remove("squeeze"); void m.offsetWidth; m.classList.add("squeeze"); });
+  }
+  lastFloor = n;
+  paintUsd();
+}
+function timeBits(r){
+  const parts = [];
+  if(r.bal>0n) parts.push(["wallet", r.wDays]);
+  if(r.vault>0n) parts.push(["vault ×2", r.vDays]);
+  if(r.lp>0n) parts.push(["LP ×4", r.lpDays]);
+  if(!parts.length) return "Held —";
+  const same = parts.every(p => Math.abs(p[1]-parts[0][1]) < 0.2);
+  if(same){
+    let t = "Held "+fmtTime(parts[0][1])+" · "+parts.map(p=>p[0]).join(" · ");
+    if(r.dca > 1.01) t += " · DCA +"+Math.round((r.dca-1)*100)+"%";
+    return t;
+  }
+  let t = "Held "+parts.map(p=>fmtTime(p[1])+" "+p[0]).join(" · ");
+  if(r.dca > 1.01) t += " · DCA +"+Math.round((r.dca-1)*100)+"%";
+  return t;
+}
+function heldOf(r){ return (r.bal||0n)+(r.lp||0n)+(r.vault||0n); }
+function figSVG(){
+  return '<svg class="fig" viewBox="0 0 70 92" aria-hidden="true">'
+    +'<path class="rope" d="M34 -8 C30 6 42 8 34 18"/>'
+    +'<circle class="head" cx="34" cy="26" r="5.5"/>'
+    +'<path class="limb" d="M34 32 v15 M34 36 l-16-7 M18 27 h7 M34 37 l13 8 M47 45 v7 M34 47 l-9 18 M34 47 l10 16"/>'
+    +'<path class="gear" d="M26 38 h16 l-2 9 h-12 z"/>'
+    +'<circle class="biner" cx="48" cy="41" r="2.5"/>'
+    +'</svg>';
+}
+function climberMotion(r){
+  const prev = wallPrev.get(r.addr.toLowerCase());
+  if(!prev) return "";
+  const held = human(heldOf(r));
+  if(prev.held > 1 && held < prev.held * 0.97) return " fall";
+  if(prev.place && r.place < prev.place) return " climb";
+  if(prev.place && r.place > prev.place) return " fall";
+  return "";
+}
+function slipGhosts(top){
+  const still = new Set(top.map(r=>r.addr.toLowerCase()));
+  let html = "";
+  for(const [addr, prev] of wallPrev){
+    if(still.has(addr) || !prev.place || prev.place > 20) continue;
+    const topPos = 92 + (prev.place-1) * 124;
+    html += '<div class="climber fall ghost" style="top:'+topPos+'px;left:16%">'
+      + figSVG()
+      + '<div class="tag"><div class="tagbody"><div class="rk">Slipped</div><div class="sc" data-who="'+addr+'">'+who(addr)+'</div></div></div></div>';
+  }
+  return html;
+}
+function rememberWall(){
+  const next = new Map();
+  for(const r of rows){
+    if(!r.place) continue;
+    next.set(r.addr.toLowerCase(), {place: r.place, held: human(heldOf(r))});
+  }
+  wallPrev = next;
+}
+function climberHTML(r, i, boardW){
+  const you = !!(account && r.addr.toLowerCase()===account.toLowerCase());
+  const W = Math.max(280, boardW || 360);
+  const card = Math.min(268, Math.floor(W * 0.82));
+  const pad = 8;
+  const maxL = Math.max(6, (W - card - pad) / W * 100);
+  const minR = Math.min(94, (card + pad) / W * 100);
+  const leftSlots = [0.15, 0.42, 0.7, 0.95].map(f => Math.max(1.2, f * (maxL - 1)));
+  const span = Math.max(6, 97.5 - minR);
+  const rightSlots = [0.05, 0.36, 0.66, 0.94].map(f => Math.min(97.5, minR + f * span));
+  const kingLeft = Math.max(1.2, Math.min(maxL - 0.4, 50 - (card / W) * 50));
+  const right = !r.crowned && (i % 2 === 1);
+  const slot = i >> 1;
+  const left = r.crowned ? kingLeft : (right ? rightSlots[slot % 4] : leftSlots[slot % 4]);
+  const topPos = 92 + i * 124;
+  const motion = climberMotion(r);
+  const cls = "climber"+motion+(r.crowned?" king":"")+(you?" you":"")+(r.weak?" slip":"")+(right?" flip":"")+" b-"+r.show.id;
+  const wk = weekChip(r);
+  return '<div class="'+cls+'" style="top:'+topPos+'px;left:'+left.toFixed(2)+'%;width:'+card+'px;'+(right?'margin-left:-'+card+'px;':'')+'z-index:'+(i+2)+';animation-delay:'+((i%5)*0.35)+'s" data-addr="'+r.addr+'">'
+    + figSVG()
+    + '<div class="tag">'+badge(r.show.id, "")
+    + '<div class="tagbody"><div class="tagtop"><span class="place">#'+(r.place||"—")+'</span> <a data-who="'+r.addr+'" href="https://pulsestrategy369.com/address/'+r.addr+'">'+who(r.addr)+'</a>'
+    +(you?' <span class="youtag">YOU</span>':'')+'</div>'
+    + '<div class="rk">'+r.show.name+'</div>'
+    + '<div class="days">'+timeBits(r)+'</div>'
+    + '<div class="sc">'+fmtScore(r.score)+(wk?' <span class="wk">'+wk+'</span>':'')+'</div></div></div></div>';
+}
+function paintBoard(max, flash){
+  const top = rows.filter(r=>r.place && r.place<=20);
+  const el = $("board");
+  if(!top.length){
+    el.innerHTML = '<p class="note">No one is on the wall yet.</p>';
+  }else{
+    const h = 220 + top.length * 124;
+    const crown = '<div class="lipcrown" aria-hidden="true"><svg viewBox="0 0 88 52"><path d="M8 40 V30 L16 18 L24 32 L34 14 L44 6 L54 14 L64 32 L72 18 L80 30 V40" fill="none" stroke="#f7f1d8" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/><path d="M8 40 h72" stroke="#e7c56a" stroke-width="5" stroke-linecap="round"/><circle cx="16" cy="18" r="2.2" fill="#7BA7E8" stroke="#f7f1d8" stroke-width=".8"/><circle cx="34" cy="14" r="2" fill="#7BA7E8" stroke="#f7f1d8" stroke-width=".8"/><circle cx="44" cy="6" r="2.6" fill="#e7c56a" stroke="#f7f1d8" stroke-width=".8"/><circle cx="54" cy="14" r="2" fill="#7BA7E8" stroke="#f7f1d8" stroke-width=".8"/><circle cx="72" cy="18" r="2.2" fill="#7BA7E8" stroke="#f7f1d8" stroke-width=".8"/></svg></div>';
+    const ridge = '<svg class="ridge" viewBox="0 0 1440 160" preserveAspectRatio="none" aria-hidden="true"><path d="M0 96 L100 70 L180 108 L270 36 L360 90 L460 24 L560 82 L660 16 L770 88 L870 34 L990 96 L1100 28 L1220 86 L1440 48 L1440 0 L0 0 Z" fill="rgba(198,220,242,.18)"/><path d="M0 112 L140 88 L230 126 L340 70 L450 118 L570 62 L690 124 L820 74 L940 128 L1080 78 L1220 122 L1440 96" fill="none" stroke="rgba(255,255,255,.35)" stroke-width="4"/></svg>';
+    const rope = '<svg class="ropeline" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"><path d="M38 1 C 18 12, 12 16, 14 22 S 52 30, 66 34 S 22 44, 28 50 S 76 60, 68 66 S 16 76, 22 82 S 62 92, 44 99"/></svg>';
+    const pits = [22,36,50,64,78].map((t,n)=>'<i class="piton" style="top:'+t+'%;left:'+(10+n*15)+'%"></i>').join("");
+    const boardW = Math.max(300, el.clientWidth || 360);
+    el.innerHTML = '<div class="cliff" style="height:'+h+'px">'
+      + ridge
+      + '<div class="cloud c1"></div><div class="cloud c2"></div><div class="cloud c3"></div>'
+      + rope
+      + crown
+      + pits
+      + slipGhosts(top)
+      + top.map((r,i)=>climberHTML(r,i,boardW)).join("")
+      + '</div>';
+  }
+  rememberWall();
+  paintMintAim();
+  const extra = $("youExtra");
+  if(me && me.place && me.place>20){
+    extra.className = "yourow";
+    extra.innerHTML = '<p class="sub">Below the top 20. This is your hold.</p><div class="park">'+climberHTML(me, 0)+'</div>';
+  }else extra.innerHTML = "";
+  setRival();
+  if(flash){
+    const hit = document.querySelector(".climber.king");
+    if(hit) hit.classList.add("crown");
+  }
+  if(!window.__hhSeen){
+    const mine = document.querySelector(".climber.you");
+    if(mine){ mine.scrollIntoView({block:"center"}); window.__hhSeen = true; }
+  }
+}
+function setRival(){
+  const el = $("rival");
+  if(!el) return;
+  const king = rows.find(r=>r.crowned);
+  const n = rows.length;
+  if(!me || !me.place){
+    el.textContent = king
+      ? who(king.addr)+" has the hardest hold. "+n+" on the wall. Top 20 show."
+      : "Nobody is on the wall yet.";
+    return;
+  }
+  if(me.crowned){
+    const nxt = rows.find(r=>r.place===2);
+    el.textContent = nxt
+      ? "You have the hardest hold. "+who(nxt.addr)+" is "+fmtScore(me.score-nxt.score)+" behind you."
+      : "You have the hardest hold.";
+    return;
+  }
+  const above = rows.find(r=>r.place===me.place-1);
+  const below = rows.find(r=>r.place===me.place+1);
+  let t = "You are #"+me.place+" of "+n+".";
+  if(above) t += " Pass "+who(above.addr)+" — they lead by "+fmtScore(above.score-me.score)+".";
+  if(below) t += " "+who(below.addr)+" is "+fmtScore(me.score-below.score)+" under you.";
+  el.textContent = t;
+}
+function paintMe(max){
+  const g = $("myGrip");
+  const pctEl = $("gripPct");
+  if(!account){
+    $("myRank").textContent = "Connect to take a grip";
+    $("myLine").textContent = "Wallet required to mint or redeem. The board is public.";
+    paintGrip(g, "idle", "Grip");
+    $("stTok").textContent = "—"; $("stTime").textContent = "—"; $("stScore").textContent = "—";
+    if($("stUsd")) $("stUsd").textContent = "";
+    paintWeek(null);
+    paintChase();
+    $("myMeter").querySelector("i").style.width = "0";
+    if(pctEl) pctEl.textContent = "—";
+    $("shareBtn").disabled = true;
+    return;
+  }
+  const any = me && (me.bal>0n || me.lp>0n || me.vault>0n);
+  if(!me || !any){
+    $("myRank").textContent = "No grip yet";
+    $("myLine").textContent = who(account)+" · mint "+ASSET+", or hold it in LP or a launch vault.";
+    paintGrip(g, "idle", "Grip");
+    $("stTok").textContent = "0"; $("stTime").textContent = "—"; $("stScore").textContent = "0";
+    if($("stUsd")) $("stUsd").textContent = "";
+    paintWeek(null);
+    paintChase();
+    $("myMeter").querySelector("i").style.width = "0";
+    if(pctEl) pctEl.textContent = "empty";
+    $("shareBtn").disabled = true;
+    return;
+  }
+  $("myRank").textContent = me.show.name;
+  const bits = [];
+  if(me.bal>0n) bits.push(fmtN(human(me.bal),2)+" in wallet");
+  if(me.vault>0n) bits.push(fmtN(human(me.vault),2)+" in a launch vault");
+  if(me.lp>0n) bits.push(fmtN(human(me.lp),2)+" in LP");
+  let line = who(account)+" · "+bits.join(" · ");
+  if(me.weak) line += ". Paper for "+me.paperDays+" more day"+(me.paperDays===1?"":"s")+". Two buys clears it.";
+  $("myLine").textContent = line;
+  paintGrip(g, me.show.id, me.show.word);
+  const heldTxt = fmtN(human(heldOf(me)), 2);
+  $("stTok").textContent = heldTxt;
+  if($("stTok").scrollWidth > $("stTok").clientWidth + 1) $("stTok").innerHTML = heldTxt.replace(/,/g, ",<wbr>");
+  if($("stUsd")){ const u = tokenUsd(human(heldOf(me))); $("stUsd").textContent = u ? fmtUsd(u) : ""; }
+  $("stTime").textContent = fmtTime(me.days);
+  $("stScore").textContent = fmtScore(me.score);
+  paintWeek(me);
+  paintChase();
+  const pct = Math.max(me.score>0?8:0, Math.min(100, me.score/max*100));
+  $("myMeter").querySelector("i").style.width = pct+"%";
+  if(pctEl) pctEl.textContent = me.crowned ? "You are #1" : Math.round(pct)+"% of #1";
+  $("shareBtn").disabled = !(me.place);
+}
+function weekNet(ev){
+  const cut = Date.now() - 7*86400000;
+  let net = 0n;
+  for(const e of ev) if(e.ts >= cut) net += e.dir>0 ? e.amt : -e.amt;
+  return net;
+}
+const MINTED_TOPIC = ethers.id("Minted(address,uint256,uint256,uint256)");
+const REDEEMED_TOPIC = ethers.id("Redeemed(address,uint256,uint256,uint256,uint256)");
+function backingOfLog(log){
+  const raw = (log.data||"").replace(/^0x/,"");
+  const idx = String(log.topics[0]).toLowerCase() === MINTED_TOPIC.toLowerCase() ? 2 : 3;
+  const word = raw.slice(idx*64, (idx+1)*64);
+  if(word.length !== 64) return null;
+  try{ return BigInt("0x"+word); }catch(_){ return null; }
+}
+async function backingBefore(read, block){
+  let end = block;
+  let span = 8000n;
+  for(let i=0;i<12 && end>0n;i++){
+    const start = end > span ? end - span : 0n;
+    try{
+      const logs = await read.getLogs({
+        address: TOKEN,
+        fromBlock: start,
+        toBlock: end,
+        topics: [[MINTED_TOPIC, REDEEMED_TOPIC]]
+      });
+      if(logs.length) return backingOfLog(logs[logs.length-1]);
+      if(start === 0n) return null;
+      end = start - 1n;
+    }catch(_){
+      if(span <= 1500n) return null;
+      span = span / 2n;
+    }
+  }
+  return null;
+}
+async function loadWeekFloor(read, nowBn){
+  if(weekPer && weekPer.per != null && Date.now() - weekPer.at < 300000) return;
+  if(weekPer && weekPer.per == null && Date.now() - weekPer.at < 20000) return;
+  try{
+    const latest = BigInt(await read.getBlockNumber());
+    const weekBlock = latest > 61000n ? latest - 61000n : 0n;
+    const thenBn = await backingBefore(read, weekBlock);
+    const per = (thenBn != null && nowBn > thenBn) ? human(nowBn - thenBn, 18) : (thenBn != null ? 0 : null);
+    weekPer = {at: Date.now(), per};
+  }catch(_){
+    weekPer = {at: Date.now(), per: weekPer && weekPer.per != null ? weekPer.per : null};
+  }
+  if(me) paintWeek(me);
+  if(rows.length){
+    const max = rows.reduce((m,r)=>Math.max(m, r.score), 1);
+    paintBoard(max, false);
+  }
+}
+function weekLine(r){
+  if(!r) return "";
+  const bits = [];
+  if(weekPer && weekPer.per != null){
+    const gain = human(heldOf(r)) * weekPer.per;
+    if(Math.abs(gain) < 0.005) bits.push("floor unchanged");
+    else bits.push((gain>=0?"+":"")+fmtN(gain, 2)+" "+ASSET_SYM+usdTag(ASSET_SYM, Math.abs(gain))+" from the floor");
+  }
+  if(r.weekAdded != null){
+    const a = human(r.weekAdded);
+    if(a > 0.0001) bits.push("+"+fmtN(a, 2)+" "+ASSET+usdTag(ASSET, a)+" added");
+    else if(a < -0.0001) bits.push(fmtN(Math.abs(a), 2)+" "+ASSET+usdTag(ASSET, Math.abs(a))+" let go");
+    else bits.push("stack unchanged");
+  }
+  return bits.length ? "This week · "+bits.join(" · ") : "";
+}
+function weekChip(r){
+  const bits = [];
+  if(weekPer && weekPer.per != null){
+    const gain = human(heldOf(r)) * weekPer.per;
+    if(gain >= 0.5) bits.push("+"+fmtScore(gain)+" "+(game.kind==="hex"?"HTT":ASSET_SYM));
+  }
+  if(r.weekAdded != null){
+    const a = human(r.weekAdded);
+    if(a >= 0.5) bits.push("+"+fmtScore(a)+" in");
+    else if(a <= -0.5) bits.push(fmtScore(-a)+" out");
+  }
+  return bits.length ? "wk "+bits.join(" · ") : "";
+}
+function climbUsd(target){
+  const need = plsstrToReach(target);
+  if(!(need > 0)) return "";
+  const s = fmtUsd(tokenUsd(need));
+  return s ? " · "+s+" to mint" : "";
+}
+function paintChase(){
+  const el = $("stChase");
+  if(!el) return;
+  if(!me || !me.place){ el.hidden = true; el.textContent = ""; return; }
+  const bits = [];
+  if(me.crowned){
+    const nxt = rows.find(r=>r.place===2);
+    if(nxt) bits.push(who(nxt.addr)+" needs "+fmtScore(me.score-nxt.score)+" to take the crown");
+  }else{
+    const above = rows.find(r=>r.place===me.place-1);
+    if(above) bits.push(fmtScore(above.score-me.score)+" to pass "+who(above.addr)+climbUsd(above.score));
+    if(!me.weak){
+      const rk = RANKS.find(r=>r.min > me.score);
+      if(rk) bits.push(fmtScore(rk.min-me.score)+" to "+rk.name+climbUsd(rk.min));
+    }
+  }
+  el.textContent = bits.join(" · ");
+  el.hidden = !bits.length;
+}
+function paintWeek(r){
+  const el = $("stWeek");
+  if(!el) return;
+  const t = weekLine(r);
+  el.textContent = t;
+  el.hidden = !t;
+}
+function crown(){
+  if(window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  try{
+    const ctx = new (window.AudioContext||window.webkitAudioContext)();
+    const o = ctx.createOscillator(), g = ctx.createGain();
+    o.type = "triangle";
+    o.frequency.setValueAtTime(523, ctx.currentTime);
+    o.frequency.linearRampToValueAtTime(784, ctx.currentTime+0.16);
+    o.frequency.linearRampToValueAtTime(1046, ctx.currentTime+0.34);
+    g.gain.setValueAtTime(0.0001, ctx.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.07, ctx.currentTime+0.03);
+    g.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime+0.7);
+    o.connect(g); g.connect(ctx.destination);
+    o.start(); o.stop(ctx.currentTime+0.72);
+  }catch(_){}
+}
+
+function openSheet(id){ $("back").classList.add("open"); $(id).classList.add("open"); }
+function closeSheets(){ $("back").classList.remove("open"); document.querySelectorAll(".sheet").forEach(s=>s.classList.remove("open")); }
+$("back").onclick = closeSheets;
+$("conn").onclick = ()=>{ if(account){ disconnect(); } else openSheet("connectSheet"); };
+
+async function finish(p, kind){
+  provider = p;
+  if(kind){ try{ localStorage.setItem("hh_wallet", kind); }catch(_){} }
+  const bp = new ethers.BrowserProvider(p);
+  signer = await bp.getSigner();
+  account = await signer.getAddress();
+  $("conn").textContent = who(account);
+  $("conn").classList.add("on");
+  p.on?.("accountsChanged", ()=>location.reload());
+  p.on?.("chainChanged", ()=>location.reload());
+  closeSheets();
+  setStatus("");
+  await refresh();
+}
+async function disconnect(){
+  try{ if(provider && provider.disconnect) await provider.disconnect(); }catch(_){}
+  try{ localStorage.removeItem("hh_wallet"); }catch(_){}
+  provider = signer = account = me = null;
+  bags = {pls:0n, vpls:0n, str:0n};
+  outQuote = null;
+  paintBals();
+  $("conn").textContent = "Connect wallet";
+  $("conn").classList.remove("on");
+  paintMe(1);
+}
+async function ensureChain(){
+  await window.ethereum.request({method:"eth_requestAccounts"});
+  try{ await window.ethereum.request({method:"wallet_switchEthereumChain", params:[{chainId:CHAIN_HEX}]}); }
+  catch(sw){
+    if(sw.code===4902){
+      await window.ethereum.request({method:"wallet_addEthereumChain", params:[{
+        chainId:CHAIN_HEX, chainName:"PulseChain",
+        nativeCurrency:{name:"Pulse", symbol:"PLS", decimals:18},
+        rpcUrls:PUBLIC_RPCS, blockExplorerUrls:["https://ipfs.scan.pulsechain.com"]
+      }]});
+    }else throw sw;
+  }
+}
+$("optInj").onclick = async ()=>{
+  if(!window.ethereum){ setStatus("No browser wallet. Use WalletConnect, or open this page in your wallet’s browser.","err"); closeSheets(); return; }
+  try{ await ensureChain(); await finish(window.ethereum, "injected"); }
+  catch(e){ setStatus(e.shortMessage||e.message,"err"); closeSheets(); }
+};
+async function wcInit(){
+  if(wcP) return wcP;
+  const WCP = window["@walletconnect/ethereum-provider"] && window["@walletconnect/ethereum-provider"].EthereumProvider;
+  if(!WCP) throw new Error("WalletConnect did not load");
+  const site = (location.origin && location.origin!=="null" && location.protocol!=="file:") ? location.origin : "https://pulsestrategy369.com";
+  wcP = await WCP.init({
+    projectId: WC_PROJECT_ID, optionalChains:[CHAIN_ID], rpcMap:{[CHAIN_ID]:RPCS[0]}, showQrModal:true,
+    metadata:{name:"The Hardest Holder", description:"A game on the PLSstr vault", url:site, icons:["https://pulsestrategy369.com/logo.png"]}
+  });
+  return wcP;
+}
+$("optWc").onclick = async ()=>{
+  try{ const p = await wcInit(); await p.connect(); await finish(p, "wc"); }
+  catch(e){ setStatus(e.message||"WalletConnect failed","err"); closeSheets(); }
+};
+async function tryAuto(){
+  let kind=null; try{ kind=localStorage.getItem("hh_wallet"); }catch(_){}
+  if(kind==="injected" && window.ethereum){
+    try{ const a = await window.ethereum.request({method:"eth_accounts"}); if(a&&a.length) await finish(window.ethereum); }catch(_){}
+  }else if(kind==="wc"){
+    try{ const p = await wcInit(); if(p.accounts&&p.accounts.length) await finish(p); }catch(_){}
+  }
+}
+
+function parseAmt(id, dec){
+  const el = $(id || "amt");
+  if(!el) return null;
+  const t = (el.value||"").replace(/,/g,"").trim();
+  if(!t || !(Number(t)>0)) return null;
+  const d = dec == null ? (id === "outAmt" ? DEC : inDec()) : dec;
+  try{ return ethers.parseUnits(t, d); }catch(_){ return null; }
+}
+function unitsToInput(bn, dec){
+  if(bn==null || bn<=0n) return "";
+  const d = dec == null ? DEC : dec;
+  const base = 10n ** BigInt(d);
+  const whole = bn / base;
+  let frac = (bn % base).toString().padStart(d,"0").slice(0,6).replace(/0+$/,"");
+  const intFmt = whole.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+  return intFmt + (frac ? "."+frac : "");
+}
+function paintBals(){
+  const ib = $("inBal"), ob = $("outBal");
+  if(!ib || !ob) return;
+  if(!account){
+    ib.textContent = "Balance —";
+    ob.textContent = "Balance —";
+    return;
+  }
+  const inn = mode==="pls" ? bags.pls : mode==="hex" ? bags.hex : bags.back;
+  const dec = inDec();
+  ib.textContent = "Balance " + (unitsToInput(inn, dec) || "0") + " " + paySym() + usdTag(paySym(), human(inn, dec));
+  ob.textContent = "Balance " + (unitsToInput(bags.str, DEC) || "0") + " " + ASSET + usdTag(ASSET, human(bags.str, DEC));
+}
+async function loadBags(){
+  if(!account){ bags = {pls:0n, back:0n, str:0n, hex:0n}; paintBals(); return; }
+  try{
+    const read = await rpc();
+    const jobs = [
+      read.getBalance(account),
+      new ethers.Contract(VPLS, ERC_ABI, read).balanceOf(account),
+      new ethers.Contract(TOKEN, ERC_ABI, read).balanceOf(account)
+    ];
+    if(game.kind === "hex") jobs.push(new ethers.Contract(HEX, ERC_ABI, read).balanceOf(account));
+    const got = await Promise.all(jobs);
+    bags = {pls:got[0], back:got[1], str:got[2], hex:got[3] || 0n};
+  }catch(_){}
+  paintBals();
+}
+function setFrac(side, p){
+  if(!account){ shout("Connect a wallet. Those buttons use the balance in it."); return; }
+  const out = side==="out";
+  let bal = out ? bags.str : (mode==="pls" ? bags.pls : mode==="hex" ? bags.hex : bags.back);
+  if(!out && mode==="pls" && p>=1){
+    const gas = ethers.parseUnits("40", 18);
+    if(bal > gas * 2n) bal = bal - gas;
+  }
+  if(bal<=0n){
+    shout(out ? "No "+ASSET+" in this wallet to let go of." : "Nothing in this wallet to put in.");
+    return;
+  }
+  const num = p>=1 ? 1000n : p>=0.5 ? 500n : 250n;
+  let amt = bal * num / 1000n;
+  if(amt<=0n) amt = 1n;
+  const el = $(out ? "outAmt" : "amt");
+  el.value = unitsToInput(amt, out ? DEC : inDec());
+  liveComma(el);
+  if(out) previewOut(); else preview();
+}
+function liveComma(el){
+  const old = el.value;
+  const sel = el.selectionStart ?? old.length;
+  const left = old.slice(0, sel).replace(/,/g,"");
+  let s = old.replace(/,/g,"");
+  const hadDot = s.includes(".");
+  if(hadDot){
+    const i = s.indexOf(".");
+    s = s.slice(0,i).replace(/\D/g,"")+"."+s.slice(i+1).replace(/\D/g,"");
+  }else s = s.replace(/\D/g,"");
+  let intp = s, frac = null;
+  if(hadDot){ const i = s.indexOf("."); intp = s.slice(0,i); frac = s.slice(i+1); }
+  intp = intp.replace(/^0+(?=\d)/,"");
+  if(intp==="") intp = hadDot ? "0" : "";
+  const intFmt = intp.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+  const formatted = hadDot ? intFmt+"."+frac : intFmt;
+  if(formatted===old) return;
+  el.value = formatted;
+  let pos = formatted.length;
+  if(sel<old.length){
+    let seen = 0;
+    pos = formatted.length;
+    for(let i=0;i<formatted.length;i++){
+      if(formatted[i]===",") continue;
+      seen++;
+      if(seen>=left.length){ pos = i+1; break; }
+    }
+  }
+  try{ el.setSelectionRange(pos, pos); }catch(_){}
+}
+function gripLine(kind, amt){
+  const inn = [
+    "That's barely anything. The wall didn't notice.",
+    "Paper. The cliff has seen napkins hold longer.",
+    "Strength is increasing.",
+    "Now the cliff has to respect that grip.",
+    "Hard grip. Don't you let go.",
+    "The handle likes you. Don't get cute.",
+    "That's a real squeeze. The floor felt it.",
+    "The carnival just printed a ticket with your name on it.",
+    "Keep both hands on it. The wallet under you is watching.",
+    "The ones who let go are paying for this grip.",
+    "Not bad. Something made of granite just looked down.",
+    "Grip locked. This is how Diamond Hands gets made.",
+    "The cliff moved. That was you.",
+    "Bigger than it looks. Time will do the rest."
+  ];
+  const out = [
+    "Impatient already? That slip was tiny, and it still paid the holders.",
+    "Couldn't wait. The ones still on the wall just got your yield.",
+    "Impatient hands. You let go, and the floor rose for everyone who stayed.",
+    "The barker is laughing. You paid to find out.",
+    "Soft already. The wall keeps what you dropped.",
+    "That's not a rest. That's a let-go.",
+    "Everyone still climbing just got a little richer.",
+    "Your spot is open. Somebody is already reaching for it.",
+    "Toilet paper's out. That's Paper.",
+    "You blinked. The floor did not.",
+    "Impatience has a price, and the holders just collected it.",
+    "The rope was fine. Your hands weren't.",
+    "Down is easy. Climbing back is the game.",
+    "They held. You explained. The floor went up."
+  ];
+  const lines = kind==="out" ? out : inn;
+  const n = Math.max(human(amt, kind==="out" ? DEC : inDec())||0, 1);
+  const step = Math.min(12, Math.floor(Math.log10(n)));
+  return lines[(step + barkN) % lines.length];
+}
+function shout(text){
+  const el = $("bark");
+  if(!el) return;
+  el.textContent = text;
+  el.classList.remove("pop");
+  void el.offsetWidth;
+  el.classList.add("pop");
+}
+function notePass(){
+  if(!account || !me || !me.place) return;
+  const prev = wallPrev.get(account.toLowerCase());
+  if(!prev || !prev.place || me.place >= prev.place) return;
+  const passed = [];
+  for(const r of rows){
+    if(r.addr.toLowerCase() === account.toLowerCase()) continue;
+    const old = wallPrev.get(r.addr.toLowerCase());
+    if(!old || !old.place) continue;
+    if(old.place < prev.place && r.place > me.place) passed.push(r);
+  }
+  if(!passed.length) return;
+  passed.sort((a,b)=>a.place - b.place);
+  passedAddr = passed[0].addr;
+  shout("You passed "+who(passedAddr)+".");
+}
+function punch(){
+  const c = document.querySelector(".cliff");
+  if(!c) return;
+  c.classList.remove("hit");
+  void c.offsetWidth;
+  c.classList.add("hit");
+}
+function setMode(){
+  mode = $("inSel").value;
+  if(game.kind === "pls"){
+    $("amtLabel").textContent = mode==="vpls" ? "vPLS to mint" : "PLS to stake, then mint";
+    $("inHint").textContent = mode==="vpls"
+      ? "Uses vPLS you already hold. Mint talks to the PulseStrategy vault."
+      : "This stakes PLS on Vouch, then mints PLSstr. We are not affiliated with Vouch.";
+  }else if(mode === "htt"){
+    $("amtLabel").textContent = ASSET_SYM+" to mint";
+    $("inHint").textContent = "Uses "+ASSET_SYM+" you already hold. Mint talks to the "+ASSET+" vault.";
+  }else if(mode === "hex"){
+    $("amtLabel").textContent = "HEX to swap, then mint";
+    $("inHint").textContent = "Swaps HEX to "+ASSET_SYM+" on PulseX at 1% slip, then mints "+ASSET+".";
+  }else{
+    $("amtLabel").textContent = "PLS to swap, then mint";
+    $("inHint").textContent = "Swaps PLS to "+ASSET_SYM+" on PulseX at 1% slip, then mints "+ASSET+". Not a stake.";
+  }
+  quote = null;
+  paintBals();
+  preview();
+}
+function setOut(){
+  const pls = game.kind === "pls" && $("outSel").value==="pls";
+  $("outHint").textContent = pls
+    ? "Redeem PLSstr, then unstake the vPLS. Vouch may not pay PLS in the same moment. If it doesn't, claim it on the vault page."
+    : "Release Grip redeems "+ASSET+" for "+ASSET_SYM+". "+ASSET_SYM+" stays in this wallet.";
+  $("outAmtLabel").textContent = ASSET+" to redeem";
+  previewOut();
+}
+$("inSel").addEventListener("change", setMode);
+$("outSel").addEventListener("change", setOut);
+$("amt").addEventListener("input", ()=>{ liveComma($("amt")); preview(); });
+$("outAmt").addEventListener("input", ()=>{ liveComma($("outAmt")); previewOut(); });
+document.querySelectorAll(".fracs button").forEach(btn=>{
+  btn.addEventListener("click", ()=> setFrac(btn.closest(".fracs").dataset.side, Number(btn.dataset.p)));
+});
+
+function candidatePaths(tokenIn, tokenOut){
+  const a = tokenIn.toLowerCase(), b = tokenOut.toLowerCase();
+  if(a === b) return [];
+  const paths = [];
+  const add = nodes => {
+    const n = nodes.map(x => x.toLowerCase());
+    if(new Set(n).size !== n.length) return;
+    paths.push(nodes);
+  };
+  add([tokenIn, tokenOut]);
+  if(a !== WPLS.toLowerCase() && b !== WPLS.toLowerCase()) add([tokenIn, WPLS, tokenOut]);
+  if(a !== HEX.toLowerCase() && b !== HEX.toLowerCase()) add([tokenIn, HEX, tokenOut]);
+  if(a !== WPLS.toLowerCase() && a !== HEX.toLowerCase() && b !== WPLS.toLowerCase() && b !== HEX.toLowerCase()){
+    add([tokenIn, WPLS, HEX, tokenOut]);
+    add([tokenIn, HEX, WPLS, tokenOut]);
+  }
+  return paths;
+}
+async function quoteBestSwap(read, tokenIn, tokenOut, amt){
+  const paths = candidatePaths(tokenIn, tokenOut);
+  const rc = new ethers.Contract(ROUTER, ROUTER_ABI, read);
+  let best = null;
+  for(const path of paths){
+    try{
+      const amounts = await rc.getAmountsOut(amt, path);
+      const got = amounts[amounts.length - 1];
+      if(got > 0n && (!best || got > best.got)) best = {path, got};
+    }catch(_){}
+  }
+  return best;
+}
+
+async function preview(){
+  const amt = parseAmt("amt");
+  const grip = $("gripBtn");
+  grip.disabled = true;
+  if(!amt){
+    $("preview").textContent = "Enter an amount to preview.";
+    quote = null;
+    paintMintAim();
+    if(!parseAmt("outAmt")){
+      const cur = $("bark") && $("bark").textContent || "";
+      if(!cur.startsWith("You passed ")) shout("Grab the handle. Show the wall what you've got.");
+    }
+    return;
+  }
+  shout(gripLine("in", amt));
+  if(!account){
+    $("preview").textContent = "Connect a wallet to preview the transactions.";
+    paintMintAim();
+    return;
+  }
+  try{
+    const read = await rpc();
+    const vault = new ethers.Contract(TOKEN, VAULT_ABI, read);
+    if(mode==="vpls" || mode==="htt"){
+      const [out, vbal, allow] = await Promise.all([
+        vault.previewMint(amt),
+        new ethers.Contract(VPLS, ERC_ABI, read).balanceOf(account),
+        new ethers.Contract(VPLS, ERC_ABI, read).allowance(account, TOKEN)
+      ]);
+      quote = {kind:"mint", amt, out, need: vbal<amt ? "short" : (allow<amt ? "approve" : "ok")};
+      if(amt>0n) mintPerIn = human(out, DEC) / human(amt, DEC);
+      $("preview").textContent = "You put in "+fmtN(human(amt, DEC),4)+" "+ASSET_SYM+usdTag(ASSET_SYM, human(amt, DEC))+" and mint about "+fmtN(human(out, DEC),4)+" "+ASSET+usdTag(ASSET, human(out, DEC))+". The 4.5% mint premium stays in the vault."
+        +(quote.need==="short"?" You don't hold this much "+ASSET_SYM+".": quote.need==="approve"?" First signature approves "+ASSET_SYM+".":"");
+      paintMintAim();
+      grip.disabled = quote.need==="short";
+    }else if(game.kind==="hex"){
+      const pay = mode==="hex" ? HEX : WPLS;
+      const native = mode==="pls";
+      const route = await quoteBestSwap(read, pay, VPLS, amt);
+      if(!route){
+        quote = null;
+        $("preview").textContent = "No PulseX path from "+paySym()+" to "+ASSET_SYM+".";
+        paintMintAim();
+        return;
+      }
+      const min = route.got * 9900n / 10000n;
+      const out = min>0n ? await vault.previewMint(min) : 0n;
+      const bal = native ? await read.getBalance(account) : await new ethers.Contract(pay, ERC_ABI, read).balanceOf(account);
+      quote = {kind:"swap", amt, out, htt:route.got, min, path:route.path, native, pay, bal};
+      if(amt>0n) mintPerIn = human(out, DEC) / human(amt, inDec());
+      $("preview").textContent = "Swap "+fmtN(human(amt, inDec()),4)+" "+paySym()+usdTag(paySym(), human(amt, inDec()))+" for about "+fmtN(human(route.got, DEC),4)+" "+ASSET_SYM+usdTag(ASSET_SYM, human(route.got, DEC))+" on PulseX. 1% slip, minimum "+fmtN(human(min, DEC),4)+usdTag(ASSET_SYM, human(min, DEC))+". Then mint about "+fmtN(human(out, DEC),4)+" "+ASSET+usdTag(ASSET, human(out, DEC))+"."
+        +(bal<amt?" You don't hold this much "+paySym()+".":"");
+      paintMintAim();
+      grip.disabled = bal < amt;
+    }else{
+      const dep = new ethers.Contract(DEPOSIT, DEP_ABI, read);
+      const [rate, min, en, pls] = await Promise.all([dep.getRate(), dep.minDeposit(), dep.depositEnabled(), read.getBalance(account)]);
+      const vpls = rate>0n ? amt * 10n**18n / rate : 0n;
+      const out = vpls>0n ? await vault.previewMint(vpls) : 0n;
+      quote = {kind:"stake", amt, out, vpls, min, en, pls};
+      if(amt>0n) mintPerIn = human(out, DEC) / human(amt, 18);
+      $("preview").textContent = en
+        ? "Stake "+fmtN(human(amt,18),4)+" PLS"+usdTag("PLS", human(amt,18))+" on Vouch for about "+fmtN(human(vpls,18),4)+" vPLS"+usdTag("vPLS", human(vpls,18))+", then mint about "+fmtN(human(out, DEC),4)+" PLSstr"+usdTag(ASSET, human(out, DEC))+". Three signatures. Minimum stake "+fmtN(human(min,18),0)+" PLS"+usdTag("PLS", human(min,18))+"."
+        : "Vouch deposits are paused.";
+      paintMintAim();
+      grip.disabled = !(quote.en && quote.amt>=quote.min && quote.pls>=quote.amt);
+    }
+    shout(gripLine("in", amt));
+    if(quote && quote.out != null){
+      $("preview").textContent += raceNote(quote.out);
+      if(race && !race.unlimited && quote.out > race.left) grip.disabled = true;
+    }
+  }catch(e){
+    $("preview").textContent = "Preview failed. Try again.";
+    quote = null;
+  }
+}
+async function previewOut(){
+  const amt = parseAmt("outAmt");
+  const rel = $("relBtn");
+  rel.disabled = true;
+  if(!amt){
+    $("outPreview").textContent = "Enter "+ASSET+" to see what letting go pays.";
+    outQuote = null;
+    return;
+  }
+  shout(gripLine("out", amt));
+  if(!account){ $("outPreview").textContent = "Connect a wallet to preview the release."; return; }
+  try{
+    const read = await rpc();
+    const vault = new ethers.Contract(TOKEN, VAULT_ABI, read);
+    const [back, fee] = await vault.previewRedeem(amt);
+    const shortBal = bags.str < amt;
+    outQuote = {amt, redeemOut: back, redeemFee: fee};
+    let t = "Letting go of "+fmtN(human(amt, DEC),4)+" "+ASSET+usdTag(ASSET, human(amt, DEC))+" returns about "+fmtN(human(back, DEC),4)+" "+ASSET_SYM+usdTag(ASSET_SYM, human(back, DEC))+". The 0.5% stays with the holders.";
+    if(shortBal) t += " You don't hold this much "+ASSET+".";
+    if(game.kind==="pls" && $("outSel").value==="pls") t += " Then it unstakes that vPLS. Vouch may leave a claim instead of paying PLS now.";
+    $("outPreview").textContent = t;
+    rel.disabled = shortBal;
+  }catch(e){
+    $("outPreview").textContent = "Preview failed. Try again.";
+    outQuote = null;
+  }
+}
+
+function explainErr(e){
+  let m = e.shortMessage || e.message || "Transaction failed";
+  if(/user rejected|denied/i.test(m)) return "Cancelled.";
+  if(/MintQuotaExceeded/.test(m)) return "This epoch’s mint room is used up. Buy "+ASSET+" on PulseX, or wait for the next epoch.";
+  if(/insufficient funds/i.test(m)) return "Not enough PLS for the amount and gas.";
+  if(/INSUFFICIENT_OUTPUT|slippage/i.test(m)) return "Price moved past 1% slip. Try again.";
+  if(/LTMinAmount|min/i.test(m)) return "Below Vouch’s minimum deposit.";
+  return m;
+}
+
+$("gripBtn").onclick = ()=>{
+  if(!account){ openSheet("connectSheet"); return; }
+  if(!quote) return;
+  const line = gripLine("in", quote.amt);
+  shout(line);
+  if(quote.kind==="mint"){
+    $("cTitle").textContent = "Test Your Grip";
+    $("cBody").textContent = line+" Mint about "+fmtN(human(quote.out, DEC),4)+" "+ASSET+" with "+fmtN(human(quote.amt, DEC),4)+" "+ASSET_SYM+" you already hold. The mint premium stays in the vault.";
+  }else if(quote.kind==="swap"){
+    $("cTitle").textContent = "Test Your Grip";
+    $("cBody").textContent = line+" Swap "+fmtN(human(quote.amt, inDec()),4)+" "+paySym()+" for about "+fmtN(human(quote.htt, DEC),4)+" "+ASSET_SYM+" on PulseX. 1% slip, minimum "+fmtN(human(quote.min, DEC),4)+". Then mint about "+fmtN(human(quote.out, DEC),4)+" "+ASSET+". You confirm the swap, the approve, and the mint.";
+  }else{
+    $("cTitle").textContent = "Test Your Grip";
+    $("cBody").textContent = line+" Stake "+fmtN(human(quote.amt,18),4)+" PLS with Vouch, then mint about "+fmtN(human(quote.out, DEC),4)+" PLSstr. You will confirm stake, approve, and mint. We are not affiliated with Vouch.";
+  }
+  openSheet("confirmSheet");
+  $("cGo").onclick = doGrip;
+};
+$("relBtn").onclick = ()=>{
+  const amt = parseAmt("outAmt");
+  if(!account || !outQuote || !amt) return;
+  const slip = gripLine("out", amt);
+  shout(slip);
+  $("cTitle").textContent = "Release Grip";
+  $("cBody").textContent = slip+" Redeem "+fmtN(human(amt, DEC),4)+" "+ASSET+" for about "+fmtN(human(outQuote.redeemOut, DEC),4)+" "+ASSET_SYM+". A 0.5% fee stays in the vault."
+    +(game.kind==="pls" && $("outSel").value==="pls" ? " Then unstake that vPLS. If Vouch cannot pay PLS yet, claim it later on the vault page." : " "+ASSET_SYM+" stays in this wallet.");
+  openSheet("confirmSheet");
+  $("cGo").onclick = doRelease;
+};
+$("cBack").onclick = closeSheets;
+
+async function doGrip(){
+  closeSheets();
+  const btn = $("gripBtn");
+  btn.disabled = true;
+  try{
+    const vault = new ethers.Contract(TOKEN, VAULT_ABI, signer);
+    const vpls = new ethers.Contract(VPLS, VPLS_ABI, signer);
+    if(quote.kind==="stake"){
+      if(!quote.en) throw new Error("Vouch deposits are paused.");
+      if(quote.amt<quote.min) throw new Error("Below Vouch’s minimum deposit.");
+      if(quote.pls<quote.amt) throw new Error("Not enough PLS.");
+      setStatus("Staking PLS on Vouch…");
+      const before = await vpls.balanceOf(account);
+      const dep = new ethers.Contract(DEPOSIT, DEP_ABI, signer);
+      await (await dep.deposit({value: quote.amt, gasLimit: 400_000n})).wait();
+      const after = await vpls.balanceOf(account);
+      const got = after>before ? after-before : 0n;
+      if(got<=0n) throw new Error("Stake finished but no new vPLS showed up.");
+      setStatus("Approving vPLS for the vault…");
+      await (await vpls.approve(TOKEN, got)).wait();
+      const out = await vault.previewMint(got);
+      setStatus("Minting PLSstr…");
+      await (await vault.mint(got, out*995n/1000n)).wait();
+    }else if(quote.kind==="swap"){
+      if(quote.bal < quote.amt) throw new Error("Not enough "+paySym()+".");
+      const back = new ethers.Contract(VPLS, ERC_ABI, signer);
+      const before = await back.balanceOf(account);
+      if(!quote.native){
+        const pay = new ethers.Contract(quote.pay, ERC_ABI, signer);
+        const allow = await pay.allowance(account, ROUTER);
+        if(allow < quote.amt){
+          setStatus("Approving "+paySym()+" for PulseX…");
+          await (await pay.approve(ROUTER, ethers.MaxUint256)).wait();
+        }
+      }
+      setStatus("Swapping "+paySym()+" to "+ASSET_SYM+"…");
+      const r = new ethers.Contract(ROUTER, ROUTER_ABI, signer);
+      const dl = BigInt(Math.floor(Date.now()/1000)+1200);
+      const tx = quote.native
+        ? await r.swapExactETHForTokens(quote.min, quote.path, account, dl, {value:quote.amt, gasLimit:800000n})
+        : await r.swapExactTokensForTokens(quote.amt, quote.min, quote.path, account, dl, {gasLimit:800000n});
+      await tx.wait();
+      const after = await back.balanceOf(account);
+      const got = after>before ? after-before : 0n;
+      if(got<=0n) throw new Error("Swap finished but no new "+ASSET_SYM+" showed up.");
+      setStatus("Approving "+ASSET_SYM+" for the vault…");
+      await (await back.approve(TOKEN, got)).wait();
+      const out = await vault.previewMint(got);
+      setStatus("Minting "+ASSET+"…");
+      await (await vault.mint(got, out*995n/1000n)).wait();
+    }else{
+      if(quote.need==="short") throw new Error("Not enough "+ASSET_SYM+".");
+      if(quote.need==="approve"){
+        setStatus("Approving "+ASSET_SYM+" for the vault…");
+        await (await vpls.approve(TOKEN, quote.amt)).wait();
+      }
+      setStatus("Minting "+ASSET+"…");
+      await (await vault.mint(quote.amt, quote.out*995n/1000n)).wait();
+    }
+    const line = gripLine("in", quote.amt);
+    shout(line);
+    barkN++;
+    punch();
+    setStatus(line,"ok");
+    $("amt").value = "";
+    await refresh();
+  }catch(e){ setStatus(explainErr(e),"err"); }
+  btn.disabled = false;
+  preview();
+}
+async function doRelease(){
+  closeSheets();
+  const btn = $("relBtn");
+  btn.disabled = true;
+  const amt = parseAmt("outAmt");
+  try{
+    if(!amt) throw new Error("Enter "+ASSET+" to redeem.");
+    const vault = new ethers.Contract(TOKEN, VAULT_ABI, signer);
+    const vpls = new ethers.Contract(VPLS, VPLS_ABI, signer);
+    const before = await vpls.balanceOf(account);
+    const [out] = await vault.previewRedeem(amt);
+    setStatus("Redeeming "+ASSET+"…");
+    await (await vault.redeem(amt, out*995n/1000n)).wait();
+    shout(gripLine("out", amt));
+    barkN++;
+    punch();
+    if(game.kind==="pls" && $("outSel").value==="pls"){
+      const after = await vpls.balanceOf(account);
+      const got = after>before ? after-before : 0n;
+      if(got>0n){
+        const allow = await vpls.allowance(account, WITHDRAW);
+        if(allow<got){
+          setStatus("Approving vPLS for Vouch…");
+          await (await vpls.approve(WITHDRAW, ethers.MaxUint256)).wait();
+        }
+        setStatus("Unstaking vPLS on Vouch…");
+        const wd = new ethers.Contract(WITHDRAW, WD_ABI, signer);
+        await (await wd.unstake(got, {gasLimit: 500_000n})).wait();
+        setStatus("Released. If PLS is not in the wallet yet, claim it on the vault page.","ok");
+      }else setStatus("Redeemed. No new vPLS to unstake.","ok");
+    }else setStatus("Released. "+ASSET_SYM+" is in this wallet.","ok");
+    $("outAmt").value = "";
+    await refresh();
+  }catch(e){ setStatus(explainErr(e),"err"); }
+  btn.disabled = false;
+  previewOut();
+}
+
+function shareText(){
+  const url = shareUrl();
+  const challenge = "Play The Hardest Holder and see if you can beat me.";
+  if(!me) return {text:"", title:""};
+  const rank = me.crowned ? "the Hardest Holder" : me.show.name;
+  const nm = account && plsNames.get(account.toLowerCase());
+  const named = nm ? nm+". " : "";
+  return {
+    title: "I’m "+rank+" on PulseChain",
+    text: named+"I’m "+rank+" on PulseChain. Holding "+ASSET+". Score "+fmtScore(me.score)+". "+challenge+"\n"+url
+  };
+}
+function drawSummit(g){
+  g.save();
+  g.beginPath();
+  g.moveTo(64, 600);
+  g.lineTo(150, 552);
+  g.lineTo(240, 586);
+  g.lineTo(340, 528);
+  g.lineTo(450, 578);
+  g.lineTo(560, 534);
+  g.lineTo(670, 590);
+  g.lineTo(790, 546);
+  g.lineTo(900, 592);
+  g.lineTo(1020, 540);
+  g.lineTo(1136, 588);
+  g.lineTo(1136, 612);
+  g.lineTo(64, 612);
+  g.closePath();
+  g.fillStyle = "rgba(78,143,217,.13)";
+  g.fill();
+  g.restore();
+}
+function drawMark(g, id, label){
+  const cx = 990, cy = 268, R = 112;
+  g.save();
+  g.beginPath();
+  g.arc(cx, cy, R, 0, Math.PI * 2);
+  g.fillStyle = "#0d1218";
+  g.fill();
+  g.lineWidth = 4;
+  g.strokeStyle = id==="crown" ? "#e7c56a" : id==="ruby" ? "#e07080" : id==="copper" ? "#e08a52" : "#4E8FD9";
+  g.stroke();
+  g.beginPath();
+  g.arc(cx, cy, R - 12, 0, Math.PI * 2);
+  g.lineWidth = 1.25;
+  g.strokeStyle = "rgba(255,255,255,.16)";
+  g.stroke();
+  g.translate(cx, cy);
+  g.scale(3.15, 3.15);
+  g.translate(-32, -32);
+  paintIcon(g, id);
+  g.restore();
+  g.fillStyle = id==="crown" ? "#e7c56a" : "#C4C7D4";
+  g.font = "600 18px Space Grotesk, sans-serif";
+  g.textAlign = "center";
+  g.fillText(label || "", cx, cy + R + 28);
+  g.textAlign = "left";
+}
+function paintIcon(g, id){
+  g.lineJoin = "round";
+  g.lineCap = "round";
+  if(id==="crown"){
+    g.strokeStyle = "#f7f1d8";
+    g.lineWidth = 2.6;
+    g.beginPath();
+    g.moveTo(6, 46);
+    g.lineTo(6, 34);
+    g.lineTo(14, 20);
+    g.lineTo(22, 32);
+    g.lineTo(28, 16);
+    g.lineTo(32, 6);
+    g.lineTo(36, 16);
+    g.lineTo(42, 32);
+    g.lineTo(50, 20);
+    g.lineTo(58, 34);
+    g.lineTo(58, 46);
+    g.stroke();
+    g.strokeStyle = "#e7c56a";
+    g.lineWidth = 5.5;
+    g.beginPath();
+    g.moveTo(6, 46);
+    g.lineTo(58, 46);
+    g.stroke();
+    g.fillStyle = "#7BA7E8";
+    [[14,20,2.1],[28,16,1.8],[50,20,2.1]].forEach(function(gem){
+      g.beginPath(); g.arc(gem[0], gem[1], gem[2], 0, Math.PI*2); g.fill();
+      g.lineWidth = 1; g.strokeStyle = "#f7f1d8"; g.stroke();
+    });
+    g.beginPath(); g.arc(32, 6, 2.6, 0, Math.PI*2);
+    g.fillStyle = "#e7c56a"; g.fill();
+    g.lineWidth = 1; g.strokeStyle = "#f7f1d8"; g.stroke();
+    return;
+  }
+  if(id==="diamond"){
+    g.fillStyle = "#8eb6ee";
+    g.beginPath();
+    g.moveTo(32, 6); g.lineTo(54, 26); g.lineTo(32, 58); g.lineTo(10, 26); g.closePath();
+    g.fill();
+    g.strokeStyle = "#0b0b10"; g.lineWidth = 1.4;
+    g.beginPath();
+    g.moveTo(10, 26); g.lineTo(54, 26);
+    g.moveTo(32, 6); g.lineTo(20, 26); g.lineTo(32, 58); g.lineTo(44, 26); g.closePath();
+    g.stroke();
+    return;
+  }
+  if(id==="steel"){
+    g.fillStyle = "#d5dde8";
+    g.fillRect(8, 16, 48, 10);
+    g.fillStyle = "#8e9aab";
+    g.fillRect(8, 16, 48, 4);
+    g.fillStyle = "#f4f7fb";
+    g.fillRect(26, 26, 12, 26);
+    return;
+  }
+  if(id==="granite"){
+    g.fillStyle = "#8e98a6";
+    g.beginPath();
+    g.moveTo(10, 40); g.lineTo(18, 16); g.lineTo(30, 26); g.lineTo(40, 8); g.lineTo(56, 22); g.lineTo(50, 48); g.lineTo(16, 54); g.closePath();
+    g.fill();
+    g.fillStyle = "#e7edf4";
+    [[24,30],[36,36],[32,18],[44,28]].forEach(function(pt){
+      g.beginPath(); g.arc(pt[0], pt[1], 1.5, 0, Math.PI*2); g.fill();
+    });
+    return;
+  }
+  if(id==="stone"){
+    g.fillStyle = "#c5ceda";
+    g.beginPath();
+    g.moveTo(16, 44);
+    g.bezierCurveTo(12, 26, 22, 12, 32, 12);
+    g.bezierCurveTo(38, 22, 48, 16, 52, 14);
+    g.bezierCurveTo(62, 26, 56, 46, 46, 54);
+    g.bezierCurveTo(34, 60, 18, 56, 16, 44);
+    g.fill();
+    g.strokeStyle = "#5c6776"; g.lineWidth = 1.5;
+    g.beginPath(); g.moveTo(24, 32); g.quadraticCurveTo(34, 38, 42, 46); g.stroke();
+    return;
+  }
+  if(id==="holder"){
+    g.fillStyle = "#e6c98a";
+    g.beginPath(); g.arc(32, 32, 22, 0, Math.PI*2); g.fill();
+    g.strokeStyle = "#6d4b28"; g.lineWidth = 2;
+    g.beginPath(); g.arc(32, 32, 13, 0, Math.PI*2); g.stroke();
+    g.beginPath(); g.arc(32, 32, 6, 0, Math.PI*2); g.stroke();
+    g.fillStyle = "#6d4b28";
+    g.beginPath(); g.arc(32, 32, 2.1, 0, Math.PI*2); g.fill();
+    return;
+  }
+  if(id==="ruby"){
+    g.fillStyle = "#d23b52";
+    g.beginPath();
+    g.moveTo(32, 6); g.lineTo(54, 24); g.lineTo(32, 58); g.lineTo(10, 24); g.closePath();
+    g.fill();
+    g.strokeStyle = "#4a1018"; g.lineWidth = 1.4;
+    g.beginPath();
+    g.moveTo(10, 24); g.lineTo(54, 24);
+    g.moveTo(32, 6); g.lineTo(20, 24); g.lineTo(32, 58); g.lineTo(44, 24); g.closePath();
+    g.stroke();
+    return;
+  }
+  if(id==="copper"){
+    g.fillStyle = "#d4783a";
+    g.beginPath(); g.arc(32, 32, 22, 0, Math.PI*2); g.fill();
+    g.strokeStyle = "#7a3b1c"; g.lineWidth = 2;
+    g.beginPath(); g.arc(32, 32, 13, 0, Math.PI*2); g.stroke();
+    g.beginPath(); g.arc(32, 32, 3, 0, Math.PI*2); g.fill();
+    return;
+  }
+  if(id==="iron"){
+    g.fillStyle = "#9a938c";
+    g.beginPath(); g.moveTo(8, 18); g.lineTo(56, 18); g.lineTo(50, 30); g.lineTo(14, 30); g.closePath(); g.fill();
+    g.fillStyle = "#6e6862";
+    g.fillRect(12, 30, 40, 16);
+    g.fillStyle = "#c5beb6";
+    g.fillRect(18, 34, 28, 6);
+    return;
+  }
+  if(id==="paper"){
+    g.fillStyle = "#f7f3ea";
+    g.strokeStyle = "#c9bfb0";
+    g.lineWidth = 1.6;
+    g.beginPath(); g.ellipse(32, 20, 16, 14, 0, 0, Math.PI*2); g.fill(); g.stroke();
+    g.fillStyle = "#14120e";
+    g.beginPath(); g.arc(32, 20, 4, 0, Math.PI*2); g.fill();
+    g.fillStyle = "#f7f3ea";
+    g.beginPath(); g.rect(18, 30, 28, 22); g.fill(); g.stroke();
+    g.strokeStyle = "#e3d9cc";
+    g.beginPath(); g.moveTo(20, 38); g.lineTo(44, 38); g.moveTo(20, 44); g.lineTo(44, 44); g.stroke();
+    return;
+  }
+  if(id==="weak"){
+    g.strokeStyle = "#e7b2aa";
+    g.lineWidth = 2.4;
+    g.beginPath();
+    g.moveTo(14, 36); g.quadraticCurveTo(12, 52, 26, 54); g.quadraticCurveTo(40, 56, 42, 42);
+    g.stroke();
+    g.beginPath();
+    g.moveTo(20, 36); g.quadraticCurveTo(22, 20, 24, 14);
+    g.moveTo(28, 34); g.quadraticCurveTo(30, 16, 32, 10);
+    g.moveTo(36, 36); g.quadraticCurveTo(38, 22, 40, 16);
+    g.stroke();
+    g.fillStyle = "#f7f4ee";
+    g.strokeStyle = "#cfc6ba";
+    g.lineWidth = 1.3;
+    g.beginPath();
+    g.moveTo(36, 20);
+    g.bezierCurveTo(52, 12, 60, 28, 52, 34);
+    g.bezierCurveTo(46, 40, 42, 30, 38, 32);
+    g.closePath();
+    g.fill(); g.stroke();
+    return;
+  }
+  g.strokeStyle = "#c5ceda";
+  g.lineWidth = 2.6;
+  g.beginPath();
+  g.moveTo(18, 42); g.lineTo(18, 24);
+  g.moveTo(26, 44); g.lineTo(26, 14);
+  g.moveTo(34, 44); g.lineTo(34, 18);
+  g.moveTo(42, 42); g.lineTo(42, 24);
+  g.moveTo(14, 42); g.quadraticCurveTo(32, 58, 48, 40);
+  g.stroke();
+}
+function roundRect(ctx,x,y,w,h,r){
+  ctx.beginPath();
+  ctx.moveTo(x+r,y);
+  ctx.arcTo(x+w,y,x+w,y+h,r); ctx.arcTo(x+w,y+h,x,y+h,r);
+  ctx.arcTo(x,y+h,x,y,r); ctx.arcTo(x,y,x+w,y,r);
+  ctx.closePath();
+}
+function drawCard(){
+  const c = document.createElement("canvas");
+  c.width = 1200; c.height = 675;
+  const g = c.getContext("2d");
+  g.fillStyle = "#0b0b10"; g.fillRect(0,0,1200,675);
+  roundRect(g, 48, 48, 1104, 579, 28);
+  g.fillStyle = "#14141c"; g.fill();
+  g.strokeStyle = me && me.crowned ? "#4E8FD9" : "#2e2e3c";
+  g.lineWidth = me && me.crowned ? 3 : 2;
+  g.stroke();
+  g.fillStyle = "#8E94A6"; g.font = "500 22px Space Grotesk, sans-serif";
+  g.fillText("THE HARDEST HOLDER  ·  PULSECHAIN", 88, 118);
+  const headline = (me.crowned ? "Hardest Holder" : me.show.name)+" on PulseChain";
+  g.fillStyle = "#F7F8FB"; g.font = "600 46px Space Grotesk, sans-serif";
+  g.fillText(headline, 88, 186);
+  g.fillStyle = "#7BA7E8"; g.font = "600 40px IBM Plex Mono, monospace";
+  g.fillText(ASSET, 88, 246);
+  g.font = "500 28px IBM Plex Mono, monospace";
+  g.fillText("Score "+fmtScore(me.score), 88, 300);
+  g.fillStyle = "#C4C7D4";
+  g.font = "400 22px Space Grotesk, sans-serif";
+  const lines = [
+    weekLine(me),
+    (account && plsNames.get(account.toLowerCase())) || "",
+    fmtN(human(heldOf(me)),2)+" "+ASSET+" still held",
+    timeBits(me),
+    "Play The Hardest Holder. See if you can beat me.",
+    shareUrl().replace("https://","")
+  ].filter(Boolean);
+  let y = 348;
+  const maxW = 760;
+  for(const t of lines){
+    const words = String(t).split(" ");
+    let line = "";
+    for(const w of words){
+      const trial = line ? line+" "+w : w;
+      if(line && g.measureText(trial).width > maxW){
+        g.fillText(line, 88, y);
+        y += 30;
+        line = w;
+      }else line = trial;
+    }
+    if(line){ g.fillText(line, 88, y); y += 32; }
+    if(y > 530) break;
+  }
+  drawSummit(g);
+  drawMark(g, me.show.id, me.crowned ? "HARDEST HOLDER" : String(me.show.name||"").toUpperCase());
+  return new Promise(res=>c.toBlob(res, "image/png"));
+}
+$("shareBtn").onclick = async ()=>{
+  if(!me || !me.place) return;
+  if(me.show.id==="crown" && !me.crowned){ setStatus("Only the current #1 can share the Hardest Holder card.","err"); return; }
+  const {text, title} = shareText();
+  try{
+    const blob = await drawCard();
+    const file = new File([blob], "hardest-holder.png", {type:"image/png"});
+    if(navigator.canShare && navigator.canShare({files:[file]})){
+      await navigator.share({files:[file], text, title});
+      return;
+    }
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob); a.download = "hardest-holder.png"; a.click();
+    window.open("https://twitter.com/intent/tweet?text="+encodeURIComponent(text), "_blank", "noopener");
+    setStatus("Image saved. X is open — attach the image, then post.","ok");
+  }catch(e){
+    if(e && e.name==="AbortError") return;
+    window.open("https://twitter.com/intent/tweet?text="+encodeURIComponent(text), "_blank", "noopener");
+  }
+};
+
+async function refresh(){
+  const gen = boardGen + 1;
+  try{ await loadBoard(); }
+  catch(e){
+    if(boardGen !== gen) return;
+    $("board").innerHTML = '<p class="note">The board could not be read. '+ (e.message||"") +'</p>';
+  }
+  if(boardGen !== gen) return;
+  try{ await loadBags(); }catch(_){}
+}
+function applyGame(g){
+  game = g;
+  TOKEN = g.vault;
+  ASSET = g.token;
+  VPLS = g.asset;
+  ASSET_SYM = g.assetSym;
+  DEC = g.dec;
+}
+function paintChrome(){
+  $("brandTick").textContent = ASSET+" · the floor only rises";
+  $("lede").textContent = game.lede;
+  $("floorK").textContent = "Yield · backing per "+ASSET;
+  $("floorSub").textContent = game.kind==="pls"
+    ? "Paid by mints and by hands that slip. It cannot go down."
+    : "Paid by mints and by hands that slip. "+ASSET_SYM+" is 1 HEX on "+game.day+". It cannot go down.";
+  $("boostLine").innerHTML = '<a id="lpLink" href="https://pulsestrategy369.com/vaults?vault='+encodeURIComponent(game.key)+'#lpBox">Boost your score</a> — '+ASSET+' in LP counts ×4. Add it on the '+ASSET+' vault.';
+  $("tokLink").href = "https://pulsestrategy369.com/address/"+TOKEN;
+  $("tokLink").textContent = ASSET+" contract";
+  $("inSel").innerHTML = game.kind==="pls"
+    ? '<option value="vpls">vPLS — mint PLSstr</option><option value="pls">PLS — stake on Vouch, then mint</option>'
+    : '<option value="htt">'+ASSET_SYM+' — mint '+ASSET+'</option><option value="hex">HEX — swap to '+ASSET_SYM+', then mint</option><option value="pls">PLS — swap to '+ASSET_SYM+', then mint</option>';
+  $("outSel").innerHTML = game.kind==="pls"
+    ? '<option value="vpls">vPLS</option><option value="pls">PLS — may need a Vouch claim</option>'
+    : '<option value="back">'+ASSET_SYM+'</option>';
+  $("affNote").textContent = game.kind==="pls"
+    ? "Stake and unstake talk to Vouch. Mint and redeem talk to the PulseStrategy vault. We are not affiliated with Vouch. This is not a trade."
+    : "The swap talks to PulseX at 1% slip. Mint and redeem talk to the "+ASSET+" vault. This is not a stake.";
+  $("amt").value = "";
+  $("outAmt").value = "";
+  mode = $("inSel").value;
+  setMode();
+  setOut();
+}
+function paintPills(){
+  const bar = $("vaultbar");
+  if(!bar) return;
+  bar.innerHTML = GAMES.map(g=>'<button type="button" class="vpill" role="tab" data-k="'+g.key+'" aria-selected="'+(g.key===game.key)+'">'+g.token+'</button>').join("");
+  bar.querySelectorAll(".vpill").forEach(b=>b.onclick=()=>switchGame(b.dataset.k));
+}
+async function switchGame(key){
+  const g = GAMES.find(x=>x.key===key);
+  if(!g || g.key===game.key) return;
+  applyGame(g);
+  rows = []; me = null; quote = null; outQuote = null; weekPer = null; mintPerIn = null; lastFloor = null; wallPrev = new Map(); passedAddr = null; king = null; race = null;
+  $("board").innerHTML = '<p class="note">Reading the chain…</p>';
+  $("rival").textContent = "Reading who is holding…";
+  $("race").className = "race";
+  $("raceK").textContent = "This drop";
+  $("raceLeft").textContent = "—";
+  $("raceSub").textContent = "Reading the gate…";
+  $("raceFoot").textContent = "";
+  if($("floorUsd")) $("floorUsd").textContent = "";
+  setVault(0);
+  paintPills();
+  paintChrome();
+  try{
+    const u = new URL(location.href);
+    u.searchParams.set("vault", g.key);
+    history.replaceState(null, "", u.pathname + "?" + u.searchParams.toString());
+  }catch(_){}
+  await refresh();
+}
+function vaultFromUrl(){
+  let k = "";
+  try{ k = new URLSearchParams(location.search).get("vault") || ""; }catch(_){}
+  if(!k && location.hash) k = location.hash.replace(/^#/, "");
+  return GAMES.find(g=>g.key.toLowerCase()===String(k).toLowerCase()) || GAMES[0];
+}
+paintGrip($("myGrip"), "idle", "Grip");
+paintBals();
+const buildEl = $("buildTag"); if(buildEl) buildEl.textContent = BUILD;
+
+function rpcHost(u){ try{ return new URL(u).host; }catch(_){ return u; } }
+function rpcIsCustom(){
+  return RPCS.length === 1 && PUBLIC_RPCS.indexOf(RPCS[0]) === -1;
+}
+function paintRpcSel(){
+  const sel = $("rpcSel"); if(sel) sel.classList.toggle("custom", rpcIsCustom());
+}
+function setCustomOption(url){
+  const sel = $("rpcSel");
+  let opt = sel.querySelector("option[data-custom]");
+  if(!opt){
+    opt = document.createElement("option");
+    opt.setAttribute("data-custom","1");
+    sel.insertBefore(opt, sel.querySelector('option[value="__custom"]'));
+  }
+  opt.value = url;
+  opt.textContent = "\u2699 " + rpcHost(url);
+  sel.value = url;
+}
+function clearCustomOption(){
+  const opt = $("rpcSel").querySelector("option[data-custom]");
+  if(opt) opt.remove();
+}
+function buildRpcSel(){
+  const sel = $("rpcSel"); if(!sel) return;
+  sel.innerHTML = PUBLIC_RPCS.map(function(u){
+    return '<option value="'+u+'">'+rpcHost(u)+'</option>';
+  }).join("") + '<option value="__custom">\u2699 Custom RPC\u2026</option>';
+  if(rpcIsCustom()) setCustomOption(RPCS[0]);
+  else sel.value = RPCS[0];
+  paintRpcSel();
+}
+async function applyRpc(url){
+  if(!url){
+    RPCS = PUBLIC_RPCS.slice();
+    try{ localStorage.removeItem("pv_rpc"); }catch(_){}
+    clearCustomOption();
+    $("rpcSel").value = RPCS[0];
+  }else if(PUBLIC_RPCS.indexOf(url) !== -1){
+    RPCS = [url].concat(PUBLIC_RPCS.filter(function(u){ return u !== url; }));
+    try{ localStorage.setItem("pv_rpc", url); }catch(_){}
+    $("rpcSel").value = url;
+  }else{
+    RPCS = [url];
+    try{ localStorage.setItem("pv_rpc", url); }catch(_){}
+    setCustomOption(url);
+  }
+  paintRpcSel();
+  setStatus("Switching RPC\u2026");
+  try{ await rpc(); setStatus(""); }
+  catch(e){ setStatus("That RPC isn't responding — pick another endpoint.","err"); return; }
+  refresh();
+}
+$("rpcSel").onchange = function(e){
+  if(e.target.value !== "__custom"){ applyRpc(e.target.value); return; }
+  const isLocalCopy = location.protocol !== "https:";
+  const currentCustom = rpcIsCustom() ? RPCS[0] : "";
+  const restore = function(){ $("rpcSel").value = RPCS[0]; };
+  const raw = prompt(
+    "RPC endpoint this dapp reads from:\n\n" +
+    "  https://rpc.mynode.example      (any public RPC, e.g. from Chainlist)\n" +
+    "  http://127.0.0.1:8545           (your own node — downloaded copies only)\n\n" +
+    "Leave blank to go back to the public endpoints.\n" +
+    "Saved in your browser only — never sent anywhere. Shared with PulseVerify on this domain.",
+    currentCustom);
+  if(raw === null){ restore(); return; }
+  const url = raw.trim();
+  if(url === ""){ applyRpc(null); return; }
+  if(!/^https?:\/\/.+/.test(url)){
+    alert("RPC must start with https:// or http://"); restore(); return;
+  }
+  if(!isLocalCopy && /^http:\/\//.test(url)){
+    alert("Browsers block http:// RPCs on an https website (mixed content) — that's a browser rule, not ours.\n\nTo read from a home node: tap Download this app in the footer and open the downloaded file. Local copies accept http:// RPCs.\n\nOr expose your node over https.");
+    restore(); return;
+  }
+  applyRpc(url);
+};
+buildRpcSel();
+(function(){
+  const n = $("fileNote");
+  if(n && location.protocol === "file:"){
+    n.style.display = "block";
+    n.textContent = "Running from a downloaded file. On a computer, turn on Allow access to file URLs for your wallet, then use Browser wallet. On Android, open this file in Cx File Explorer with Chrome or Brave (HTTP). On iPhone, use pulsestrategy369.com/hold to connect.";
+  }
+})();
+(async function(){
+  const hashEl = $("fileHash"), dl = $("dlLink"), vb = $("verifyBlock");
+  const _isLocal = location.protocol === "file:" ||
+    /^(localhost|127\.0\.0\.1|\[::1\])$/.test(location.hostname);
+  if(_isLocal && vb){
+    vb.innerHTML = '<span class="localcopy">✓ You are running a local copy — no server trust required.</span>';
+    return;
+  }
+  try{
+    const res = await fetch(location.href, {cache:"no-store"});
+    const buf = await res.arrayBuffer();
+    const digest = await crypto.subtle.digest("SHA-256", buf);
+    const hex = [...new Uint8Array(digest)].map(function(b){ return b.toString(16).padStart(2,"0"); }).join("");
+    if(hashEl) hashEl.textContent = hex;
+    if(dl) dl.onclick = function(ev){
+      ev.preventDefault();
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([buf], {type:"text/html"}));
+      a.download = "hold.html";
+      a.click();
+      URL.revokeObjectURL(a.href);
+    };
+  }catch(e){
+    if(hashEl) hashEl.textContent = "unavailable (fetch blocked)";
+  }
+})();
+
+applyGame(vaultFromUrl());
+paintPills();
+paintChrome();
+refresh();
+tryAuto();
+setInterval(paintRace, 1000);
+setInterval(()=>{ if(!document.hidden) refresh(); }, 60000);
+document.addEventListener("visibilitychange", ()=>{ if(!document.hidden) refresh(); });
+</script>
+</body>
+</html>
