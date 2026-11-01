@@ -639,7 +639,112 @@ pre.json{background:var(--panel2);border:1px solid var(--line);border-radius:12p
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.15.0/ethers.umd.min.js"></script>
 <script src="https://unpkg.com/@walletconnect/ethereum-provider@2.21.1/dist/index.umd.js"></script>
-<script>document.write('<script src="' + (/(vaults|market|launch|explorer)\//.test(location.pathname) ? '../ps.js' : 'ps.js') + '"><\/script>');</script>
+<script>
+/* ── PulseStrategy safety kit (timeouts, chain guard, .pls fallback, ps.js hookup) ──────────────
+   Added on top of the page; nothing here builds calldata or changes amounts. */
+(function(){
+  /* 1) Every fetch without its own signal gets a timeout (Sourcify verify gets longer). */
+  var _f = window.fetch && window.fetch.bind(window);
+  if(_f && window.AbortSignal && AbortSignal.timeout){
+    window.fetch = function(u, o){
+      o = o || {};
+      if(!o.signal){
+        var url = String((u && u.url) || u || "");
+        o = Object.assign({}, o, {signal: AbortSignal.timeout(/sourcify[^?]*\/verify/i.test(url) ? 30000 : 12000)});
+      }
+      return _f(u, o);
+    };
+  }
+})();
+var psIsAddr = function(v){ return /^0x[0-9a-fA-F]{40}$/.test(String(v||"").trim()); };
+var psIsHash = function(v){ return /^0x[0-9a-fA-F]{64}$/.test(String(v||"").trim()); };
+/* Strip markup characters from chain-supplied names/symbols (anyone can deploy a token called "<img ...>"). */
+function psCleanText(v, max){ return String(v == null ? "" : v).replace(/[<>&"'`\u0000-\u001f]/g, "").slice(0, max || 40); }
+var psReadChain = null, psWalletChain = null;
+function psWrongChain(){ return (psReadChain !== null && psReadChain !== 369) || (psWalletChain !== null && psWalletChain !== 369); }
+/* 2) Read providers get a 10s timeout and a one-time chain id check (custom RPCs can point anywhere). */
+var _psChecked = {};
+function psProvider(url, id, opts){
+  var req = new ethers.FetchRequest(String(url));
+  req.timeout = 10000;
+  if(!_psChecked[url]){
+    _psChecked[url] = 1;
+    fetch(String(url), {method:"POST", headers:{"content-type":"application/json"}, body:'{"jsonrpc":"2.0","id":1,"method":"eth_chainId","params":[]}'})
+      .then(function(r){ return r.json(); }).then(function(j){ if(j && j.result){ psReadChain = parseInt(j.result, 16); psPaintChain(); } }).catch(function(){});
+  }
+  return new ethers.JsonRpcProvider(req, id, opts);
+}
+/* 3) Wallet chain tracking for injected wallets. */
+(function(){
+  var eth = window.ethereum;
+  if(!eth || !eth.request) return;
+  /* only matters once a wallet is actually connected to this page */
+  var check = function(){
+    eth.request({method:"eth_accounts"}).then(function(acc){
+      if(!acc || !acc.length){ psWalletChain = null; psPaintChain(); return; }
+      return eth.request({method:"eth_chainId"}).then(function(c){ psWalletChain = c ? parseInt(c, 16) : null; psPaintChain(); });
+    }).catch(function(){});
+  };
+  try{ check(); }catch(_){}
+  try{ if(eth.on){ eth.on("chainChanged", check); eth.on("accountsChanged", check); } }catch(_){}
+})();
+var PS_SIGN_RE = /^\s*(mint|redeem|approve|swap|launch|create|deploy|stake|unstake|claim|deposit|withdraw|add(?! to wallet)|remove|buy|sell|zap|register|donate|seed|confirm|send|exit|harvest|sync)/i;
+function psPaintChain(){
+  var bad = psWrongChain();
+  var bar = document.getElementById("psChainBar");
+  if(bad && !bar && document.body){
+    bar = document.createElement("div"); bar.id = "psChainBar";
+    bar.style.cssText = "position:sticky;top:0;z-index:9999;background:#5a1d1d;color:#ffd7d7;padding:10px 14px;font:600 13px/1.4 system-ui,sans-serif;text-align:center";
+    document.body.insertBefore(bar, document.body.firstChild);
+  }
+  if(bar){
+    bar.style.display = bad ? "" : "none";
+    if(bad) bar.textContent = (psReadChain !== null && psReadChain !== 369)
+      ? "Wrong chain: this RPC reports chain " + psReadChain + ", not PulseChain (369). Numbers may be wrong and signing is turned off. Switch RPC."
+      : "Your wallet is on chain " + psWalletChain + ", not PulseChain (369). Tap any action button to switch.";
+  }
+  document.querySelectorAll("button").forEach(function(b){
+    if(PS_SIGN_RE.test(b.textContent || "")) b.classList.toggle("ps-chainlock", bad);
+  });
+}
+/* Block sign/mint/swap/redeem/launch clicks while on the wrong chain (capture phase, before the page's own handlers). */
+document.addEventListener("click", function(e){
+  if(!psWrongChain()) return;
+  var b = e.target && e.target.closest ? e.target.closest("button") : null;
+  if(!b || !PS_SIGN_RE.test(b.textContent || "")) return;
+  e.preventDefault(); e.stopImmediatePropagation();
+  psPaintChain();
+  if(psReadChain !== null && psReadChain !== 369){ alert("This RPC is not PulseChain (chain " + psReadChain + "). Pick a PulseChain RPC first."); return; }
+  try{ window.ethereum.request({method:"wallet_switchEthereumChain", params:[{chainId:"0x171"}]}).catch(function(){}); }catch(_){}
+}, true);
+/* Delegated copy for buttons built from data (no values inside onclick strings). */
+document.addEventListener("click", function(e){
+  var el = e.target && e.target.closest ? e.target.closest("[data-copy]") : null;
+  if(!el) return;
+  var v = el.getAttribute("data-copy");
+  if(!psIsAddr(v) && !psIsHash(v)) return;
+  if(typeof copyText === "function") copyText(v, el);
+  else { try{ navigator.clipboard.writeText(v); }catch(_){} }
+});
+/* 4) .pls names: ps.js when loaded, otherwise ENS-style lookup on the PulseChain Name Service registry. */
+var PS_PNS = "0xbd5133993FCDED5945c5539D9f032261F0d13170";
+function psLooksName(s){ var t = String(s||"").trim().toLowerCase(); return /^[a-z0-9-]+(\.[a-z0-9-]+)*\.pls$/.test(t) && t.length <= 80; }
+async function psResolve(name){
+  var n = String(name||"").trim().toLowerCase();
+  if(window.PS && window.__psDone){ try{ var a0 = await PS.toAddress(n); if(a0) return a0; }catch(_){} }
+  var url = (typeof CHAIN !== "undefined" && CHAIN.rpcs && CHAIN.rpcs[0]) || "https://rpc.pulsechain.com";
+  var p = psProvider(url, 369, {staticNetwork:true});
+  var node = ethers.namehash(n).slice(2);
+  var r = await p.call({to: PS_PNS, data: "0x0178b8bf" + node});
+  var res = "0x" + String(r||"").slice(-40);
+  if(!psIsAddr(res) || /^0x0{40}$/.test(res)) return "";
+  var a = "0x" + String(await p.call({to: res, data: "0x3b3b57de" + node})||"").slice(-40);
+  return psIsAddr(a) && !/^0x0{40}$/.test(a) ? a.toLowerCase() : "";
+}
+</script>
+<style>button.ps-chainlock{opacity:.45;filter:grayscale(1)}</style>
+
+<script>(function(){var s=document.createElement('script');s.defer=true;s.onload=function(){if(window.__psReady)window.__psReady();};s.src=(/(vaults|market|launch|explorer)\//.test(location.pathname)?'../ps.js':'ps.js');document.head.appendChild(s);})();</script>
 <script>
 /* ═══════════════════ CONFIG ═══════════════════ */
 const FACTORY_ADDR = "0x1F3Ef0bf7fE0c6bEBD0ba1503734F87014dBa5e5";
@@ -900,14 +1005,14 @@ function pvAddr(addr){
 const assetSym = a => (ASSETS.find(x=>x.addr.toLowerCase()===String(a).toLowerCase())||{}).sym || "ASSET";
 
 let rpcIndex=0;
-let readProvider=new ethers.JsonRpcProvider(CHAIN.rpcs[0], CHAIN.id, {staticNetwork:true});
+let readProvider=psProvider(CHAIN.rpcs[0], CHAIN.id, {staticNetwork:true});
 let rpcHealthy=false;
 async function ensureRpc(){
   for(let i=0;i<CHAIN.rpcs.length;i++){
     try{ await readProvider.getBlockNumber(); rpcHealthy=true; return true; }
     catch(_){
       rpcIndex=(rpcIndex+1)%CHAIN.rpcs.length;
-      readProvider=new ethers.JsonRpcProvider(CHAIN.rpcs[rpcIndex], CHAIN.id, {staticNetwork:true});
+      readProvider=psProvider(CHAIN.rpcs[rpcIndex], CHAIN.id, {staticNetwork:true});
     }
   }
   rpcHealthy=false; return false;
@@ -1394,7 +1499,7 @@ async function applyRpc(url){
     setCustomOption(url);
   }
   rpcIndex = 0;
-  readProvider = new ethers.JsonRpcProvider(CHAIN.rpcs[0], CHAIN.id, { staticNetwork: true });
+  readProvider = psProvider(CHAIN.rpcs[0], CHAIN.id, { staticNetwork: true });
   rpcHealthy = false;
   paintRpcSel();
   const ok = await ensureRpc();
@@ -1546,9 +1651,9 @@ async function disconnectWallet(){
 $("openBtn").onclick=async()=>{
   const raw = $("vaultIn").value.trim();
   let addr = raw;
-  if(window.PS && PS.looksLikeName(raw)){
-    setStatus("Resolving "+raw+"…", "");
-    addr = await PS.toAddress(raw);
+  if(psLooksName(raw)){
+    setStatus("Resolving "+psCleanText(raw,80)+"…", "");
+    try{ addr = await psResolve(raw); }catch(_){ addr = ""; }
     if(!addr){ setStatus("No address for that .pls name.","err"); return; }
   }
   openVault(addr, true);
@@ -1590,7 +1695,7 @@ async function openVault(addr, switchTab){
     }catch(_){}
   }
   cur={
-    cfg:{ vault:addr, key:addr.toLowerCase(), name, token:sym, assetAddr:asset, assetSym:aSym, creator, initialQuotaBps:Number(iq), createdAt },
+    cfg:{ vault:addr, key:addr.toLowerCase(), name:psCleanText(name,60), token:psCleanText(sym), assetAddr:asset, assetSym:psCleanText(aSym), creator, initialQuotaBps:Number(iq), createdAt },
     vr, ar, aDec:Number(aDec), tDec:Number(tDec)
   };
   if(account && signer){
@@ -1987,8 +2092,9 @@ function tickEpoch(){
   const d=Math.floor(s/86400); s%=86400;
   $("epochTimer").textContent=(d?d+"d ":"")+Math.floor(s/3600)+"h "+Math.floor((s%3600)/60)+"m";
 }
-setInterval(tickEpoch,1000);
-setInterval(()=>{ if(!document.hidden) refresh(); }, 15000);
+setInterval(()=>{ if(!document.hidden) tickEpoch(); },1000);
+/* 30s instead of 15s: blocks are ~10s and every tx already triggers its own refresh */
+setInterval(()=>{ if(!document.hidden) refresh(); }, 30000);
 document.addEventListener("visibilitychange", ()=>{ if(!document.hidden) refresh(); });
 
 function paintInBal(){
@@ -2578,7 +2684,7 @@ async function readVaultCores(addrs){
     const info=decFn(FACTORY_IFACE,"infoOf",b.info);
     if(!asset||!vb||!ts||!backing){ coreMemo.set(k, null); continue; }
     coreMemo.set(k, {
-      info, name:name[0], sym:sym?sym[0]:"?", asset:asset[0],
+      info, name:psCleanText(name[0],60), sym:sym?psCleanText(sym[0]):"?", asset:asset[0],
       vb:vb[0], ts:ts[0], backing:backing[0],
       iq:iq?iq[0]:0n, qb:qb?qb[0]:0n, creator:creator?creator[0]:null,
       tDec:dec?Number(dec[0]):18, genesis:gen?!!gen[0]:false
@@ -2605,7 +2711,7 @@ async function readAssetMetas(addrs){
     const row=acc.get(a)||{};
     assetMeta.set(a, {
       dec: row.decimals ? Number(row.decimals[0]) : 18,
-      sym: row.symbol ? row.symbol[0] : assetSym(a)
+      sym: row.symbol ? psCleanText(row.symbol[0]) : assetSym(a)
     });
   }
 }
@@ -4264,7 +4370,7 @@ async function loadHeldVaults(){
     logs.forEach(lg=>{
       const addr=lg.args.vault;
       launchedMap[addr.toLowerCase()]={
-        addr, name:lg.args.name, sym:lg.args.symbol, tx:lg.transactionHash,
+        addr, name:psCleanText(lg.args.name,60), sym:psCleanText(lg.args.symbol), tx:lg.transactionHash,
         ...(launchedMap[addr.toLowerCase()]||{})
       };
     });
@@ -4280,7 +4386,7 @@ async function loadHeldVaults(){
         vr.balanceOf(account), vr.symbol(), vr.name(), vr.decimals(), vr.creator().catch(()=>null)
       ]);
       if(creator && String(creator).toLowerCase()===account.toLowerCase()){
-        launched.push({addr,sym,name,tx:(launchedMap[key]||{}).tx});
+        launched.push({addr,sym:psCleanText(sym),name:psCleanText(name,60),tx:(launchedMap[key]||{}).tx});
         seen.add(key);
       }
       if(baln>0n) hits.push({addr,sym,name,baln,dec:Number(dec)});
@@ -4801,7 +4907,7 @@ async function hhDiscover(read, token){
       if(String(info.asset).toLowerCase()!==token.toLowerCase()) continue;
       const c = new ethers.Contract(addr, ["function vaultBalance() view returns (uint256)","function totalSupply() view returns (uint256)","function balanceOf(address) view returns (uint256)"], read);
       const [backing, supply] = await Promise.all([c.vaultBalance(), c.totalSupply()]);
-      vaults.push({addr, symbol: info.symbol, backing, supply, c});
+      vaults.push({addr, symbol: psCleanText(info.symbol), backing, supply, c});
     }
   }
   const px = new ethers.Contract(HH_PX, HH_PX_ABI, read);
@@ -6051,13 +6157,14 @@ if($("hhNext")) $("hhNext").onclick=()=>{ hhEnsurePage(hhPage+1); };
   const q=new URLSearchParams(location.search).get("vault") || decodeURIComponent((location.hash||"").replace(/^#/,""));
   if(q && ethers.isAddress(q)) openVault(q,true);
   else if(FEATURED.vault) { /* featured stays on launch tab */ }
-  if(window.PS){
+  const __psInit = () => { if(!window.PS || window.__psDone) return; window.__psDone = true;
     PS.setCaller((to, data) => readProvider.call({to: to, data: data}));
     PS.on(() => {
       if(account && $("connectBtn") && $("connectBtn").classList.contains("connected")) $("connectBtn").textContent = PS.label(account);
       if(typeof hhPaint === "function" && ((hhRows && hhRows.length) || hhMe)) hhPaint();
     });
-  }
+  };
+  if(window.PS) __psInit(); else window.__psReady = __psInit;
   try{
     await reconnectWallet();
   }catch(_){}
