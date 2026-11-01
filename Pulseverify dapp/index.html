@@ -392,11 +392,16 @@ footer a.vaultlink{color:var(--teal);font-weight:600}
     </div>
   </section>
 
+  <section class="panel" id="watchPanel" style="display:none">
+    <h2>★ Watchlist</h2>
+    <div style="padding:0 16px 14px"><div class="whale-list" id="watchlist"></div>
+    <div class="small-note">Saved in this browser only. Balances refresh every 10 minutes in one call. League is the PLS share of supply.</div></div>
+  </section>
+
   <section class="panel" id="whalePanel">
-    <h2><span class="live"></span> Whale watch · 7 days</h2>
+    <h2><span class="live"></span> Bridged Whales (24h)</h2>
     <div style="padding:0 16px 14px">
-    <div class="small-note">PLS, PLSX, HEX, INC, PRVX, WETH, pDAI, and stables. A wallet is watched when the week adds up to $25k, even across several moves.</div>
-    <div class="whale-list" id="whales"><div class="loading" style="padding:16px"><span class="spin"></span><br>Scanning large moves…</div></div>
+    <div class="whale-list" id="whales"><div class="loading" style="padding:16px"><span class="spin"></span><br>Reading bridge moves…</div></div>
     </div>
   </section>
   </div>
@@ -444,10 +449,11 @@ rel="noopener">Github</a> and inspect the code or download from github.</div>
   Free tool from <a href="https://pulsestrategy369.com">PulseStrategy</a> · <a href="https://x.com/pulsestrategy" target="_blank" rel="noopener">@pulsestrategy</a> · the floor only rises · <span id="buildTag" style="font-family:var(--mono)"></span>
 </footer>
 </div>
-<script>document.write('<script src="' + (/(vaults|market|launch|explorer)\//.test(location.pathname) ? '../ps.js' : 'ps.js') + '"><\/script>');</script>
+<script>(function(){var s=document.createElement('script');s.defer=true;s.onload=function(){if(window.__psReady)window.__psReady();};s.src=(/(vaults|market|launch|explorer)\//.test(location.pathname)?'../ps.js':'ps.js');document.head.appendChild(s);})();</script>
 <script>
 "use strict";
-var BUILD = 'v84 · 2026-10-31';
+var BUILD = 'v88 · 2026-11-01';
+let _chainId = null;
 var VAULTS_URL = 'https://pulsestrategy369.com/vaults'; /* ★ EDIT HERE: the one place that controls every 'Vaults' link on this page */
 var LAUNCH_URL = 'https://pulsestrategy369.com/launch'; /* ★ EDIT HERE: PulseStrategy Launcher */
 var WHITEPAPER_URL = 'https://pulsestrategy369.com/whitepaper';
@@ -456,11 +462,29 @@ let RPC = document.getElementById('rpcsel').value;
 let rpcId = 1;
 async function rpc(method, params=[]) {
   const res = await fetch(RPC, {method:'POST', headers:{'Content-Type':'application/json'},
-    body: JSON.stringify({jsonrpc:'2.0', id:rpcId++, method, params})});
+    body: JSON.stringify({jsonrpc:'2.0', id:rpcId++, method, params}), signal: AbortSignal.timeout(8000)});
   if(!res.ok) throw new Error('RPC HTTP '+res.status);
   const j = await res.json();
   if(j.error) throw new Error(j.error.message || 'RPC error');
   return j.result;
+}
+/* One HTTP request for several calls (JSON-RPC batch). Falls back to single calls if the node refuses batches.
+   Returns results in order; a failed item comes back as null. */
+async function rpcBatch(reqs){
+  if(!reqs.length) return [];
+  try{
+    const ids = reqs.map(()=>rpcId++);
+    const res = await fetch(RPC, {method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify(reqs.map((q,i)=>({jsonrpc:'2.0', id:ids[i], method:q[0], params:q[1]||[]}))), signal: AbortSignal.timeout(8000)});
+    if(!res.ok) throw new Error('RPC HTTP '+res.status);
+    const j = await res.json();
+    if(!Array.isArray(j)) throw new Error('no batch');
+    const by = new Map(j.map(x=>[x.id, x]));
+    return ids.map(id=>{ const x = by.get(id); return x && !x.error ? x.result : null; });
+  }catch(e){
+    if(e && /RPC HTTP (429|5\d\d)/.test(e.message||'')) throw e;
+    return Promise.all(reqs.map(q=>rpc(q[0], q[1]||[]).catch(()=>null)));
+  }
 }
 const call = (to, data, from) => rpc('eth_call', [{to, data, ...(from?{from}:{})}, 'latest']);
 /* Multicall3 on PulseChain. Bundles eth_calls only. Logs, blocks, receipts, code, and storage stay single calls. */
@@ -579,12 +603,35 @@ function ago(ts){
   if(s<86400) return Math.floor(s/3600)+'h ago'; return Math.floor(s/86400)+'d ago';
 }
 function esc(s){ return String(s).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
-function copyBtn(text){ return `<button class="copy" title="Copy" onclick="navigator.clipboard.writeText('${esc(text)}');this.textContent='✓';setTimeout(()=>this.textContent='⧉',900)">⧉</button>`; }
+/* Values from the chain or the network never go inside onclick JS strings (esc() is HTML-safe, not JS-safe).
+   They ride in data-* attributes and one delegated listener does the work. */
+const isAddr = v => /^0x[0-9a-fA-F]{40}$/.test(String(v||''));
+const isHash = v => /^0x[0-9a-fA-F]{64}$/.test(String(v||''));
+function copyBtn(text){ return `<button class="copy" title="Copy" data-copy="${esc(text)}">⧉</button>`; }
 const linkAddr = a => {
   const id = String(a||'').toLowerCase();
-  return `<a data-ps="${esc(id)}" onclick="loadAddress('${esc(a)}')">${esc(short(a,10))}</a>${copyBtn(a)}`;
+  if(!isAddr(a)) return esc(short(String(a||''),10));
+  return `<a data-ps="${esc(id)}" data-addr="${esc(a)}">${esc(short(a,10))}</a>${copyBtn(a)}`;
 };
-const linkTx   = h => `<a onclick="loadTx('${esc(h)}')">${short(h,10)}</a>${copyBtn(h)}`;
+const linkTx   = h => isHash(h) ? `<a data-tx="${esc(h)}">${esc(short(h,10))}</a>${copyBtn(h)}` : esc(short(String(h||''),10));
+document.addEventListener('click', e=>{
+  const el = e.target && e.target.closest ? e.target.closest('[data-addr],[data-tx],[data-copy],[data-revoke],[data-star],[data-unwatch]') : null;
+  if(!el) return;
+  if(el.hasAttribute('data-copy')){
+    const t = el.getAttribute('data-copy');
+    try{ navigator.clipboard.writeText(t); }catch(_){}
+    el.textContent='✓'; setTimeout(()=>el.textContent='⧉',900); e.stopPropagation(); return;
+  }
+  if(el.hasAttribute('data-revoke')){
+    const [tok, spd, idx] = el.getAttribute('data-revoke').split('|');
+    if(isAddr(tok) && isAddr(spd)) revokeApproval(tok, spd, Number(idx), el);
+    return;
+  }
+  if(el.hasAttribute('data-star')){ const a = el.getAttribute('data-star'); if(isAddr(a)) toggleWatch(a, el); return; }
+  if(el.hasAttribute('data-unwatch')){ const a = el.getAttribute('data-unwatch'); if(isAddr(a)) removeWatch(a); e.stopPropagation(); return; }
+  if(el.hasAttribute('data-tx')){ const h = el.getAttribute('data-tx'); if(isHash(h)) loadTx(h); return; }
+  const a = el.getAttribute('data-addr'); if(isAddr(a)) loadAddress(a);
+});
 const linkBlk  = n => `<a onclick="loadBlock(${Number(n)})">${Number(n).toLocaleString('en-US')}</a>`;
 function decodeAbiString(hex){
   try{
@@ -612,9 +659,15 @@ async function refreshFeed(tip){
   const want = [];
   for(let n=tip; n>tip-12 && n>=0; n--) if(!seen.has(n)) want.push(n);
   if(!want.length) return;
-  const results = await Promise.all(want.map(n => getBlock(n).catch(()=>null)));
+  const fetchBlocks = ns => rpcBatch(ns.map(n=>['eth_getBlockByNumber', ['0x'+n.toString(16), false]]));
+  const first = want.slice(0, 6), rest = want.slice(6);
+  paintBlocks(await fetchBlocks(first), tip, false);
+  if(rest.length) paintBlocks(await fetchBlocks(rest), tip, true);
+}
+function paintBlocks(results, tip, older){
+  const feed = $('blocks');
   if(feed.querySelector('.loading')) feed.innerHTML='';
-  results.filter(Boolean).sort((a,b)=>hexToNum(a.number)-hexToNum(b.number)).forEach(b=>{
+  results.filter(Boolean).sort((a,b)=> older ? hexToNum(b.number)-hexToNum(a.number) : hexToNum(a.number)-hexToNum(b.number)).forEach(b=>{
     const n = hexToNum(b.number);
     if(seen.has(n)) return;
     seen.add(n);
@@ -629,7 +682,7 @@ async function refreshFeed(tip){
       <div class="n"><a onclick="loadBlock(${n})">#${n.toLocaleString('en-US')}</a>
         <div class="meta">${b.transactions.length} txs · ${(hexToNum(b.gasUsed)/1e6).toFixed(2)}M gas</div></div>
       <div class="right">${ago(ts)}<br><span title="fee recipient">⛏ ${short(b.miner,4)}</span></div>`;
-    feed.prepend(div);
+    if(older) feed.appendChild(div); else feed.prepend(div);
   });
   while(feed.children.length>30) feed.lastChild.remove();
   if(prevBlockTs && lastBlockTs>prevBlockTs) $('s-time').innerHTML = (lastBlockTs-prevBlockTs)+' <span class="unit">sec</span>';
@@ -655,11 +708,24 @@ async function paintFeeStats(gasWei){
     'swap · '+feeLine(lastGasWei * SWAP_GAS, usd);
 }
 
+let _gasAt = 0, _gasPx = 0n, _gasTip = 10n**9n, _tickBusy = false;
 async function tick(){
+  if(_tickBusy) return; _tickBusy = true;
+  try{ await tickInner(); } finally { _tickBusy = false; }
+}
+async function tickInner(){
   try{
-    const [bnHex, gasHex] = await Promise.all([rpc('eth_blockNumber'), rpc('eth_gasPrice')]);
+    const needGas = !_gasAt || Date.now() - _gasAt > 60000;
+    const got = await rpcBatch(needGas ? [['eth_blockNumber'],['eth_gasPrice'],['eth_maxPriorityFeePerGas']] : [['eth_blockNumber']]);
+    const bnHex = got[0];
+    if(!bnHex) throw new Error('no block number');
+    if(needGas){
+      if(got[1]) _gasPx = hexToBig(got[1]);
+      if(got[2]) _gasTip = hexToBig(got[2]);
+      _gasAt = Date.now();
+    }
     setNet(true);
-    let gasWei = hexToBig(gasHex);
+    let gasWei = _gasPx;
     const bn = hexToNum(bnHex);
     if(bn > lastBlockNum){
       const isFirst = lastBlockNum===0;
@@ -668,9 +734,7 @@ async function tick(){
       if(!isFirst) beat();
       await refreshFeed(bn);
     }
-    let tip = 10n**9n;
-    try{ const t = await rpc('eth_maxPriorityFeePerGas'); if(t) tip = hexToBig(t); }catch(_){}
-    const eip = lastBaseFeeWei + tip;
+    const eip = lastBaseFeeWei + _gasTip;
     if(eip > gasWei) gasWei = eip;
     $('s-gas').innerHTML = fmtGwei(gasWei) + ' <span class="unit">beats</span>';
     paintFeeStats(gasWei);
@@ -1065,9 +1129,14 @@ const UNLIMITED_HINT = (1n << 255n);
 
 async function renderApprovals(){
   const addr = cur.addr;
-  $('d-body').innerHTML = `
-    <div class="warnbox" style="margin:0 0 12px">A token approval lets another contract move that token out of this wallet — for as long as it stays open. Old approvals from dapps you no longer use are one of the most common ways funds get drained.</div>
-    <div id="appr-rows"><div class="loading" style="padding:20px"><span class="spin"></span><br>Scanning approval history\u2026</div></div>
+  const mine = walletAddr && walletAddr.toLowerCase() === addr.toLowerCase();
+  $('d-body').innerHTML = wrongChainBox() + `
+    <div class="warnbox" style="margin:0 0 12px">A token approval lets another contract move that token out of this wallet, for as long as it stays open. Old approvals from dapps you no longer use are one of the most common ways funds get drained.</div>
+    <div class="toolbar">
+      <button class="btn-grad" id="appr-go">Check all of this wallet's open approvals</button>
+      ${walletAddr && !mine ? `<button class="btn-ghost" data-addr="${esc(walletAddr)}">Use my connected wallet</button>` : ''}
+    </div>
+    <div id="appr-rows"><div class="hint">Nothing is scanned until you tap the button. It reads this wallet's full approval history in one log query, then checks every allowance live.</div></div>
     <div class="sub-h">Check a specific token</div>
     <div class="frow">
       <div class="field"><input id="appr-tok" placeholder="token contract 0x\u2026"></div>
@@ -1075,55 +1144,74 @@ async function renderApprovals(){
     </div>
     <button class="btn-ghost" onclick="checkOneApproval()">Check allowance</button>
     <div id="appr-one"></div>
-    <div class="small-note">Approvals are found by scanning recent blocks for this address \u2014 without an indexing database an explorer can't reach all the way back, so treat this as a strong sweep rather than a complete audit, and use the box above for anything specific. Revoking sends a normal transaction from your own wallet and costs gas.</div>`;
-  const box = $('appr-rows');
-  try{
-    let range = 200000, logs = null;
-    while(range >= 1000 && logs === null){
-      try{
-        logs = await rpc('eth_getLogs', [{
-          topics: [APPROVAL_TOPIC, '0x' + padA(addr)],
-          fromBlock: '0x' + Math.max(0, lastBlockNum - range).toString(16), toBlock: 'latest'
-        }]);
-      }catch(e){ range = Math.floor(range / 2); }
+    <div class="small-note">${mine ? 'This is your connected wallet, so each Revoke button works with one tap and one signature.' : 'To revoke, connect the wallet that owns this address (top right).'} Revoking sends a normal approve(spender, 0) from your own wallet and costs a little gas.</div>`;
+  $('appr-go').onclick = ()=>scanApprovals(addr);
+}
+/* Full history: one eth_getLogs on Approval(owner indexed). If the RPC refuses the full range,
+   walk back in windows. Then ONE multicall confirms allowance, decimals and symbol for every pair. */
+async function approvalLogs(addr){
+  const topics = [APPROVAL_TOPIC, '0x' + padA(addr)];
+  try{ return {logs: await rpc('eth_getLogs', [{topics, fromBlock:'0x0', toBlock:'latest'}]), full:true}; }catch(e){}
+  const head = lastBlockNum || hexToNum(await rpc('eth_blockNumber'));
+  let win = 2000000, to = head, out = [], full = true;
+  for(let i=0; i<40 && to>0; i++){
+    const from = Math.max(0, to - win + 1);
+    try{
+      out = out.concat(await rpc('eth_getLogs', [{topics, fromBlock:'0x'+from.toString(16), toBlock:'0x'+to.toString(16)}]));
+      to = from - 1;
+    }catch(e){
+      if(win <= 50000){ full = false; break; }
+      win = Math.floor(win/4);
     }
-    if(!logs) throw new Error('this RPC limits log queries too tightly');
-    if(cur.addr !== addr) return;
+  }
+  return {logs: out, full: full && to <= 0};
+}
+async function scanApprovals(addr){
+  const box = $('appr-rows'), btn = $('appr-go');
+  if(btn) btn.disabled = true;
+  box.innerHTML = '<div class="loading" style="padding:20px"><span class="spin"></span><br>Reading approval history\u2026</div>';
+  try{
+    const {logs, full} = await approvalLogs(addr);
+    if(!cur || cur.addr !== addr) return;
     const pairs = new Map();
     for(const l of logs){
       if(!l.topics || l.topics.length < 3) continue;
-      pairs.set(l.address.toLowerCase() + '|' + wordAddr(l.topics[2]), {
-        token: l.address, spender: wordAddr(l.topics[2])
-      });
+      const sp = wordAddr(l.topics[2]);
+      pairs.set(l.address.toLowerCase() + '|' + sp, {token: l.address.toLowerCase(), spender: sp});
     }
-    if(!pairs.size){ box.innerHTML = '<div class="okbox">No approvals found in the scanned window \u2014 nothing to revoke here.</div>'; return; }
-    box.innerHTML = '<div class="hint">Checking ' + pairs.size + ' approval' + (pairs.size>1?'s':'') + ' live\u2026</div>';
+    if(!pairs.size){ box.innerHTML = '<div class="okbox">No token approvals found for this wallet. Nothing to revoke.</div>'; return; }
+    box.innerHTML = '<div class="hint">Checking ' + pairs.size + ' token/spender pair' + (pairs.size>1?'s':'') + ' live\u2026</div>';
+    const list = [...pairs.values()];
+    const tokens = [...new Set(list.map(p=>p.token))];
+    const calls = list.map(p=>({to:p.token, data:'0xdd62ed3e' + padA(addr) + padA(p.spender)}))
+      .concat(tokens.map(t=>({to:t, data:'0x313ce567'})), tokens.map(t=>({to:t, data:'0x95d89b41'})));
+    const res = await multiCall(calls);
+    if(!cur || cur.addr !== addr) return;
+    const meta = {};
+    tokens.forEach((t,i)=>{
+      const d = res[list.length + i], sy = res[list.length + tokens.length + i];
+      meta[t] = {dec: d ? Math.min(36, hexToNum(retWord(d)||'0x12')) : 18, sym: (sy && decodeAbiString(sy)) || short(t,4)};
+    });
     const live = [];
-    for(const p of pairs.values()){
-      try{
-        const [alw, dec, sym] = await Promise.all([
-          call(p.token, '0xdd62ed3e' + padA(addr) + padA(p.spender)),
-          call(p.token, '0x313ce567').catch(()=>null),
-          call(p.token, '0x95d89b41').catch(()=>null)
-        ]);
-        const v = hexToBig(alw);
-        if(v > 0n) live.push({ ...p, v, dec: dec ? hexToNum(dec) : 18, sym: (sym && decodeAbiString(sym)) || short(p.token,4) });
-      }catch(e){}
-    }
-    if(cur.addr !== addr) return;
-    if(!live.length){ box.innerHTML = '<div class="okbox">Every approval found in the scanned window is already at zero \u2014 nothing open.</div>'; return; }
-    live.sort((a,b) => (b.v > a.v ? 1 : -1));
-    box.innerHTML = live.map((a,i) => {
+    list.forEach((p,i)=>{
+      const v = res[i] ? hexToBig(retWord(res[i]) || '0x0') : 0n;
+      if(v > 0n) live.push({...p, v, dec: meta[p.token].dec, sym: String(meta[p.token].sym).slice(0, 24)});
+    });
+    if(!live.length){ box.innerHTML = '<div class="okbox">All ' + pairs.size + ' approvals this wallet ever gave are already at zero. Nothing open.</div>'; return; }
+    live.sort((a,b) => (b.v >= UNLIMITED_HINT) - (a.v >= UNLIMITED_HINT) || (b.v > a.v ? 1 : -1));
+    const nUnl = live.filter(a=>a.v >= UNLIMITED_HINT).length;
+    const head = `<div class="${nUnl?'warnbox':'hint'}" style="margin:0 0 8px">${live.length} open approval${live.length>1?'s':''}${nUnl?`, <b>${nUnl} unlimited</b>`:''}.${full?'':' (Your RPC limited how far back it could read, so older ones may be missing.)'}</div>`;
+    box.innerHTML = head + live.map((a,i) => {
       const unlimited = a.v >= UNLIMITED_HINT;
-      const amt = unlimited ? '<span class="badge fail">UNLIMITED</span>' : fmtUnits(a.v, a.dec, 4) + ' ' + esc(a.sym);
+      const amt = unlimited ? '<span class="badge fail">Unlimited</span>' : esc(fmtUnits(a.v, a.dec, 4)) + ' ' + esc(a.sym);
       return `<div class="txrow" id="appr-row-${i}">
-        <span><a onclick="loadAddress('${esc(a.token)}')">${esc(a.sym)}</a> \u2192 spender ${linkAddr(a.spender)}<br>
+        <span><a data-addr="${esc(a.token)}"><b>${esc(a.sym)}</b></a> \u2192 ${linkAddrNamed(a.spender)}<br>
         <span style="color:var(--faint)">can move ${amt}</span></span>
-        <span class="val"><button class="btn-ghost" onclick="revokeApproval('${esc(a.token)}','${esc(a.spender)}',${i})">Revoke</button></span></div>`;
+        <span class="val"><button class="btn-ghost"${signDis()} data-revoke="${esc(a.token)}|${esc(a.spender)}|${i}">Revoke</button></span></div>`;
     }).join('');
   }catch(e){
     box.innerHTML = '<div class="errbox">Couldn\'t scan approvals: ' + esc(e.message) + '. Try another RPC endpoint, or check a specific token below.</div>';
-  }
+  }finally{ if(btn) btn.disabled = false; }
 }
 async function checkOneApproval(){
   const tok = $('appr-tok').value.trim(), spd = $('appr-spd').value.trim(), out = $('appr-one');
@@ -1139,12 +1227,14 @@ async function checkOneApproval(){
     if(v === 0n) return out.innerHTML = '<div class="okbox">No allowance \u2014 that spender cannot move this token.</div>';
     const unlimited = v >= UNLIMITED_HINT;
     out.innerHTML = `<div class="warnbox">Open approval: that spender can move ${unlimited ? '<b>an unlimited amount</b>' : fmtUnits(v,d,4) + ' ' + esc(s)}.
-      <div class="toolbar" style="margin-top:8px"><button class="btn-ghost" onclick="revokeApproval('${esc(tok)}','${esc(spd)}',-1)">Revoke this approval</button></div></div>`;
+      <div class="toolbar" style="margin-top:8px"><button class="btn-ghost"${signDis()} data-revoke="${esc(tok)}|${esc(spd)}|-1">Revoke this approval</button></div></div>`;
   }catch(e){ out.innerHTML = '<div class="errbox">' + esc(e.message) + '</div>'; }
 }
-async function revokeApproval(token, spender, idx){
+async function revokeApproval(token, spender, idx, btn){
   const target = idx >= 0 ? document.getElementById('appr-row-' + idx) : $('appr-one');
   try{
+    if(wrongChain()) throw new Error('Wrong chain RPC (not 369). Switch to a PulseChain RPC first.');
+    if(btn){ btn.disabled = true; btn.textContent = 'Confirm in wallet…'; }
     if(!activeProvider) throw new Error('Connect a wallet first (top right).');
     if(!walletAddr || walletAddr.toLowerCase() !== cur.addr.toLowerCase())
       throw new Error('Connect the wallet that owns this address to revoke its approvals.');
@@ -1156,7 +1246,9 @@ async function revokeApproval(token, spender, idx){
     if(target) target.insertAdjacentHTML('beforeend', '<div class="hint" style="width:100%">Revoking\u2026 ' + linkTx(tx.hash) + '</div>');
     await tx.wait();
     if(target) target.insertAdjacentHTML('beforeend', '<div class="okbox" style="width:100%">\u2713 Revoked.</div>');
+    if(btn){ btn.textContent = 'Revoked'; btn.disabled = true; }
   }catch(e){
+    if(btn){ btn.disabled = false; btn.textContent = 'Revoke'; }
     alert('Revoke failed: ' + (e.shortMessage || e.message));
   }
 }
@@ -2399,6 +2491,7 @@ function renderOverview(){
     </div>
     <div class="toolbar" style="margin-top:12px">
       <button class="btn-ghost" onclick="shareLink(event)">🔗 Copy link</button>
+      <button class="btn-ghost" data-star="${esc(c.addr)}">${isWatched(c.addr)?'★ Watching':'☆ Watch'}</button>
     </div>
     ${c.isContract ? `<div class="warnbox">This is a contract. Use <b>Verify</b> to check source code against the deployed bytecode yourself, and <b>Pulse Check™</b> to run a live on-chain safety scan.</div>` : ''}
     <div class="sub-h">Recent transactions</div>
@@ -2413,12 +2506,12 @@ async function loadRecentTxs(addr){
   const render = rows => { if(!cur || cur.addr === addr) el.innerHTML = rows; };
   const row = (hash, out, other, tsSec, failed, valWei) => `<div class="txrow">
       <span><span class="badge ${out ? 'warn' : 'ok'}">${out ? 'OUT' : 'IN'}</span> ${linkTx(hash)}${failed ? ' <span class="badge fail">failed</span>' : ''}<br>
-      <span style="color:var(--faint)">${out ? 'to' : 'from'} ${other ? `<a data-ps="${esc(String(other).toLowerCase())}" onclick="loadAddress('${esc(other)}')">${esc(short(other,6))}</a>` : 'contract creation'} · ${ago(tsSec)}</span></span>
+      <span style="color:var(--faint)">${out ? 'to' : 'from'} ${other ? `<a data-ps="${esc(String(other).toLowerCase())}" data-addr="${esc(other)}">${esc(short(other,6))}</a>` : 'contract creation'} · ${ago(tsSec)}</span></span>
       <span class="val">${fmtPLS(valWei,4)} PLS</span></div>`;
   const notes = [];
   /* Layer A: RPC-style txlist (documented at api.scan.pulsechain.com/api-docs) */
   try{
-    const r = await fetch(SCAN_API + '?module=account&action=txlist&address=' + addr + '&page=1&offset=10');
+    const r = await fetch(SCAN_API + '?module=account&action=txlist&address=' + addr + '&page=1&offset=10', {signal: AbortSignal.timeout(8000)});
     if(r.ok){
       const j = await r.json();
       if(Array.isArray(j.result)){
@@ -2434,7 +2527,7 @@ async function loadRecentTxs(addr){
   }catch(e){ notes.push('txlist: unreachable'); }
   /* Layer B: Blockscout REST v2 */
   try{
-    const r = await fetch('https://api.scan.pulsechain.com/api/v2/addresses/' + addr + '/transactions');
+    const r = await fetch('https://api.scan.pulsechain.com/api/v2/addresses/' + addr + '/transactions', {signal: AbortSignal.timeout(8000)});
     if(r.ok){
       const j = await r.json();
       const items = j.items || [];
@@ -2456,15 +2549,29 @@ async function loadRecentTxs(addr){
 }
 
 /* ================= search ================= */
+/* .pls names: PulseChain Name Service registry (ENS-style). Uses ps.js when present; if ps.js hasn't loaded
+   (or a downloaded copy has no ps.js) it falls back to ethers.namehash + registry.resolver() + resolver.addr(). */
+const PNS_REGISTRY = '0xbd5133993FCDED5945c5539D9f032261F0d13170';
+async function resolvePls(name){
+  const n = String(name).trim().toLowerCase();
+  if(window.PS){ psInit(); try{ const a = await PS.toAddress(n); if(a) return a; }catch(e){} }
+  const ethers = await loadEthers();
+  const node = ethers.namehash(n).slice(2);
+  const res = wordAddr(retWord(await call(PNS_REGISTRY, '0x0178b8bf' + node)) || '0x'+'0'.repeat(64));
+  if(!isAddr(res) || /^0x0{40}$/.test(res)) return '';
+  const a = wordAddr(retWord(await call(res, '0x3b3b57de' + node)) || '0x'+'0'.repeat(64));
+  return isAddr(a) && !/^0x0{40}$/.test(a) ? a : '';
+}
 function runSearch(){
   const q = $('q').value.trim();
   if(!q) return;
   if(/^0x[0-9a-fA-F]{64}$/.test(q)) return loadTx(q);
   if(/^0x[0-9a-fA-F]{40}$/.test(q)) return loadAddress(q);
   if(/^[\d,]+$/.test(q)) return loadBlock(parseInt(q.replace(/,/g,''),10));
-  if(window.PS && PS.looksLikeName(q)){
+  if(/^[a-z0-9-]+(\.[a-z0-9-]+)*\.pls$/i.test(q)){
     showLoading('Name');
-    PS.toAddress(q).then(a => a ? loadAddress(a) : showErr('No PulseChain address for that .pls name.'));
+    resolvePls(q).then(a => a ? loadAddress(a) : showErr('No PulseChain address for that .pls name.'))
+      .catch(e => showErr('Name lookup failed: ' + e.message));
     return;
   }
   showErr('Unrecognized format. Paste a .pls name, a 42-character address, a 66-character tx hash, or a block number.');
@@ -2478,107 +2585,7 @@ const BRIDGE_ADDRS = [
   '0x4fD0aaa7506f3d9cB8274bdB946Ec42A1b8751Ef',
   '0x0e18d0d556b652794EF12Bf68B2dC857EF5f3996'
 ];
-const WW_ROUTERS = new Set([
-  '0x98bf93ebf5c380c0e6ae8e192a7e2ae08edacc02',
-  '0x165c3410fc91ef562c50559f7d2289febed552d9'
-]);
-const WW_BRIDGE = new Set(BRIDGE_ADDRS.map(a=>a.toLowerCase()));
-const WW_TOKENS = [
-  {sym:'PLSX', addr:PF_PLSX, dec:18},
-  {sym:'HEX', addr:PF_HEX, dec:8},
-  {sym:'INC', addr:PF_INC, dec:18},
-  {sym:'PRVX', addr:PF_PRVX, dec:18},
-  {sym:'WETH', addr:'0x02DcdD04e3F455D838cd1249292C58f3B79e3C3C', dec:18},
-  {sym:'WPLS', addr:WPLS, dec:18},
-  {sym:'pDAI', addr:'0x6B175474E89094C44Da98b954EedeAC495271d0F', dec:18},
-  {sym:'DAI', addr:'0xefD766cCb38EaF1dfd701853BFCe31359239F305', dec:18},
-  {sym:'USDC', addr:'0x15D38573d2feeb82e7ad5187aB8c1D52810B1f07', dec:6},
-  {sym:'USDT', addr:'0x0Cb6F5a34ad42ec934882A05265A7d5F59b51A2f', dec:6}
-];
-function wwNext(url, j){
-  if(!j || !j.next_page_params) return '';
-  const q = new URLSearchParams();
-  for(const [k,v] of Object.entries(j.next_page_params)){
-    if(v==null) continue;
-    q.set(k, typeof v==='object' ? JSON.stringify(v) : String(v));
-  }
-  return url.split('?')[0]+'?'+q.toString();
-}
-async function wwPages(url, pages, cutoff){
-  const out = [];
-  let next = url;
-  for(let i=0;i<pages && next;i++){
-    let r;
-    try{ r = await fetch(next, {signal: AbortSignal.timeout(9000)}); }
-    catch(e){ break; }
-    if(!r.ok) break;
-    const j = await r.json();
-    let old = false;
-    for(const it of j.items||[]){
-      const ts = Date.parse(it.timestamp||'')||0;
-      if(cutoff && ts && ts<cutoff){ old = true; continue; }
-      out.push(it);
-    }
-    if(old) break;
-    next = wwNext(next, j);
-  }
-  return out;
-}
-function wwAmt(it, dec){
-  const t = it.total || {};
-  const d = t.decimals!=null ? Number(t.decimals) : dec;
-  let raw = t.value!=null ? t.value : it.value;
-  if(raw && typeof raw==='object') raw = raw.value;
-  if(raw==null) return 0;
-  try{ return Number(BigInt(String(raw).split('.')[0])) / 10**(Number.isFinite(d)?d:18); }
-  catch(e){ return 0; }
-}
-function wwUsdText(n){
-  if(!(n>0) || !isFinite(n)) return '';
-  if(n>=1e6) return '$'+(n/1e6).toFixed(2)+'M';
-  if(n>=1e3) return '$'+(n/1e3).toFixed(n>=1e4?0:1)+'k';
-  return '$'+n.toFixed(0);
-}
-function wwSize(sum, nibbler){
-  if(nibbler) return 'Nibbler';
-  if(sum>=1000000) return 'Leviathan';
-  if(sum>=250000) return 'Kraken';
-  if(sum>=100000) return 'Orca';
-  return 'Whale';
-}
-function wwAction(from, to){
-  if(WW_BRIDGE.has(to)) return 'Bridge out';
-  if(WW_BRIDGE.has(from)) return 'Bridge in';
-  if(WW_ROUTERS.has(to) || WW_ROUTERS.has(from)) return 'Swap';
-  return 'Transfer';
-}
-function wwVerb(action){
-  if(action==='Bridge out') return 'left for Ethereum';
-  if(action==='Bridge in') return 'came in from Ethereum';
-  if(action==='Swap') return 'rotated the bag';
-  if(action==='New HEX stake') return 'locked a new stake';
-  if(action==='Receive') return 'absorbed it';
-  if(action==='Send') return 'sent it on';
-  return 'moved it';
-}
-let _px = null, _pxAt = 0;
-async function wwPrices(){
-  if(_px && Date.now()-_pxAt<120000) return _px;
-  const map = {};
-  try{
-    await primePrices(WW_TOKENS.map(t=>t.addr));
-    const u = await plsUsd();
-    if(u) map.PLS = u;
-    for(const t of WW_TOKENS){
-      try{
-        const p = await tokenPriceWPLS(t.addr, t.dec, 1);
-        if(p && u && p.inPls>0) map[t.addr.toLowerCase()] = p.inPls * u;
-      }catch(e){}
-    }
-  }catch(e){}
-  _px = map; _pxAt = Date.now();
-  return map;
-}
+/* Bridged whales use the same OmniBridge logs as the PulseBridge row. */
 let _valAt = 0, _valTry = 0;
 async function paintValidators(){
   const el = $('s-vals'); if(!el) return;
@@ -2630,67 +2637,438 @@ function bridgeMoney(n){
   if(n>=1e3) return '$'+(n/1e3).toFixed(2)+'k';
   return '$'+n.toFixed(0);
 }
-async function ethBridgePages(cutoff){
-  let url = 'https://eth.blockscout.com/api/v2/addresses/'+ETH_BRIDGE+'/token-transfers';
-  const out = [];
-  for(let i=0;i<16 && url;i++){
-    let j = null;
-    for(let attempt=0; attempt<3 && !j; attempt++){
+const BRIDGE_RPCS = [
+  'https://rpc.pulsechain.com',
+  'https://pulsechain-rpc.publicnode.com',
+  'https://rpc-pulsechain.g4mm4.io'
+];
+const BRIDGE_OUT = '0x59a9a8027b9c87b961e254899821c9a276b5efc35d1f7409ea4f291470f1629a';
+const BRIDGE_IN = '0x9afd47907e25028cdaca89d193518c302bbb128617d5a992c5abd45815526593';
+const BRIDGE_WETH = '0x02dcdd04e3f455d838cd1249292c58f3b79e3c3c';
+const BRIDGE_PEG = {
+  '0x15d38573d2feeb82e7ad5187ab8c1d52810b1f07': 6,
+  '0x0cb6f5a34ad42ec934882a05265a7d5f59b51a2f': 6,
+  '0xefd766ccb38eaf1dfd701853bfce31359239f305': 18
+};
+function bridgeWait(ms){ return new Promise(r=>setTimeout(r, ms)); }
+function bridgeIsRange(msg){
+  const s = String(msg||'').toLowerCase();
+  if(/rate limit|too many requests|429/.test(s)) return false;
+  return /range|exceed|too many|more than|response size|log count|logs count|block range|query returned|10000/.test(s);
+}
+async function bridgeRpc(method, params){
+  let last = null;
+  for(const url of BRIDGE_RPCS){
+    for(let attempt=0; attempt<3; attempt++){
       try{
-        const r = await fetch(url, {signal: AbortSignal.timeout(20000)});
-        if(r.status===429){
-          await new Promise(res => setTimeout(res, 700*(attempt+1)));
+        const res = await fetch(url, {
+          method:'POST',
+          headers:{'Content-Type':'application/json'},
+          body: JSON.stringify({jsonrpc:'2.0', id:1, method, params}),
+          signal: AbortSignal.timeout(20000)
+        });
+        if(res.status===429 || res.status>=500 || !res.ok){
+          last = new Error('HTTP '+res.status);
+          await bridgeWait(1000 * (2**attempt));
           continue;
         }
-        if(!r.ok) return out;
-        j = await r.json();
+        const j = await res.json();
+        if(j.error){
+          const msg = j.error.message || 'RPC error';
+          if(bridgeIsRange(msg)){ const err = new Error(msg); err.range = true; throw err; }
+          last = new Error(msg);
+          await bridgeWait(1000 * (2**attempt));
+          continue;
+        }
+        return j.result;
       }catch(e){
-        await new Promise(res => setTimeout(res, 400*(attempt+1)));
+        if(e && e.range) throw e;
+        last = e;
+        if(attempt<2) await bridgeWait(1000 * (2**attempt));
       }
     }
-    if(!j) return out;
-    let old = false;
-    for(const it of j.items||[]){
-      const ts = Date.parse(it.timestamp||'')||0;
-      if(cutoff && ts && ts<cutoff){ old = true; continue; }
-      out.push(it);
+  }
+  throw last || new Error('bridge rpc');
+}
+async function bridgeFetchLogs(fromBlock, toBlock){
+  const to = toBlock==null || toBlock==='latest' ? 'latest' : '0x'+Number(toBlock).toString(16);
+  const logs = await bridgeRpc('eth_getLogs', [{
+    address: BRIDGE_ADDRS,
+    topics: [[BRIDGE_OUT, BRIDGE_IN]],
+    fromBlock: '0x'+Number(fromBlock).toString(16),
+    toBlock: to
+  }]);
+  if(!Array.isArray(logs)) throw new Error('logs');
+  return logs;
+}
+async function bridgeDayLogs(latest){
+  const from = Math.max(0, latest-8640);
+  try{
+    return await bridgeFetchLogs(from, 'latest');
+  }catch(e){
+    if(!e || !e.range) throw e;
+    const mid = from+4320;
+    const a = await bridgeFetchLogs(from, mid-1);
+    const b = await bridgeFetchLogs(mid, 'latest');
+    return a.concat(b);
+  }
+}
+function bridgeBook(){
+  const m = new Map();
+  const put = (addr, dec)=>{
+    if(addr==null || dec==null) return;
+    const k = String(addr).toLowerCase();
+    if(!m.has(k)) m.set(k, Number(dec));
+  };
+  Object.keys(BRIDGE_PEG).forEach(k=>put(k, BRIDGE_PEG[k]));
+  put(BRIDGE_WETH, 18);
+  put(HEX_ADDR, 8);
+  put(WPLS, 18);
+  put(PF_PLSX, 18);
+  put(PF_INC, 18);
+  put(PF_PRVX, 18);
+  put('0x6B175474E89094C44Da98b954EedeAC495271d0F', 18);
+  put('0x79BB3A0Ee435f957ce4f54eE8c3CFADc7278da0C', 18);
+  put('0x71ff5C9C9938E39E819246ef939FFb5Fd228922d', 18);
+  put('0xd992b901474715accB07C5e933EDb8992715b4c2', 8);
+  put('0x3819f64f282bf135d62168C1e513280dAF905e06', 9);
+  return m;
+}
+function bridgeSyms(){
+  const m = new Map();
+  const put = (addr, sym)=>{ if(addr && sym) m.set(String(addr).toLowerCase(), sym); };
+  put('0x15D38573d2feeb82e7ad5187aB8c1D52810B1f07', 'USDC');
+  put('0x0Cb6F5a34ad42ec934882A05265A7d5F59b51A2f', 'USDT');
+  put('0xefD766cCb38EaF1dfd701853BFCe31359239F305', 'DAI');
+  put(BRIDGE_WETH, 'WETH');
+  put(HEX_ADDR, 'HEX');
+  put(WPLS, 'WPLS');
+  put(PF_PLSX, 'PLSX');
+  put(PF_INC, 'INC');
+  put(PF_PRVX, 'PRVX');
+  put('0x6B175474E89094C44Da98b954EedeAC495271d0F', 'pDAI');
+  put('0x79BB3A0Ee435f957ce4f54eE8c3CFADc7278da0C', 'vPLS');
+  put('0x71ff5C9C9938E39E819246ef939FFb5Fd228922d', 'PLSstr');
+  put('0x3819f64f282bf135d62168C1e513280dAF905e06', 'HDRN');
+  return m;
+}
+function bridgeUnits(amount, dec){
+  const base = 10n ** BigInt(dec);
+  return Number(amount / base) + Number(amount % base) / Number(base);
+}
+async function bridgeFillDec(tokens, book){
+  const missing = tokens.filter(t=>!book.has(t));
+  if(!missing.length) return;
+  try{
+    const raw = await multiCall(missing.map(t=>({to:t, data:'0x313ce567'})));
+    missing.forEach((t,i)=>{
+      if(!raw || raw[i]==null) return;
+      const n = hexToNum(raw[i]);
+      if(n>=0 && n<=36) book.set(t, n);
+    });
+  }catch(e){}
+  const left = missing.filter(t=>!book.has(t)).slice(0, 24);
+  for(const t of left){
+    try{
+      const raw = await bridgeRpc('eth_call', [{to:t, data:'0x313ce567'}, 'latest']);
+      const n = hexToNum(raw);
+      if(n>=0 && n<=36) book.set(t, n);
+    }catch(e){}
+  }
+}
+async function bridgeDexPrices(tokens, syms){
+  const out = new Map();
+  const want = new Set(tokens.map(t=>String(t).toLowerCase()).filter(t=>BRIDGE_PEG[t]==null));
+  const list = [...want];
+  for(let i=0;i<list.length;i+=30){
+    const batch = list.slice(i, i+30);
+    let pairs = null;
+    for(let attempt=0; attempt<3 && !pairs; attempt++){
+      try{
+        const r = await fetch('https://api.dexscreener.com/tokens/v1/pulsechain/'+batch.join(','), {signal: AbortSignal.timeout(12000)});
+        if(r.status===429 || r.status>=500){ await bridgeWait(1000*(2**attempt)); continue; }
+        if(!r.ok) break;
+        const j = await r.json();
+        pairs = Array.isArray(j) ? j : ((j && j.pairs) || []);
+      }catch(e){ await bridgeWait(1000*(2**attempt)); }
     }
-    if(old) break;
-    url = wwNext(url, j);
+    if(!pairs) continue;
+    const best = new Map();
+    for(const p of pairs){
+      if(!p || String(p.chainId||'').toLowerCase()!=='pulsechain') continue;
+      const base = String(p.baseToken && p.baseToken.address || '').toLowerCase();
+      const quote = String(p.quoteToken && p.quoteToken.address || '').toLowerCase();
+      const liq = Number(p.liquidity && p.liquidity.usd) || 0;
+      const px = Number(p.priceUsd);
+      const native = Number(p.priceNative);
+      const take = (addr, usd, sym)=>{
+        if(!want.has(addr) || !(usd>0) || !isFinite(usd)) return;
+        const cur = best.get(addr);
+        if(!cur || liq >= cur.liq) best.set(addr, {usd, liq, sym: sym || ''});
+      };
+      if(px>0) take(base, px, p.baseToken && p.baseToken.symbol);
+      if(px>0 && native>0) take(quote, px/native, p.quoteToken && p.quoteToken.symbol);
+    }
+    for(const [addr, v] of best){
+      out.set(addr, v.usd);
+      if(v.sym) syms.set(addr, v.sym);
+    }
   }
   return out;
 }
-async function sumEthBridge(cutoff){
-  const bridge = ETH_BRIDGE.toLowerCase();
-  const zero = '0x0000000000000000000000000000000000000000';
-  const items = await ethBridgePages(cutoff);
+async function bridgeChainPrices(tokens, book, prices){
+  const need = tokens.filter(t=>!(prices.get(t)>0) && book.has(t) && BRIDGE_PEG[t]==null);
+  if(!need.length) return;
+  try{ await primePrices(need); }catch(e){}
+  const u = await plsUsd().catch(()=>null);
+  if(!(u>0)) return;
+  for(const t of need){
+    try{
+      const p = await tokenPriceWPLS(t, book.get(t));
+      if(p && p.inPls>0) prices.set(t, p.inPls * u);
+    }catch(e){}
+  }
+}
+let _bridgeFlight = null;
+async function computeBridgeDay(){
+  const latest = hexToNum(await bridgeRpc('eth_blockNumber', []));
+  if(!(latest>0)) throw new Error('head');
+  const logs = await bridgeDayLogs(latest);
+  let latestTs = 0;
+  try{
+    const head = await bridgeRpc('eth_getBlockByNumber', ['0x'+latest.toString(16), false]);
+    latestTs = hexToNum(head && head.timestamp) * 1000;
+  }catch(e){}
+  if(!latestTs) latestTs = Date.now();
+  const decoded = [];
   const seen = new Set();
-  let inUsd = 0, outUsd = 0, lastTs = 0, n = 0;
-  for(const it of items){
-    const token = pfTokAddr(it);
-    const key = (it.tx_hash||it.transaction_hash||'')+'|'+(it.log_index??'')+'|'+(token||'');
+  let newest = 0;
+  for(const lg of logs){
+    if(!lg || !lg.topics || lg.topics.length<3) continue;
+    const topic0 = String(lg.topics[0]||'').toLowerCase();
+    const dir = topic0===BRIDGE_IN ? 'in' : topic0===BRIDGE_OUT ? 'out' : '';
+    if(!dir) continue;
+    const token = ('0x'+String(lg.topics[1]).slice(26)).toLowerCase();
+    const wallet = ('0x'+String(lg.topics[2]).slice(26)).toLowerCase();
+    let amount = 0n;
+    try{ amount = BigInt(String(lg.data||'0x').slice(0,66)); }catch(e){ continue; }
+    if(amount<=0n) continue;
+    const key = (lg.transactionHash||'')+'|'+(lg.logIndex||'');
     if(seen.has(key)) continue;
     seen.add(key);
-    const ts = Date.parse(it.timestamp||'')||0;
-    if(!ts || ts<cutoff) continue;
-    if(ts>lastTs) lastTs = ts;
-    const from = pfWho(it.from), to = pfWho(it.to);
-    if(!from || !to || from===zero || to===zero) continue;
-    let dir = '';
-    if(to===bridge && from!==bridge) dir = 'in';
-    else if(from===bridge && to!==bridge) dir = 'out';
-    if(!dir) continue;
-    const ex = Number(it.token && it.token.exchange_rate)||0;
-    if(!(ex>0)) continue;
-    const dec = it.token && it.token.decimals!=null ? Number(it.token.decimals) : 18;
-    const amt = wwAmt(it, dec);
-    if(!(amt>0)) continue;
-    const usd = amt * ex;
-    n++;
-    if(dir==='in') inUsd += usd;
-    else outUsd += usd;
+    const bn = hexToNum(lg.blockNumber);
+    if(bn>newest) newest = bn;
+    decoded.push({
+      dir, token, wallet, amount, bn,
+      hash: lg.transactionHash || '',
+      ts: latestTs - Math.max(0, latest-bn)*10000
+    });
   }
-  return {inUsd, outUsd, lastTs, n};
+  const book = bridgeBook();
+  const syms = bridgeSyms();
+  const tokens = [...new Set(decoded.map(r=>r.token))];
+  await bridgeFillDec(tokens, book);
+  const prices = await bridgeDexPrices(tokens, syms);
+  for(const t of tokens){ if(BRIDGE_PEG[t]!=null) prices.set(t, 1); }
+  await bridgeChainPrices(tokens, book, prices);
+  let inUsd = 0, outUsd = 0;
+  const unpriced = new Set();
+  const moves = [];
+  for(const row of decoded){
+    const px = prices.get(row.token);
+    const dec = book.get(row.token);
+    let usd = 0;
+    if(!(px>0) || dec==null) unpriced.add(row.token);
+    else {
+      usd = bridgeUnits(row.amount, dec) * px;
+      if(!(usd>0) || !isFinite(usd)){ usd = 0; unpriced.add(row.token); }
+      else if(row.dir==='in') inUsd += usd;
+      else outUsd += usd;
+    }
+    moves.push({
+      dir: row.dir, token: row.token, wallet: row.wallet, hash: row.hash, ts: row.ts,
+      sym: syms.get(row.token) || (row.token.slice(0,6)+'…'+row.token.slice(-4)),
+      usd
+    });
+  }
+  let lastTs = 0;
+  if(newest){
+    try{
+      const b = await bridgeRpc('eth_getBlockByNumber', ['0x'+newest.toString(16), false]);
+      const ts = hexToNum(b && b.timestamp);
+      if(ts>0) lastTs = ts*1000;
+    }catch(e){}
+    if(!lastTs) lastTs = latestTs - Math.max(0, latest-newest)*10000;
+  }
+  return {flow:{inUsd, outUsd, lastTs, unpriced: unpriced.size}, moves};
+}
+function ensureBridgeDay(){
+  if(_bridgeFlight) return _bridgeFlight;
+  _bridgeFlight = computeBridgeDay().finally(()=>{ _bridgeFlight = null; });
+  return _bridgeFlight;
+}
+function bridgeReadCache(){
+  try{
+    const j = JSON.parse(localStorage.getItem('pv_bridge_cache')||'');
+    if(!j || !isFinite(Number(j.in)) || !isFinite(Number(j.out))) return null;
+    return j;
+  }catch(e){ return null; }
+}
+function bridgeWriteCache(flow, tvl){
+  try{
+    localStorage.setItem('pv_bridge_cache', JSON.stringify({
+      in: flow.inUsd, out: flow.outUsd, net: flow.inUsd-flow.outUsd,
+      lastTx: flow.lastTs||0, tvl: tvl>0 ? tvl : 0, unpriced: flow.unpriced||0, ts: Date.now()
+    }));
+  }catch(e){}
+}
+function bridgePaint(flow, tvl, staleMin){
+  const box = $('bridgeBox'), body = $('bridgeBody');
+  if(!box || !body || !flow) return;
+  box.classList.remove('in','out','down');
+  body.className = 'bridgerow';
+  const age = flow.lastTs ? (Date.now()-flow.lastTs)/1000 : 0;
+  if(flow.lastTs && age>=6*3600) box.classList.add('down');
+  const status = !flow.lastTs ? 'Quiet' : age<3*3600 ? 'Working' : age<24*3600 ? 'Quiet' : 'Stale';
+  const when = flow.lastTs ? ago(Math.floor(flow.lastTs/1000)) : '—';
+  const note = (flow.unpriced>0 ? '<span style="font-size:11px">(+'+flow.unpriced+' unpriced)</span>' : '');
+  const stale = staleMin!=null
+    ? '<span style="font-size:11px">'+(staleMin<1 ? 'updated just now' : 'updated '+staleMin+' min ago')+'</span>'
+    : '';
+  body.innerHTML =
+    '<span>Status <b>'+esc(status)+'</b></span>'+
+    '<span>Last tx <b>'+esc(when)+'</b></span>'+
+    '<span>24h in <b>'+esc(bridgeMoney(flow.inUsd))+'</b></span>'+
+    '<span>24h out <b>'+esc(bridgeMoney(flow.outUsd))+'</b></span>'+
+    '<span><b>'+esc(bridgeNet(flow.inUsd, flow.outUsd))+'</b></span>'+
+    note+stale+
+    '<span>TVL <b>'+(tvl>0?esc(bridgeMoney(tvl)):'—')+'</b></span>';
+}
+const WHALE_MIN = 10000;
+function bridgeTier(usd){
+  if(usd>=1000000) return 'Leviathan';
+  if(usd>=500000) return 'Kraken';
+  if(usd>=100000) return 'Orca';
+  return 'Whale';
+}
+function buildWhaleView(moves){
+  const good = (moves||[]).filter(m=>m && m.usd>0 && m.wallet);
+  const byW = new Map();
+  for(const m of good){
+    if(!byW.has(m.wallet)) byW.set(m.wallet, []);
+    byW.get(m.wallet).push(m);
+  }
+  const rows = [];
+  for(const [wallet, list] of byW){
+    const singles = list.filter(m=>m.usd>=WHALE_MIN);
+    if(singles.length){
+      for(const m of singles){
+        rows.push({dir:m.dir, sym:m.sym, usd:m.usd, wallet, hash:m.hash||'', ts:m.ts||0, tier:bridgeTier(m.usd)});
+      }
+      continue;
+    }
+    if(list.reduce((s,m)=>s+m.usd,0) < WHALE_MIN) continue;
+    const groups = new Map();
+    for(const m of list){
+      const k = m.dir+'|'+m.sym;
+      const g = groups.get(k) || {dir:m.dir, sym:m.sym, usd:0, hash:m.hash||'', ts:m.ts||0, wallet};
+      g.usd += m.usd;
+      if((m.ts||0) >= g.ts){ g.ts = m.ts||0; g.hash = m.hash||''; }
+      groups.set(k, g);
+    }
+    for(const g of groups.values()){
+      if(!(g.usd>0)) continue;
+      rows.push({dir:g.dir, sym:g.sym, usd:g.usd, wallet, hash:g.hash, ts:g.ts, tier:bridgeTier(g.usd)});
+    }
+  }
+  const counts = new Map();
+  for(const r of rows) counts.set(r.wallet, (counts.get(r.wallet)||0)+1);
+  for(const r of rows) r.repeat = counts.get(r.wallet) > 1;
+  rows.sort((a,b)=>b.usd-a.usd);
+  let inn = 0, out = 0;
+  for(const r of rows){ if(r.dir==='in') inn += r.usd; else out += r.usd; }
+  return {rows: rows.slice(0, 10), total: rows.length, summary:{in:inn, out:out, net:inn-out}};
+}
+function whaleReadCache(){
+  try{
+    const j = JSON.parse(localStorage.getItem('pv_bridge_whales')||'');
+    if(!j || !j.summary || !Array.isArray(j.rows)) return null;
+    return j;
+  }catch(e){ return null; }
+}
+function whaleWriteCache(view){
+  try{
+    localStorage.setItem('pv_bridge_whales', JSON.stringify({
+      rows: view.rows, total: view.total||view.rows.length, summary: view.summary, ts: Date.now()
+    }));
+  }catch(e){}
+}
+function whalePaint(view, staleMin){
+  const el = $('whales'); if(!el || !view) return;
+  const s = view.summary || {in:0, out:0, net:0};
+  const net = Number(s.net)||0;
+  const ncol = net>1 ? 'var(--teal)' : net<-1 ? 'var(--red)' : 'var(--muted)';
+  const netTxt = Math.abs(net)<1 ? 'Net flat' : 'Net '+(net>=0?'+':'−')+bridgeMoney(Math.abs(net));
+  const stale = staleMin!=null
+    ? ' <span style="font-size:11px;color:var(--muted)">'+(staleMin<1 ? 'updated just now' : 'updated '+staleMin+' min ago')+'</span>'
+    : '';
+  const head = '<div style="margin:0 0 8px;font-family:var(--mono);font-size:12px">24h: <b style="color:var(--teal)">'+esc(bridgeMoney(Number(s.in)||0))+' in</b> · <b style="color:var(--red)">'+esc(bridgeMoney(Number(s.out)||0))+' out</b> · <b style="color:'+ncol+'">'+esc(netTxt)+'</b> <span style="font-size:11px;color:var(--muted)">whale moves</span>'+stale+'</div>';
+  const list = view.rows || [];
+  let body;
+  if(!list.length){
+    body = '<div class="hint">No $10k+ bridge moves in the last 24h.</div>';
+  }else{
+    body = list.map(r=>{
+      const inn = r.dir==='in';
+      const col = inn ? 'var(--teal)' : 'var(--red)';
+      const phrase = inn ? 'came in from Ethereum' : 'left for Ethereum';
+      const rep = r.repeat ? '<span class="tag">repeat</span>' : '';
+      const tx = isHash(r.hash) ? '<a data-tx="'+esc(r.hash)+'">tx</a>' : '';
+      const who = isAddr(r.wallet) ? '<a data-addr="'+esc(r.wallet)+'">'+esc(short(r.wallet,4))+'</a>' : '';
+      const when = r.ts ? ago(Math.floor(Number(r.ts)/1000)) : '—';
+      return '<div class="whale-row"><div class="who"><b style="color:'+col+'">'+(inn?'In':'Out')+'</b> · '+esc(r.sym||'Token')+' · <b>'+esc(bridgeMoney(Number(r.usd)||0))+'</b> <span class="tag">'+esc(r.tier||'Whale')+'</span>'+rep+' · '+esc(phrase)+' · '+esc(when)+' · '+tx+' · '+who+'</div></div>';
+    }).join('');
+    if((view.total||list.length) > list.length) body += '<div class="small-note">Showing the largest 10.</div>';
+  }
+  el.innerHTML = head + body + '<div class="small-note">Labels are size, not identity.</div>';
+}
+let _bridgeBusy = false;
+async function loadBridge(){
+  const box = $('bridgeBox'), body = $('bridgeBody');
+  if(!box || !body) return;
+  const cache = bridgeReadCache();
+  if(cache) bridgePaint({inUsd:Number(cache.in), outUsd:Number(cache.out), lastTs:Number(cache.lastTx)||0, unpriced:Number(cache.unpriced)||0}, Number(cache.tvl)||0, null);
+  const wcache = whaleReadCache();
+  if(wcache) whalePaint(wcache, null);
+  if(_bridgeBusy) return;
+  _bridgeBusy = true;
+  try{
+    const day = await ensureBridgeDay();
+    let tvl = cache && Number(cache.tvl)>0 ? Number(cache.tvl) : null;
+    try{ const n = await ethBridgeTvl(); if(n>0) tvl = n; }catch(e){}
+    bridgeWriteCache(day.flow, tvl);
+    bridgePaint(day.flow, tvl, null);
+    const view = buildWhaleView(day.moves);
+    whaleWriteCache(view);
+    whalePaint(view, null);
+  }catch(e){
+    const fresh = bridgeReadCache() || cache;
+    if(fresh){
+      const mins = Math.max(0, Math.round((Date.now()-(Number(fresh.ts)||Date.now()))/60000));
+      bridgePaint({inUsd:Number(fresh.in), outUsd:Number(fresh.out), lastTs:Number(fresh.lastTx)||0, unpriced:Number(fresh.unpriced)||0}, Number(fresh.tvl)||0, mins);
+    }else{
+      box.classList.add('down');
+      body.className = 'bridgerow';
+      body.innerHTML = '<span>Status <b>Not responding</b></span>';
+    }
+    const wfresh = whaleReadCache() || wcache;
+    if(wfresh){
+      const mins = Math.max(0, Math.round((Date.now()-(Number(wfresh.ts)||Date.now()))/60000));
+      whalePaint(wfresh, mins);
+    }else if($('whales')){
+      $('whales').innerHTML = '<div class="hint">Bridge whales could not be read just now.</div>';
+    }
+  }finally{ _bridgeBusy = false; }
 }
 async function ethBridgeTvl(){
   if(_bridgeTvl>0 && Date.now()-_bridgeTvlAt<10*60*1000) return _bridgeTvl;
@@ -2722,134 +3100,12 @@ async function ethBridgeTvl(){
   }catch(e){}
   return _bridgeTvl || null;
 }
-async function loadBridge(){
-  const box = $('bridgeBox'), body = $('bridgeBody');
-  if(!box || !body) return;
-  const cutoff = Date.now() - 86400000;
-  let flow = null, tvl = null;
-  try{
-    const pair = await Promise.all([sumEthBridge(cutoff), ethBridgeTvl()]);
-    flow = pair[0];
-    tvl = pair[1];
-  }catch(e){}
-  box.classList.remove('in','out','down');
-  body.className = 'bridgerow';
-  if(!flow || !flow.lastTs){
-    box.classList.add('down');
-    body.innerHTML = '<span>Status <b>Not responding</b></span>';
-    return;
-  }
-  const age = (Date.now()-flow.lastTs)/1000;
-  if(age>=6*3600) box.classList.add('down');
-  const status = age<3*3600 ? 'Working' : age<24*3600 ? 'Quiet' : 'Stale';
-  const when = ago(Math.floor(flow.lastTs/1000));
-  body.innerHTML =
-    '<span>Status <b>'+esc(status)+'</b></span>'+
-    '<span>Last tx <b>'+esc(when)+'</b></span>'+
-    '<span>24h in <b>'+esc(bridgeMoney(flow.inUsd))+'</b></span>'+
-    '<span>24h out <b>'+esc(bridgeMoney(flow.outUsd))+'</b></span>'+
-    '<span><b>'+esc(bridgeNet(flow.inUsd, flow.outUsd))+'</b></span>'+
-    '<span>TVL <b>'+(tvl>0?esc(bridgeMoney(tvl)):'—')+'</b></span>';
-}
-
-async function loadWhales(){
-  const el = $('whales'); if(!el) return;
-  const cutoff = Date.now()-7*86400000;
-  const since = Math.floor(cutoff/1000);
-  try{
-    const px = await wwPrices();
-    const batches = await Promise.all(WW_TOKENS.map(t=>wwPages('https://api.scan.pulsechain.com/api/v2/tokens/'+t.addr+'/transfers', 4, cutoff).then(items=>items.map(it=>({it, t}))).catch(()=>[])));
-    const txs = await wwPages('https://api.scan.pulsechain.com/api/v2/transactions', 3, cutoff).catch(()=>[]);
-    let stakes = [];
-    try{
-      const g = await pfGraph('{stakeStarts(first:80, orderBy: timestamp, orderDirection: desc){stakerAddr stakedHearts stakedDays timestamp transactionHash}}');
-      stakes = (g && g.stakeStarts) || [];
-    }catch(e){}
-    const moves = [];
-    for(const {it, t} of batches.flat()){
-      const ts = Date.parse(it.timestamp||'')||0;
-      if(!ts || ts<cutoff) continue;
-      const amt = wwAmt(it, t.dec);
-      const ex = Number(it.token && it.token.exchange_rate);
-      const usd = amt * ((ex>0 ? ex : 0) || (px[t.addr.toLowerCase()]||0));
-      if(usd<1000) continue;
-      const from = pfWho(it.from), to = pfWho(it.to);
-      const action = wwAction(from, to);
-      let wallet = from;
-      if(WW_BRIDGE.has(from) || WW_ROUTERS.has(from)) wallet = to;
-      if(!wallet || WW_BRIDGE.has(wallet) || WW_ROUTERS.has(wallet)) wallet = WW_BRIDGE.has(from)?to:from;
-      moves.push({ts, sym:t.sym, usd, action, wallet, hash: it.tx_hash||it.transaction_hash||'', days:0});
-    }
-    for(const it of txs){
-      const ts = Date.parse(it.timestamp||'')||0;
-      if(!ts || ts<cutoff) continue;
-      let raw = it.value;
-      if(raw && typeof raw==='object') raw = raw.value;
-      let pls = 0;
-      try{ if(raw!=null) pls = Number(BigInt(String(raw).split('.')[0]))/1e18; }catch(e){}
-      const usd = pls * (px.PLS||0);
-      if(usd<1000) continue;
-      const from = pfWho(it.from), to = pfWho(it.to);
-      const action = wwAction(from, to);
-      let wallet = from || to;
-      if(WW_BRIDGE.has(from) || WW_ROUTERS.has(from)) wallet = to;
-      moves.push({ts, sym:'PLS', usd, action, wallet, hash: it.hash||it.tx_hash||'', days:0});
-    }
-    const hexPx = px[PF_HEX.toLowerCase()]||0;
-    for(const s of stakes){
-      const ts = Number(s.timestamp||0)*1000;
-      if(!ts || ts<cutoff) continue;
-      const hex = Number(s.stakedHearts||0)/1e8;
-      const usd = hex * hexPx;
-      if(usd<1000) continue;
-      moves.push({ts, sym:'HEX', usd, action:'New HEX stake', wallet:String(s.stakerAddr||'').toLowerCase(), hash:s.transactionHash||'', days:Number(s.stakedDays||0)});
-    }
-    const byTx = new Map();
-    for(const m of moves){
-      const k = (m.hash||'')+'|'+(m.wallet||'')+'|'+(m.action==='New HEX stake'?'stake':m.hash?'tx':'x'+m.ts);
-      const curM = byTx.get(k);
-      if(!curM) byTx.set(k, Object.assign({}, m, {syms:[m.sym]}));
-      else {
-        curM.usd = Math.max(curM.usd, m.usd);
-        if(curM.syms.indexOf(m.sym)<0) curM.syms.push(m.sym);
-        if(curM.syms.length>1 && curM.action==='Transfer') curM.action = 'Swap';
-      }
-    }
-    const flat = [...byTx.values()];
-    const byW = new Map();
-    for(const m of flat){
-      if(!m.wallet) continue;
-      if(!byW.has(m.wallet)) byW.set(m.wallet, []);
-      byW.get(m.wallet).push(m);
-    }
-    const rows = [];
-    for(const [wallet, list] of byW){
-      const sum = list.reduce((s,m)=>s+m.usd,0);
-      const big = list.some(m=>m.usd>=25000);
-      if(sum<25000) continue;
-      list.sort((a,b)=>b.usd-a.usd);
-      rows.push({wallet, sum, nibbler:!big, n:list.length, label:wwSize(sum, !big), action:list[0].action, list:list.slice(0,5), ts:Math.max(...list.map(m=>m.ts))});
-    }
-    rows.sort((a,b)=>b.sum-a.sum);
-    if(!rows.length){
-      el.innerHTML = '<div class="hint">No wallet moved $25k this week in the newest indexed window.</div>';
-      return;
-    }
-    el.innerHTML = rows.slice(0, 12).map(r=>{
-      const acts = r.list.map(m=>{
-        const stake = m.days ? ' · '+m.days.toLocaleString('en-US')+'-day stake' : '';
-        return esc((m.syms||[m.sym]).join('+'))+' '+esc(wwUsdText(m.usd))+' · '+esc(wwVerb(m.action))+stake+' · '+esc(ago(Math.floor(m.ts/1000)));
-      }).join('<br>');
-      return '<div class="whale-row"><div class="who"><a onclick="loadAddress(\''+esc(r.wallet)+'\')">'+esc(short(r.wallet,6))+'</a><span class="tag">'+esc(r.label)+'</span><span class="tag">'+esc(r.action)+'</span></div><div style="margin-top:3px">'+esc(wwUsdText(r.sum))+' across '+r.n+' move'+(r.n>1?'s':'')+(r.nibbler?' · no single clip hit $25k':'')+(r.list.length<r.n?' · showing '+r.list.length:'')+'</div><div class="pfrule">'+acts+'</div></div>';
-    }).join('') + '<div class="small-note">Labels are size, not identity. A wallet is watched when the week adds up to $25k. Nibbler means no single clip cleared $25k. Leviathan is $1M or more, Kraken $250k, Orca $100k, otherwise Whale. USD is PulseX spot.</div>';
-  }catch(e){
-    el.innerHTML = '<div class="hint">Whale watch could not be read just now. It retries on its own.</div>';
-  }
-}
 
 /* ================= boot ================= */
 function applyRpc(url, remember){
   RPC = url;
+  _chainId = null;
+  rpc('eth_chainId').then(c=>{ _chainId = hexToNum(c); }).catch(()=>{});
   if(remember){ try{ localStorage.setItem('pv_rpc', url); }catch(e){} }
   seen.clear(); recentBlocks.length=0; lastBlockNum=0; lastBlockTs=0; prevBlockTs=0;
   $('blocks').innerHTML = '<div class="loading"><span class="spin"></span><br>Reconnecting…</div>';
@@ -2896,9 +3152,25 @@ try{
     RPC = saved;
   }
 }catch(e){}
+/* One visibility gate for every repeating job: nothing runs while the tab is hidden,
+   and anything that came due while hidden runs once as soon as the tab is visible again. */
+const _jobs = [];
+function every(fn, ms, runNow=true){
+  const j = {fn, ms, last:0};
+  _jobs.push(j);
+  const run = ()=>{ j.last = Date.now(); try{ const r = fn(); if(r && r.catch) r.catch(()=>{}); }catch(e){} };
+  j.run = run;
+  if(runNow) run();
+  setInterval(()=>{ if(!document.hidden) run(); }, ms);
+}
+document.addEventListener('visibilitychange', ()=>{
+  if(document.hidden) return;
+  for(const j of _jobs) if(Date.now() - j.last >= j.ms) j.run();
+});
 (async function boot(){
   try{
     const cid = hexToNum(await rpc('eth_chainId'));
+    _chainId = cid;
     const dot = $('netdot');
     if(dot) dot.title = cid === 369 ? 'Connected to PulseChain (chain 369)' : 'WARNING: this RPC reports chain ' + cid + ', not PulseChain (369)';
     if(cid !== 369){
@@ -2906,14 +3178,12 @@ try{
       if(slot) slot.insertAdjacentHTML('beforebegin', '<div class="badge fail" style="margin-top:14px">Wrong chain: '+cid+'</div>');
     }
   }catch(e){}
-  tick();
-  setInterval(()=>{ if(!document.hidden) tick(); }, 6000);
-  setInterval(()=>{ if(document.hidden) return; refreshPls(); refreshHex(); }, 60000);
-  document.addEventListener('visibilitychange', ()=>{ if(!document.hidden) tick(); });
-  loadVaultStats(); refreshPls(); refreshHex();
-  paintValidators(); loadBridge(); loadWhales(); startAds();
-  setInterval(()=>{ if(!document.hidden) paintValidators(); }, 30000);
-  setInterval(()=>{ if(!document.hidden){ loadBridge(); loadWhales(); } }, 3*60*1000);
+  loadVaultStats(); startAds();
+  every(tick, 10000);
+  every(()=>{ refreshPls(); refreshHex(); }, 60000);
+  every(paintValidators, 30000);
+  every(loadBridge, 10*60*1000);
+  every(paintWatchlist, 10*60*1000);
   routeFromUrl();
   window.addEventListener('hashchange', routeFromUrl);
   window.addEventListener('popstate', routeFromUrl);
@@ -3005,21 +3275,16 @@ function adHouse(a){
   if(img.includes('pulsestrategy.png') || link==='https://pulsestrategy369.com' || link===String(VAULTS_URL||'').toLowerCase().replace(/\/$/,'')) return 'vaults';
   return '';
 }
-const AD_GH_JS = 'https://raw.githubusercontent.com/PulseStrategy369/PulseStrategy/main/ads.js';
-const AD_GH_JSON = 'https://raw.githubusercontent.com/PulseStrategy369/PulseStrategy/main/ads.json';
-const AD_GH_BASE = 'https://raw.githubusercontent.com/PulseStrategy369/PulseStrategy/main/ads/';
-const AD_SITE_JSON = 'https://pulsestrategy369.com/ads.json';
-const AD_SITE_BASE = 'https://pulsestrategy369.com/ads/';
+const AD_JSON = 'https://pulsestrategy369.com/ads.json';
 const LOCAL_ADS = [
-  {image:'pulsestrategy.png', link:VAULTS_URL, label:'PulseStrategy'},
-  {image:'vouch.png', link:'https://app.vouch.run/PLS/', label:'Vouch'},
-  {image:'actuator.png', link:'https://www.actuator.finance/', label:'Actuator'},
-  {image:'pulsex.png', link:'https://pulsex.com/', label:'PulseX'},
-  {image:'launcher.png', link:LAUNCH_URL, label:'PulseStrategy Launcher'},
-  {image:'openslot.png', link:'mailto:pulsestrategy369@gmail.com', label:'Advertise'}
+  {image:'https://pulsestrategy369.com/ads/pulsestrategy.png', link:VAULTS_URL, label:'PulseStrategy'},
+  {image:'https://pulsestrategy369.com/ads/vouch.png', link:'https://app.vouch.run/PLS/', label:'Vouch'},
+  {image:'https://pulsestrategy369.com/ads/actuator.png', link:'https://www.actuator.finance/', label:'Actuator'},
+  {image:'https://pulsestrategy369.com/ads/pulsex.png', link:'https://pulsex.com/', label:'PulseX'},
+  {image:'https://pulsestrategy369.com/ads/launcher.png', link:LAUNCH_URL, label:'PulseStrategy Launcher'},
+  {image:'https://pulsestrategy369.com/ads/openslot.png', link:'mailto:pulsestrategy369@gmail.com', label:'Advertise'}
 ];
 let adRev = '';
-let adGithubDown = false;
 function adName(url){
   return String(url||'').split('/').pop().split('?')[0];
 }
@@ -3030,14 +3295,11 @@ function adLocalSrc(name){
   if(/\/explorer\/?$/.test(location.pathname) || location.pathname.indexOf('/explorer/')===0) return '/ads/'+name;
   return 'ads/'+name;
 }
-function adCandidates(raw){
-  const name = adName(raw && raw.image);
-  const out = [];
-  const push = u => { if(u && out.indexOf(u)<0) out.push(u); };
-  if(!adGithubDown && name) push(AD_GH_BASE+name+'?t='+adRev);
-  push(adLocalSrc(name)+'?t='+adRev);
-  if(name) push(AD_SITE_BASE+name+'?t='+adRev);
-  return out;
+function adRemote(raw){
+  const image = String((raw && raw.image) || '').split('?')[0];
+  if(/^https?:/i.test(image)) return image;
+  const name = adName(image);
+  return name ? ('https://pulsestrategy369.com/ads/'+name) : '';
 }
 function adProbe(src){
   return new Promise(resolve=>{
@@ -3050,45 +3312,33 @@ function adProbe(src){
     img.src = src;
   });
 }
-async function adFirst(raw){
-  const list = adCandidates(raw);
-  for(const src of list){
-    if(adGithubDown && src.indexOf('githubusercontent.com')>=0) continue;
-    if(await adProbe(src)) return src;
-    if(src.indexOf('githubusercontent.com')>=0) adGithubDown = true;
+async function adPick(raw){
+  const remote = adRemote(raw);
+  if(remote){
+    const fresh = remote + (remote.indexOf('?')<0 ? '?t='+adRev : '&t='+adRev);
+    if(await adProbe(fresh)) return fresh;
   }
+  const local = adLocalSrc(adName(raw && raw.image));
+  if(local && local !== remote && await adProbe(local)) return local;
   return '';
 }
-function loadRemoteAds(){
-  return new Promise(resolve=>{
-    const s = document.createElement('script');
-    let done = false;
-    const finish = ok => {
-      if(done) return;
-      done = true;
-      const pack = window.PS_ADS;
-      const list = pack && (Array.isArray(pack) ? pack : pack.ads);
-      if(ok && list && list.length){
-        if(pack.rev) adRev = String(pack.rev);
-        resolve({list: list, from:'github'});
-      } else resolve(null);
-    };
-    const t = setTimeout(()=>{ adGithubDown = true; finish(false); }, 6000);
-    s.onload = ()=>{ clearTimeout(t); finish(true); };
-    s.onerror = ()=>{ clearTimeout(t); adGithubDown = true; finish(false); };
-    s.src = AD_GH_JS+'?t='+Date.now();
-    document.head.appendChild(s);
-  });
+/* ads.json is remote content: only https/mailto links, only https:// or ads/ images, text is set with textContent. */
+function adClean(a){
+  if(!a || typeof a !== 'object') return null;
+  const image = String(a.image || '').trim();
+  if(!/^https:\/\//i.test(image) && !/^(\.\.\/)?ads\//i.test(image)) return null;
+  const rawLink = String(a.link || '').trim();
+  const link = (/^https:\/\//i.test(rawLink) || /^mailto:/i.test(rawLink)) ? rawLink : VAULTS_URL;
+  return {image, link, label: String(a.label || '').slice(0, 80)};
 }
-async function fetchAds(url, from){
+async function loadAdList(){
   try{
-    const r = await fetch(url, {cache:'no-store', signal: AbortSignal.timeout(6000)});
+    const r = await fetch(AD_JSON, {cache:'no-store', signal: AbortSignal.timeout(6000)});
     if(!r.ok) return null;
     const j = await r.json();
     const list = Array.isArray(j) ? j : (j && j.ads);
     if(!list || !list.length) return null;
-    if(j && j.rev) adRev = String(j.rev);
-    return {list: list, from: from};
+    return list.map(adClean).filter(Boolean);
   }catch(e){ return null; }
 }
 function paintAd(i, fade){
@@ -3102,7 +3352,7 @@ function paintAd(i, fade){
       if(kicker) kicker.textContent = a.kicker || 'PULSESTRATEGY';
       if(body) body.textContent = a.body || '';
       if(site){
-        site.href = a.link || VAULTS_URL;
+        site.href = /^https:\/\//i.test(a.link||'') ? a.link : VAULTS_URL;
         site.textContent = (a.site || 'pulsestrategy369.com')+' ↗';
       }
       slot.classList.remove('fade');
@@ -3127,7 +3377,7 @@ function paintAd(i, fade){
     img.setAttribute('data-fell','0');
     img.src = a.image;
     if(link){
-      const href = a.link || 'mailto:pulsestrategy369@gmail.com';
+      const href = (/^https:\/\//i.test(a.link||'') || /^mailto:/i.test(a.link||'')) ? a.link : VAULTS_URL;
       link.href = href;
       if(/^mailto:/i.test(href)){
         link.removeAttribute('target');
@@ -3154,54 +3404,16 @@ async function startAds(){
   adIdx = 0;
   paintAd(0, false);
   adRev = String(Date.now());
-  const live = location.hostname==='pulsestrategy369.com' || location.hostname==='www.pulsestrategy369.com';
-  let pack = null;
-  if(!live) pack = await loadRemoteAds();
-  if(!pack){
-    const urls = live
-      ? [['/ads.json','local'], [AD_GH_JSON,'github'], ['ads.json','local']]
-      : [[AD_GH_JSON,'github'], ['ads.json','local'], ['/ads.json','local']];
-    for(const pair of urls){
-      pack = await fetchAds(pair[0], pair[1]);
-      if(pack){
-        if(pair[1]==='github') adGithubDown = false;
-        break;
-      }
-      if(pair[1]==='github') adGithubDown = true;
-    }
-  }
-  if(!pack) pack = {list: LOCAL_ADS, from:'local'};
-  const incoming = (pack.list || []).filter(a=>a && a.image);
-  for(const house of HOUSE_IMAGES){
-    if(!incoming.some(a=>adHouse(a)===adHouse(house))) incoming.push(house);
-  }
+  const remote = await loadAdList();
+  const incoming = (remote && remote.length ? remote : LOCAL_ADS.map(adClean)).filter(a=>a && a.image);
   const ready = [];
-  const seen = new Set();
   for(const raw of incoming){
-    const house = adHouse(raw);
-    if(house && seen.has(house)) continue;
-    const src = await adFirst(raw);
+    const src = await adPick(raw);
     if(!src) continue;
-    const item = {kind:'image', image:src, label:raw.label || '', link:raw.link || 'mailto:pulsestrategy369@gmail.com'};
-    if(house==='vaults') item.link = VAULTS_URL;
-    if(house==='launch') item.link = LAUNCH_URL;
-    if(house) seen.add(house);
-    ready.push(item);
+    ready.push({kind:'image', image:src, label:raw.label || '', link:raw.link || VAULTS_URL});
     if(ready.length>=10) break;
   }
-  const list = [];
-  const take = key => ready.find(a => adKind(a)===key);
-  list.push(take('vaults') || HOUSE_TEXT[0]);
-  const vouchAd = take('vouch'); if(vouchAd) list.push(vouchAd);
-  const actAd = take('actuator'); if(actAd) list.push(actAd);
-  const pxAd = take('pulsex'); if(pxAd) list.push(pxAd);
-  list.push(take('launch') || HOUSE_TEXT[1]);
-  const openAd = take('open'); if(openAd) list.push(openAd);
-  for(const a of ready){
-    if(adKind(a)) continue;
-    list.push(a);
-  }
-  adList = list.slice(0, 10);
+  adList = ready.length ? ready.slice(0, 10) : HOUSE_TEXT.slice();
   adIdx = 0;
   paintAd(0, false);
   if(adTimer) clearInterval(adTimer);
@@ -3788,7 +4000,7 @@ async function flagCounts(addr, code){
   }
   if(has('48f2f812') || has('6b254a9a')){
     try{
-      const r = await fetch('https://api.scan.pulsechain.com/api/v2/addresses/'+addr+'/transactions');
+      const r = await fetch('https://api.scan.pulsechain.com/api/v2/addresses/'+addr+'/transactions', {signal: AbortSignal.timeout(8000)});
       if(r.ok){
         const j = await r.json();
         const items = j.items || [];
@@ -3852,7 +4064,7 @@ function packSolSource(path, content, into){
 }
 async function fetchPulseScanSource(addr){
   try{
-    const r = await fetch('https://api.scan.pulsechain.com/api/v2/smart-contracts/' + addr);
+    const r = await fetch('https://api.scan.pulsechain.com/api/v2/smart-contracts/' + addr, {signal: AbortSignal.timeout(8000)});
     if(r.ok){
       const j = await r.json();
       const sources = {};
@@ -3882,7 +4094,7 @@ async function fetchPulseScanSource(addr){
   }catch(e){ return null; }
 }
 async function topHolders(token){
-  const r = await fetch('https://api.scan.pulsechain.com/api/v2/tokens/'+token+'/holders');
+  const r = await fetch('https://api.scan.pulsechain.com/api/v2/tokens/'+token+'/holders', {signal: AbortSignal.timeout(8000)});
   if(!r.ok) return null;
   const j = await r.json();
   return (j.items||[]).map(it=>{
@@ -4386,7 +4598,7 @@ async function runSafety(){
       const [supplyHex, holders, tokMeta] = await Promise.all([
         call(addr,'0x18160ddd'),
         topHolders(addr),
-        fetch('https://api.scan.pulsechain.com/api/v2/tokens/'+addr).then(r=>r.ok?r.json():null).catch(()=>null)
+        fetch('https://api.scan.pulsechain.com/api/v2/tokens/'+addr, {signal: AbortSignal.timeout(8000)}).then(r=>r.ok?r.json():null).catch(()=>null)
       ]);
       const supply = hexToBig(supplyHex);
       const holderN = tokMeta && tokMeta.holders!=null && tokMeta.holders!=='' ? Number(tokMeta.holders) : null;
@@ -4512,7 +4724,7 @@ async function runSafety(){
   }
 
   try{
-    const r = await fetch('https://api.scan.pulsechain.com/api/v2/addresses/' + addr);
+    const r = await fetch('https://api.scan.pulsechain.com/api/v2/addresses/' + addr, {signal: AbortSignal.timeout(8000)});
     if(r.ok){
       const j = await r.json();
       const creator = String(j.creator_address_hash||'').toLowerCase();
@@ -4678,7 +4890,7 @@ async function sourcifyStatus(addr){
 }
 async function probePulseScan(addr){
   try{
-    const r = await fetch('https://api.scan.pulsechain.com/api/v2/smart-contracts/' + addr);
+    const r = await fetch('https://api.scan.pulsechain.com/api/v2/smart-contracts/' + addr, {signal: AbortSignal.timeout(8000)});
     if(r.ok){
       const j = await r.json();
       if(j.is_verified || j.source_code){
@@ -4688,7 +4900,7 @@ async function probePulseScan(addr){
     }
   }catch(e){}
   try{
-    const r = await fetch('https://api.scan.pulsechain.com/api/v2/addresses/' + addr);
+    const r = await fetch('https://api.scan.pulsechain.com/api/v2/addresses/' + addr, {signal: AbortSignal.timeout(8000)});
     if(r.ok){
       const j = await r.json();
       if(j.is_verified) return {ok:true, partial:false, name:j.name||''};
@@ -4878,7 +5090,7 @@ async function fetchVerifiedMeta(addr){
   }catch(e){ _regNotes.push('Scan RPC API unreachable'); }
   /* --- 5) PulseChain Scan REST v2 --- */
   try{
-    const r = await fetch('https://api.scan.pulsechain.com/api/v2/smart-contracts/' + addr);
+    const r = await fetch('https://api.scan.pulsechain.com/api/v2/smart-contracts/' + addr, {signal: AbortSignal.timeout(8000)});
     if(r.ok){
       const j = await r.json();
       if(j.source_code){
@@ -4916,17 +5128,18 @@ async function showSourcifyVerdict(addr){
   const box = $('v-status'); if(!box) return;
   let st;
   try{ st = await sourcifyStatus(addr); }catch(e){ st = undefined; }
-  const repoLink = `https://repo.sourcify.dev/369/${addr}`;
+  if(!isAddr(addr)){ box.innerHTML = '<div class="errbox">Not a valid address.</div>'; return; }
+  const repoLink = esc(`https://repo.sourcify.dev/369/${addr}`);
   if(st === 'full'){
     box.innerHTML = `<div class="okbox"><div style="font-family:var(--disp);font-size:15px;margin-bottom:6px">✓ VERIFIED ON SOURCIFY — EXACT MATCH</div>
-      The source published to Sourcify recompiles to <i>exactly</i> the bytecode deployed at ${short(addr,8)}, metadata included. This is the strongest verification Sourcify gives.
+      The source published to Sourcify recompiles to <i>exactly</i> the bytecode deployed at ${esc(short(addr,8))}, metadata included. This is the strongest verification Sourcify gives.
       <div style="margin-top:10px"><a href="${repoLink}" target="_blank" rel="noopener">View full source &amp; files on Sourcify ↗</a></div></div>`;
   } else if(st === 'partial'){
     box.innerHTML = `<div class="warnbox"><div style="font-family:var(--disp);font-size:15px;margin-bottom:6px">✓ VERIFIED ON SOURCIFY — PARTIAL MATCH</div>
       The deployed runtime bytecode matches the published source, but the metadata differs slightly (often just comments, variable names, or a different source path). The logic is verified; the packaging isn't identical.
       <div style="margin-top:10px"><a href="${repoLink}" target="_blank" rel="noopener">View full source &amp; files on Sourcify ↗</a></div></div>`;
   } else if(st === undefined){
-    box.innerHTML = `<div class="errbox">Couldn't reach Sourcify right now. <a onclick="showSourcifyVerdict('${addr}')">Retry</a> — or check directly at <a href="${repoLink}" target="_blank" rel="noopener">Sourcify ↗</a>. Registry checks: ${esc((window._regNotes||[]).join(' · ')||'—')}</div>`;
+    box.innerHTML = `<div class="errbox">Couldn't reach Sourcify right now. <a onclick="showSourcifyVerdict(cur&&cur.addr)">Retry</a> — or check directly at <a href="${repoLink}" target="_blank" rel="noopener">Sourcify ↗</a>. Registry checks: ${esc((window._regNotes||[]).join(' · ')||'—')}</div>`;
   } else {
     let ps = null;
     try{ ps = await probePulseScan(addr); }catch(e){}
@@ -5011,9 +5224,12 @@ function loadEthers(){
   });
 }
 let abiCache = {};
+const wrongChain = () => _chainId !== null && _chainId !== 369;
+function wrongChainBox(){ return wrongChain() ? '<div class="errbox" style="margin:0 0 12px">Wrong chain: this RPC reports chain '+esc(String(_chainId))+', not PulseChain (369). Signing is turned off until you switch to a PulseChain RPC.</div>' : ''; }
+const signDis = () => wrongChain() ? ' disabled' : '';
 async function renderAbiPanel(write){
   const key = write?'write':'read';
-  $('d-body').innerHTML = `
+  $('d-body').innerHTML = (write ? wrongChainBox() : '') + `
     <div class="field"><label>Contract ABI (JSON, or human-readable ethers format)</label>
       <textarea id="abi-in" spellcheck="false" placeholder='[{"inputs":[],"name":"totalSupply", …}]  — Remix: compile → copy ABI'>${esc(abiCache[cur.addr]||(cur.token?ERC20_ABI:''))}</textarea></div>
     <div class="toolbar" style="margin:0 0 12px">
@@ -5040,7 +5256,7 @@ async function renderFns(write){
         <div class="fn-body">
           ${f.inputs.map((x,k)=>`<div class="field"><label>${esc(x.name||'arg'+k)} · ${esc(x.type)}</label><input id="fn-${i}-a${k}"></div>`).join('')}
           ${write&&f.payable?`<div class="field"><label>PLS value to send</label><input id="fn-${i}-val" value="0"></div>`:''}
-          <button class="btn-ghost" onclick="execFn(${i},${write})">${write?'Send transaction':'Query'}</button>
+          <button class="btn-ghost"${write?signDis():''} onclick="execFn(${i},${write})">${write?'Send transaction':'Query'}</button>
           <div class="fn-out" id="fn-${i}-out"></div>
         </div>
       </div>`).join('');
@@ -5066,6 +5282,7 @@ async function execFn(i, write){
       try{ const dec = window._iface.decodeFunctionResult(f, raw); if(dec.length) shown = formatResult(dec.length===1?dec[0]:dec); }catch(e){}
       outEl.textContent = shown ?? ('raw: ' + raw + hexGuess(raw));
     }else{
+      if(wrongChain()) throw new Error('Wrong chain RPC (not 369). Switch to a PulseChain RPC first.');
       await ensureChain();
       const provider = new ethers.BrowserProvider(activeProvider);
       const signer = await provider.getSigner();
@@ -5527,7 +5744,7 @@ async function change24(addr){
   if(_d24.has(k) && Date.now() - _d24.get(k).at < 300000) return _d24.get(k).v;
   let v = null;
   try{
-    const r = await fetch('https://api.dexscreener.com/latest/dex/tokens/' + addr);
+    const r = await fetch('https://api.dexscreener.com/latest/dex/tokens/' + addr, {signal: AbortSignal.timeout(6000)});
     const j = await r.json();
     const pairs = (j.pairs || []).filter(p => (p.chainId || '').toLowerCase() === 'pulsechain');
     pairs.sort((a,b) => ((b.liquidity && b.liquidity.usd) || 0) - ((a.liquidity && a.liquidity.usd) || 0));
@@ -5610,7 +5827,7 @@ async function renderHoldings(){
 }
 function holdRow(sym, addr, bal, usd, tag){
   return `<div class="txrow">
-    <span>${addr?`<a onclick="loadAddress('${esc(addr)}')">${esc(sym)}</a>`:`<b>${esc(sym)}</b>`}${tag?` <span class="badge info">${tag}</span>`:''}</span>
+    <span>${isAddr(addr)?`<a data-addr="${esc(addr)}">${esc(sym)}</a>`:`<b>${esc(sym)}</b>`}${tag?` <span class="badge info">${esc(tag)}</span>`:''}</span>
     <span class="val">${bal.toLocaleString('en-US',{maximumFractionDigits:4})}${usd!=null?' · '+fmtUsd(usd):''}</span></div>`;
 }
 async function discoverTokens(){
@@ -5708,7 +5925,7 @@ async function loadVaultStats(){
   const sraw = await multiCall(rows.map(r=>({to:r.asset, data:'0x95d89b41'})));
   rows.forEach((r,i)=>{
     const aSym = sraw[i] ? (decodeAbiString(sraw[i])||'') : '';
-    r.chip.innerHTML = `<b>${esc(r.v.symbol)}</b> · backing ${fmtUnits(r.bpt,18,6)} ${esc(aSym)}/token · ${fmtUnits(r.sup,r.dec,2)} minted · <span class="psprice"></span><a onclick="loadAddress('${r.v.vault}')">verify it yourself ↗</a>`;
+    r.chip.innerHTML = `<b>${esc(r.v.symbol)}</b> · backing ${fmtUnits(r.bpt,18,6)} ${esc(aSym)}/token · ${fmtUnits(r.sup,r.dec,2)} minted · <span class="psprice"></span><a data-addr="${esc(r.v.vault)}">verify it yourself ↗</a>`;
   });
   try{ await primePrices(rows.map(r=>r.v.vault)); }catch(e){}
   const u = await plsUsd().catch(()=>null);
@@ -5723,6 +5940,50 @@ async function loadVaultStats(){
   }));
 }
 
+/* ================= watchlist ================= */
+const WATCH_KEY = 'pv_watchlist', WATCH_MAX = 10;
+const MC3_GETETHBAL = '0x4d2301cc';
+function watchList(){
+  try{ const j = JSON.parse(localStorage.getItem(WATCH_KEY) || '[]'); return Array.isArray(j) ? j.filter(isAddr).slice(0, WATCH_MAX) : []; }catch(e){ return []; }
+}
+function watchSave(list){ try{ localStorage.setItem(WATCH_KEY, JSON.stringify(list.slice(0, WATCH_MAX))); }catch(e){} }
+const isWatched = a => watchList().some(x=>x.toLowerCase()===String(a).toLowerCase());
+function toggleWatch(a, btn){
+  let list = watchList();
+  if(isWatched(a)) list = list.filter(x=>x.toLowerCase()!==a.toLowerCase());
+  else{
+    if(list.length >= WATCH_MAX){ alert('Watchlist is full (10). Remove one first.'); return; }
+    list.unshift(a);
+  }
+  watchSave(list);
+  if(btn) btn.textContent = isWatched(a) ? '★ Watching' : '☆ Watch';
+  paintWatchlist();
+}
+function removeWatch(a){
+  watchSave(watchList().filter(x=>x.toLowerCase()!==a.toLowerCase()));
+  document.querySelectorAll('[data-star]').forEach(b=>{ if(b.getAttribute('data-star').toLowerCase()===a.toLowerCase()) b.textContent='☆ Watch'; });
+  paintWatchlist();
+}
+let _plsSupplyW = 0;
+async function paintWatchlist(){
+  const panel = $('watchPanel'), el = $('watchlist'); if(!panel || !el) return;
+  const list = watchList();
+  panel.style.display = list.length ? '' : 'none';
+  if(!list.length){ el.innerHTML = ''; return; }
+  const row = (a, bal, lg) => `<div class="whale-row"><div class="who"><a data-addr="${esc(a)}">${esc(short(a,6))}</a>${addrTag(a) ? ' '+addrTag(a) : ''} · <b>${bal==null?'…':esc(fmtPLS(bal,0))+' PLS'}</b>${lg?` <span class="tag">${esc(lg)}</span>`:''} <button class="copy" title="Remove" data-unwatch="${esc(a)}">✕</button></div></div>`;
+  el.innerHTML = list.map(a=>row(a, null, '')).join('');
+  try{
+    const res = await multiCall(list.map(a=>({to:MULTICALL3, data:MC3_GETETHBAL + padA(a)})));
+    if(!_plsSupplyW){ try{ _plsSupplyW = await pfPlsSupply() || 0; }catch(e){} }
+    const now = watchList(); if(now.join() !== list.join()) return;
+    el.innerHTML = list.map((a,i)=>{
+      const bal = res[i] ? hexToBig(retWord(res[i]) || '0x0') : null;
+      const lg = bal!=null && _plsSupplyW ? (pfSizeLeague(Number(bal/10n**18n), _plsSupplyW)||{}).name : '';
+      return row(a, bal, lg || '');
+    }).join('');
+  }catch(e){}
+}
+
 /* ================= tx watcher ================= */
 let watchTimer = null;
 async function watchTx(){
@@ -5731,7 +5992,14 @@ async function watchTx(){
   clearInterval(watchTimer);
   try{ if(window.Notification && Notification.permission==='default') Notification.requestPermission(); }catch(e){}
   out.innerHTML = '<div class="warnbox">Watching '+short(hsh,6)+' — checking every 6 seconds. Keep this page open; you\'ll get a browser notification if allowed.</div>';
+  const started = Date.now();
   const check = async ()=>{
+    if(Date.now() - started > 10*60*1000){
+      clearInterval(watchTimer);
+      out.innerHTML = '<div class="warnbox">Still pending after 10 minutes. Check it on the explorer: ' + linkTx(hsh) + '</div>';
+      return;
+    }
+    if(document.hidden) return;
     try{
       const r = await rpc('eth_getTransactionReceipt',[hsh]);
       if(r){
@@ -5815,7 +6083,10 @@ try{
 }catch(e){}
 
 /* explicit globals for inline handlers (defensive for strict environments) */
-if(window.PS){
+/* ps.js now loads deferred, so it can arrive after this script: hook it up whenever it lands. */
+let _psInited = false;
+function psInit(){
+  if(_psInited || !window.PS) return; _psInited = true;
   PS.setCaller((to, data) => call(to, data));
   PS.on(() => { if(walletAddr) paintWalletBtn(); });
   PS.boot({
@@ -5828,6 +6099,7 @@ if(window.PS){
     wcInit: () => ensureWc()
   });
 }
+if(window.PS) psInit(); else window.__psReady = psInit;
 Object.assign(window,{$,rpc,renderEvents,renderApprovals,checkOneApproval,revokeApproval,loadBlock,loadTx,loadAddress,routeFromUrl,loadRecentTxs,openTab,showTools,addChain,connectWallet,connectInjected,connectWC,disconnectWallet,showSourcifyVerdict,inspectBytecode,useDiscoveredAbi,autoAbi,shareLink,fillSourcifyBadge,sourcifyStatus,renderHoldings,discoverTokens,refreshPls,refreshHex,watchTx,signMsg,verifyMsg,loadVaultStats,
   tokBalance,decodeCalldata,openDecoder,execFn,renderFns,runSafety,conv,ERC20_ABI,renderPortfolio,pfShare,pfIcs});
 </script>
