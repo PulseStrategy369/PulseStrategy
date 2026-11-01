@@ -41,28 +41,28 @@ button{font-family:inherit;cursor:pointer}
 
 /* header */
 header{padding:20px 0 0}
-.brand-row{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
-.brand{font-family:var(--disp);font-weight:400;font-size:17px;letter-spacing:.02em;white-space:nowrap}
+.brand-row{display:flex;align-items:center;gap:12px;flex-wrap:nowrap}
+.brand{font-family:var(--disp);font-weight:400;font-size:17px;letter-spacing:.02em;white-space:nowrap;flex:none}
 .brand .p1{color:var(--text)}
 .brand .p2{background:linear-gradient(90deg,#7BA7E8,var(--pulse) 60%,#7FB3E8);-webkit-background-clip:text;background-clip:text;color:transparent}
 .brand small{display:block;font-family:var(--body);font-weight:400;font-size:11px;color:var(--faint);letter-spacing:.09em;text-transform:uppercase;white-space:normal;line-height:1.5;margin-top:2px}
 .brand>div{min-width:0}
-.ekg-box{flex:1;min-width:140px;height:44px;position:relative;overflow:hidden}
+.ekg-box{flex:1 1 72px;min-width:56px;height:36px;position:relative;overflow:hidden}
 .ekg-box svg{width:100%;height:100%}
 .ekg-path{fill:none;stroke:url(#ekgGrad);stroke-width:2;stroke-linecap:round;stroke-linejoin:round;filter:drop-shadow(0 0 6px rgba(78,143,217,.55))}
 .ekg-dot{fill:var(--pulse);filter:drop-shadow(0 0 8px var(--pulse))}
 @keyframes ekgBeat{0%{stroke-dashoffset:1000}100%{stroke-dashoffset:0}}
 .beat .ekg-path{stroke-dasharray:1000;animation:ekgBeat 1.4s ease-out 1}
-.net{display:flex;align-items:center;gap:8px;flex-wrap:wrap;position:relative}
+.net{display:flex;align-items:center;gap:8px;flex-wrap:nowrap;flex:none;position:relative}
 .wmenu{position:absolute;top:calc(100% + 6px);right:0;background:var(--panel-2);border:1px solid var(--line);border-radius:10px;padding:6px;z-index:50;display:flex;flex-direction:column;gap:4px;box-shadow:0 8px 24px rgba(0,0,0,.55)}
 .wmenu button{background:none;border:none;color:var(--text);font-size:13px;padding:9px 12px;border-radius:7px;text-align:left;white-space:nowrap}
 .wmenu button:hover{background:var(--panel)}
 .wmenu .dis{color:var(--red)}
-.net select{background:var(--panel);border:1px solid var(--line);color:var(--muted);border-radius:8px;padding:8px 10px;font-family:var(--mono);font-size:12px;max-width:200px}
+.net select{background:var(--panel);border:1px solid var(--line);color:var(--muted);border-radius:8px;padding:7px 8px;font-family:var(--mono);font-size:11px;max-width:148px}
 .dot{width:9px;height:9px;border-radius:50%;background:var(--faint);flex:none;transition:background .3s}
 .dot.ok{background:var(--teal);box-shadow:0 0 8px rgba(127,179,232,.7)}
 .dot.err{background:var(--red);box-shadow:0 0 8px rgba(255,107,90,.7)}
-.wallet-btn{background:var(--panel);border:1px solid var(--line);color:var(--muted);border-radius:8px;padding:8px 12px;font-family:var(--mono);font-size:12px}
+.wallet-btn{background:var(--panel);border:1px solid var(--line);color:var(--muted);border-radius:8px;padding:7px 10px;font-family:var(--mono);font-size:11px;max-width:240px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .wallet-btn.on{border-color:rgba(127,179,232,.45);color:var(--teal)}
 .wallet-btn:hover{border-color:var(--violet)}
 
@@ -91,10 +91,14 @@ button:focus-visible,select:focus-visible,input:focus-visible,textarea:focus-vis
 
 /* layout */
 .cols{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);gap:16px;margin-top:24px;align-items:start}
+.stack{display:flex;flex-direction:column;gap:16px;min-width:0}
+@media(max-width:860px){
+  .cols{grid-template-columns:1fr}
+}
 .panel{background:var(--panel);border:1px solid var(--line);border-radius:14px;overflow:hidden;box-shadow:inset 0 1px 0 rgba(255,255,255,.04),0 24px 50px -32px rgba(0,0,0,.7)}
 .panel h2{font-family:var(--disp);font-size:11px;font-weight:400;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);padding:14px 16px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:8px;flex-wrap:wrap}
-.panel h2 #pvBack{font-family:inherit;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--text);background:transparent;border:1px solid var(--line);border-radius:8px;padding:4px 8px;cursor:pointer}
-.panel h2 #pvBack:hover{border-color:var(--pulse)}
+.panel h2 #pvBack,.panel h2 #pvHome{font-family:inherit;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--text);background:transparent;border:1px solid var(--line);border-radius:8px;padding:8px 12px;min-height:36px;cursor:pointer}
+.panel h2 #pvBack:hover,.panel h2 #pvHome:hover{border-color:var(--pulse)}
 .panel h2 .live{width:7px;height:7px;border-radius:50%;background:var(--pulse);animation:blink 2s infinite}
 @keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
 
@@ -148,6 +152,20 @@ button:focus-visible,select:focus-visible,input:focus-visible,textarea:focus-vis
 .tab{background:none;border:none;border-bottom:2px solid transparent;color:var(--faint);font-family:var(--disp);font-size:10px;letter-spacing:.08em;text-transform:uppercase;padding:8px 10px}
 .tab:hover{color:var(--muted)}
 .tab.on{color:var(--pulse-soft);border-bottom-color:var(--pulse)}
+.pfcard{border:1px solid var(--line);border-radius:12px;padding:14px 16px;background:var(--panel);margin-top:12px}
+.pfname{font-family:var(--disp);font-size:16px;letter-spacing:.04em;word-break:break-all}
+.pfrank{color:var(--amber);font-family:var(--disp);font-size:11px;letter-spacing:.14em;text-transform:uppercase;margin-top:6px}
+.pfbadges{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.pfbadge{border:1px solid rgba(127,179,232,.45);border-radius:999px;padding:4px 10px;font-size:12px;color:var(--pulse-soft)}
+.pfstat{display:flex;flex-wrap:wrap;gap:8px 16px;margin-top:10px;color:var(--muted);font-family:var(--mono);font-size:12px}
+.pfrule{color:var(--faint);font-size:12px;margin-top:3px}
+.pfscore{display:flex;justify-content:space-between;gap:12px;padding:8px 0;border-bottom:1px solid var(--line);font-size:13px}
+.pfscore b{font-weight:500}
+.pfscore .pts{font-family:var(--mono);color:var(--pulse-soft);flex:none}
+.pfscore .pts.neg{color:var(--red)}
+.pfladder{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.pfladder span{border:1px solid var(--line);border-radius:999px;padding:5px 9px;font-size:10px;letter-spacing:.08em;text-transform:uppercase;font-family:var(--disp);color:var(--faint)}
+.pfladder span.on{border-color:var(--amber);color:var(--amber);background:rgba(217,169,78,.12)}
 
 /* forms */
 .field{margin-bottom:10px}
@@ -162,6 +180,8 @@ button:focus-visible,select:focus-visible,input:focus-visible,textarea:focus-vis
 
 /* safety */
 .score-ring{display:flex;align-items:center;gap:16px;padding:14px;border:1px solid var(--line);border-radius:12px;background:var(--bg-2);margin-bottom:12px}
+.plain-risk{padding:12px 14px;border:1px solid rgba(255,107,90,.45);border-radius:12px;background:rgba(255,107,90,.08);color:var(--text);font-size:15px;line-height:1.45;margin-bottom:10px}
+.plain-risk.mid{border-color:rgba(217,169,78,.4);background:rgba(217,169,78,.08)}
 .score-num{font-family:var(--disp);font-size:36px;font-weight:400;line-height:1}
 .score-grade{font-family:var(--disp);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
 .chk{display:flex;gap:10px;align-items:flex-start;padding:9px 11px;border:1px solid var(--line);border-radius:8px;margin-bottom:6px;font-size:13px}
@@ -219,7 +239,37 @@ details summary{outline:none}
 .navtab.gamelink{color:var(--text);border-color:rgba(78,143,217,.65);box-shadow:0 0 0 1px rgba(78,143,217,.22),0 0 14px rgba(78,143,217,.22);animation:gameglow 3.2s ease-in-out infinite}
 .navtab.gamelink:hover{color:#fff;border-color:var(--pulse-soft)}
 @keyframes gameglow{0%,100%{box-shadow:0 0 0 1px rgba(78,143,217,.18),0 0 8px rgba(78,143,217,.14)}50%{box-shadow:0 0 0 1px rgba(127,179,232,.5),0 0 18px rgba(78,143,217,.36)}}
-@media(prefers-reduced-motion:reduce){.navtab.gamelink{animation:none}}
+.navtab.vaultlink,.navtab.launchlink,.navtab.paperlink{color:var(--text);border-color:rgba(168,210,244,.55);box-shadow:0 0 0 1px rgba(176,214,246,.3),0 0 12px rgba(154,200,238,.22);animation:btnglow 3.6s ease-in-out infinite}
+.navtab.vaultlink:hover,.navtab.launchlink:hover,.navtab.paperlink:hover{color:#fff;border-color:rgba(186,220,250,.7);text-decoration:none}
+@keyframes btnglow{0%,100%{box-shadow:0 0 0 1px rgba(170,210,242,.26),0 0 10px rgba(150,198,236,.18)}50%{box-shadow:0 0 0 1px rgba(196,226,255,.52),0 0 16px rgba(164,208,248,.34)}}
+@media(prefers-reduced-motion:reduce){.navtab.vaultlink,.navtab.launchlink,.navtab.paperlink{animation:none}}
+.bridgebox{margin-top:14px;border:1px solid var(--line);border-radius:12px;padding:12px 14px;background:var(--panel)}
+.bridgebox .kicker{font-family:var(--disp);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--pulse-soft)}
+.bridgebox .row{display:flex;flex-wrap:wrap;gap:10px 18px;margin-top:8px;font-family:var(--mono);font-size:13px}
+.bridgebox.down{border-color:rgba(255,107,90,.45)}
+.bridgegrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px;margin-top:8px}
+.bridgecard{border:1px solid var(--line);border-radius:10px;padding:10px 12px;background:rgba(5,5,7,.35);min-width:0}
+.bridgecard .bk{font-family:var(--disp);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--text)}
+.bridgecard.wide{grid-column:1/-1}
+.bridgerow{display:flex;flex-wrap:wrap;gap:8px 18px;margin-top:8px;font-family:var(--mono);font-size:12px;color:var(--muted)}
+.bridgerow b{color:var(--text);font-weight:500}
+.adslot{margin-top:14px;position:relative;border:1px solid var(--line);border-radius:12px;overflow:hidden;background:#0b0b10}
+.adslot a.adpic{display:block;position:relative;text-decoration:none;color:inherit}
+.adslot img{display:block;width:100%;height:112px;object-fit:cover;object-position:center;background:#0b0b10;transition:opacity .7s ease}
+.adslot.fade img,.adslot.fade .psbar{opacity:0}
+.adslot .psbar{margin-top:0;transition:opacity .7s ease}
+.adslot .psbar .admeta{margin-left:auto}
+.adslot.textmode{margin-top:14px;border:0;background:transparent;overflow:visible;border-radius:0}
+.adslot.textmode .adpic{display:none}
+.adslot:not(.textmode) #adText{display:none}
+.adlabel{position:absolute;right:8px;bottom:8px;font-size:11px;color:#f7f8fb;background:rgba(11,11,16,.62);border-radius:99px;padding:4px 8px;max-width:70%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+@media(max-width:700px){.adslot img{height:92px}}
+@media(prefers-reduced-motion:reduce){.adslot img,.adslot .psbar{transition:none}.adslot.fade img,.adslot.fade .psbar{opacity:1}}
+.whale-list{max-height:420px;overflow:auto;margin-top:8px}
+.whale-row{padding:8px 0;border-bottom:1px solid var(--line)}
+.whale-row .who{font-family:var(--mono);font-size:12px}
+.whale-row .tag{display:inline-block;margin-left:6px;border:1px solid rgba(127,179,232,.45);border-radius:999px;padding:1px 8px;font-size:11px;color:var(--pulse-soft)}
+.pfbadge.fun{border-color:rgba(217,169,78,.55);color:var(--amber)}
 footer{margin-top:36px;text-align:center;font-size:12px;color:var(--faint)}
 footer a{color:var(--muted)}
 .dl-cta{display:inline-block;padding:12px 22px;border:1px solid rgba(127,179,232,.5);border-radius:11px;background:rgba(78,143,217,.12);color:var(--teal) !important;font-family:var(--disp);font-size:13px;letter-spacing:.04em;margin-top:4px}
@@ -282,14 +332,13 @@ footer a.vaultlink{color:var(--teal);font-weight:600}
   </div>
 
   <div class="search">
-    <input id="q" spellcheck="false" autocomplete="off" placeholder="Search by tx hash / address / block number…" aria-label="Search the chain">
+    <input id="q" spellcheck="false" autocomplete="off" placeholder="Search by .pls name / address / tx / block…" aria-label="Search the chain">
     <button class="btn-grad" id="go">Search</button>
   </div>
   <div class="navtabs">
-    <a class="navtab on vaultlink" href="https://pulsestrategy369.com/vaults">◆ PulseStrategy Vaults →</a>
-    <a class="navtab launchlink" href="https://pulsestrategy369.com/launch">PulseStrategy Launcher →</a>
-    <a class="navtab paperlink" href="https://pulsestrategy369.com/whitepaper">PulseStrategy Whitepaper →</a>
-    <a class="navtab gamelink holdlink" href="https://pulsestrategy369.com/hold">Hardest Holder Game</a>
+    <a class="navtab vaultlink" href="https://pulsestrategy369.com/vaults" target="_top">PulseStrategy Vaults →</a>
+    <a class="navtab launchlink" href="https://pulsestrategy369.com/launch" target="_top">PulseStrategy Launcher →</a>
+    <a class="navtab paperlink" href="https://pulsestrategy369.com/whitepaper" target="_top">PulseStrategy Whitepaper →</a>
   </div>
   <div class="toolbar">
     <button class="btn-ghost" onclick="showTools()">🧰 Tools</button>
@@ -298,29 +347,41 @@ footer a.vaultlink{color:var(--teal);font-weight:600}
 </header>
 
 <div class="stats">
-  <div class="stat"><div class="k">Latest block</div><div class="v" id="s-block">—</div></div>
-  <div class="stat"><div class="k">Gas price</div><div class="v" id="s-gas">—</div><div class="sub" id="s-gas-fees">send and swap in PLS / USD once the next block lands</div></div>
+  <div class="stat" id="stat-block"><div class="k">Latest block</div><div class="v" id="s-block">—</div><div class="sub" id="s-vals">Validators —</div></div>
+  <div class="stat"><div class="k">Gas</div><div class="v" id="s-gas">—</div><div class="sub" id="s-gas-fees">send and swap in PLS / USD once the next block lands</div></div>
   <div class="stat"><div class="k">Block time</div><div class="v" id="s-time">—</div></div>
   <div class="stat"><div class="k">PLS price</div><div class="v" id="s-pls">—</div></div>
   <div class="stat"><div class="k">HEX price</div><div class="v" id="s-hex">—</div></div>
 </div>
 
-<div class="psbar">
-  <b>PULSESTRATEGY</b>
-  <span>Immutable vault tokens on PulseChain — backing per token that mathematically cannot go down.</span>
-  <span style="margin-left:auto"><a href="https://pulsestrategy369.com">pulsestrategy369.com</a> · <a href="https://x.com/pulsestrategy" target="_blank" rel="noopener">@pulsestrategy</a></span>
+<div class="adslot textmode" id="adslot">
+  <a id="adLink" class="adpic" href="https://pulsestrategy369.com/vaults" target="_blank" rel="noopener">
+    <img id="adImg" alt="PulseStrategy" width="1600" height="360">
+    <span class="adlabel" id="adLabel">PulseStrategy</span>
+  </a>
+  <div class="psbar" id="adText">
+    <b id="adTextK">PULSESTRATEGY</b>
+    <span id="adTextBody">Immutable vault tokens on PulseChain — backing per token that mathematically cannot go down.</span>
+    <span class="admeta"><a id="adTextSite" href="https://pulsestrategy369.com/vaults" target="_blank" rel="noopener">pulsestrategy369.com ↗</a> · <a href="https://x.com/pulsestrategy" target="_blank" rel="noopener">@pulsestrategy</a></span>
+  </div>
 </div>
 
-<div class="cols">
-  <div class="colL">
-  <section class="panel">
+<section class="bridgebox" id="bridgeBox" aria-label="PulseBridge">
+  <div class="kicker">PulseBridge</div>
+  <div id="bridgeBody" class="bridgerow"><span>Reading…</span></div>
+</section>
+
+<div class="cols" id="mainCols">
+  <div class="stack" id="leftStack">
+  <section class="panel" id="blocksPanel">
     <h2><span class="live"></span> Latest blocks</h2>
     <div class="blocks" id="blocks"><div class="loading"><span class="spin"></span><br>Connecting to PulseChain…</div></div>
   </section>
   </div>
 
+  <div class="stack" id="rightStack">
   <section class="panel detail" id="detailpanel">
-    <h2 id="d-title"><button type="button" id="pvBack" onclick="history.back()" style="display:none">← Back</button><span id="d-title-text">Details</span></h2>
+    <h2 id="d-title"><button type="button" id="pvBack" onclick="history.back()" style="display:none">← Back</button><button type="button" id="pvHome" onclick="goHome()" style="display:none">Home</button><span id="d-title-text">Details</span></h2>
     <div id="d-tabs"></div>
     <div id="d-body" class="body">
       <div class="empty">
@@ -330,6 +391,15 @@ footer a.vaultlink{color:var(--teal);font-weight:600}
       </div>
     </div>
   </section>
+
+  <section class="panel" id="whalePanel">
+    <h2><span class="live"></span> Whale watch · 7 days</h2>
+    <div style="padding:0 16px 14px">
+    <div class="small-note">PLS, PLSX, HEX, INC, PRVX, WETH, pDAI, and stables. A wallet is watched when the week adds up to $25k, even across several moves.</div>
+    <div class="whale-list" id="whales"><div class="loading" style="padding:16px"><span class="spin"></span><br>Scanning large moves…</div></div>
+    </div>
+  </section>
+  </div>
 </div>
 
 <section class="promo">
@@ -347,7 +417,7 @@ footer a.vaultlink{color:var(--teal);font-weight:600}
       <a class="btn-grad vaultlink" style="text-decoration:none" href="https://pulsestrategy369.com/vaults">Open the vaults</a>
       <a class="btn-ghost" style="text-decoration:none" href="https://x.com/pulsestrategy" target="_blank" rel="noopener">Follow @pulsestrategy</a>
     </div>
-    <div class="tie">Don't take our word for any of it — that's the point of this explorer. Paste a PulseStrategy vault address into the search bar above, and <b>Verify</b> shows its Sourcify status with a link to the full source, <b>Pulse Check</b> runs a live on-chain safety scan — it even simulates a token transfer out of the liquidity pool to catch honeypots — and <b>Read</b> queries the vault's backing straight from the chain. We built the tool that audits us.</div>
+    <div class="tie">Don't take our word for any of it — that's the point of this explorer. Paste a PulseStrategy vault address into the search bar above, and <b>Verify</b> shows its Sourcify status with a link to the full source, <b>Pulse Check</b> runs a live on-chain safety scan — it even simulates a token transfer out of the liquidity pool to catch honeypots — and <b>Read</b> queries the vault's backing straight from the chain. Paste a wallet or a .pls name and open <b>Rank</b>, next to Approvals, for a safety grade and a PulseChain history score. We built the tool that audits us.</div>
   </div>
 </section>
 
@@ -374,13 +444,13 @@ rel="noopener">Github</a> and inspect the code or download from github.</div>
   Free tool from <a href="https://pulsestrategy369.com">PulseStrategy</a> · <a href="https://x.com/pulsestrategy" target="_blank" rel="noopener">@pulsestrategy</a> · the floor only rises · <span id="buildTag" style="font-family:var(--mono)"></span>
 </footer>
 </div>
+<script>document.write('<script src="' + (/(vaults|market|launch|explorer)\//.test(location.pathname) ? '../ps.js' : 'ps.js') + '"><\/script>');</script>
 <script>
 "use strict";
-var BUILD = 'v64 · 2026-10-25';
+var BUILD = 'v84 · 2026-10-31';
 var VAULTS_URL = 'https://pulsestrategy369.com/vaults'; /* ★ EDIT HERE: the one place that controls every 'Vaults' link on this page */
 var LAUNCH_URL = 'https://pulsestrategy369.com/launch'; /* ★ EDIT HERE: PulseStrategy Launcher */
 var WHITEPAPER_URL = 'https://pulsestrategy369.com/whitepaper';
-var HOLD_URL = 'https://pulsestrategy369.com/hold';
 /* ================= RPC core ================= */
 let RPC = document.getElementById('rpcsel').value;
 let rpcId = 1;
@@ -493,7 +563,16 @@ function fmtUnits(wei, dec=18, dp=6){
 }
 const fmtPLS = (wei,dp=6) => fmtUnits(wei,18,dp);
 const fmtGwei = wei => (Number(wei)/1e9).toLocaleString('en-US',{maximumFractionDigits:2});
-const short = (h,n=8) => h ? h.slice(0,n+2)+'…'+h.slice(-n) : '';
+const short = (h,n=8) => {
+  if(!h) return '';
+  if(/^0x[a-fA-F0-9]{40}$/.test(h) && window.PS){
+    const nm = PS.nameOf(h);
+    if(nm) return nm;
+    PS.want(h);
+  }
+  const k = n || 8;
+  return String(h).slice(0, k+2)+'…'+String(h).slice(-k);
+};
 function ago(ts){
   const s = Math.max(0, Math.floor(Date.now()/1000 - ts));
   if(s<60) return s+'s ago'; if(s<3600) return Math.floor(s/60)+'m ago';
@@ -501,7 +580,10 @@ function ago(ts){
 }
 function esc(s){ return String(s).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 function copyBtn(text){ return `<button class="copy" title="Copy" onclick="navigator.clipboard.writeText('${esc(text)}');this.textContent='✓';setTimeout(()=>this.textContent='⧉',900)">⧉</button>`; }
-const linkAddr = a => `<a onclick="loadAddress('${esc(a)}')">${short(a,10)}</a>${copyBtn(a)}`;
+const linkAddr = a => {
+  const id = String(a||'').toLowerCase();
+  return `<a data-ps="${esc(id)}" onclick="loadAddress('${esc(a)}')">${esc(short(a,10))}</a>${copyBtn(a)}`;
+};
 const linkTx   = h => `<a onclick="loadTx('${esc(h)}')">${short(h,10)}</a>${copyBtn(h)}`;
 const linkBlk  = n => `<a onclick="loadBlock(${Number(n)})">${Number(n).toLocaleString('en-US')}</a>`;
 function decodeAbiString(hex){
@@ -590,7 +672,7 @@ async function tick(){
     try{ const t = await rpc('eth_maxPriorityFeePerGas'); if(t) tip = hexToBig(t); }catch(_){}
     const eip = lastBaseFeeWei + tip;
     if(eip > gasWei) gasWei = eip;
-    $('s-gas').innerHTML = fmtGwei(gasWei) + ' <span class="unit">gwei</span>';
+    $('s-gas').innerHTML = fmtGwei(gasWei) + ' <span class="unit">beats</span>';
     paintFeeStats(gasWei);
   }catch(e){
     setNet(false);
@@ -600,11 +682,21 @@ async function tick(){
 }
 
 /* ================= detail shell ================= */
+let detailOpen = false;
+function placeWhales(){
+  const whale = $('whalePanel');
+  const left = $('leftStack');
+  const right = $('rightStack');
+  if(!whale || !left || !right) return;
+  (detailOpen ? left : right).appendChild(whale);
+}
 function setDetail(title, html, tabsHtml=''){
+  detailOpen = true;
   const t = $('d-title-text');
   if(t) t.textContent = title; else $('d-title').textContent = title;
   $('d-tabs').innerHTML = tabsHtml;
   $('d-body').innerHTML = html;
+  placeWhales();
   paintBack();
   if(window.innerWidth<861) $('detailpanel').scrollIntoView({behavior:'smooth'});
 }
@@ -624,7 +716,9 @@ function buildAddrLabels(){
   add('0x98bf93ebf5c380C0e6Ae8e192A7e2AE08edAcc02','PulseX v1 router');
   add('0x165C3410fC91EF562C50559f7d2289fEbed552d9','PulseX v2 router');
   add('0x1F3Ef0bf7fE0c6bEBD0ba1503734F87014dBa5e5','LaunchVault factory');
-  add('0x3E5a5764EBd24d8142638366d4c5674D86c2EC64','protocol fee');
+  add('0x4fD0aaa7506f3d9cB8274bdB946Ec42A1b8751Ef','Ethereum bridge');
+  add('0x0e18d0d556b652794EF12Bf68B2dC857EF5f3996','Ethereum bridge');
+  add('0x6B175474E89094C44Da98b954EedeAC495271d0F','pDAI');
   try{ FACTORIES.forEach(f=>add(f.addr, f.name+' factory')); }catch(e){}
   try{ TOKEN_LIST.forEach(t=>add(t.addr, t.sym)); }catch(e){}
   try{ PS_VAULTS.forEach(v=>add(v.vault, v.symbol)); }catch(e){}
@@ -782,7 +876,7 @@ async function loadBlock(n){
         <div class="k">Parent</div><div class="v"><a onclick="loadBlock(${n-1})">${short(b.parentHash,12)}</a></div>
         <div class="k">Fee recipient</div><div class="v">${linkAddrNamed(b.miner)}</div>
         <div class="k">Gas used</div><div class="v">${used.toLocaleString('en-US')} / ${limit.toLocaleString('en-US')} (${limit?((used/limit)*100).toFixed(1):'0'}%)</div>
-        <div class="k">Base fee</div><div class="v">${b.baseFeePerGas ? fmtGwei(hexToBig(b.baseFeePerGas))+' gwei' : '—'}</div>
+        <div class="k">Base fee</div><div class="v">${b.baseFeePerGas ? fmtGwei(hexToBig(b.baseFeePerGas))+' beats' : '—'}</div>
         <div class="k">Extra data</div><div class="v">${b.extraData && b.extraData!=='0x' ? esc(b.extraData.slice(0,66))+(b.extraData.length>66?'…':'') : '—'}</div>
         <div class="k">Size</div><div class="v">${hexToNum(b.size).toLocaleString('en-US')} bytes</div>
       </div>
@@ -819,7 +913,7 @@ async function loadTx(hash){
         <div class="k">To</div><div class="v">${created ? '<span class="badge info">Contract created</span> '+linkAddrNamed(created) : (t.to ? linkAddrNamed(t.to)+' <span id="tx-toname"></span>' : '—')}</div>
         <div class="k">Value</div><div class="v">${fmtPLS(hexToBig(t.value))} PLS<span id="tx-val-usd"></span></div>
         <div class="k">Tx fee</div><div class="v">${fee!=null ? fmtPLS(fee)+' PLS' : '—'}<span id="tx-fee-usd"></span></div>
-        <div class="k">Gas price</div><div class="v">${fmtGwei(gasPrice)} gwei${t.maxFeePerGas?' · max '+fmtGwei(hexToBig(t.maxFeePerGas))+' · tip '+fmtGwei(hexToBig(t.maxPriorityFeePerGas||'0x0')):''}</div>
+        <div class="k">Gas price</div><div class="v">${fmtGwei(gasPrice)} beats${t.maxFeePerGas?' · max '+fmtGwei(hexToBig(t.maxFeePerGas))+' · tip '+fmtGwei(hexToBig(t.maxPriorityFeePerGas||'0x0')):''}</div>
         <div class="k">Gas used</div><div class="v">${r ? hexToNum(r.gasUsed).toLocaleString('en-US')+' / '+hexToNum(t.gas).toLocaleString('en-US')+(gasLimit>0n?' ('+(Number(gasUsed*10000n/gasLimit)/100).toFixed(2)+'%)':'') : 'pending · limit '+hexToNum(t.gas).toLocaleString('en-US')}</div>
         <div class="k">Nonce</div><div class="v">${hexToNum(t.nonce)}</div>
         <div class="k">Type</div><div class="v">${typeLbl} · ${isCall ? 'Contract call' : 'PLS transfer'} <span class="badge ok" id="tx-mname" style="display:none"></span>${r&&r.logs&&r.logs.length?` · <span class="badge info">${r.logs.length} log${r.logs.length>1?'s':''}</span>`:''}</div>
@@ -1166,12 +1260,1087 @@ async function lookupMethodName(sel){
   return name;
 }
 
+/* ================= Wallet rank (wallets and .pls names) ================= */
+const PF_HEX = '0x2b591e99afE9f32eAA6214f7B7629768c40Eeb39';
+const PF_PLSX = '0x95B303987A60C71504D99Aa1b13B4DA07b0790ab';
+const PF_INC = '0x2fa878Ab3F87CC1C9737Fc071108F904c0B0C95d';
+const PF_PRVX = '0xF6f8Db0aBa00007681F8fAF16A0FDa1c9B030b11';
+const PF_VPLS = '0x79BB3A0Ee435f957ce4f54eE8c3CFADc7278da0C';
+const PF_FACTORY = '0x1F3Ef0bf7fE0c6bEBD0ba1503734F87014dBa5e5';
+const PF_LAUNCH_TIME = 1575331200;
+const PF_GRACE = 14;
+const PF_LATE_SCALE = 700;
+const PF_HEX_GRAPH = 'https://graph.pulsechain.com/subgraphs/name/Codeakk/Hex';
+const PF_VAULTS = [
+  {sym:'PLSstr', addr:'0x71ff5C9C9938E39E819246ef939FFb5Fd228922d'},
+  {sym:'HEXstr-3000', addr:'0xd992b901474715accB07C5e933EDb8992715b4c2'}
+];
+const PF_HTT = [
+  {sym:'HTT-3000', day:3000, addr:'0xE9E1340A2b31d5D2a2dB28FB854a794E106b430a'},
+  {sym:'HTT-4000', day:4000, addr:'0x3cf372aa6aaa46edc4b8da86294dec0ddeced632'},
+  {sym:'HTT-5000', day:5000, addr:'0xE2D03779147A32064511dd2b9D37F66f3EeFAd7C'},
+  {sym:'HTT-5555', day:5555, addr:'0x7Ad74b94EBe76AA3046ECAD2E09A4aB63EAF96Bc'},
+  {sym:'HTT-6000', day:6000, addr:'0xcdbfaf528c7cea55d0aebdb93c218d6f23b24af3'},
+  {sym:'HTT-7000', day:7000, addr:'0x47810bb3ECDc6b080CeB2d39E769F21Ff14AB7E9'}
+];
+const PF_ACTR = {sym:'ACTR', addr:'0x85DF7cE20A4CE0cF859804b45cB540FFE42074Da', dec:18};
+const PF_SPEND_OK = new Set([
+  '0x98bf93ebf5c380c0e6ae8e192a7e2ae08edacc02',
+  '0x165c3410fc91ef562c50559f7d2289febed552d9',
+  PF_HEX.toLowerCase()
+]);
+const PF_HEX_ABI = [
+  'function stakeCount(address) view returns (uint256)',
+  'function currentDay() view returns (uint256)',
+  'function globalInfo() view returns (uint256[13])',
+  'function stakeLists(address,uint256) view returns (uint40 stakeId, uint72 stakedHearts, uint72 stakeShares, uint16 lockedDay, uint16 stakedDays, uint16 unlockedDay, bool isAutoStake)'
+];
+const PF_FAC_ABI = [
+  'function vaultCount() view returns (uint256)',
+  'function vaultsRange(uint256,uint256) view returns (address[])',
+  'function infoOf(address) view returns (address vault, address creator, address asset, string name, string symbol, uint256 initialQuotaBps, uint256 createdAt, uint256 seedAssetIn, uint256 tokensOut)'
+];
+let _pf = null;
+
+function pfNum(n, dp){
+  if(n==null || !isFinite(n)) return '—';
+  const x = Number(n);
+  const a = Math.abs(x);
+  const d = dp==null ? 2 : dp;
+  if(a !== 0 && a < Math.pow(10, -d)) return x.toLocaleString('en-US', {maximumFractionDigits: 8});
+  return x.toLocaleString('en-US', {maximumFractionDigits: d});
+}
+function pfHeld(n){ return n>=1e-6; }
+function pfDayDate(day){ return new Date((PF_LAUNCH_TIME + Number(day)*86400) * 1000); }
+function pfDayLabel(day){
+  const d = pfDayDate(day);
+  if(!isFinite(d.getTime())) return 'day '+day;
+  return d.toLocaleDateString('en-US', {year:'numeric', month:'short', day:'numeric', timeZone:'UTC'})+' UTC';
+}
+function pfIcsStamp(d){ return d.toISOString().replace(/[-:]/g,'').replace(/\.\d{3}/,''); }
+function pfGCal(title, day){
+  const s = pfDayDate(day), e = new Date(s.getTime()+86400000);
+  return 'https://calendar.google.com/calendar/render?action=TEMPLATE&text='+encodeURIComponent(title)+'&dates='+pfIcsStamp(s)+'/'+pfIcsStamp(e);
+}
+function pfIcs(title, day){
+  const s = pfDayDate(day), e = new Date(s.getTime()+86400000);
+  const body = 'BEGIN:VCALENDAR\r\nVERSION:2.0\r\nPRODID:-//PulseVerify//HEX//EN\r\nBEGIN:VEVENT\r\nDTSTART:'+pfIcsStamp(s)+'\r\nDTEND:'+pfIcsStamp(e)+'\r\nSUMMARY:'+String(title).replace(/[\r\n]/g,' ')+'\r\nEND:VEVENT\r\nEND:VCALENDAR\r\n';
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([body], {type:'text/calendar'}));
+  a.download = 'hex-stake-day.ics';
+  a.click();
+}
+function pfStatus(locked, days, unlocked, curDay){
+  if(Number(unlocked)>0) return {key:'ended', label:'Ended'};
+  const end = Number(locked)+Number(days);
+  if(curDay < end) return {key:'active', label:'Active', left: end-curDay, grace: (end+PF_GRACE)-curDay, end};
+  if(curDay <= end+PF_GRACE) return {key:'ready', label:'Ready to end', left: 0, grace: (end+PF_GRACE)-curDay, end};
+  const late = curDay - (end+PF_GRACE);
+  return {key:'late', label:'Late', left: 0, grace: 0, late, pct: Math.min(100, late/PF_LATE_SCALE*100), end};
+}
+function pfRankFrom(score){
+  const steps = [
+    {name:'Paper', min:0},
+    {name:'Copper', min:15},
+    {name:'Iron', min:30},
+    {name:'Granite', min:45},
+    {name:'Steel', min:60},
+    {name:'Ruby', min:75},
+    {name:'Diamond Hands', min:90}
+  ];
+  let name = steps[0].name;
+  for(const s of steps) if(score>=s.min) name = s.name;
+  return {name, steps};
+}
+function pfPts(n){
+  const a = Math.abs(Math.round(n));
+  return (n>0?'+':n<0?'−':'')+a;
+}
+function pfLadder(name){
+  const steps = ['Paper','Copper','Iron','Granite','Steel','Ruby','Diamond Hands'];
+  return '<div class="pfladder">'+steps.map(s=>'<span class="'+(s===name?'on':'')+'">'+esc(s)+'</span>').join('')+'</div>';
+}
+async function pfHolderRank(token, addr){
+  try{
+    const holders = await topHolders(token);
+    if(!holders || !holders.length) return null;
+    const i = holders.findIndex(h=>h.addr===String(addr).toLowerCase());
+    return {rank: i<0 ? null : i+1, of: holders.length};
+  }catch(e){ return null; }
+}
+function pfRankBit(r){
+  if(!r) return '';
+  if(r.rank) return 'Balance rank #'+r.rank+' of the '+r.of+' largest holders PulseScan lists.';
+  return 'Not in the '+r.of+' largest holders PulseScan lists.';
+}
+async function pfCall(ethers, iface, to, fn, args){
+  const raw = await call(to, iface.encodeFunctionData(fn, args||[]));
+  if(!raw || raw==='0x') throw new Error('empty');
+  return iface.decodeFunctionResult(fn, raw);
+}
+async function pfGraph(query){
+  const r = await fetch(PF_HEX_GRAPH, {method:'POST', headers:{'content-type':'application/json'}, body: JSON.stringify({query})});
+  if(!r.ok) throw new Error('hex index');
+  const j = await r.json();
+  if(j.errors) throw new Error('hex index');
+  return j.data;
+}
+async function pfBal(addr, token){
+  const hex = await call(token, '0x70a08231'+padA(addr));
+  return hexToBig(hex||'0x0');
+}
+async function pfDec(token){
+  try{ const d = await call(token, '0x313ce567'); return hexToNum(d)||18; }catch(e){ return 18; }
+}
+async function pfPages(url, n, ms){
+  const items = [];
+  let next = url;
+  const deadline = Date.now() + (ms || 8000);
+  for(let i=0;i<n && next;i++){
+    const left = deadline - Date.now();
+    if(left < 500) break;
+    const ctrl = typeof AbortController!=='undefined' ? new AbortController() : null;
+    const timer = ctrl ? setTimeout(()=>ctrl.abort(), left) : null;
+    let r;
+    try{ r = await fetch(next, ctrl ? {signal: ctrl.signal} : undefined); }
+    catch(e){ break; }
+    finally{ if(timer) clearTimeout(timer); }
+    if(!r || !r.ok) break;
+    const j = await r.json();
+    if(Array.isArray(j.items)) items.push(...j.items);
+    if(!j.next_page_params) break;
+    const q = new URLSearchParams();
+    for(const [k,v] of Object.entries(j.next_page_params)){
+      if(v==null) continue;
+      q.set(k, typeof v==='object' ? JSON.stringify(v) : String(v));
+    }
+    const base = url.split('?')[0];
+    const keep = url.includes('type=ERC-20') ? 'type=ERC-20&' : '';
+    next = base+'?'+keep+q.toString();
+  }
+  return items;
+}
+function pfAmt(it){
+  const t = it.total || {};
+  const dec = t.decimals!=null ? Number(t.decimals) : (it.token && it.token.decimals!=null ? Number(it.token.decimals) : 18);
+  let raw = t.value!=null ? t.value : it.value;
+  if(raw==null) return 0;
+  if(typeof raw==='string' && raw.includes('.')) return Number(raw);
+  try{
+    const b = BigInt(String(raw).split('.')[0]);
+    const d = Number.isFinite(dec) ? dec : 18;
+    return Number(b)/10**d;
+  }catch(e){ return 0; }
+}
+function pfWho(side){
+  if(!side) return '';
+  return String(side.hash || side).toLowerCase();
+}
+function pfTokAddr(it){
+  const t = it.token || {};
+  return String(t.address_hash || t.address || it.token_address || '').toLowerCase();
+}
+/* T-shares on PulseChain HEX are stakeShares / 1e12. Earning shares are stakes still open. */
+function pfTshareNum(raw){
+  let b = 0n;
+  try{ b = typeof raw==='bigint' ? raw : BigInt(raw); }catch(e){ return 0; }
+  if(b<0n) b = 0n;
+  const scale = 1000000000000n;
+  return Number(b / scale) + Number(b % scale) / 1e12;
+}
+function pfRawToNum(raw, dec){
+  let b = 0n;
+  try{ b = typeof raw==='bigint' ? raw : BigInt(raw); }catch(e){ return 0; }
+  const d = Number.isFinite(dec) && dec>=0 && dec<=36 ? dec : 18;
+  const base = 10n ** BigInt(d);
+  return Number(b / base) + Number(b % base) / Number(base);
+}
+const PF_LEAGUE_BANDS = [
+  {name:'Poseidon', min:10},
+  {name:'Whale', min:1},
+  {name:'Shark', min:0.1},
+  {name:'Dolphin', min:0.01},
+  {name:'Squid', min:0.001},
+  {name:'Turtle', min:0.0001},
+  {name:'Crab', min:0.00001},
+  {name:'Shrimp', min:0.000001},
+  {name:'Shell', min:0.0000001}
+];
+function pfSizeLeague(amount, total){
+  if(!(amount>0) || !(total>0)) return null;
+  const pct = amount / total * 100;
+  let name = 'Plankton';
+  for(const b of PF_LEAGUE_BANDS){
+    if(pct + 1e-15 >= b.min){ name = b.name; break; }
+  }
+  return {name, pct};
+}
+function pfPctText(pct){
+  if(!(pct>0)) return '0%';
+  if(pct>=1) return pfNum(pct, 2)+'%';
+  if(pct>=0.01) return pfNum(pct, 4)+'%';
+  const digits = Math.min(8, Math.max(4, Math.ceil(-Math.log10(pct))+1));
+  return pct.toFixed(digits)+'%';
+}
+function pfTText(n){
+  if(!(n>0)) return '0';
+  if(n>=100) return pfNum(n, 2);
+  if(n>=1) return pfNum(n, 4);
+  return pfNum(n, 6);
+}
+async function pfHexHistory(me){
+  const ends = [], starts = [];
+  for(let skip=0; skip<200; skip+=50){
+    const q = '{stakeEnds(first:50, skip:'+skip+', where:{stakerAddr:"'+me+'"}){stakeId stakedHearts servedDays daysLate daysEarly penalty} stakeStarts(first:50, skip:'+skip+', where:{stakerAddr:"'+me+'"}){stakeId stakedHearts stakeShares stakedDays startDay}}';
+    let d;
+    try{ d = await pfGraph(q); }catch(e){ break; }
+    const e = (d && d.stakeEnds) || [];
+    const s = (d && d.stakeStarts) || [];
+    ends.push(...e); starts.push(...s);
+    if(e.length<50 && s.length<50) break;
+  }
+  return {ends, starts};
+}
+async function pfPlsSupply(){
+  try{
+    const r = await fetch('https://api.coingecko.com/api/v3/coins/pulsechain?localization=false&tickers=false&market_data=true&community_data=false&developer_data=false', {signal: AbortSignal.timeout(5000)});
+    if(r.ok){
+      const j = await r.json();
+      const md = j.market_data || {};
+      const c = Number(md.circulating_supply)||0;
+      const t = Number(md.total_supply)||0;
+      if(c>1e12) return c;
+      if(t>1e12) return t;
+    }
+  }catch(e){}
+  return 135085881560694;
+}
+async function pfBagCores(o){
+  const PLSSTR = '0x71ff5c9c9938e39e819246ef939ffb5fd228922d';
+  const direct = new Map();
+  direct.set(PF_HEX.toLowerCase(), 'HEX');
+  direct.set(PF_PLSX.toLowerCase(), 'PLSX');
+  direct.set(PF_INC.toLowerCase(), 'INC');
+  direct.set(PF_PRVX.toLowerCase(), 'PRVX');
+  direct.set(WPLS.toLowerCase(), 'PLS');
+  direct.set(PF_VPLS.toLowerCase(), 'PLS');
+  for(const h of PF_HTT) direct.set(h.addr.toLowerCase(), 'HEX');
+  const exposure = {PLS:0, HEX:0, PLSX:0, INC:0, PRVX:0};
+  const parts = {PLS:[], HEX:[], PLSX:[], INC:[], PRVX:[]};
+  const cache = {vault:new Map(), dec:new Map()};
+  const add = (sym, amt, label)=>{
+    if(!Object.prototype.hasOwnProperty.call(exposure, sym) || !(amt>0)) return;
+    if(amt < (sym==='PLS' ? 1 : 0.01)) return;
+    exposure[sym] += amt;
+    if(label && parts[sym].length<6 && parts[sym].indexOf(label)<0) parts[sym].push(label);
+  };
+  async function tokDec(token){
+    const a = String(token||'').toLowerCase();
+    if(cache.dec.has(a)) return cache.dec.get(a);
+    let d = 18;
+    if(a===PF_HEX.toLowerCase() || PF_HTT.some(h=>h.addr.toLowerCase()===a)) d = 8;
+    else {
+      try{ const n = hexToNum(await call(a,'0x313ce567')); if(n>=0 && n<=36) d = n; }catch(e){}
+    }
+    cache.dec.set(a, d);
+    return d;
+  }
+  async function walk(token, human, hop){
+    if(hop>4 || !(human>0)) return [];
+    const a = String(token||'').toLowerCase();
+    if(!a || a==='0x'+'0'.repeat(40)) return [];
+    if(direct.has(a)) return [{sym:direct.get(a), amt:human}];
+    let v = cache.vault.get(a);
+    if(v===false) return [];
+    if(!v){
+      try{
+        const bptHex = await call(a,'0x1521843e');
+        const assetHex = await call(a,'0x38d52e0f');
+        const bpt = Number(hexToBig(bptHex||'0x0')) / 1e18;
+        const asset = wordAddr(assetHex||'0x0').toLowerCase();
+        if(!(bpt>0) || hexToBig(assetHex)===0n || !asset || asset===a){
+          cache.vault.set(a, false); return [];
+        }
+        v = {bpt, asset};
+        cache.vault.set(a, v);
+      }catch(e){ cache.vault.set(a, false); return []; }
+    }
+    return walk(v.asset, human * v.bpt, hop+1);
+  }
+  async function absorb(token, human, label){
+    const rows = await walk(token, human, 0);
+    for(const r of rows) add(r.sym, r.amt, label);
+  }
+  if(o.pls>=1) add('PLS', o.pls, 'wallet');
+  if(o.stakedHex>=1) add('HEX', o.stakedHex, 'staked');
+  for(const w of o.wallet||[]){
+    if(!(w.human>0)) continue;
+    await absorb(w.addr, w.human, w.sym || 'wallet');
+  }
+  for(const t of [[WPLS,'WPLS'],[PF_VPLS,'vPLS']]){
+    try{
+      const human = Number(o.ethers.formatUnits(await pfBal(o.addr, t[0]), 18));
+      if(human>=1) await absorb(t[0], human, t[1]);
+    }catch(e){}
+  }
+  const book = [];
+  const seenB = new Set();
+  const addBook = (addr)=>{
+    const a = String(addr||'').toLowerCase();
+    if(!/^0x[0-9a-f]{40}$/.test(a) || a==='0x'+'0'.repeat(40) || seenB.has(a)) return;
+    seenB.add(a); book.push(a);
+  };
+  [WPLS, PF_HEX, PF_PLSX, PF_INC, PF_PRVX, PF_VPLS, PLSSTR].forEach(addBook);
+  PF_HTT.forEach(h=>addBook(h.addr));
+  try{ PS_VAULTS.forEach(v=>addBook(v.vault)); }catch(e){}
+  (o.extra||[]).forEach(addBook);
+  const lps = [];
+  const pairCalls = [];
+  for(let i=0;i<book.length;i++){
+    for(let j=i+1;j<book.length;j++){
+      for(const f of FACTORIES){
+        pairCalls.push({to:f.addr, data:'0xe6a43905'+padA(book[i])+padA(book[j])});
+      }
+    }
+  }
+  const pairRaw = pairCalls.length ? await multiCall(pairCalls) : [];
+  const pairs = [];
+  const seenP = new Set();
+  pairRaw.forEach(h=>{
+    if(!h || hexToBig(h)===0n) return;
+    const p = wordAddr(h).toLowerCase();
+    if(seenP.has(p)) return;
+    seenP.add(p);
+    pairs.push(p);
+  });
+  if(pairs.length){
+    const balRaw = await multiCall(pairs.map(p=>({to:p, data:'0x70a08231'+padA(o.addr)})));
+    const heldPairs = [];
+    pairs.forEach((p,i)=>{
+      const bal = hexToBig(balRaw[i]||'0x0');
+      if(bal>0n) heldPairs.push({p, bal});
+    });
+    if(heldPairs.length){
+      const meta = await multiCall(heldPairs.flatMap(h=>[
+        {to:h.p, data:'0x18160ddd'},
+        {to:h.p, data:'0x0902f1ac'},
+        {to:h.p, data:'0x0dfe1681'},
+        {to:h.p, data:'0xd21220a7'},
+        {to:h.p, data:'0x313ce567'}
+      ]));
+      for(let i=0;i<heldPairs.length;i++){
+        const sup = hexToBig(meta[i*5]||'0x0');
+        const resH = meta[i*5+1];
+        const t0 = meta[i*5+2] ? wordAddr(meta[i*5+2]).toLowerCase() : '';
+        const t1 = meta[i*5+3] ? wordAddr(meta[i*5+3]).toLowerCase() : '';
+        const dec = hexToNum(meta[i*5+4]);
+        const lpDec = (dec>=0 && dec<=36) ? dec : 18;
+        if(!(sup>0n) || !resH || !t0 || !t1) continue;
+        const s = String(resH).replace(/^0x/,'');
+        if(s.length<128) continue;
+        const r0 = hexToBig('0x'+s.slice(0,64));
+        const r1 = hexToBig('0x'+s.slice(64,128));
+        const b = heldPairs[i].bal;
+        const h0 = pfRawToNum((r0 * b) / sup, await tokDec(t0));
+        const h1 = pfRawToNum((r1 * b) / sup, await tokDec(t1));
+        const before = {PLS:exposure.PLS, HEX:exposure.HEX, PLSX:exposure.PLSX, INC:exposure.INC, PRVX:exposure.PRVX};
+        await absorb(t0, h0, 'LP');
+        await absorb(t1, h1, 'LP');
+        const touched = [];
+        for(const sym of Object.keys(exposure)){
+          if(exposure[sym] > before[sym] + (sym==='PLS'?1:0.01)) touched.push(sym);
+        }
+        if(!touched.length) continue;
+        lps.push({
+          token: heldPairs[i].p,
+          human: pfRawToNum(b, lpDec),
+          dec: lpDec,
+          a0: t0,
+          a1: t1,
+          f0: touched[0]||'',
+          f1: touched[1]||touched[0]||''
+        });
+      }
+    }
+  }
+  return {exposure, parts, lps};
+}
+async function renderPortfolio(){
+  const addr = cur.addr;
+  const me = addr.toLowerCase();
+  bodyLoading('Scoring this wallet from PulseChain…');
+  try{
+    const ethers = await loadEthers();
+    const hexI = new ethers.Interface(PF_HEX_ABI);
+    const facI = new ethers.Interface(PF_FAC_ABI);
+    if(window.PS) PS.want(addr);
+    const name = (window.PS && PS.nameOf(addr)) || '';
+    const [dayR, countR] = await Promise.all([
+      pfCall(ethers, hexI, PF_HEX, 'currentDay', []),
+      pfCall(ethers, hexI, PF_HEX, 'stakeCount', [addr])
+    ]);
+    const curDay = Number(dayR[0]);
+    const nStakes = Number(countR[0]);
+    let tShareTotal = 0;
+    try{
+      const giR = await pfCall(ethers, hexI, PF_HEX, 'globalInfo', []);
+      const arr = giR[0] && giR[0].length>=6 ? giR[0] : giR;
+      const n = pfTshareNum(BigInt(arr[5]));
+      if(n>1e6 && n<1e9) tShareTotal = n;
+    }catch(e){}
+    const cap = Math.min(nStakes, 120);
+    const stakeCalls = [];
+    for(let i=0;i<cap;i++) stakeCalls.push({to:PF_HEX, data:hexI.encodeFunctionData('stakeLists',[addr, i])});
+    const stakeRaw = cap ? await multiCall(stakeCalls) : [];
+    const stakes = [];
+    for(let i=0;i<stakeRaw.length;i++){
+      if(!stakeRaw[i]) continue;
+      try{
+        const s = hexI.decodeFunctionResult('stakeLists', stakeRaw[i]);
+        const locked = Number(s.lockedDay), days = Number(s.stakedDays), unlocked = Number(s.unlockedDay);
+        stakes.push({
+          id: s.stakeId.toString(), locked, days, unlocked,
+          hex: Number(ethers.formatUnits(s.stakedHearts, 8)),
+          tshares: pfTshareNum(s.stakeShares),
+          early: unlocked>0 && unlocked < locked+days,
+          late: unlocked>0 && unlocked > locked+days+PF_GRACE
+        });
+      }catch(e){}
+    }
+    if(!cur || cur.addr!==addr) return;
+    let xfers = [];
+    let txs = [];
+    let years = 0, firstTxt = '';
+    let ends = [];
+    let tokenBals = null;
+    const [xfersR, txsR, endsR, ageR, balsR] = await Promise.all([
+      pfPages('https://api.scan.pulsechain.com/api/v2/addresses/'+addr+'/token-transfers?type=ERC-20', 1, 8000).catch(()=>[]),
+      pfPages('https://api.scan.pulsechain.com/api/v2/addresses/'+addr+'/transactions', 1, 8000).catch(()=>[]),
+      pfHexHistory(me).catch(()=>({ends:[], starts:[]})),
+      fetch(SCAN_API+'?module=account&action=txlist&address='+addr+'&page=1&offset=1&sort=asc', {signal: AbortSignal.timeout(8000)}).then(r=>r.ok?r.json():null).catch(()=>null),
+      fetch('https://api.scan.pulsechain.com/api/v2/addresses/'+addr+'/tokens?type=ERC-20', {signal: AbortSignal.timeout(8000)}).then(r=>r.ok?r.json():null).catch(()=>null)
+    ]);
+    xfers = xfersR || [];
+    txs = txsR || [];
+    ends = (endsR && endsR.ends) || [];
+    const hexStarts = (endsR && endsR.starts) || [];
+    tokenBals = balsR;
+    try{
+      const t = ageR && Array.isArray(ageR.result) ? ageR.result[0] : null;
+      const ts = t ? parseInt(t.timeStamp,10) : 0;
+      if(ts>0){
+        years = (Date.now()/1000 - ts) / (365.25*86400);
+        firstTxt = new Date(ts*1000).toLocaleDateString('en-US', {year:'numeric', month:'short', timeZone:'UTC'});
+      }
+    }catch(e){}
+    const openById = new Map(stakes.map(s=>[String(s.id), s]));
+    const startById = new Map();
+    for(const s of hexStarts) startById.set(String(s.stakeId), s);
+    const stakeViews = [];
+    for(const s of stakes){
+      const st = pfStatus(s.locked, s.days, s.unlocked, curDay);
+      let status = 'Active', detail = '';
+      if(s.unlocked>0 && s.early){ status = 'Emergency end'; detail = 'Ended before the term.'; }
+      else if(s.unlocked>0 && s.late){ status = 'Ended late'; detail = 'After the 14-day grace. Not a penalty.'; }
+      else if(s.unlocked>0){ status = 'Ended'; detail = 'Good end. Not a penalty.'; }
+      else if(st.key==='late'){ status = 'Late'; detail = 'Still open, past the 14-day grace. Not a penalty.'; }
+      else if(st.key==='ready'){ status = 'Ready to end'; detail = 'The term is up. Inside the 14-day grace.'; }
+      stakeViews.push({id:String(s.id), hex:s.hex, tshares:s.tshares||0, days:s.days, term:s.days, status, detail, earning:s.unlocked===0});
+    }
+    for(const e of ends){
+      const id = String(e.stakeId||'');
+      if(!id || openById.has(id)) continue;
+      const st = startById.get(id);
+      const early = Number(e.daysEarly)>0;
+      const late = Number(e.daysLate)>PF_GRACE;
+      const shares = st && st.stakeShares!=null ? pfTshareNum(st.stakeShares) : 0;
+      const hearts = st && st.stakedHearts!=null ? Number(st.stakedHearts)/1e8 : Number(e.stakedHearts||0)/1e8;
+      stakeViews.push({
+        id,
+        hex: isFinite(hearts) ? hearts : 0,
+        tshares: shares,
+        days: Number(e.servedDays)|| (st ? Number(st.stakedDays)||0 : 0),
+        term: st && Number(st.stakedDays) ? Number(st.stakedDays) : 0,
+        status: early ? 'Emergency end' : late ? 'Ended late' : 'Ended',
+        detail: early ? (Number(e.daysEarly).toLocaleString('en-US')+' days early.') : late ? (Number(e.daysLate).toLocaleString('en-US')+' days late. Not a penalty.') : 'Good end. Not a penalty.',
+        earning: false
+      });
+    }
+    const stakeOrder = {Active:0, 'Ready to end':1, Late:2, 'Ended late':3, Ended:4, 'Emergency end':5};
+    stakeViews.sort((a,b)=>(stakeOrder[a.status]-stakeOrder[b.status]) || (b.tshares-a.tshares));
+    let earlyN = stakeViews.filter(s=>s.status==='Emergency end').length;
+    let lateN = stakeViews.filter(s=>s.status==='Ended late' || s.status==='Late').length;
+    let n5555 = stakeViews.filter(s=>s.days>=5555).length;
+    const active = stakes.filter(s=>s.unlocked===0);
+    const stakedHex = active.reduce((s,x)=>s+x.hex,0);
+    const earnT = stakeViews.filter(s=>s.earning).reduce((s,x)=>s+x.tshares,0);
+    const longestOther = Math.max(0, ...stakeViews.filter(s=>s.days && s.days<5555).map(s=>Number(s.days)||0));
+
+    const cores = [
+      {sym:'PLS', addr:null, min:10000, bal:Number(cur.bal)/1e18},
+      {sym:'HEX', addr:PF_HEX, min:1, dec:8},
+      {sym:'PLSX', addr:PF_PLSX, min:1},
+      {sym:'INC', addr:PF_INC, min:1},
+      {sym:'PRVX', addr:PF_PRVX, min:1}
+    ];
+    for(const c of cores){
+      if(!c.addr) continue;
+      try{
+        const dec = c.dec || await pfDec(c.addr);
+        c.bal = Number(ethers.formatUnits(await pfBal(addr, c.addr), dec));
+        if(!pfHeld(c.bal)) c.bal = 0;
+      }catch(e){ c.bal = 0; }
+    }
+    const vaultNames = [];
+    const vaultHolds = [];
+    const launchHits = [];
+    const launchHolds = [];
+    const psVaults = (typeof PS_VAULTS!=='undefined' && PS_VAULTS.length)
+      ? PS_VAULTS.map(v=>({sym:v.symbol, addr:v.vault}))
+      : PF_VAULTS;
+    for(const v of psVaults){
+      try{
+        const b = await pfBal(addr, v.addr);
+        if(b<=0n) continue;
+        const dec = await pfDec(v.addr);
+        const human = Number(ethers.formatUnits(b, dec));
+        if(pfHeld(human)){
+          vaultNames.push(v.sym);
+          vaultHolds.push({addr:v.addr, sym:v.sym, human});
+        }
+      }catch(e){}
+    }
+    try{
+      const vc = Number((await pfCall(ethers, facI, PF_FACTORY, 'vaultCount', []))[0]);
+      const addrs = [];
+      for(let start=0; start<vc && addrs.length<80; start+=30){
+        const n = Math.min(30, vc-start);
+        const list = await pfCall(ethers, facI, PF_FACTORY, 'vaultsRange', [start, n]);
+        for(const va of (list[0]||[])) addrs.push(va);
+      }
+      for(const va of addrs){
+        try{
+          const b = await pfBal(addr, va);
+          if(b<=0n) continue;
+          const dec = await pfDec(va);
+          const human = Number(ethers.formatUnits(b, dec));
+          if(!pfHeld(human)) continue;
+          let sym = 'vault', asset = '';
+          try{
+            const info = await pfCall(ethers, facI, PF_FACTORY, 'infoOf', [va]);
+            sym = info.symbol || 'vault';
+            asset = String(info.asset||'').toLowerCase();
+          }catch(e){}
+          vaultNames.push(sym);
+          launchHits.push({sym, asset});
+          launchHolds.push({addr:va, sym, human});
+        }catch(e){}
+      }
+    }catch(e){}
+
+    const PLSSTR = '0x71ff5c9c9938e39e819246ef939ffb5fd228922d';
+    const PDAI = '0x6b175474e89094c44da98b954eedeac495271d0f';
+    const layerHold = {PLS:false, HEX:false, PLSX:false, INC:false, PRVX:false};
+    const layerNote = {PLS:'', HEX:'', PLSX:'', INC:'', PRVX:''};
+    const noteLayer = (sym, text)=>{
+      if(!layerHold[sym] && !text) return;
+      layerHold[sym] = true;
+      if(!text) return;
+      if(!layerNote[sym]) layerNote[sym] = text;
+      else if(layerNote[sym].length<64 && layerNote[sym].indexOf(text)<0) layerNote[sym] += ', '+text;
+    };
+    const familyOf = (a)=>{
+      a = String(a||'').toLowerCase();
+      if(!a) return '';
+      if(a===PF_HEX.toLowerCase()) return 'HEX';
+      if(a===PF_PLSX.toLowerCase()) return 'PLSX';
+      if(a===PF_INC.toLowerCase()) return 'INC';
+      if(a===PF_PRVX.toLowerCase()) return 'PRVX';
+      if(a===WPLS.toLowerCase() || a===PF_VPLS.toLowerCase() || a===PLSSTR) return 'PLS';
+      if(PF_HTT.some(h=>h.addr.toLowerCase()===a)) return 'HEX';
+      const v = psVaults.find(x=>x.addr.toLowerCase()===a);
+      if(v && /hexstr/i.test(v.sym)) return 'HEX';
+      if(v && /plsstr/i.test(v.sym)) return 'PLS';
+      return '';
+    };
+    const httNames = [];
+    const httHolds = [];
+    try{
+      const httRaw = await multiCall(PF_HTT.map(h=>({to:h.addr, data:'0x70a08231'+padA(addr)})));
+      PF_HTT.forEach((h,i)=>{
+        const human = Number(ethers.formatUnits(hexToBig(httRaw[i]||'0x0'), 8));
+        if(human>=1){ httNames.push(h.sym); httHolds.push({addr:h.addr, sym:h.sym, human}); noteLayer('HEX', h.sym); }
+      });
+    }catch(e){}
+    const hexstrNames = vaultNames.filter(s=>/hexstr/i.test(s));
+    if(hexstrNames.length) noteLayer('HEX', hexstrNames.slice(0,3).join(', '));
+    if(vaultNames.some(s=>/plsstr/i.test(s))) noteLayer('PLS', 'PLSstr');
+    for(const hit of launchHits){
+      const fam = familyOf(hit.asset);
+      if(fam) noteLayer(fam, hit.sym);
+      else if(hit.asset===PLSSTR) noteLayer('PLS', hit.sym);
+    }
+    let pdaiBal = 0;
+    const lpPositions = [];
+    const lpAddrs = new Set();
+    let exposure = {PLS:0, HEX:0, PLSX:0, INC:0, PRVX:0};
+    let expParts = {PLS:[], HEX:[], PLSX:[], INC:[], PRVX:[]};
+    try{
+      const pdaiHex = await call(PDAI, '0x70a08231'+padA(addr));
+      pdaiBal = Number(ethers.formatUnits(hexToBig(pdaiHex||'0x0'), 18));
+    }catch(e){}
+    try{
+      const items = (tokenBals && tokenBals.items) || [];
+      for(const it of items){
+        const tok = it.token || it;
+        const token = pfTokAddr({token: tok});
+        const dec = tok.decimals!=null ? Number(tok.decimals) : 18;
+        let raw = 0; try{ raw = Number(it.value || 0); }catch(e){}
+        const human = dec>=0 ? raw/10**dec : raw;
+        if(token===PDAI && human>pdaiBal) pdaiBal = human;
+      }
+    }catch(e){}
+    try{
+      const bag = await pfBagCores({
+        addr, ethers,
+        pls: cores.find(c=>c.sym==='PLS').bal,
+        stakedHex,
+        wallet: [
+          ...cores.filter(c=>c.addr && c.bal>0).map(c=>({addr:c.addr, sym:c.sym, human:c.bal})),
+          ...vaultHolds,
+          ...launchHolds,
+          ...httHolds
+        ],
+        extra: [...vaultHolds, ...launchHolds, ...httHolds].map(h=>h.addr)
+      });
+      exposure = bag.exposure;
+      expParts = bag.parts;
+      for(const p of bag.lps){
+        lpPositions.push(p);
+        lpAddrs.add(p.token);
+        if(p.f0) noteLayer(p.f0, 'LP');
+        if(p.f1 && p.f1!==p.f0) noteLayer(p.f1, 'LP');
+      }
+      for(const sym of ['PLS','HEX','PLSX','INC','PRVX']){
+        const min = sym==='PLS' ? 10000 : 1;
+        if(exposure[sym]>=min){
+          layerHold[sym] = true;
+          if(expParts[sym].length) layerNote[sym] = expParts[sym].join(' · ');
+        }
+      }
+    }catch(e){}
+    const lpSent = new Map();
+
+    const flow = {};
+    cores.forEach(c=>{ if(c.addr) flow[c.addr.toLowerCase()] = {inn:0, out:0, days:new Set()}; });
+    const coreSet = new Set(Object.keys(flow));
+    const notDegen = new Set([
+      ...coreSet,
+      (typeof WPLS!=='undefined'?WPLS:'').toLowerCase(),
+      PF_VPLS.toLowerCase(),
+      PF_ACTR.addr.toLowerCase(),
+      ...PF_HTT.map(h=>h.addr.toLowerCase()),
+      ...psVaults.map(v=>v.addr.toLowerCase()),
+      ...PF_VAULTS.map(v=>v.addr.toLowerCase()),
+      ...launchHolds.map(h=>String(h.addr||'').toLowerCase()),
+      ...vaultHolds.map(h=>String(h.addr||'').toLowerCase()),
+      '0xefd766ccb38eaf1dfd701853bfce31359239f305',
+      '0x15d38573d2feeb82e7ad5187ab8c1d52810b1f07',
+      '0x0cb6f5a34ad42ec934882a05265a7d5f59b51a2f',
+      '0xe9e7cea3dedca5984780bafc599bd69add087d56',
+      PDAI,
+      '0x02dcdd04e3f455d838cd1249292c58f3b79e3c3c',
+      ...lpAddrs
+    ]);
+    const memeOut = new Set();
+    const memeTouch = new Set();
+    for(const it of xfers){
+      const token = pfTokAddr(it);
+      if(!token) continue;
+      const from = pfWho(it.from), to = pfWho(it.to);
+      const amt = pfAmt(it);
+      const day = it.timestamp ? String(it.timestamp).slice(0,10) : '';
+      if(flow[token]){
+        if(to===me && amt>0){ flow[token].inn += amt; if(day) flow[token].days.add(day); }
+        if(from===me && amt>0) flow[token].out += amt;
+      }
+      if(lpAddrs.has(token) && from===me && amt>0) lpSent.set(token, (lpSent.get(token)||0)+amt);
+      if(!notDegen.has(token) && (from===me || to===me)){
+        memeTouch.add(token);
+        if(from===me) memeOut.add(token);
+      }
+    }
+    for(const it of ((tokenBals && tokenBals.items) || [])){
+      const tok = it.token || it;
+      const token = pfTokAddr({token: tok});
+      const dec = tok.decimals!=null ? Number(tok.decimals) : 18;
+      let raw = 0;
+      try{ raw = Number(it.value || 0); }catch(e){}
+      const human = dec>=0 ? raw/10**dec : raw;
+      if(!token || !(human>=1) || notDegen.has(token)) continue;
+      memeTouch.add(token);
+    }
+    let plsIn = 0, plsOut = 0;
+    const plsDays = new Set();
+    for(const t of txs){
+      let v = 0;
+      try{ v = Number(BigInt(t.value||'0'))/1e18; }catch(e){}
+      if(!(v>=1000)) continue;
+      const from = pfWho(t.from), to = pfWho(t.to);
+      const day = t.timestamp ? String(t.timestamp).slice(0,10) : '';
+      if(to===me){ plsIn += v; if(day) plsDays.add(day); }
+      else if(from===me) plsOut += v;
+    }
+    if(!cur || cur.addr!==addr) return;
+
+    const hexCore = cores.find(c=>c.sym==='HEX');
+    const rows = [];
+    const push = (label, pts, note)=>{ if(pts) rows.push({label, pts:Math.round(pts), note:note||''}); };
+    const boost = n5555<=0 ? 0 : (n5555===1 ? 45 : 60);
+    push(n5555+' PulseChain stake'+(n5555===1?'':'s')+' of 5,555 days', boost, 'The long stake is the large boost. Counted on PulseChain HEX only.');
+    if(longestOther>0) push('Longest other stake '+longestOther.toLocaleString('en-US')+' days', Math.min(12, Math.round(longestOther/365*4)), 'The longest PulseChain stake under 5,555 days.');
+    if(stakedHex>=1) push(pfNum(stakedHex,2)+' HEX staked now', Math.min(8, Math.round(Math.log10(stakedHex+1)*2)), '');
+    push(earlyN+' emergency end'+(earlyN===1?'':'s'), -Math.min(40, earlyN*20), 'Ended before the stake term. Late ends are not in this number.');
+    let holdN = 0, sellN = 0;
+    const assetLines = [];
+    for(const c of cores){
+      const f = c.addr ? flow[c.addr.toLowerCase()] : {inn:plsIn, out:plsOut, days:plsDays};
+      const heldWallet = c.sym==='HEX' ? (c.bal>=c.min || stakedHex>=1) : c.bal>=c.min;
+      const held = heldWallet || !!layerHold[c.sym] || exposure[c.sym]>=c.min;
+      const soldOff = !held && f && f.out>=c.min && f.out > (f.inn||0)*0.75 && (f.out>= (c.sym==='PLS'?100000:c.min));
+      let word = 'Quiet';
+      if(held){ word = 'Holder'; holdN++; }
+      else if(soldOff){ word = 'Seller'; sellN++; }
+      let note = layerNote[c.sym] || '';
+      if(!note && c.sym==='HEX' && stakedHex>=1 && c.bal<1) note = 'staked';
+      assetLines.push({sym:c.sym, word, note});
+      if(c.addr && f) c.days = f.days;
+    }
+    push(holdN+' Richard Heart asset'+(holdN===1?'':'s')+' still held', holdN*6, 'PLS, HEX, PLSX, INC, PRVX. A stake, HTT, HEXstr, a PulseStrategy vault, or LP that holds the asset counts.');
+    push(sellN+' core asset'+(sellN===1?'':'s')+' sold off', -Math.min(24, sellN*6), 'Balance is gone and the scanned transfers show the tokens leaving.');
+    const daySet = new Set(plsDays);
+    cores.forEach(c=>{ if(c.days) c.days.forEach(d=>daySet.add(d)); });
+    const dcaN = daySet.size;
+    push('DCA on '+dcaN+' day'+(dcaN===1?'':'s'), dcaN>=4 ? Math.min(10, dcaN) : 0, 'Separate days this wallet received a core asset, in the scanned pages.');
+    const vaultPts = Math.min(16, vaultNames.length*8);
+    push('PulseStrategy vault'+(vaultNames.length===1?'':'s')+(vaultNames.length?': '+vaultNames.slice(0,4).join(', '):''), vaultPts, 'Holding a vault adds back. Amounts are not the rank.');
+    push(firstTxt ? 'On PulseChain since '+firstTxt : 'PulseChain history', years>0 ? Math.min(10, Math.round(years*4)) : 0, years>0 ? pfNum(years,1)+' years from the first transaction.' : '');
+    const nonce = cur.nonce||0;
+    push(nonce.toLocaleString('en-US')+' outgoing transactions', nonce>0 ? Math.min(6, Math.round(Math.log10(nonce+1)*2)) : 0, '');
+    let rawScore = rows.reduce((s,r)=>s+r.pts, 0);
+    let score = Math.max(0, Math.min(100, rawScore));
+    const league = pfRankFrom(score);
+    let shortN = 0;
+    for(const c of cores){
+      const f = c.addr ? flow[c.addr.toLowerCase()] : {inn:plsIn, out:plsOut};
+      const heldNow = (c.sym==='HEX' ? (c.bal>=c.min || stakedHex>=1 || layerHold.HEX) : (c.bal>=c.min || !!layerHold[c.sym])) || exposure[c.sym]>=c.min;
+      if(f && f.out>=c.min && f.out > (f.inn||0)*0.5 && !heldNow) shortN++;
+    }
+    let lpUsd = 0, lpDumped = false;
+    for(const p of lpPositions){
+      if((lpSent.get(p.token)||0) > p.human*0.2) lpDumped = true;
+    }
+    try{
+      const u = await plsUsd();
+      const priced = lpPositions.slice(0, 6);
+      if(priced.length && u){
+        const raw = await multiCall(priced.flatMap(p=>[
+          {to:p.token, data:'0x18160ddd'},
+          {to:p.token, data:'0x0902f1ac'},
+          {to:p.token, data:'0x0dfe1681'}
+        ]));
+        const stables = {
+          '0xefd766ccb38eaf1dfd701853bfce31359239f305':18,
+          '0x15d38573d2feeb82e7ad5187ab8c1d52810b1f07':6,
+          '0x0cb6f5a34ad42ec934882a05265a7d5f59b51a2f':6,
+          '0x6b175474e89094c44da98b954eedeac495271d0f':18
+        };
+        for(let i=0;i<priced.length;i++){
+          const supH = raw[i*3], resH = raw[i*3+1], t0H = raw[i*3+2];
+          if(!supH || !resH || !t0H) continue;
+          const sup = Number(ethers.formatUnits(hexToBig(supH), priced[i].dec));
+          if(!(sup>0)) continue;
+          const s = String(resH).replace(/^0x/,'');
+          if(s.length<128) continue;
+          const r0 = hexToBig('0x'+s.slice(0,64)), r1 = hexToBig('0x'+s.slice(64,128));
+          const t0 = wordAddr(t0H).toLowerCase();
+          const share = priced[i].human / sup;
+          const a0 = priced[i].a0, a1 = priced[i].a1;
+          let usd = 0;
+          if(a0===WPLS.toLowerCase() || a1===WPLS.toLowerCase()){
+            const wRes = Number((t0===WPLS.toLowerCase()?r0:r1))/1e18;
+            usd = 2 * wRes * share * u;
+          } else {
+            const side = stables[a0] ? a0 : stables[a1] ? a1 : '';
+            if(side){
+              const res = side===t0 ? r0 : r1;
+              usd = 2 * (Number(res)/10**stables[side]) * share;
+            }
+          }
+          if(usd>0 && isFinite(usd)) lpUsd += usd;
+        }
+      }
+    }catch(e){}
+    const degenN = memeOut.size>=8 ? memeOut.size : (memeTouch.size>=15 ? memeTouch.size : 0);
+    const degen = degenN>0;
+    const maximalist = holdN>=4 && sellN===0 && memeOut.size<8 && memeTouch.size<15;
+    const trader = !maximalist && shortN>=2 && n5555===0 && holdN<=1;
+    const hotPotato = trader && holdN===0 && shortN>=3;
+    const marketMaker = lpPositions.length>0 && !lpDumped && lpUsd>=25000;
+    let style = 'Quiet';
+    if(maximalist) style = 'Richard Heart Maximalist';
+    else if(trader) style = 'Trader';
+    else if(degen && holdN<2) style = 'Degen';
+    else if(holdN>=2 && holdN>sellN) style = 'Holder';
+    else if(sellN>=2 && sellN>holdN) style = 'Seller';
+    else if(holdN && sellN) style = 'Mixed';
+    else if(holdN) style = 'Holder';
+    else if(sellN) style = 'Seller';
+    const fun = [];
+    if(marketMaker) fun.push({name:'Market Maker', why:'Large LP in PLS, HEX, PLSX, INC, PRVX, or a vault pair, and it is still parked.'});
+    else if(lpPositions.length && !lpDumped) fun.push({name:'LP Provider', why:'LP is here. Not a big enough book to call a market maker.'});
+    if(pdaiBal>=100000) fun.push({name:'Peg Evangelist · $1 ♥', why:pfNum(pdaiBal,0)+' pDAI. The peggening is the whole personality.'});
+    else if(pdaiBal>=5000) fun.push({name:'Peg Believer · $1 ♥', why:pfNum(pdaiBal,0)+' pDAI still here. $1 or bust.'});
+    if(n5555) fun.push({name:'Time Wizard', why:'A 5,555-day PulseChain stake. The clock is the flex.'});
+    if(degen && style!=='Degen') fun.push({name:'Degen', why:degenN+' other tokens showed up outside PLS, HEX, PLSX, INC, PRVX, the vaults, and LP. That label is not the history score.'});
+    if(httNames.length || hexstrNames.length) fun.push({name:'Future HEX', why:'HTT and HEXstr count as HEX. It is not liquid HEX yet. It is still HEX.'});
+    if(holdN===5) fun.push({name:'All Five', why:'PLS, HEX, PLSX, INC, and PRVX are all still held, including stakes, vaults, and LP.'});
+    if(vaultNames.length>=3) fun.push({name:'Vault Rat', why:vaultNames.length+' PulseStrategy vault tokens. Lives in the floor.'});
+    else if(vaultNames.length) fun.push({name:'Floor Sitter', why:vaultNames.length+' PulseStrategy vault token'+(vaultNames.length>1?'s are':' is')+' still in the wallet.'});
+    if(dcaN>=8) fun.push({name:'Steady Stacker', why:'Core assets showed up on '+dcaN+' different days.'});
+    if(earlyN>=2) fun.push({name:'Emergency Artist', why:earlyN+' emergency ends. The stake did not get the full term.'});
+    if(hotPotato) fun.push({name:'Hot Potato', why:'In and out. No core asset is still sitting here.'});
+    if((stakedHex>=100000 || holdN>=4) && nonce<30) fun.push({name:'Quiet Giant', why:'A real position, and very few outgoing transactions.'});
+    const showFun = fun.filter(f=>f.name!==style).slice(0,5);
+
+    let risky = [];
+    let scannedApprovals = false;
+    try{
+      let range = 40000, logs = null;
+      const logDeadline = Date.now()+12000;
+      while(range>=1000 && logs===null && Date.now()<logDeadline){
+        try{
+          logs = await rpc('eth_getLogs', [{topics:[APPROVAL_TOPIC, '0x'+padA(addr)], fromBlock:'0x'+Math.max(0, lastBlockNum-range).toString(16), toBlock:'latest'}]);
+        }catch(e){ range = Math.floor(range/2); }
+      }
+      const pairs = new Map();
+      if(Array.isArray(logs)) scannedApprovals = true;
+      for(const l of logs||[]){
+        if(!l.topics || l.topics.length<3) continue;
+        pairs.set(l.address.toLowerCase()+'|'+wordAddr(l.topics[2]), {token:l.address, spender:wordAddr(l.topics[2])});
+      }
+      for(const p of pairs.values()){
+        try{
+          const alw = hexToBig(await call(p.token, '0xdd62ed3e'+padA(addr)+padA(p.spender)));
+          if(alw<=0n) continue;
+          if(alw >= (1n<<255n) && !PF_SPEND_OK.has(p.spender.toLowerCase())){
+            let sym = short(p.token,4);
+            try{ const s = decodeAbiString(await call(p.token,'0x95d89b41')); if(s) sym = s; }catch(e){}
+            risky.push({sym, token:p.token, spender:p.spender});
+          }
+        }catch(e){}
+      }
+    }catch(e){}
+    const knownSafe = new Set([...TOKEN_LIST.map(t=>t.addr.toLowerCase()), ...notDegen]);
+    const scams = [];
+    try{
+      const topicAddr = '0x'+padA(addr);
+      let logs = [];
+      try{
+        logs = await rpc('eth_getLogs', [{topics:[TRANSFER_TOPIC, null, topicAddr], fromBlock:'0x'+Math.max(0, lastBlockNum-8000).toString(16), toBlock:'latest'}]);
+      }catch(e){}
+      const toks = [];
+      const seenT = new Set();
+      for(const l of logs||[]){
+        const a = String(l.address||'').toLowerCase();
+        if(!a || knownSafe.has(a) || seenT.has(a)) continue;
+        seenT.add(a);
+        toks.push(a);
+        if(toks.length>=12) break;
+      }
+      for(const t of toks){
+        try{
+          if((await pfBal(addr, t))<=0n) continue;
+          const code = await rpc('eth_getCode',[t,'latest']);
+          const sels = extractPush4(code||'');
+          const mint = DANGER_SELECTORS.some(h=>h.kind==='mint' && sels.has(h.sel));
+          const block = DANGER_SELECTORS.some(h=>(h.kind==='blacklist'||h.kind==='pause') && sels.has(h.sel));
+          if(mint && block){
+            let sym = short(t,4);
+            try{ const s = decodeAbiString(await call(t,'0x95d89b41')); if(s) sym = s; }catch(e){}
+            scams.push({sym, addr:t});
+          }
+        }catch(e){}
+      }
+    }catch(e){}
+    if(!cur || cur.addr!==addr) return;
+    let safety = 100 - Math.min(60, risky.length*20) - Math.min(60, scams.length*30);
+    safety = Math.max(0, Math.min(100, safety));
+    const sGrade = safety>=85?'A':safety>=70?'B':safety>=55?'C':safety>=40?'D':'F';
+    const styleLine = maximalist
+      ? 'Mostly PLS, HEX, PLSX, INC, and PRVX, or a layer of them: PLSstr, HEXstr, launcher vaults on PLSstr, HTT, or LP.'
+      : trader
+        ? (hotPotato
+          ? 'Trader. The bag does not stay. In and out before it gets warm.'
+          : 'Trader. Core assets are not held for long.')
+      : style==='Degen'
+        ? 'Degen. A lot of other tokens changed hands here. That label is not the history score.'
+      : style==='Holder'
+      ? 'More of a holder than a seller on PLS, HEX, PLSX, INC, and PRVX.'
+      : style==='Seller'
+        ? 'More of a seller than a holder on the Richard Heart assets.'
+        : style==='Mixed'
+          ? 'Mixed. Some Richard Heart assets are still held, and some were sold off.'
+          : 'No clear hold or sell yet on PLS, HEX, PLSX, INC, or PRVX.';
+
+    const supplies = {PLS:0, HEX:0, PLSX:0, INC:0, PRVX:0};
+    try{
+      const supRaw = await multiCall([PF_HEX, PF_PLSX, PF_INC, PF_PRVX].map(a=>({to:a, data:'0x18160ddd'})));
+      const decs = {HEX:8, PLSX:18, INC:18, PRVX:18};
+      ['HEX','PLSX','INC','PRVX'].forEach((s,i)=>{ supplies[s] = pfRawToNum(hexToBig(supRaw[i]||'0x0'), decs[s]); });
+    }catch(e){}
+    supplies.PLS = await pfPlsSupply();
+    const tLeague = tShareTotal ? pfSizeLeague(earnT, tShareTotal) : (earnT>0 ? {name:'Plankton', pct:0} : null);
+    const sizeLeague = {};
+    for(const sym of ['PLS','HEX','PLSX','INC','PRVX']){
+      const min = sym==='PLS' ? 10000 : 1;
+      if(exposure[sym]>=min && supplies[sym]>0) sizeLeague[sym] = pfSizeLeague(exposure[sym], supplies[sym]);
+    }
+    const sizeBits = Object.keys(sizeLeague).map(sym=>sizeLeague[sym].name+' · '+sym);
+
+    _pf = {addr, name: name || (window.PS && PS.nameOf(addr)) || '', rank: league.name, score, style, degen: style==='Degen', sGrade, safety, n5555, lateN, earlyN, stakedHex, tLeague: tLeague?tLeague.name:'', tShares: earnT, tags: showFun.map(f=>f.name)};
+    const showName = name || (window.PS && PS.nameOf(addr)) || short(addr, 10);
+    let html = `<div class="pfcard">
+      <div class="pfname" data-ps="${esc(me)}">${esc(showName)}</div>
+      <div style="color:var(--faint);font-family:var(--mono);font-size:12px;margin-top:4px">${esc(short(addr,8))}${copyBtn(addr)}</div>
+      <div class="pfstat"><span>Safety ${sGrade} · ${safety}</span><span>History ${score}</span></div>
+      <div class="pfrank">${esc(league.name)}</div>
+      ${pfLadder(league.name)}
+      ${tLeague?`<div class="pfrank">${esc(tLeague.name)} · T-shares</div><div class="pfrule">${pfTText(earnT)} earning T-shares on PulseChain. ${tShareTotal?pfPctText(tLeague.pct)+' of the open pool.':''} Ended stakes are listed and are not in this pool.</div>`:''}
+      <div class="pfrule">${esc(styleLine)}</div>
+      <div class="pfbadges">
+        <span class="pfbadge">Safety ${esc(sGrade)}</span>
+        ${tLeague?'<span class="pfbadge fun">'+esc(tLeague.name)+' · T-shares</span>':''}
+        ${sizeBits.map(b=>'<span class="pfbadge fun">'+esc(b)+'</span>').join('')}
+        <span class="pfbadge${maximalist||trader?' fun':''}">${esc(style)}</span>
+        ${showFun.map(f=>'<span class="pfbadge fun">'+esc(f.name)+'</span>').join('')}
+        ${n5555 && !showFun.some(f=>f.name==='Time Wizard')?'<span class="pfbadge">5,555-day stake</span>':''}
+      </div>
+      <div class="toolbar" style="margin-top:12px"><button class="btn-ghost" onclick="pfShare()">Share image</button></div>
+    </div>`;
+
+    html += '<div class="sub-h">Safety</div><div class="pfcard"><div class="pfrank">'+sGrade+' · '+safety+'</div>';
+    if(!risky.length && !scams.length){
+      html += '<div class="pfrule">'+(scannedApprovals
+        ? 'No unlimited approval to an unknown spender in the scanned window, and no held token there whose bytecode pairs a mint with a blacklist or pause.'
+        : 'Approval history could not be scanned on this RPC. The grade stays incomplete.')+'</div>';
+    }
+    html += risky.map(r=>`<div class="warnbox">Unlimited approval on ${esc(r.sym)} to ${linkAddr(r.spender)}. That spender can move the token until this is revoked. Use the Approvals tab.</div>`).join('');
+    html += scams.map(s=>`<div class="warnbox">${esc(s.sym)} ${linkAddr(s.addr)} is held, and its bytecode has both a mint and a blacklist or pause.</div>`).join('');
+    html += '<div class="pfrule">Safety is its own rank. It does not cut the history score. Each unknown unlimited approval costs 20, up to 60. Each flagged token costs 30, up to 60.</div></div>';
+
+    html += '<div class="sub-h">Richard Heart assets</div>';
+    html += assetLines.map(a=>`<div class="txrow"><span>${esc(a.sym)}</span><span class="val">${esc(a.word)}${a.note?' · '+esc(a.note):''}</span></div>`).join('');
+    html += '<div class="small-note">Holder means it is still here: wallet balance, a PulseChain HEX stake, HTT, HEXstr, vPLS, PLSstr, a launcher vault on that asset, or PulseX LP that contains it. Seller means the liquid balance is gone and scanned transfers show it leaving. Quiet means neither showed up. Late HEX ends are not a seller mark and not a penalty. Ethereum HEX is not read.</div>';
+
+    html += '<div class="sub-h">PulseChain HEX stakes</div>';
+    if(!stakeViews.length){
+      html += '<div class="pfcard"><div class="pfrule">No PulseChain HEX stakes on this wallet. Ethereum stakes are not included.</div></div>';
+    }else{
+      html += stakeViews.slice(0, 24).map(s=>{
+        const served = Number(s.days||0), term = Number(s.term||0);
+        const dayTxt = (term && term!==served) ? (served.toLocaleString('en-US')+' of '+term.toLocaleString('en-US')+' days') : (served.toLocaleString('en-US')+' days');
+        return `<div class="txrow"><span>#${esc(s.id)} · ${esc(s.status)}</span><span class="val">${pfNum(s.hex,2)} HEX · ${pfTText(s.tshares)} T-shares · ${dayTxt}</span>${s.detail?'<div class="pfrule" style="flex-basis:100%">'+esc(s.detail)+'</div>':''}</div>`;
+      }).join('');
+      if(stakeViews.length>24) html += '<div class="pfrule">And '+(stakeViews.length-24)+' more.</div>';
+      if(nStakes>cap) html += '<div class="pfrule">Showing the first '+cap+' stakes still stored on the HEX contract.</div>';
+      html += '<div class="small-note">PulseChain HEX only. Open stakes earn T-shares, including one that is late and still open. Ended stakes leave the on-chain list, so this page reads them from the PulseChain HEX index. A late end is not a penalty. An emergency end is.</div>';
+    }
+
+    html += '<div class="sub-h">Size leagues</div><div class="pfcard">';
+    if(tLeague){
+      html += `<div class="txrow"><span>T-shares · ${esc(tLeague.name)}</span><span class="val">${pfTText(earnT)}${tShareTotal?' · '+pfPctText(tLeague.pct):''}</span></div>`;
+    }else{
+      html += '<div class="pfrule">No earning PulseChain T-shares.</div>';
+    }
+    for(const sym of ['PLS','HEX','PLSX','INC','PRVX']){
+      const L = sizeLeague[sym];
+      if(!L) continue;
+      html += `<div class="txrow"><span>${esc(sym)} · ${esc(L.name)}</span><span class="val">${pfNum(exposure[sym],2)} · ${pfPctText(L.pct)}</span></div>`;
+    }
+    html += '<div class="pfrule">Poseidon 10%, Whale 1%, Shark 0.1%, Dolphin 0.01%, Squid 0.001%, Turtle 0.0001%, Crab 0.00001%, Shrimp 0.000001%, Shell 0.0000001%, Plankton under that. Same bands as PulseChain Stats. T-shares are open PulseChain stakes only. Token rows count the wallet, stakes, HTT, HEXstr, vPLS, PLSstr, launcher vaults, and PulseX LP. Vault backing is read from the contract. PLS uses total supply. This sits on top of the history rank. It does not replace it.</div></div>';
+
+    html += '<div class="sub-h">History score · '+score+'</div><div class="pfcard">';
+    html += rows.filter(r=>r.pts).map(r=>`<div class="pfscore"><span><b>${esc(r.label)}</b>${r.note?'<div class="pfrule">'+esc(r.note)+'</div>':''}</span><span class="pts${r.pts<0?' neg':''}">${pfPts(r.pts)}</span></div>`).join('');
+    if(!rows.length) html += '<div class="pfrule">Nothing in this wallet moved the score yet.</div>';
+    if(rawScore>100) html += '<div class="pfrule">Those parts add to '+rawScore+'. The rank uses 100.</div>';
+    if(lateN) html += '<div class="pfrule">'+lateN+' stake'+(lateN>1?'s':'')+' '+(lateN>1?'are':'is')+' late or ended after the 14-day grace. That is not a penalty.</div>';
+    if(earlyN) html += '<div class="pfrule">An emergency end can be climbed back by holding the core assets, adding on later days, and holding PulseStrategy vaults.</div>';
+    html += '<div class="pfrule">Paper under 15. Copper 15. Iron 30. Granite 45. Steel 60. Ruby 75. Diamond Hands is 90. PulseChain stakes only. One 5,555-day stake is +45. A second is +15 more. The score stops at 100.</div></div>';
+
+    if(style==='Degen'){
+      html += '<div class="sub-h">Degen</div><div class="pfcard"><div class="pfrank">Degen</div><div class="pfrule">'+degenN+' other tokens '+(memeOut.size>=8?'were sent out':'showed up')+' in the scanned pages, outside PLS, HEX, PLSX, INC, PRVX, HTT, HEXstr, stables, pDAI, and PulseStrategy vaults. The label does not change the number. A Richard Heart Maximalist or a Trader takes the headline instead when that fits better.</div></div>';
+    }
+    if(showFun.length || maximalist || trader){
+      html += '<div class="sub-h">Labels</div><div class="pfcard">';
+      html += '<div class="pfrank">'+esc(style)+'</div>';
+      if(maximalist) html += '<div class="pfrule">Richard Heart Maximalist. Four or five of PLS, HEX, PLSX, INC, and PRVX are still held, counting stakes, HTT, HEXstr, PLSstr, launcher vaults on PLSstr, and LP. Not a seller of those, and not a pile of unrelated tokens.</div>';
+      if(trader) html += '<div class="pfrule">Trader. Scanned history shows core assets leaving faster than they stay. A 5,555-day stake keeps this label off.</div>';
+      html += showFun.map(f=>'<div class="pfrule"><b>'+esc(f.name)+'</b> — '+esc(f.why)+'</div>').join('');
+      html += '</div>';
+    }
+
+    $('d-body').innerHTML = html;
+    if(window.PS && PS.want) PS.want(addr);
+  }catch(e){
+    if(!cur || cur.addr!==addr) return;
+    showErr('Rank could not be read: '+(e.shortMessage||e.message));
+  }
+}
+async function pfShare(){
+  const d = _pf; if(!d) return;
+  const name = (window.PS && PS.nameOf(d.addr)) || d.name || short(d.addr, 8);
+  const c = document.createElement('canvas');
+  c.width = 1200; c.height = 675;
+  const g = c.getContext('2d');
+  g.fillStyle = '#0b0b10'; g.fillRect(0,0,1200,675);
+  g.fillStyle = '#1E3A6E'; g.fillRect(0,0,1200,8);
+  g.fillStyle = '#7BA7E8'; g.font = '22px Michroma, sans-serif'; g.fillText('PULSEVERIFY', 64, 78);
+  g.fillStyle = '#F7F8FB'; g.font = '40px Michroma, sans-serif';
+  g.fillText(String(name).slice(0, 28), 64, 160);
+  g.fillStyle = '#D9A94E'; g.font = '22px Michroma, sans-serif';
+  g.fillText((d.rank||'PAPER')+' · '+d.score, 64, 214);
+  g.fillStyle = '#C4C7D4'; g.font = '22px Space Grotesk, sans-serif';
+  const lines = [
+    'Safety '+d.sGrade,
+    d.style+(d.tags && d.tags.length ? ' · '+d.tags.slice(0,2).join(' · ') : ''),
+    d.n5555 ? (d.n5555+' × 5,555-day PulseChain stake') : 'No 5,555-day stake',
+    d.tLeague ? (d.tLeague+' · '+pfTText(d.tShares)+' T-shares') : 'No earning T-shares'
+  ];
+  lines.forEach((t,i)=>g.fillText(t, 64, 290+i*40));
+  g.fillStyle = '#9AA0B2'; g.font = '16px Space Grotesk, sans-serif';
+  g.fillText('Late ends are not penalized. Emergency ends are.', 64, 460);
+  g.fillText('pulsestrategy369.com/explorer', 64, 620);
+  const blob = await new Promise(res=>c.toBlob(res, 'image/png'));
+  const file = new File([blob], 'pulseverify-rank.png', {type:'image/png'});
+  const text = [name, d.rank, 'Safety '+d.sGrade, d.style, 'https://pulsestrategy369.com'+'/explorer#a='+d.addr].filter(Boolean).join(' · ');
+  try{
+    if(navigator.canShare && navigator.canShare({files:[file]})){
+      await navigator.share({files:[file], text, title: name+' on PulseVerify'});
+      return;
+    }
+  }catch(e){ if(e && e.name==='AbortError') return; }
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob); a.download = 'pulseverify-rank.png'; a.click();
+}
+
 /* ================= address view + tabs ================= */
+
 let cur = null; // {addr, isContract, code, token}
 function tabsFor(){
   if(!cur) return '';
   const t = (id,lbl)=>`<button class="tab" id="tab-${id}" onclick="openTab('${id}')">${lbl}</button>`;
-  if(!cur.isContract) return `<div class="tabs">${t('over','Overview')}${t('held','Holdings')}${t('appr','Approvals')}</div>`;
+  if(!cur.isContract) return `<div class="tabs">${t('over','Overview')}${t('held','Holdings')}${t('appr','Approvals')}${t('port','Rank')}</div>`;
   return `<div class="tabs">${t('over','Overview')}${cur.token?t('token','Token'):''}${t('held','Holdings')}${t('appr','Approvals')}${t('safety','Pulse Check™')}${t('verify','Verify')}${t('read','Read')}${t('write','Write')}</div>`;
 }
 function markTab(id){ document.querySelectorAll('.tab').forEach(el=>el.classList.toggle('on', el.id==='tab-'+id)); }
@@ -1211,6 +2380,7 @@ function openTab(id){
   if(id==='token') return renderToken();
   if(id==='held') return renderHoldings();
   if(id==='appr') return renderApprovals();
+  if(id==='port') return renderPortfolio();
   if(id==='safety') return runSafety();
   if(id==='verify') return renderVerify();
   if(id==='read') return renderAbiPanel(false);
@@ -1222,7 +2392,7 @@ function renderOverview(){
   if(c.isContract) fillSourcifyBadge(c.addr);
   $('d-body').innerHTML = `
     <div class="kv">
-      <div class="k">Address</div><div class="v">${short(c.addr,12)}${copyBtn(c.addr)} ${c.isContract?'<span class="badge info">Contract</span>':'<span class="badge ok">Wallet</span>'} ${c.token?`<span class="badge ok">${esc(c.token.symbol)} token</span>`:''} ${c.isContract?'<span class="badge info" id="srcfy-badge">Sourcify: checking…</span>':''}</div>
+      <div class="k">Address</div><div class="v"><span data-ps="${esc(String(c.addr).toLowerCase())}">${esc(short(c.addr,12))}</span>${copyBtn(c.addr)} ${c.isContract?'<span class="badge info">Contract</span>':'<span class="badge ok">Wallet</span>'} ${c.token?`<span class="badge ok">${esc(c.token.symbol)} token</span>`:''} ${c.isContract?'<span class="badge info" id="srcfy-badge">Sourcify: checking…</span>':''}</div>
       <div class="k">Balance</div><div class="v">${fmtPLS(c.bal)} PLS</div>
       <div class="k">Tx count</div><div class="v">${c.nonce.toLocaleString('en-US')} <span class="unit">(outgoing nonce)</span></div>
       ${c.isContract?`<div class="k">Bytecode</div><div class="v">${((c.code.length-2)/2).toLocaleString('en-US')} bytes deployed</div>`:''}
@@ -1243,7 +2413,7 @@ async function loadRecentTxs(addr){
   const render = rows => { if(!cur || cur.addr === addr) el.innerHTML = rows; };
   const row = (hash, out, other, tsSec, failed, valWei) => `<div class="txrow">
       <span><span class="badge ${out ? 'warn' : 'ok'}">${out ? 'OUT' : 'IN'}</span> ${linkTx(hash)}${failed ? ' <span class="badge fail">failed</span>' : ''}<br>
-      <span style="color:var(--faint)">${out ? 'to' : 'from'} ${other ? `<a onclick="loadAddress('${esc(other)}')">${short(other,6)}</a>` : 'contract creation'} · ${ago(tsSec)}</span></span>
+      <span style="color:var(--faint)">${out ? 'to' : 'from'} ${other ? `<a data-ps="${esc(String(other).toLowerCase())}" onclick="loadAddress('${esc(other)}')">${esc(short(other,6))}</a>` : 'contract creation'} · ${ago(tsSec)}</span></span>
       <span class="val">${fmtPLS(valWei,4)} PLS</span></div>`;
   const notes = [];
   /* Layer A: RPC-style txlist (documented at api.scan.pulsechain.com/api-docs) */
@@ -1292,10 +2462,390 @@ function runSearch(){
   if(/^0x[0-9a-fA-F]{64}$/.test(q)) return loadTx(q);
   if(/^0x[0-9a-fA-F]{40}$/.test(q)) return loadAddress(q);
   if(/^[\d,]+$/.test(q)) return loadBlock(parseInt(q.replace(/,/g,''),10));
-  showErr('Unrecognized format. Paste a 66-character tx hash, a 42-character address, or a block number.');
+  if(window.PS && PS.looksLikeName(q)){
+    showLoading('Name');
+    PS.toAddress(q).then(a => a ? loadAddress(a) : showErr('No PulseChain address for that .pls name.'));
+    return;
+  }
+  showErr('Unrecognized format. Paste a .pls name, a 42-character address, a 66-character tx hash, or a block number.');
 }
 $('go').onclick = runSearch;
 $('q').addEventListener('keydown', e => { if(e.key==='Enter') runSearch(); });
+
+/* ================= chain health, bridge, whale watch ================= */
+const BEACON = 'https://pulsechain-beacon-api.publicnode.com';
+const BRIDGE_ADDRS = [
+  '0x4fD0aaa7506f3d9cB8274bdB946Ec42A1b8751Ef',
+  '0x0e18d0d556b652794EF12Bf68B2dC857EF5f3996'
+];
+const WW_ROUTERS = new Set([
+  '0x98bf93ebf5c380c0e6ae8e192a7e2ae08edacc02',
+  '0x165c3410fc91ef562c50559f7d2289febed552d9'
+]);
+const WW_BRIDGE = new Set(BRIDGE_ADDRS.map(a=>a.toLowerCase()));
+const WW_TOKENS = [
+  {sym:'PLSX', addr:PF_PLSX, dec:18},
+  {sym:'HEX', addr:PF_HEX, dec:8},
+  {sym:'INC', addr:PF_INC, dec:18},
+  {sym:'PRVX', addr:PF_PRVX, dec:18},
+  {sym:'WETH', addr:'0x02DcdD04e3F455D838cd1249292C58f3B79e3C3C', dec:18},
+  {sym:'WPLS', addr:WPLS, dec:18},
+  {sym:'pDAI', addr:'0x6B175474E89094C44Da98b954EedeAC495271d0F', dec:18},
+  {sym:'DAI', addr:'0xefD766cCb38EaF1dfd701853BFCe31359239F305', dec:18},
+  {sym:'USDC', addr:'0x15D38573d2feeb82e7ad5187aB8c1D52810B1f07', dec:6},
+  {sym:'USDT', addr:'0x0Cb6F5a34ad42ec934882A05265A7d5F59b51A2f', dec:6}
+];
+function wwNext(url, j){
+  if(!j || !j.next_page_params) return '';
+  const q = new URLSearchParams();
+  for(const [k,v] of Object.entries(j.next_page_params)){
+    if(v==null) continue;
+    q.set(k, typeof v==='object' ? JSON.stringify(v) : String(v));
+  }
+  return url.split('?')[0]+'?'+q.toString();
+}
+async function wwPages(url, pages, cutoff){
+  const out = [];
+  let next = url;
+  for(let i=0;i<pages && next;i++){
+    let r;
+    try{ r = await fetch(next, {signal: AbortSignal.timeout(9000)}); }
+    catch(e){ break; }
+    if(!r.ok) break;
+    const j = await r.json();
+    let old = false;
+    for(const it of j.items||[]){
+      const ts = Date.parse(it.timestamp||'')||0;
+      if(cutoff && ts && ts<cutoff){ old = true; continue; }
+      out.push(it);
+    }
+    if(old) break;
+    next = wwNext(next, j);
+  }
+  return out;
+}
+function wwAmt(it, dec){
+  const t = it.total || {};
+  const d = t.decimals!=null ? Number(t.decimals) : dec;
+  let raw = t.value!=null ? t.value : it.value;
+  if(raw && typeof raw==='object') raw = raw.value;
+  if(raw==null) return 0;
+  try{ return Number(BigInt(String(raw).split('.')[0])) / 10**(Number.isFinite(d)?d:18); }
+  catch(e){ return 0; }
+}
+function wwUsdText(n){
+  if(!(n>0) || !isFinite(n)) return '';
+  if(n>=1e6) return '$'+(n/1e6).toFixed(2)+'M';
+  if(n>=1e3) return '$'+(n/1e3).toFixed(n>=1e4?0:1)+'k';
+  return '$'+n.toFixed(0);
+}
+function wwSize(sum, nibbler){
+  if(nibbler) return 'Nibbler';
+  if(sum>=1000000) return 'Leviathan';
+  if(sum>=250000) return 'Kraken';
+  if(sum>=100000) return 'Orca';
+  return 'Whale';
+}
+function wwAction(from, to){
+  if(WW_BRIDGE.has(to)) return 'Bridge out';
+  if(WW_BRIDGE.has(from)) return 'Bridge in';
+  if(WW_ROUTERS.has(to) || WW_ROUTERS.has(from)) return 'Swap';
+  return 'Transfer';
+}
+function wwVerb(action){
+  if(action==='Bridge out') return 'left for Ethereum';
+  if(action==='Bridge in') return 'came in from Ethereum';
+  if(action==='Swap') return 'rotated the bag';
+  if(action==='New HEX stake') return 'locked a new stake';
+  if(action==='Receive') return 'absorbed it';
+  if(action==='Send') return 'sent it on';
+  return 'moved it';
+}
+let _px = null, _pxAt = 0;
+async function wwPrices(){
+  if(_px && Date.now()-_pxAt<120000) return _px;
+  const map = {};
+  try{
+    await primePrices(WW_TOKENS.map(t=>t.addr));
+    const u = await plsUsd();
+    if(u) map.PLS = u;
+    for(const t of WW_TOKENS){
+      try{
+        const p = await tokenPriceWPLS(t.addr, t.dec, 1);
+        if(p && u && p.inPls>0) map[t.addr.toLowerCase()] = p.inPls * u;
+      }catch(e){}
+    }
+  }catch(e){}
+  _px = map; _pxAt = Date.now();
+  return map;
+}
+let _valAt = 0, _valTry = 0;
+async function paintValidators(){
+  const el = $('s-vals'); if(!el) return;
+  if(_valAt && Date.now()-_valAt<9*60*1000) return;
+  if(!_valAt && _valTry && Date.now()-_valTry<20000) return;
+  _valTry = Date.now();
+  try{
+    const h = await fetch(BEACON+'/eth/v1/beacon/headers/head', {signal: AbortSignal.timeout(10000)});
+    if(!h.ok) throw new Error('head');
+    const hj = await h.json();
+    const slot = Number(hj.data.header.message.slot);
+    const pick = j => {
+      const row = (j.data||[]).find(x=>x.status==='active_ongoing') || (j.data||[]).find(x=>x.status==='active');
+      return row ? Number(row.count) : null;
+    };
+    const nowR = await fetch(BEACON+'/eth/v1/beacon/states/head/validator_count', {signal: AbortSignal.timeout(12000)});
+    if(!nowR.ok) throw new Error('count');
+    const now = pick(await nowR.json());
+    if(!(now>0)) throw new Error('count');
+    el.textContent = now.toLocaleString('en-US')+' validators';
+    let prev = null;
+    try{
+      const prevR = await fetch(BEACON+'/eth/v1/beacon/states/'+Math.max(0, slot-8640)+'/validator_count', {signal: AbortSignal.timeout(28000)});
+      if(prevR.ok) prev = pick(await prevR.json());
+    }catch(e){}
+    _valAt = Date.now();
+    let delta = '';
+    if(prev>0){
+      const d = now-prev;
+      const col = d>0 ? 'var(--teal)' : d<0 ? 'var(--red)' : 'var(--muted)';
+      const sign = d>0 ? '+' : '';
+      delta = '<br><span style="color:'+col+'">'+sign+d.toLocaleString('en-US')+' in 24h</span>';
+    }
+    el.innerHTML = now.toLocaleString('en-US')+' validators'+delta;
+  }catch(e){
+    if(!_valAt) el.textContent = 'Validators unavailable';
+  }
+}
+const ETH_BRIDGE = '0x1715a3E4A142d8b698131108995174F37aEBA10D';
+let _bridgeTvl = 0, _bridgeTvlAt = 0;
+function bridgeNet(inn, out){
+  const net = inn-out;
+  if(!isFinite(net) || Math.abs(net)<1) return 'Net flat';
+  return 'Net '+(net>=0?'+':'−')+bridgeMoney(Math.abs(net));
+}
+function bridgeMoney(n){
+  if(!(n>0) || !isFinite(n)) return '$0';
+  if(n>=1e6) return '$'+(n/1e6).toFixed(2)+'M';
+  if(n>=1e3) return '$'+(n/1e3).toFixed(2)+'k';
+  return '$'+n.toFixed(0);
+}
+async function ethBridgePages(cutoff){
+  let url = 'https://eth.blockscout.com/api/v2/addresses/'+ETH_BRIDGE+'/token-transfers';
+  const out = [];
+  for(let i=0;i<16 && url;i++){
+    let j = null;
+    for(let attempt=0; attempt<3 && !j; attempt++){
+      try{
+        const r = await fetch(url, {signal: AbortSignal.timeout(20000)});
+        if(r.status===429){
+          await new Promise(res => setTimeout(res, 700*(attempt+1)));
+          continue;
+        }
+        if(!r.ok) return out;
+        j = await r.json();
+      }catch(e){
+        await new Promise(res => setTimeout(res, 400*(attempt+1)));
+      }
+    }
+    if(!j) return out;
+    let old = false;
+    for(const it of j.items||[]){
+      const ts = Date.parse(it.timestamp||'')||0;
+      if(cutoff && ts && ts<cutoff){ old = true; continue; }
+      out.push(it);
+    }
+    if(old) break;
+    url = wwNext(url, j);
+  }
+  return out;
+}
+async function sumEthBridge(cutoff){
+  const bridge = ETH_BRIDGE.toLowerCase();
+  const zero = '0x0000000000000000000000000000000000000000';
+  const items = await ethBridgePages(cutoff);
+  const seen = new Set();
+  let inUsd = 0, outUsd = 0, lastTs = 0, n = 0;
+  for(const it of items){
+    const token = pfTokAddr(it);
+    const key = (it.tx_hash||it.transaction_hash||'')+'|'+(it.log_index??'')+'|'+(token||'');
+    if(seen.has(key)) continue;
+    seen.add(key);
+    const ts = Date.parse(it.timestamp||'')||0;
+    if(!ts || ts<cutoff) continue;
+    if(ts>lastTs) lastTs = ts;
+    const from = pfWho(it.from), to = pfWho(it.to);
+    if(!from || !to || from===zero || to===zero) continue;
+    let dir = '';
+    if(to===bridge && from!==bridge) dir = 'in';
+    else if(from===bridge && to!==bridge) dir = 'out';
+    if(!dir) continue;
+    const ex = Number(it.token && it.token.exchange_rate)||0;
+    if(!(ex>0)) continue;
+    const dec = it.token && it.token.decimals!=null ? Number(it.token.decimals) : 18;
+    const amt = wwAmt(it, dec);
+    if(!(amt>0)) continue;
+    const usd = amt * ex;
+    n++;
+    if(dir==='in') inUsd += usd;
+    else outUsd += usd;
+  }
+  return {inUsd, outUsd, lastTs, n};
+}
+async function ethBridgeTvl(){
+  if(_bridgeTvl>0 && Date.now()-_bridgeTvlAt<10*60*1000) return _bridgeTvl;
+  try{
+    const r = await fetch('https://eth.blockscout.com/api/v2/addresses/'+ETH_BRIDGE+'/token-balances', {signal: AbortSignal.timeout(12000)});
+    if(r.ok){
+      const items = await r.json();
+      let usd = 0;
+      if(Array.isArray(items)){
+        for(const it of items){
+          const tok = it.token || {};
+          if(tok.reputation==='scam') continue;
+          const ex = Number(tok.exchange_rate)||0;
+          if(!(ex>0)) continue;
+          const dec = tok.decimals!=null ? Number(tok.decimals) : 18;
+          const amt = pfRawToNum(it.value, dec);
+          if(amt>0) usd += amt * ex;
+        }
+      }
+      if(usd>1e6){ _bridgeTvl = usd; _bridgeTvlAt = Date.now(); return usd; }
+    }
+  }catch(e){}
+  try{
+    const r = await fetch('https://api.llama.fi/tvl/pulsechain-bridge', {signal: AbortSignal.timeout(8000)});
+    if(r.ok){
+      const n = Number(String(await r.text()).trim());
+      if(n>0){ _bridgeTvl = n; _bridgeTvlAt = Date.now(); return n; }
+    }
+  }catch(e){}
+  return _bridgeTvl || null;
+}
+async function loadBridge(){
+  const box = $('bridgeBox'), body = $('bridgeBody');
+  if(!box || !body) return;
+  const cutoff = Date.now() - 86400000;
+  let flow = null, tvl = null;
+  try{
+    const pair = await Promise.all([sumEthBridge(cutoff), ethBridgeTvl()]);
+    flow = pair[0];
+    tvl = pair[1];
+  }catch(e){}
+  box.classList.remove('in','out','down');
+  body.className = 'bridgerow';
+  if(!flow || !flow.lastTs){
+    box.classList.add('down');
+    body.innerHTML = '<span>Status <b>Not responding</b></span>';
+    return;
+  }
+  const age = (Date.now()-flow.lastTs)/1000;
+  if(age>=6*3600) box.classList.add('down');
+  const status = age<3*3600 ? 'Working' : age<24*3600 ? 'Quiet' : 'Stale';
+  const when = ago(Math.floor(flow.lastTs/1000));
+  body.innerHTML =
+    '<span>Status <b>'+esc(status)+'</b></span>'+
+    '<span>Last tx <b>'+esc(when)+'</b></span>'+
+    '<span>24h in <b>'+esc(bridgeMoney(flow.inUsd))+'</b></span>'+
+    '<span>24h out <b>'+esc(bridgeMoney(flow.outUsd))+'</b></span>'+
+    '<span><b>'+esc(bridgeNet(flow.inUsd, flow.outUsd))+'</b></span>'+
+    '<span>TVL <b>'+(tvl>0?esc(bridgeMoney(tvl)):'—')+'</b></span>';
+}
+
+async function loadWhales(){
+  const el = $('whales'); if(!el) return;
+  const cutoff = Date.now()-7*86400000;
+  const since = Math.floor(cutoff/1000);
+  try{
+    const px = await wwPrices();
+    const batches = await Promise.all(WW_TOKENS.map(t=>wwPages('https://api.scan.pulsechain.com/api/v2/tokens/'+t.addr+'/transfers', 4, cutoff).then(items=>items.map(it=>({it, t}))).catch(()=>[])));
+    const txs = await wwPages('https://api.scan.pulsechain.com/api/v2/transactions', 3, cutoff).catch(()=>[]);
+    let stakes = [];
+    try{
+      const g = await pfGraph('{stakeStarts(first:80, orderBy: timestamp, orderDirection: desc){stakerAddr stakedHearts stakedDays timestamp transactionHash}}');
+      stakes = (g && g.stakeStarts) || [];
+    }catch(e){}
+    const moves = [];
+    for(const {it, t} of batches.flat()){
+      const ts = Date.parse(it.timestamp||'')||0;
+      if(!ts || ts<cutoff) continue;
+      const amt = wwAmt(it, t.dec);
+      const ex = Number(it.token && it.token.exchange_rate);
+      const usd = amt * ((ex>0 ? ex : 0) || (px[t.addr.toLowerCase()]||0));
+      if(usd<1000) continue;
+      const from = pfWho(it.from), to = pfWho(it.to);
+      const action = wwAction(from, to);
+      let wallet = from;
+      if(WW_BRIDGE.has(from) || WW_ROUTERS.has(from)) wallet = to;
+      if(!wallet || WW_BRIDGE.has(wallet) || WW_ROUTERS.has(wallet)) wallet = WW_BRIDGE.has(from)?to:from;
+      moves.push({ts, sym:t.sym, usd, action, wallet, hash: it.tx_hash||it.transaction_hash||'', days:0});
+    }
+    for(const it of txs){
+      const ts = Date.parse(it.timestamp||'')||0;
+      if(!ts || ts<cutoff) continue;
+      let raw = it.value;
+      if(raw && typeof raw==='object') raw = raw.value;
+      let pls = 0;
+      try{ if(raw!=null) pls = Number(BigInt(String(raw).split('.')[0]))/1e18; }catch(e){}
+      const usd = pls * (px.PLS||0);
+      if(usd<1000) continue;
+      const from = pfWho(it.from), to = pfWho(it.to);
+      const action = wwAction(from, to);
+      let wallet = from || to;
+      if(WW_BRIDGE.has(from) || WW_ROUTERS.has(from)) wallet = to;
+      moves.push({ts, sym:'PLS', usd, action, wallet, hash: it.hash||it.tx_hash||'', days:0});
+    }
+    const hexPx = px[PF_HEX.toLowerCase()]||0;
+    for(const s of stakes){
+      const ts = Number(s.timestamp||0)*1000;
+      if(!ts || ts<cutoff) continue;
+      const hex = Number(s.stakedHearts||0)/1e8;
+      const usd = hex * hexPx;
+      if(usd<1000) continue;
+      moves.push({ts, sym:'HEX', usd, action:'New HEX stake', wallet:String(s.stakerAddr||'').toLowerCase(), hash:s.transactionHash||'', days:Number(s.stakedDays||0)});
+    }
+    const byTx = new Map();
+    for(const m of moves){
+      const k = (m.hash||'')+'|'+(m.wallet||'')+'|'+(m.action==='New HEX stake'?'stake':m.hash?'tx':'x'+m.ts);
+      const curM = byTx.get(k);
+      if(!curM) byTx.set(k, Object.assign({}, m, {syms:[m.sym]}));
+      else {
+        curM.usd = Math.max(curM.usd, m.usd);
+        if(curM.syms.indexOf(m.sym)<0) curM.syms.push(m.sym);
+        if(curM.syms.length>1 && curM.action==='Transfer') curM.action = 'Swap';
+      }
+    }
+    const flat = [...byTx.values()];
+    const byW = new Map();
+    for(const m of flat){
+      if(!m.wallet) continue;
+      if(!byW.has(m.wallet)) byW.set(m.wallet, []);
+      byW.get(m.wallet).push(m);
+    }
+    const rows = [];
+    for(const [wallet, list] of byW){
+      const sum = list.reduce((s,m)=>s+m.usd,0);
+      const big = list.some(m=>m.usd>=25000);
+      if(sum<25000) continue;
+      list.sort((a,b)=>b.usd-a.usd);
+      rows.push({wallet, sum, nibbler:!big, n:list.length, label:wwSize(sum, !big), action:list[0].action, list:list.slice(0,5), ts:Math.max(...list.map(m=>m.ts))});
+    }
+    rows.sort((a,b)=>b.sum-a.sum);
+    if(!rows.length){
+      el.innerHTML = '<div class="hint">No wallet moved $25k this week in the newest indexed window.</div>';
+      return;
+    }
+    el.innerHTML = rows.slice(0, 12).map(r=>{
+      const acts = r.list.map(m=>{
+        const stake = m.days ? ' · '+m.days.toLocaleString('en-US')+'-day stake' : '';
+        return esc((m.syms||[m.sym]).join('+'))+' '+esc(wwUsdText(m.usd))+' · '+esc(wwVerb(m.action))+stake+' · '+esc(ago(Math.floor(m.ts/1000)));
+      }).join('<br>');
+      return '<div class="whale-row"><div class="who"><a onclick="loadAddress(\''+esc(r.wallet)+'\')">'+esc(short(r.wallet,6))+'</a><span class="tag">'+esc(r.label)+'</span><span class="tag">'+esc(r.action)+'</span></div><div style="margin-top:3px">'+esc(wwUsdText(r.sum))+' across '+r.n+' move'+(r.n>1?'s':'')+(r.nibbler?' · no single clip hit $25k':'')+(r.list.length<r.n?' · showing '+r.list.length:'')+'</div><div class="pfrule">'+acts+'</div></div>';
+    }).join('') + '<div class="small-note">Labels are size, not identity. A wallet is watched when the week adds up to $25k. Nibbler means no single clip cleared $25k. Leviathan is $1M or more, Kraken $250k, Orca $100k, otherwise Whale. USD is PulseX spot.</div>';
+  }catch(e){
+    el.innerHTML = '<div class="hint">Whale watch could not be read just now. It retries on its own.</div>';
+  }
+}
 
 /* ================= boot ================= */
 function applyRpc(url, remember){
@@ -1351,14 +2901,19 @@ try{
     const cid = hexToNum(await rpc('eth_chainId'));
     const dot = $('netdot');
     if(dot) dot.title = cid === 369 ? 'Connected to PulseChain (chain 369)' : 'WARNING: this RPC reports chain ' + cid + ', not PulseChain (369)';
-    if(cid !== 369) document.querySelector('.psbar').insertAdjacentHTML('afterbegin',
-      '<span class="badge fail">Wrong chain: ' + cid + '</span> ');
+    if(cid !== 369){
+      const slot = document.getElementById('adslot');
+      if(slot) slot.insertAdjacentHTML('beforebegin', '<div class="badge fail" style="margin-top:14px">Wrong chain: '+cid+'</div>');
+    }
   }catch(e){}
   tick();
   setInterval(()=>{ if(!document.hidden) tick(); }, 6000);
   setInterval(()=>{ if(document.hidden) return; refreshPls(); refreshHex(); }, 60000);
   document.addEventListener('visibilitychange', ()=>{ if(!document.hidden) tick(); });
   loadVaultStats(); refreshPls(); refreshHex();
+  paintValidators(); loadBridge(); loadWhales(); startAds();
+  setInterval(()=>{ if(!document.hidden) paintValidators(); }, 30000);
+  setInterval(()=>{ if(!document.hidden){ loadBridge(); loadWhales(); } }, 3*60*1000);
   routeFromUrl();
   window.addEventListener('hashchange', routeFromUrl);
   window.addEventListener('popstate', routeFromUrl);
@@ -1392,10 +2947,270 @@ function routeFromUrl(){
       if(hh[1]==='a') loadAddress(v); else if(hh[1]==='tx') loadTx(v); else loadBlock(parseInt(v,10));
       return;
     }
-    cur = null;
-    setDetail('Details', HOME_DETAIL);
+    showHome();
+    return;
   }catch(e){}
   finally { navSilent = false; paintBack(); }
+}
+
+
+function showHome(){
+  detailOpen = false;
+  cur = null;
+  const t = $('d-title-text');
+  if(t) t.textContent = 'Details';
+  const tabs = $('d-tabs'); if(tabs) tabs.innerHTML = '';
+  const body = $('d-body'); if(body) body.innerHTML = HOME_DETAIL;
+  placeWhales();
+  paintBack();
+}
+function goHome(){
+  const qel = $('q'); if(qel) qel.value = '';
+  let path = location.pathname;
+  if(/\/(address|account|tx|transaction|token|contract|block)\//.test(path)){
+    path = path.replace(/\/(address|account|tx|transaction|token|contract|block)\/[^/]+\/?$/, '') || '/';
+  }
+  const next = path + (location.search||'');
+  try{ history.pushState({pv:'', pvDepth:0}, '', next); }
+  catch(e){
+    if(location.hash) location.hash = '';
+  }
+  lastRouteKey = location.pathname + (location.hash||'');
+  showHome();
+}
+const HOUSE_TEXT = [
+  {kind:'text', house:'vaults', kicker:'PULSESTRATEGY', body:'Immutable vault tokens on PulseChain — backing per token that mathematically cannot go down.', link:VAULTS_URL, site:'pulsestrategy369.com'},
+  {kind:'text', house:'launch', kicker:'PULSESTRATEGY', body:'Launch your own vault backed by the cores.', link:LAUNCH_URL, site:'pulsestrategy369.com/launch'}
+];
+const HOUSE_IMAGES = [
+  {image:'pulsestrategy.png', link:VAULTS_URL, label:'PulseStrategy'},
+  {image:'launcher.png', link:LAUNCH_URL, label:'PulseStrategy Launcher'}
+];
+let adList = HOUSE_TEXT.slice(), adIdx = 0, adTimer = 0;
+function adKind(a){
+  const house = adHouse(a);
+  if(house) return house;
+  const blob = (String((a&&a.image)||'')+' '+String((a&&a.link)||'')+' '+String((a&&a.label)||'')).toLowerCase();
+  if(blob.includes('vouch')) return 'vouch';
+  if(blob.includes('actuator')) return 'actuator';
+  if(blob.includes('pulsex')) return 'pulsex';
+  if(blob.includes('openslot') || blob.includes('keepsitcrypt') || blob.includes('gmail') || blob.includes('mailto:') || blob.includes('open slot') || blob.includes('this space') || blob.includes('advertise')) return 'open';
+  return '';
+}
+function adHouse(a){
+  const img = String((a && a.image) || '').toLowerCase();
+  const link = String((a && a.link) || '').toLowerCase().replace(/\/$/, '');
+  if(a && a.house) return a.house;
+  if(img.includes('launcher') || link===String(LAUNCH_URL||'').toLowerCase().replace(/\/$/,'')) return 'launch';
+  if(img.includes('pulsestrategy.png') || link==='https://pulsestrategy369.com' || link===String(VAULTS_URL||'').toLowerCase().replace(/\/$/,'')) return 'vaults';
+  return '';
+}
+const AD_GH_JS = 'https://raw.githubusercontent.com/PulseStrategy369/PulseStrategy/main/ads.js';
+const AD_GH_JSON = 'https://raw.githubusercontent.com/PulseStrategy369/PulseStrategy/main/ads.json';
+const AD_GH_BASE = 'https://raw.githubusercontent.com/PulseStrategy369/PulseStrategy/main/ads/';
+const AD_SITE_JSON = 'https://pulsestrategy369.com/ads.json';
+const AD_SITE_BASE = 'https://pulsestrategy369.com/ads/';
+const LOCAL_ADS = [
+  {image:'pulsestrategy.png', link:VAULTS_URL, label:'PulseStrategy'},
+  {image:'vouch.png', link:'https://app.vouch.run/PLS/', label:'Vouch'},
+  {image:'actuator.png', link:'https://www.actuator.finance/', label:'Actuator'},
+  {image:'pulsex.png', link:'https://pulsex.com/', label:'PulseX'},
+  {image:'launcher.png', link:LAUNCH_URL, label:'PulseStrategy Launcher'},
+  {image:'openslot.png', link:'mailto:pulsestrategy369@gmail.com', label:'Advertise'}
+];
+let adRev = '';
+let adGithubDown = false;
+function adName(url){
+  return String(url||'').split('/').pop().split('?')[0];
+}
+function adLocalSrc(name){
+  if(!name) return '';
+  if(location.protocol==='file:') return 'ads/'+name;
+  if(location.hostname==='pulsestrategy369.com' || location.hostname==='www.pulsestrategy369.com') return '/ads/'+name;
+  if(/\/explorer\/?$/.test(location.pathname) || location.pathname.indexOf('/explorer/')===0) return '/ads/'+name;
+  return 'ads/'+name;
+}
+function adCandidates(raw){
+  const name = adName(raw && raw.image);
+  const out = [];
+  const push = u => { if(u && out.indexOf(u)<0) out.push(u); };
+  if(!adGithubDown && name) push(AD_GH_BASE+name+'?t='+adRev);
+  push(adLocalSrc(name)+'?t='+adRev);
+  if(name) push(AD_SITE_BASE+name+'?t='+adRev);
+  return out;
+}
+function adProbe(src){
+  return new Promise(resolve=>{
+    if(!src){ resolve(false); return; }
+    const img = new Image();
+    const done = ok => { clearTimeout(t); resolve(ok); };
+    const t = setTimeout(()=>done(false), 4000);
+    img.onload = ()=>done(true);
+    img.onerror = ()=>done(false);
+    img.src = src;
+  });
+}
+async function adFirst(raw){
+  const list = adCandidates(raw);
+  for(const src of list){
+    if(adGithubDown && src.indexOf('githubusercontent.com')>=0) continue;
+    if(await adProbe(src)) return src;
+    if(src.indexOf('githubusercontent.com')>=0) adGithubDown = true;
+  }
+  return '';
+}
+function loadRemoteAds(){
+  return new Promise(resolve=>{
+    const s = document.createElement('script');
+    let done = false;
+    const finish = ok => {
+      if(done) return;
+      done = true;
+      const pack = window.PS_ADS;
+      const list = pack && (Array.isArray(pack) ? pack : pack.ads);
+      if(ok && list && list.length){
+        if(pack.rev) adRev = String(pack.rev);
+        resolve({list: list, from:'github'});
+      } else resolve(null);
+    };
+    const t = setTimeout(()=>{ adGithubDown = true; finish(false); }, 6000);
+    s.onload = ()=>{ clearTimeout(t); finish(true); };
+    s.onerror = ()=>{ clearTimeout(t); adGithubDown = true; finish(false); };
+    s.src = AD_GH_JS+'?t='+Date.now();
+    document.head.appendChild(s);
+  });
+}
+async function fetchAds(url, from){
+  try{
+    const r = await fetch(url, {cache:'no-store', signal: AbortSignal.timeout(6000)});
+    if(!r.ok) return null;
+    const j = await r.json();
+    const list = Array.isArray(j) ? j : (j && j.ads);
+    if(!list || !list.length) return null;
+    if(j && j.rev) adRev = String(j.rev);
+    return {list: list, from: from};
+  }catch(e){ return null; }
+}
+function paintAd(i, fade){
+  const a = adList[i]; if(!a) return;
+  const slot = $('adslot'), img = $('adImg'), link = $('adLink'), lab = $('adLabel');
+  const text = $('adText'), kicker = $('adTextK'), body = $('adTextBody'), site = $('adTextSite');
+  if(!slot || !img || !text) return;
+  const apply = ()=>{
+    if(a.kind==='text'){
+      slot.classList.add('textmode');
+      if(kicker) kicker.textContent = a.kicker || 'PULSESTRATEGY';
+      if(body) body.textContent = a.body || '';
+      if(site){
+        site.href = a.link || VAULTS_URL;
+        site.textContent = (a.site || 'pulsestrategy369.com')+' ↗';
+      }
+      slot.classList.remove('fade');
+      return;
+    }
+    slot.classList.remove('textmode');
+    img.alt = a.label || 'Banner';
+    img.onerror = ()=>{
+      img.onerror = null;
+      const local = adLocalSrc(adName(a.image));
+      if(local && img.getAttribute('data-fell')!=='1' && img.src.indexOf(local)<0){
+        img.setAttribute('data-fell','1');
+        img.src = local;
+        return;
+      }
+      const house = adHouse(a);
+      if(house) adList[i] = HOUSE_TEXT.find(x=>x.house===house) || HOUSE_TEXT[0];
+      else adList.splice(i, 1);
+      if(!adList.length) adList = HOUSE_TEXT.slice();
+      paintAd(i % adList.length, false);
+    };
+    img.setAttribute('data-fell','0');
+    img.src = a.image;
+    if(link){
+      const href = a.link || 'mailto:pulsestrategy369@gmail.com';
+      link.href = href;
+      if(/^mailto:/i.test(href)){
+        link.removeAttribute('target');
+        link.rel = '';
+      } else {
+        link.target = '_blank';
+        link.rel = 'noopener';
+      }
+    }
+    if(lab){
+      lab.textContent = a.label || '';
+      lab.style.display = a.label ? '' : 'none';
+    }
+    slot.classList.remove('fade');
+  };
+  const reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if(fade && !reduce){
+    slot.classList.add('fade');
+    setTimeout(apply, 700);
+  } else apply();
+}
+async function startAds(){
+  adList = HOUSE_TEXT.slice();
+  adIdx = 0;
+  paintAd(0, false);
+  adRev = String(Date.now());
+  const live = location.hostname==='pulsestrategy369.com' || location.hostname==='www.pulsestrategy369.com';
+  let pack = null;
+  if(!live) pack = await loadRemoteAds();
+  if(!pack){
+    const urls = live
+      ? [['/ads.json','local'], [AD_GH_JSON,'github'], ['ads.json','local']]
+      : [[AD_GH_JSON,'github'], ['ads.json','local'], ['/ads.json','local']];
+    for(const pair of urls){
+      pack = await fetchAds(pair[0], pair[1]);
+      if(pack){
+        if(pair[1]==='github') adGithubDown = false;
+        break;
+      }
+      if(pair[1]==='github') adGithubDown = true;
+    }
+  }
+  if(!pack) pack = {list: LOCAL_ADS, from:'local'};
+  const incoming = (pack.list || []).filter(a=>a && a.image);
+  for(const house of HOUSE_IMAGES){
+    if(!incoming.some(a=>adHouse(a)===adHouse(house))) incoming.push(house);
+  }
+  const ready = [];
+  const seen = new Set();
+  for(const raw of incoming){
+    const house = adHouse(raw);
+    if(house && seen.has(house)) continue;
+    const src = await adFirst(raw);
+    if(!src) continue;
+    const item = {kind:'image', image:src, label:raw.label || '', link:raw.link || 'mailto:pulsestrategy369@gmail.com'};
+    if(house==='vaults') item.link = VAULTS_URL;
+    if(house==='launch') item.link = LAUNCH_URL;
+    if(house) seen.add(house);
+    ready.push(item);
+    if(ready.length>=10) break;
+  }
+  const list = [];
+  const take = key => ready.find(a => adKind(a)===key);
+  list.push(take('vaults') || HOUSE_TEXT[0]);
+  const vouchAd = take('vouch'); if(vouchAd) list.push(vouchAd);
+  const actAd = take('actuator'); if(actAd) list.push(actAd);
+  const pxAd = take('pulsex'); if(pxAd) list.push(pxAd);
+  list.push(take('launch') || HOUSE_TEXT[1]);
+  const openAd = take('open'); if(openAd) list.push(openAd);
+  for(const a of ready){
+    if(adKind(a)) continue;
+    list.push(a);
+  }
+  adList = list.slice(0, 10);
+  adIdx = 0;
+  paintAd(0, false);
+  if(adTimer) clearInterval(adTimer);
+  if(adList.length<2) return;
+  adTimer = setInterval(()=>{
+    if(document.hidden) return;
+    adIdx = (adIdx+1) % adList.length;
+    paintAd(adIdx, true);
+  }, 10000);
 }
 
 /* ================= token tab ================= */
@@ -1409,7 +3224,7 @@ async function renderToken(){
       <div class="k">DEX price</div><div class="v" id="tok-price">checking PulseX pairs…</div>
     </div>
     <div class="sub-h">Check a wallet's balance</div>
-    <div class="frow"><div class="field"><input id="tok-holder" placeholder="0x… wallet address"></div>
+    <div class="frow"><div class="field"><input id="tok-holder" placeholder="name.pls or 0x…"></div>
     <button class="btn-ghost" onclick="tokBalance()">Check</button></div>
     <div id="tok-bal"></div>
     <div class="sub-h">Recent transfers <span style="text-transform:none;letter-spacing:0">(last ~5,000 blocks — live from RPC logs, no indexer)</span></div>
@@ -1435,8 +3250,10 @@ async function renderToken(){
   }catch(e){ $('tok-logs').innerHTML = `<div class="errbox">Couldn't fetch logs: ${esc(e.message)}. Public RPCs limit log ranges — try another endpoint.</div>`; }
 }
 async function tokBalance(){
-  const holder = $('tok-holder').value.trim();
-  if(!/^0x[0-9a-fA-F]{40}$/.test(holder)) return $('tok-bal').innerHTML='<div class="errbox">Enter a valid 0x address.</div>';
+  let holder = $('tok-holder').value.trim();
+  if(window.PS && PS.looksLikeName(holder)) holder = await PS.toAddress(holder);
+  if(!/^0x[0-9a-fA-F]{40}$/.test(holder)) return $('tok-bal').innerHTML='<div class="errbox">Enter a .pls name or a valid 0x address.</div>';
+  $('tok-holder').value = window.PS ? PS.label(holder) : holder;
   try{
     const b = await call(cur.addr, '0x70a08231'+padA(holder));
     $('tok-bal').innerHTML = `<div class="okbox">${fmtUnits(hexToBig(b),cur.token.decimals,6)} ${esc(cur.token.symbol)}</div>`;
@@ -1478,8 +3295,8 @@ const DANGER_SELECTORS = [
   {sel:'c9567bf9', lbl:'openTrading()', kind:'trading', why:'trading may still be off — only an admin can turn it on'},
   {sel:'8f70ccf7', lbl:'setTrading(bool)', kind:'trading', why:'admin can disable selling'},
   {sel:'c2e5ec04', lbl:'setTradingEnabled(bool)', kind:'trading', why:'admin can disable selling'},
-  {sel:'3659cfe6', lbl:'upgradeTo(address)', kind:'upgrade', why:'the running code can be swapped'},
-  {sel:'4f1ef286', lbl:'upgradeToAndCall(address,bytes)', kind:'upgrade', why:'the running code can be swapped'},
+  {sel:'3659cfe6', lbl:'upgradeTo(address)', kind:'upgrade', why:'The running code can be swapped.'},
+  {sel:'4f1ef286', lbl:'upgradeToAndCall(address,bytes)', kind:'upgrade', why:'The running code can be swapped.'},
   {sel:'8f283970', lbl:'changeAdmin(address)', kind:'upgrade', why:'proxy admin can be handed to someone else'},
   {sel:'dc1052e2', lbl:'setBuyTax(uint256)', kind:'tax', why:'buy tax can be raised after you buy'},
   {sel:'8cd09d50', lbl:'setSellTax(uint256)', kind:'tax', why:'sell tax can be raised to 99% after you buy'},
@@ -1793,9 +3610,10 @@ const TAX_QUOTES = [
   {sym:'PLSX', addr:'0x95B303987A60C71504D99Aa1b13B4DA07b0790ab'}
 ];
 const V3_FEES = [100, 500, 2500, 3000, 10000];
-const TAX_PROBE = '0x63a9059cbb60e01b600052602435600452604435602452602060606044600060006004355af115610064573d156100395760605115610064575b6370a0823160e01b608052602435608452602060a06024608060006004355af11561006457602060a0f35b60006000fd';
-const TAX_SINK = '0x000000000000000000000000000000000000b0b1';
 function fmtTax(bps){ return (bps/100).toFixed(2)+'%'; }
+const QUOTE_DEC = {WPLS:18, HEX:8, DAI:18, USDC:6, PLSX:18};
+const SWAP_ACTOR = '0x000000000000000000000000000000000000b0b2';
+const SWAP_PROBE = '0x60806040526004361015610011575f80fd5b5f3560e01c63f6c3f5be14610024575f80fd5b346100a85760a03660031901126100a8576004356001600160a01b03811681036100a8576024356001600160a01b03811681036100a857604435906001600160a01b03821682036100a85760c092610083926084359260643592610156565b93604093919351958652602086015260408501526060840152608083015260a0820152f35b5f80fd5b601f909101601f19168101906001600160401b038211908210176100cf57604052565b634e487b7160e01b5f52604160045260245ffd5b51906001600160701b03821682036100a857565b908160609103126100a85761010b816100e3565b91604061011a602084016100e3565b92015163ffffffff811681036100a85790565b9160a0939183526020830152600180841b03166040820152608060608201525f60808201520190565b604051919491939192905f60c086016001600160401b038111878210176100cf576040525f865260208601965f885260408701975f89525f60608901525f608089015260a08801985f8a5260018060a01b0383169360405197630240bc6b60e21b8952606089600481895afa9889156104b0575f905f9a6104bb575b50604051630dfe168160e01b81526020816004818b5afa9081156104b0575f9161046e575b506001600160a01b038a8116911614998a1561045e576001600160701b038216915b8b1561044d57506001600160701b0316915b61023681888c61051e565b156104355782610247928d9261060a565b90818c52811590811561042a575b5061041457881561040e575f905b8915610407575b863b156100a85760405163022c0d9f60e01b8152915f9183918291610295913091906004850161012d565b0381838a5af190816103f2575b506102c85750505050505050505060036102bc92526105b0565b94959394929391929091565b6102d230876106aa565b8352604051630240bc6b60e21b8152606081600481895afa9081156103e7578a91839182916103b4575b508a156103a4576001600160701b038216915b8b1561039357506001600160701b0316905b8551806103835750505050905b52519081156103705790610342918461051e565b1561035f576102bc96509161035a949391869361071f565b6105b0565b505050505060056102bc92526105b0565b5050505050505060046102bc92526105b0565b61038d945061060a565b9061032e565b6001600160701b0316919050610321565b6001600160701b0381169161030f565b90506103d8915060603d6060116103e0575b6103d081836100ac565b8101906100f7565b50905f6102fc565b503d6103c6565b6040513d84823e3d90fd5b6103ff9192505f906100ac565b5f905f6102a2565b505f61026a565b80610263565b5050505050505050505060026102bc92526105b0565b90508110155f610255565b50505050505050505050505060016102bc92526105b0565b6001600160701b031692905061022b565b6001600160701b03811691610219565b90506020813d6020116104a8575b81610489602093836100ac565b810103126100a857516001600160a01b03811681036100a8575f6101f7565b3d915061047c565b6040513d5f823e3d90fd5b90506104d791995060603d6060116103e0576103d081836100ac565b5098905f6101d2565b3d15610519573d906001600160401b0382116100cf576040519161050e601f8201601f1916602001846100ac565b82523d5f602084013e565b606090565b5f929183809360405190602082019363a9059cbb60e01b855260018060a01b031660248301526044820152604481526105586064826100ac565b51925af16105646104e0565b8161056d575090565b80915051801591821561057f57505090565b60208210159250908261059157505090565b81925090602091810103126100a8576020015180151581036100a85790565b8051602082015160408301516060840151608085015160a0909501519395929491939092565b919082039182116105e357565b634e487b7160e01b5f52601160045260245ffd5b818102929181159184041417156105e357565b9092811580156106a2575b801561069a575b801561068e575b61068657612710039061271082116105e35761064991610642916105f7565b91826105f7565b9061271083029280840461271014901517156105e35782018092116105e3578115610672570490565b634e487b7160e01b5f52601260045260245ffd5b505050505f90565b50612710811015610623565b50821561061c565b508315610615565b6040516370a0823160e01b602082019081526001600160a01b0390931660248083019190915281525f928392916106e26044826100ac565b51915afa6106ee6104e0565b90158015610714575b61070f576020818051810103126100a8576020015190565b505f90565b5060208151106106f7565b604051630240bc6b60e21b815294956001600160a01b0390911691606086600481865afa80156104b057835f975f905f936108c4575b50610783919088156108b4576001600160701b038416935b89156108a357506001600160701b0316936106aa565b818082111561089b57610795916105d6565b8060808a01528015801561088e575b61087d57906107b493929161060a565b92831561086f576107c530846106aa565b9381156108685780915b1561086257505f905b823b156100a857610804925f928360405180968195829463022c0d9f60e01b845230916004850161012d565b03925af1908161084d575b506108205750505060a06008910152565b9061082f6060939230906106aa565b818111156108465761084192506105d6565b910152565b5050910152565b61085a9194505f906100ac565b5f925f61080f565b906107d8565b5f916107cf565b505050505060a06007910152565b505050505050505060a06006910152565b50602089015181116107a4565b50505f610795565b6001600160701b03169490506106aa565b6001600160701b0381169361076d565b6107839293506108e3915060603d6060116103e0576103d081836100ac565b50929161075556fea2646970667358221220f015f07ad6b6fe3a29421ed23320d9ea959a4d3c6940c74b1734628b4242728d64736f6c634300081c0033';
 async function findBalSlot(token, holder){
   const bal = hexToBig(await call(token, '0x70a08231'+padA(holder)));
   if(bal===0n) return null;
@@ -1805,47 +3623,73 @@ async function findBalSlot(token, holder){
   for(let s=0;s<reads.length;s++) if(reads[s] && hexToBig(reads[s])===bal) return s;
   return null;
 }
-async function simSell(token, pair, slot, amt){
-  const mcSlot = mapSlot(MULTICALL3, slot);
-  const calls = [
-    {to:token, data:'0x70a08231'+padA(pair)},
-    {to:token, data:'0xa9059cbb'+padA(pair)+padN(amt)},
-    {to:token, data:'0x70a08231'+padA(pair)}
-  ];
-  const state = {};
-  state[token] = {stateDiff:{}};
-  state[token].stateDiff[mcSlot] = hexQty(amt*100n);
-  const raw = await rpc('eth_call', [{to:MULTICALL3, data:encTryAggregate(calls)}, 'latest', state]);
-  const rows = decTryAggregate(raw, true);
-  const tr = rows[1];
-  if(!tr || !tr.ok){
-    const code = panicOf(tr && tr.data);
-    return code===17 ? {err:'odd'} : {err:'revert'};
-  }
-  if(tr.data && hexToBig(tr.data)===0n) return {err:'revert'};
-  const before = hexToBig(rows[0] && rows[0].data), after = hexToBig(rows[2] && rows[2].data);
-  if(after<before) return {err:'odd'};
-  const got = after-before;
-  if(got>amt) return {bps:0, more:true};
-  return {bps: Number((amt-got)*10000n/amt)};
+function taxSide(quoted, got){
+  if(quoted==null || quoted<=0n) return {err:'odd'};
+  if(got>quoted) return {uncertain:true, bps:0};
+  return {bps: Number((quoted-got)*10000n/quoted)};
 }
-async function simBuy(token, pair, amt, sinkBal){
-  const data = '0x'+'00'.repeat(4)+padA(token)+padA(TAX_SINK)+padN(amt);
+async function simRound(token, pair, quote, qin, feeBps, qSlot){
+  if(qin<=0n || qSlot==null) return {err:'odd'};
+  const data = '0xf6c3f5be'+padA(token)+padA(pair)+padA(quote)+padN(qin)+padN(feeBps);
   const state = {};
-  state[pair] = {code:TAX_PROBE};
+  state[SWAP_ACTOR] = {code: SWAP_PROBE};
+  const qk = String(quote).toLowerCase();
+  state[qk] = {stateDiff:{}};
+  state[qk].stateDiff[mapSlot(SWAP_ACTOR, qSlot)] = hexQty(qin*5n);
+  // PLSX subtracts COMP-style vote checkpoints on transfer. A fresh wallet has none, so that subtraction underflows.
+  if(qk==='0x95b303987a60c71504d99aa1b13b4da07b0790ab'){
+    state[qk].stateDiff[mapSlot(SWAP_ACTOR, 9)] = hexQty(1);
+    const base = keccak256(padA(SWAP_ACTOR)+padN(8));
+    const inner = BigInt('0x'+keccak256(padN(0)+base));
+    const slotKey = n => '0x'+BigInt(n).toString(16).padStart(64,'0');
+    state[qk].stateDiff[slotKey(inner)] = hexQty(1);
+    state[qk].stateDiff[slotKey(inner+1n)] = hexQty(qin*5n);
+  }
   let raw;
-  try{ raw = await rpc('eth_call', [{to:pair, data}, 'latest', state]); }
-  catch(e){
-    return /execution reverted/i.test((e && e.message) || '') ? {err:'revert'} : {err:'odd'};
-  }
-  if(!raw || raw==='0x') return {err:'odd'};
-  const after = hexToBig(raw);
-  if(after<sinkBal) return {err:'odd'};
-  const got = after-sinkBal;
-  if(got>amt) return {bps:0, more:true};
-  return {bps: Number((amt-got)*10000n/amt)};
+  try{
+    raw = await rpc('eth_call', [{to:SWAP_ACTOR, from:'0x1111111111111111111111111111111111111111', data}, 'latest', state]);
+  }catch(e){ return {err:'odd'}; }
+  const h = String(raw||'').replace(/^0x/,'').toLowerCase();
+  if(h.length<64*6) return {err:'odd'};
+  const w = i => hexToBig('0x'+h.slice(i*64,(i+1)*64));
+  return {buyQuote:w(0), buyGot:w(1), sellQuote:w(2), sellGot:w(3), actualIn:w(4), flag:w(5)};
 }
-async function measureDexTax(token, dec){
+async function simRoundTry(token, pair, quote, qin, qSlot){
+  let last = {err:'odd'};
+  for(const fee of [29, 30, 25, 100]){
+    const r = await simRound(token, pair, quote, qin, fee, qSlot);
+    last = r;
+    if(r && r.flag===3n) continue;
+    if(r && !r.err) return r;
+  }
+  return last;
+}
+function readRound(r, qin){
+  if(!r || r.err) return {buy:{err:'odd'}, sell:{err:'odd'}};
+  const flag = Number(r.flag||0);
+  if(flag===1 || flag===2) return {buy:{err:'odd'}, sell:{err:'odd'}};
+  if(flag===3) return {buy:{err:'revert'}, sell:{err:'revert'}};
+  const buy = taxSide(r.buyQuote, r.buyGot);
+  if(flag===4) return {buy, sell:{err:'odd'}};
+  if(flag===5) return {buy, sell:{err:'revert'}};
+  if(flag===6 || flag===7 || flag===8) return {buy, sell:{uncertain:true}};
+  const sell = taxSide(r.sellQuote, r.sellGot);
+  let round = null;
+  if(qin>0n && r.sellGot>0n) round = r.sellGot>qin ? {uncertain:true, bps:0} : {bps: Number((qin-r.sellGot)*10000n/qin)};
+  return {buy, sell, round};
+}
+async function quoteReserve(pair, quote){
+  const [t0, rs] = await Promise.all([
+    call(pair,'0x0dfe1681'),
+    call(pair,'0x0902f1ac')
+  ]);
+  if(!rs || rs.length<130) return null;
+  const r0 = hexToBig('0x'+rs.slice(2,66));
+  const r1 = hexToBig('0x'+rs.slice(66,130));
+  const q0 = wordAddr(t0)===quote.toLowerCase();
+  return q0 ? r0 : r1;
+}
+async function measureDexTax(token){
   const calls = [];
   for(const d of TAX_DEXES){
     for(const q of TAX_QUOTES){
@@ -1861,48 +3705,50 @@ async function measureDexTax(token, dec){
   const hits = [];
   raw.forEach((hex,i)=>{
     if(!hex || hexToBig(hex)===0n) return;
-    hits.push({pair:wordAddr(hex), dex:calls[i].d.name, quote:calls[i].q.sym});
+    hits.push({pair:wordAddr(hex), dex:calls[i].d.name, quote:calls[i].q.sym, quoteAddr:calls[i].q.addr, v3:calls[i].d.kind==='v3'});
   });
-  if(!hits.length) return {pairs:[], slot:null};
+  if(!hits.length) return {pairs:[], big:null};
   const bals = await multiCall(hits.map(h=>({to:token, data:'0x70a08231'+padA(h.pair)})));
   const best = new Map();
   bals.forEach((hex,i)=>{
     const bal = hexToBig(hex);
     if(bal===0n) return;
-    const prev = best.get(hits[i].dex);
-    if(!prev || bal>prev.bal) best.set(hits[i].dex, {...hits[i], bal});
+    const prev = best.get(hits[i].dex+'|'+hits[i].quote);
+    if(!prev || bal>prev.bal) best.set(hits[i].dex+'|'+hits[i].quote, {...hits[i], bal});
   });
-  const picked = [...best.values()];
-  let slot = null;
-  for(const p of picked){
-    slot = await findBalSlot(token, p.pair);
-    if(slot!=null) break;
+  const picked = [...best.values()].filter(p=>!p.v3);
+  const slotCache = new Map();
+  async function qSlot(quote, pair){
+    const k = quote.toLowerCase();
+    if(slotCache.has(k)) return slotCache.get(k);
+    const s = await findBalSlot(quote, pair);
+    slotCache.set(k, s);
+    return s;
   }
-  const sinkBal = hexToBig(await call(token, '0x70a08231'+padA(TAX_SINK)).catch(()=>'0x0'));
-  const unit = 10n ** BigInt(dec||18);
   const out = await Promise.all(picked.map(async p=>{
-    let amt = unit;
-    if(p.bal<=amt) amt = p.bal/100n;
-    if(amt<1000n && p.bal>1000n) amt = 1000n;
-    if(amt===0n || slot==null) return {dex:p.dex, quote:p.quote, sell:{err:'odd'}, buy:{err:'odd'}};
-    const [sell, buy] = await Promise.all([
-      simSell(token, p.pair, slot, amt).catch(()=>({err:'odd'})),
-      simBuy(token, p.pair, amt, sinkBal).catch(()=>({err:'odd'}))
-    ]);
-    return {dex:p.dex, quote:p.quote, sell, buy};
+    const dec = QUOTE_DEC[p.quote]!=null ? QUOTE_DEC[p.quote] : 18;
+    const unit = 10n ** BigInt(dec);
+    const reserve = await quoteReserve(p.pair, p.quoteAddr).catch(()=>null);
+    let qin = unit * 1000000n;
+    if(reserve && reserve/50n>0n && reserve/50n<qin) qin = reserve/50n;
+    if(reserve && qin>=reserve) qin = reserve/20n;
+    const slot = await qSlot(p.quoteAddr, p.pair);
+    if(!reserve || qin<1000n || slot==null) return {dex:p.dex, quote:p.quote, buy:{err:'odd'}, sell:{err:'odd'}};
+    const sim = readRound(await simRoundTry(token, p.pair, p.quoteAddr, qin, slot), qin);
+    return {dex:p.dex, quote:p.quote, buy:sim.buy, sell:sim.sell, round:sim.round||null};
   }));
-  let bigSell = null;
-  if(slot!=null && picked.length){
+  let big = null;
+  if(picked.length){
     const biggest = picked.reduce((a,b)=> b.bal>a.bal ? b : a);
-    let amt = biggest.bal/20n;
-    if(amt < unit*10n) amt = unit*10n;
-    if(biggest.bal>1000n && amt > biggest.bal/2n) amt = biggest.bal/2n;
-    if(amt>0n && amt<biggest.bal){
-      const sell = await simSell(token, biggest.pair, slot, amt).catch(()=>({err:'odd'}));
-      bigSell = {dex:biggest.dex, quote:biggest.quote, sell};
+    const reserve = await quoteReserve(biggest.pair, biggest.quoteAddr).catch(()=>null);
+    const slot = await qSlot(biggest.quoteAddr, biggest.pair);
+    const qin = reserve ? reserve/20n : 0n;
+    if(qin>1000n && slot!=null){
+      const sim = readRound(await simRoundTry(token, biggest.pair, biggest.quoteAddr, qin, slot), qin);
+      big = {dex:biggest.dex, quote:biggest.quote, sell:sim.sell, buy:sim.buy, round:sim.round||null};
     }
   }
-  return {pairs:out, slot, big:bigSell};
+  return {pairs:out, big};
 }
 const CANON_TOKENS = new Set([
   '0x2b591e99afe9f32eaa6214f7b7629768c40eeb39',
@@ -2045,6 +3891,66 @@ async function topHolders(token){
     return { addr:String(a.hash||'').toLowerCase(), name:[a.name, tags].filter(Boolean).join(' · '), contract:!!a.is_contract, value:decToBig(it.value) };
   }).filter(h=>h.addr && h.value>0n);
 }
+async function probeProxy(addr, code){
+  const cloneOf = eip1167Target(code);
+  const out = {cloneOf, implAddr:'', admin:null, beaconAddr:null, beaconCtl:'', upgradeLive:false, beaconProxy:false, readAt: cloneOf || '', err:'', hasImpl:false, hasBeacon:false};
+  try{
+    const [impl, admin, beacon] = await Promise.all([
+      rpc('eth_getStorageAt',[addr, IMPL_SLOT,'latest']),
+      rpc('eth_getStorageAt',[addr, ADMIN_SLOT,'latest']),
+      rpc('eth_getStorageAt',[addr, BEACON_SLOT,'latest'])
+    ]);
+    const hasImpl = impl && hexToBig(impl)!==0n;
+    const hasBeacon = beacon && hexToBig(beacon)!==0n;
+    const adm = admin && hexToBig(admin)!==0n ? wordAddr(admin) : null;
+    const beaconAddr = hasBeacon ? wordAddr(beacon) : null;
+    let implFromBeacon = null;
+    if(beaconAddr){
+      try{
+        const iw = retWord(await call(beaconAddr, '0x5c60da1b'));
+        if(iw && hexToBig(iw)!==0n) implFromBeacon = wordAddr(iw);
+      }catch(e){}
+      try{
+        const ow = retWord(await call(beaconAddr, '0x8da5cb5b'));
+        if(ow && hexToBig(ow)!==0n){
+          const a = wordAddr(ow);
+          if(a!==ZERO.toLowerCase() && a!==DEAD.toLowerCase()) out.beaconCtl = a;
+        }
+      }catch(e){}
+    }
+    const implAddr = hasImpl ? wordAddr(impl) : (implFromBeacon || '');
+    out.implAddr = implAddr || '';
+    out.admin = adm;
+    out.beaconAddr = beaconAddr;
+    out.beaconProxy = !!hasBeacon;
+    out.upgradeLive = !!(hasImpl || hasBeacon);
+    out.readAt = implAddr || cloneOf || '';
+    out.hasImpl = !!hasImpl;
+    out.hasBeacon = !!hasBeacon;
+  }catch(e){ out.err = e.message || 'proxy read failed'; }
+  return out;
+}
+function mergeScanMeta(a, b){
+  if(!a) return b;
+  if(!b) return a;
+  const sources = Object.assign({},
+    (a.standardInput && a.standardInput.sources) || {},
+    (b.standardInput && b.standardInput.sources) || {});
+  const abi = [].concat(a.abi || [], b.abi || []);
+  return Object.assign({}, a, {abi, standardInput:{language:'Solidity', sources, settings:{}}});
+}
+const ABI_POWER_WORDS = [
+  {re:/^(mint|mintTo)$/i, kind:'mint', title:'Can mint', plain:'New tokens can be created into a wallet.'},
+  {re:/pause|unpause/i, kind:'pause', title:'Can pause', plain:'Transfers can be frozen or unfrozen.'},
+  {re:/blacklist|blocklist|addBot|setBot|setSniper|approvet|approver/i, kind:'blacklist', title:'Can blacklist', plain:'A wallet can be blocked from sending or receiving.'},
+  {re:/tax|fee/i, kind:'tax', title:'Can change fees', plain:'Buy, sell, or transfer fees can be changed after you buy.'},
+  {re:/maxTx|maxWallet|maxSell|setMaxTx|setMaxWallet/i, kind:'limit', title:'Can change limits', plain:'Max transaction or max wallet can be lowered so a sell does not go through.'},
+  {re:/trading/i, kind:'trading', title:'Can switch trading', plain:'Selling can be turned off.'},
+  {re:/^upgradeTo|upgradeAndCall|upgradeToAndCall/i, kind:'upgrade', title:'Can upgrade the code', plain:'The running code can be replaced. A clean scan today does not hold after that.'},
+  {re:/excludeFromFee|includeInFee|setExcluded/i, kind:'fee', title:'Can change who pays', plain:'Some wallets can be excused from the fee.'},
+  {re:/transferOwnership|renounceOwnership|changeAdmin/i, kind:'own', title:'Can move ownership', plain:'The owner role can be handed to someone else, or given up.'},
+  {re:/^(withdraw|rescue|skim|sweep|claimStuck)/i, kind:'take', title:'Can pull funds out', plain:'An admin can pull tokens or PLS sitting in this contract. That is not the same as minting.'}
+];
 async function runSafety(){
   const addr = cur.addr, code = (cur.code||'').toLowerCase();
   const isInc = addr.toLowerCase()==='0x2fa878ab3f87cc1c9737fc071108f904c0b0c95d';
@@ -2053,18 +3959,37 @@ async function runSafety(){
   const push = (state,lbl,det,pen=0)=>{ rows.push(chkRow(state,lbl,det)); score -= pen; };
   const sels = extractPush4(code);
   const backingExit = await hasBackingExit(addr);
-  let sourcifyMeta = null, scanMeta = null;
+  const proxyEarly = await probeProxy(addr, code);
+  const implForSrc = proxyEarly.readAt && proxyEarly.readAt.toLowerCase()!==addr.toLowerCase() ? proxyEarly.readAt : '';
+  let sourcifyMeta = null, scanMeta = null, implSourcify = null, implScan = null;
   try{
-    [sourcifyMeta, scanMeta] = await Promise.all([
+    const jobs = [
       fetchVerifiedLight(addr).catch(()=>null),
       fetchPulseScanSource(addr).catch(()=>null)
-    ]);
+    ];
+    if(implForSrc){
+      jobs.push(fetchVerifiedLight(implForSrc).catch(()=>null), fetchPulseScanSource(implForSrc).catch(()=>null));
+    }
+    const got = await Promise.all(jobs);
+    sourcifyMeta = got[0]; scanMeta = got[1];
+    if(implForSrc){ implSourcify = got[2]; implScan = got[3]; }
   }catch(e){}
   const sourcifySrc = flattenSources(sourcifyMeta);
   const scanSrc = flattenSources(scanMeta);
+  const implSourcifySrc = flattenSources(implSourcify);
+  const implScanSrc = flattenSources(implScan);
   const onScan = !!(scanMeta && scanMeta.ok);
-  const meta = sourcifySrc ? sourcifyMeta : (scanSrc ? scanMeta : (sourcifyMeta || null));
-  if(meta && (!meta.abi || !meta.abi.length) && scanMeta && scanMeta.abi && scanMeta.abi.length) meta.abi = scanMeta.abi;
+  function picked(s, scan, srcS, srcScan){
+    let meta = srcS ? s : (srcScan ? scan : (s || null));
+    if(meta && (!meta.abi || !meta.abi.length) && scan && scan.abi && scan.abi.length) meta = Object.assign({}, meta, {abi: scan.abi});
+    return meta;
+  }
+  const selfMeta = picked(sourcifyMeta, scanMeta, sourcifySrc, scanSrc);
+  const implMeta = implForSrc ? picked(implSourcify, implScan, implSourcifySrc, implScanSrc) : null;
+  const implHas = !!(implSourcifySrc || implScanSrc);
+  let meta = selfMeta;
+  if(implHas && selfMeta) meta = mergeScanMeta(implMeta, selfMeta);
+  else if(implHas) meta = implMeta;
   let srcTraps = scanVerifiedTraps(meta);
   const HTT_MANAGER = '0x0d5d61fddf84fefab26f98164d8009022d740206';
   let httMgr = null;
@@ -2095,9 +4020,10 @@ async function runSafety(){
     });
   }
   const hardTrap = srcTraps.some(t=>t.hard);
-  const hasSource = !!(sourcifySrc || scanSrc);
-  const sBit = sourcifySrc ? ('Sourcify '+(sourcifyMeta.match||'match')) : 'not on Sourcify';
-  const pBit = scanSrc ? ('PulseScan '+(scanMeta.partial?'partial match':'verified')) : (onScan ? 'PulseScan verified, source text missing' : (scanMeta ? 'not on PulseScan' : 'PulseScan unread'));
+  const selfHas = !!(sourcifySrc || scanSrc);
+  const hasSource = selfHas || implHas;
+  const sBit = sourcifySrc ? ('Sourcify '+(sourcifyMeta.match||'match')) : (implSourcifySrc ? ('implementation Sourcify '+(implSourcify.match||'match')) : 'not on Sourcify');
+  const pBit = scanSrc ? ('PulseScan '+(scanMeta.partial?'partial match':'verified')) : (implScanSrc ? ('implementation PulseScan '+(implScan && implScan.partial?'partial match':'verified')) : (onScan ? 'PulseScan verified, source text missing' : (scanMeta ? 'not on PulseScan' : 'PulseScan unread')));
   const regLine = sBit+' · '+pBit;
   const walletLists = scanWalletLists(flattenSources(meta));
   const walletFlag = walletLists.some(L=>L.kind==='tax'||L.kind==='block');
@@ -2105,7 +4031,10 @@ async function runSafety(){
   if(srcTraps.length){
     srcTraps.forEach(t => push('fail', t.lbl, t.det, t.pen));
   }else if(hasSource){
-    const from = sourcifySrc && scanSrc ? 'Both sources were found. The trap scan read Sourcify.' : (sourcifySrc ? 'The trap scan read Sourcify.' : 'The trap scan read PulseScan.');
+    const fromImplOnly = implHas && !selfHas;
+    const from = fromImplOnly
+      ? 'The proxy itself has no source. The trap scan read the implementation at '+short(implForSrc,6)+'.'
+      : ((sourcifySrc && scanSrc ? 'Both sources were found. The trap scan read Sourcify.' : (sourcifySrc ? 'The trap scan read Sourcify.' : 'The trap scan read PulseScan.')) + (implHas ? ' The implementation at '+short(implForSrc,6)+' was included.' : ''));
     const tail = officialHtt
       ? ' The httManager gate is the Actuator contract, explained below.'
       : (officialVpls
@@ -2115,7 +4044,8 @@ async function runSafety(){
           : ' No hidden-admin gate, wallet-flag functions, XOR-zero, or admin-mint/user-burn pattern we look for.'));
     push('pass','Verified source scanned', regLine+'. '+from+tail);
   }else{
-    push('warn','Source not verified', regLine+'. Custom-named traps stay invisible without source text. This scan will not show 100. The ceiling is 84.');
+    const implBit = implForSrc ? ' The implementation at '+short(implForSrc,6)+' is also unverified.' : '';
+    push('warn','Source not verified', regLine+'.'+implBit+' Custom-named traps stay invisible without source text. This scan will not show 100. The ceiling is 84. What cannot be confirmed: who may call each function, powers under other names, a fee ceiling, and a second admin that is not owner().');
   }
   if(addr.toLowerCase()===HTT_MANAGER){
     push('pass','Actuator HEXTimeTokenManager', 'This is the manager. There is no owner() and it is not a proxy. It mints and burns HTT only through its stake rules. HTT tokens it creates lock that role to this address.');
@@ -2133,6 +4063,10 @@ async function runSafety(){
   }
 
   let owner = null, ownerLive = false, upgradeLive = false, ownerSkipped = false, noOwnerFn = false;
+  let powersImpl = '';
+  let beaconProxy = false, beaconCtl = '';
+  let worstTaxBps = 0, taxUncertain = false, bestRound = null;
+  let lpBurnPct = null, lpLocked = false;
   try{
     let o = retWord(await call(addr,'0x8da5cb5b').catch(()=>null)) || retWord(await call(addr,'0x893d20e8').catch(()=>null));
     if(!o) noOwnerFn = true;
@@ -2153,8 +4087,24 @@ async function runSafety(){
     const hasImpl = impl && hexToBig(impl)!==0n;
     const hasBeacon = beacon && hexToBig(beacon)!==0n;
     const adm = admin && hexToBig(admin)!==0n ? wordAddr(admin) : null;
-    const implAddr = hasImpl ? wordAddr(impl) : (hasBeacon ? wordAddr(beacon) : null);
+    const beaconAddr = hasBeacon ? wordAddr(beacon) : null;
+    let implFromBeacon = null;
+    if(beaconAddr){
+      try{
+        const iw = retWord(await call(beaconAddr, '0x5c60da1b'));
+        if(iw && hexToBig(iw)!==0n) implFromBeacon = wordAddr(iw);
+      }catch(e){}
+      try{
+        const ow = retWord(await call(beaconAddr, '0x8da5cb5b'));
+        if(ow && hexToBig(ow)!==0n){
+          const a = wordAddr(ow);
+          if(a!==ZERO.toLowerCase() && a!==DEAD.toLowerCase()) beaconCtl = a;
+        }
+      }catch(e){}
+    }
+    const implAddr = hasImpl ? wordAddr(impl) : implFromBeacon;
     const readAt = implAddr || cloneOf;
+    powersImpl = readAt || '';
     if(readAt){
       try{
         const ic = await rpc('eth_getCode',[readAt,'latest']);
@@ -2163,13 +4113,19 @@ async function runSafety(){
     }
     if(hasImpl || hasBeacon){
       upgradeLive = true;
-      const where = hasImpl ? ('implementation '+short(wordAddr(impl),6)) : ('beacon '+short(wordAddr(beacon),6));
-      if(adm && adm!==ZERO.toLowerCase() && adm!==DEAD.toLowerCase())
-        proxyRow = ['fail','Upgradeable proxy', 'The code can be swapped later. '+where+'. Admin '+short(adm,6)+' is live. A clean scan today does not hold after an upgrade.', 40];
-      else if(ownerLive)
-        proxyRow = ['fail','Upgradeable (UUPS / owner)', 'Proxy slot is set ('+where+') and owner() is live. The running code can still be replaced. A clean scan today does not hold after an upgrade.', 40];
-      else
-        proxyRow = ['warn','Proxy slot is set', 'EIP-1967 slot is set ('+where+') but the admin looks burned. This is still not code that can never move.', 8];
+      if(hasBeacon){
+        beaconProxy = true;
+        const who = beaconCtl ? short(beaconCtl,6) : (adm ? short(adm,6) : (ownerLive ? short(owner,6) : 'an admin'));
+        proxyRow = ['fail','Upgradeable beacon', 'This is a beacon proxy. Beacon '+short(beaconAddr,6)+(implFromBeacon?'. The code it points at is '+short(implFromBeacon,6):'')+'. '+who+' controls that beacon. They can change taxes, block selling, or add minting at any time. A clean scan today does not hold after an upgrade.', 40];
+      }else{
+        const where = 'implementation '+short(wordAddr(impl),6);
+        if(adm && adm!==ZERO.toLowerCase() && adm!==DEAD.toLowerCase())
+          proxyRow = ['fail','Upgradeable proxy', 'The code can be swapped later. '+where+'. Admin '+short(adm,6)+' is live. A clean scan today does not hold after an upgrade.', 40];
+        else if(ownerLive)
+          proxyRow = ['fail','Upgradeable (UUPS / owner)', 'Proxy slot is set ('+where+') and owner() is live. The running code can still be replaced. A clean scan today does not hold after an upgrade.', 40];
+        else
+          proxyRow = ['warn','Proxy slot is set', 'EIP-1967 slot is set ('+where+') but the admin looks burned. This is still not code that can never move.', 8];
+      }
     }else if(cloneOf){
       proxyRow = ['info','Minimal clone', 'This contract runs the code at '+short(cloneOf,6)+'. That address is fixed in the bytecode, so it cannot be repointed. The scan read that code. It is not an upgrade slot.', 0];
     }else{
@@ -2240,7 +4196,7 @@ async function runSafety(){
     }else{
       const who = owner==='0xb2ca4a66d3e57a5a9a12043b6bad28249fe302d4' ? 'the INC farm' : '';
       let det = (who ? 'owner() is '+who+' ('+short(owner,6)+').' : 'owner() is '+short(owner,6)+'.');
-      det += ' They can still: '+(says.length?says.join(', '):'call owner-only functions. No mint, pause, fee, max-wallet, or blacklist function was recognized')+'.';
+      det += ' They can still: '+(says.length?says.join(', '):'call owner-only functions. No named mint, pause, fee, max-wallet, or blacklist setter was found. A missing name is not proof the token has no fee')+'.';
       det += ' Ownership has not been renounced.';
       if(who) det += ' The farm mints INC as rewards. That mint key is live. It is not a burned owner.';
       if(canHand) det += ' They can hand that role to someone else.';
@@ -2365,6 +4321,7 @@ async function runSafety(){
         sup=hexToBig(supHex);
         const burned=hexToBig(dB)+hexToBig(zB)+hexToBig(b369);
         pct = sup>0n ? Number(burned*10000n/sup)/100 : 0;
+        lpBurnPct = pct;
         if(backingExit){
           push('info', 'Pool LP '+pct.toFixed(1)+'% burned',
             'Backing is the asset in the vault, not this pool. Unburned LP can move the pool price. It cannot take that asset out. Redeem still pays the vault.');
@@ -2395,13 +4352,14 @@ async function runSafety(){
           }else if(pct>=90){
             push('info','Largest LP holder '+lpPct.toFixed(1)+'%', 'Most of this LP is burned. Next is '+(topLp.contract?'a contract':'a wallet')+' at '+lpPct.toFixed(1)+'% — '+who+'.');
           }else if(topLp.contract && looksLocked(topLp.name)){
+            lpLocked = true;
             push('pass','LP looks locked', who+' holds '+lpPct.toFixed(1)+'% of this LP.');
           }else if(!topLp.contract && lpPct>=50){
             push('warn','One wallet holds '+lpPct.toFixed(1)+'% of the LP', who+' can remove that liquidity.', 16);
           }else if(!topLp.contract && lpPct>=25){
             push('warn','One wallet holds '+lpPct.toFixed(1)+'% of the LP', who+' can remove that share.', 8);
           }else if(topLp.contract){
-            push('info','A contract holds '+lpPct.toFixed(1)+'% of the LP', who+'. Could be a locker, farm, or router. This scan does not open that contract.');
+            push('info','A contract holds '+lpPct.toFixed(1)+'% of the LP', who+'. Not a known locker (DxSale, Unicrypt, Team Finance, or PinkLock). Unlock date is unknown. This scan does not treat it as locked.');
           }else{
             push('pass','LP is not one wallet', 'Largest wallet holds '+lpPct.toFixed(1)+'% of this LP — '+who+'.');
           }
@@ -2425,8 +4383,16 @@ async function runSafety(){
       push('info','No PulseX pair found', 'No v1/v2 pair vs WPLS, HEX, PLSX, INC, vPLS, DAI, or USDC. May be pre-launch or paired elsewhere. Not scored as a trap.');
     }
     try{
-      const supply = hexToBig(await call(addr,'0x18160ddd'));
-      const holders = await topHolders(addr);
+      const [supplyHex, holders, tokMeta] = await Promise.all([
+        call(addr,'0x18160ddd'),
+        topHolders(addr),
+        fetch('https://api.scan.pulsechain.com/api/v2/tokens/'+addr).then(r=>r.ok?r.json():null).catch(()=>null)
+      ]);
+      const supply = hexToBig(supplyHex);
+      const holderN = tokMeta && tokMeta.holders!=null && tokMeta.holders!=='' ? Number(tokMeta.holders) : null;
+      if(holderN!=null && Number.isFinite(holderN)){
+        push('info', holderN.toLocaleString('en-US')+' holders', 'PulseScan holder count. Not a score by itself. A thin holder set is easier for one wallet to move.');
+      }
       if(!holders){
         push('info','Holder list unavailable','PulseScan did not return holders. Not scored.');
       }else if(!(supply>0n)){
@@ -2479,37 +4445,67 @@ async function runSafety(){
       }
     }catch(e){ push('info','Holder check skipped', esc(e.message||'failed')); }
     try{
-      const dec = cur.token.decimals!=null ? Number(cur.token.decimals) : 18;
-      const tax = await measureDexTax(addr, dec);
+      const tax = await measureDexTax(addr);
       if(!tax.pairs.length){
-        push('info','Buy and sell tax', 'No pool on PulseX, 9mm, 9inch, or Liberty against WPLS, HEX, DAI, USDC, or PLSX. Not scored.');
+        push('info','Buy and sell tax', 'No v2 pool on PulseX, 9mm, or 9inch against WPLS, HEX, DAI, USDC, or PLSX. Not scored.');
       }else{
         let worst=0, blocked=false, measured=false;
+        const noteSide = (label, r)=>{
+          if(!r || r.err==='odd') return label+' not measured';
+          if(r.err==='revert'){ blocked=true; return label+' reverted'; }
+          if(r.uncertain){ taxUncertain=true; return label+' could not measure'; }
+          measured = true;
+          const bps = r.bps<5 ? 0 : r.bps;
+          if(bps>worst) worst=bps;
+          return label+' '+fmtTax(bps);
+        };
         const lines = tax.pairs.map(p=>{
-          const side = (label, r)=>{
-            if(!r || r.err==='odd' || (r.err && label!=='sell')) return label+' not measured';
-            if(r.err==='revert'){ blocked=true; return 'sell reverted'; }
-            measured = true;
-            const bps = r.bps<5 ? 0 : r.bps;
-            if(bps>worst) worst=bps;
-            return label+' '+(r.more && bps===0 ? 'received more than sent' : fmtTax(bps));
-          };
-          return p.dex+' vs '+p.quote+': '+side('sell', p.sell)+', '+side('buy', p.buy);
+          let line = p.dex+' vs '+p.quote+': '+noteSide('buy', p.buy)+', '+noteSide('sell', p.sell);
+          if(p.round && !p.round.err){
+            if(p.round.uncertain){ taxUncertain=true; line += ', round trip could not measure'; }
+            else {
+              const rb = p.round.bps<5 ? 0 : p.round.bps;
+              line += ', round trip '+fmtTax(rb);
+              if(!bestRound || rb>bestRound.bps) bestRound = {bps:rb, dex:p.dex, quote:p.quote};
+            }
+          }
+          return line;
         });
+        worstTaxBps = worst;
         let state='pass', pen=0;
         if(blocked){ state='fail'; pen=40; }
         else if(worst>=1000){ state='fail'; pen=30; }
-        else if(worst>=500){ state='warn'; pen=12; }
+        else if(worst>=100 || taxUncertain){ state='warn'; pen = worst>=500 ? 12 : 8; }
         else if(!measured){ state='info'; }
-        push(state, 'Buy and sell tax', lines.join('. ')+'. Measured with one token, or less if the pool is smaller. Sell is what the pool receives. Buy is what a buyer receives from the pool.', pen);
+        let det = lines.join('. ')+'. Buy is what a fresh wallet receives versus the pool quote. Sell is the quote it gets back versus a no-tax sell. A pool that could not be measured is not 0% and not a pass.';
+        push(state, 'Buy and sell tax', det, pen);
+        if(bestRound && bestRound.bps>=100){
+          const rb = bestRound.bps;
+          const rs = rb>=1000?'fail':rb>=500?'warn':'warn';
+          const rp = rb>=1000?30:rb>=500?12:8;
+          push(rs, 'Round trip '+fmtTax(rb), 'Buying and selling right away on '+bestRound.dex+' vs '+bestRound.quote+' costs about '+fmtTax(rb)+'. That is the quote put in versus the quote that comes back.', state==='fail'&&rb>=1000?0:rp);
+        }
+        const feeNamed = DANGER_SELECTORS.some(h => (h.kind==='tax' || h.kind==='fee') && sels.has(h.sel));
+        if(worst>=100 && !feeNamed){
+          if(upgradeLive){
+            push('warn','Charges a fee, and the code can change', 'A wallet paid about '+fmtTax(worst)+'. No fee setter was recognized by name'+(hasSource?'':', and the source is not verified')+'. '+(beaconProxy?'The beacon controller':'An upgrade controller')+' can raise that fee, block selling, or add minting later by swapping the code.', 0);
+          }else if(ownerLive){
+            push('warn','Charges a fee; can\'t tell who changes it', 'A wallet paid about '+fmtTax(worst)+'. No fee setter was recognized by name. The fee is real. This scan cannot confirm whether the owner can change it.', 8);
+          }else{
+            push('warn','Charges a fee', 'A wallet paid about '+fmtTax(worst)+'. No fee setter was recognized, and owner() is not live. The fee can still be baked into the code.', 0);
+          }
+        }
         const b = tax.big;
+        const bigBad = b && ((b.sell && (b.sell.err==='revert' || b.sell.uncertain)) || (b.buy && b.buy.err==='revert'));
         if(b && b.sell && b.sell.err==='revert'){
-          push('fail','Larger sell reverted', b.dex+' vs '+b.quote+': a transfer of about 5% of that pool reverted. A one-token sell can pass while a real sell cannot.', 40);
-        }else if(b && b.sell && !b.sell.err && b.sell.err!=='odd'){
+          push('fail','Larger sell reverted', b.dex+' vs '+b.quote+': a round trip of about 5% of that pool reverted. A small sell can pass while a real sell cannot.', 40);
+        }else if(bigBad && b.sell && b.sell.uncertain){
+          push('warn','Larger sell could not be measured', b.dex+' vs '+b.quote+': about 5% of the pool. The pool received an amount this scan does not trust. That is not 0% and not a pass.', 8);
+        }else if(b && b.sell && !b.sell.err && !b.sell.uncertain){
           const bps = b.sell.bps<5 ? 0 : b.sell.bps;
           if(bps>=1000) push('fail','Larger sell tax '+fmtTax(bps), b.dex+' vs '+b.quote+', about 5% of the pool.', 30);
-          else if(bps>=500) push('warn','Larger sell tax '+fmtTax(bps), b.dex+' vs '+b.quote+', about 5% of the pool.', 12);
-          else push('pass','Larger sell '+fmtTax(bps), b.dex+' vs '+b.quote+', about 5% of the pool. Same path as the one-token test.');
+          else if(bps>=100) push('warn','Larger sell tax '+fmtTax(bps), b.dex+' vs '+b.quote+', about 5% of the pool.', bps>=500?12:8);
+          else push('pass','Larger sell '+fmtTax(bps), b.dex+' vs '+b.quote+', about 5% of the pool. Same swap path as the smaller test.');
         }
       }
     }catch(e){ push('info','Tax not measured', esc((e && e.message) || 'simulation failed')); }
@@ -2536,17 +4532,89 @@ async function runSafety(){
 
   score = Math.max(0, Math.min(100, score));
   if(!hasSource) score = Math.min(score, 84);
+  const bits = [];
+  if(!hasSource) bits.push('Unverified code');
+  if(beaconProxy) bits.push('the owner can swap the code at any time');
+  else if(upgradeLive) bits.push('the code can be upgraded');
+  if(worstTaxBps>=100) bits.push(fmtTax(worstTaxBps)+' tax each way');
+  if(bestRound && bestRound.bps>=100) bits.push('buying and selling right away costs about '+fmtTax(bestRound.bps));
+  if(lpBurnPct!=null && lpBurnPct<90 && !lpLocked && !backingExit) bits.push('LP not burned or locked');
+  let plain = '';
+  if(bits.length){
+    plain = bits.join(', ');
+    plain = plain.charAt(0).toUpperCase() + plain.slice(1) + '.';
+    if(score<70) plain += ' High risk.';
+  }
   const grade = score>=85?['A','var(--green)']:score>=70?['B','var(--teal)']:score>=55?['C','var(--amber)']:score>=40?['D','var(--amber)']:['F','var(--red)'];
+  const powerBits = [];
+  const who = ownerLive ? ('Owner '+short(owner,6)) : (beaconCtl ? ('Beacon controller '+short(beaconCtl,6)) : (proxyEarly.admin && proxyEarly.admin!==ZERO.toLowerCase() && proxyEarly.admin!==DEAD.toLowerCase() ? ('Proxy admin '+short(proxyEarly.admin,6)) : ''));
+  const implNote = (powersImpl || implForSrc) && (powersImpl || implForSrc).toLowerCase()!==addr.toLowerCase()
+    ? ('This was read from the implementation at '+short(powersImpl || implForSrc,6)+', not only the proxy address.')
+    : ((powersImpl || implForSrc) ? 'This contract is not a proxy. The bytecode at this address is what was read.' : '');
+  const seenKind = new Set();
+  function addPower(kind, title, plain, names){
+    if(seenKind.has(kind)) return;
+    seenKind.add(kind);
+    let det = (who ? who+' can do this. ' : 'No live owner() was found. ') + plain;
+    if(names) det += ' Bytecode matches '+names+'.';
+    if(kind==='upgrade' && upgradeLive && !names) det += ' The proxy slot is set even though upgradeTo was not named in the dictionary.';
+    if(!hasSource) det += ' Source is not verified, so this is a bytecode hint. It does not prove who may call it.';
+    else det += ' Verified source was found. The name is the power. The source still decides who is allowed to call it.';
+    const st = (kind==='mint'||kind==='blacklist'||kind==='upgrade'||kind==='pause') ? 'warn' : 'info';
+    powerBits.push(chkRow(st, title, esc(det)));
+  }
+  function powerSay(kind, title, plain){
+    if(kind==='mint' && !ownerLive && !upgradeLive && (backingExit || officialHtt || officialVpls)) return;
+    const hits = DANGER_SELECTORS.filter(h => h.kind===kind && sels.has(h.sel));
+    if(!hits.length && !(kind==='upgrade' && upgradeLive)) return;
+    addPower(kind, title, plain, hits.map(h=>h.lbl).slice(0,5).join(', '));
+  }
+  powerSay('mint','Can mint','New tokens can be created into a wallet.');
+  powerSay('pause','Can pause','Transfers can be frozen.');
+  powerSay('blacklist','Can blacklist','A wallet can be blocked from sending or receiving.');
+  powerSay('tax','Can change fees','Buy, sell, or transfer fees can be changed after you buy.');
+  powerSay('fee','Can change who pays','Some wallets can be excused from the fee.');
+  powerSay('trading','Can switch trading','Selling can be turned off.');
+  powerSay('limit','Can change limits','Max transaction or max wallet can be lowered so a sell does not go through.');
+  powerSay('upgrade','Can upgrade the code','The running code can be replaced. A clean scan today does not hold after that.');
+  const abiFns = meta && Array.isArray(meta.abi) ? meta.abi : [];
+  for(const f of abiFns){
+    if(!f || f.type!=='function') continue;
+    if(f.stateMutability==='view' || f.stateMutability==='pure') continue;
+    const hit = ABI_POWER_WORDS.find(p => p.re.test(f.name||''));
+    if(!hit || seenKind.has(hit.kind)) continue;
+    if(hit.kind==='mint' && !ownerLive && !upgradeLive && (backingExit || officialHtt || officialVpls)) continue;
+    if((hit.kind==='own' || hit.kind==='take') && !ownerLive && !upgradeLive && !beaconCtl) continue;
+    addPower(hit.kind, hit.title, hit.plain+' The verified ABI names this '+f.name+'.', '');
+  }
+  if(!hasSource){
+    powerBits.unshift(chkRow('warn','What cannot be confirmed', esc(
+      'No verified source'+(implForSrc?' on this proxy or on the implementation at '+short(implForSrc,6):' on this contract')+
+      '. Cannot confirm who may call each function, powers under names this dictionary does not know, whether a fee has a ceiling, or a second admin that is not owner(). Rows below are bytecode hints, not proof.')));
+  }else if(implForSrc && !selfHas){
+    powerBits.unshift(chkRow('info','Read from the implementation', esc('The proxy has no verified source. Owner powers and the trap scan used the implementation at '+short(implForSrc,6)+'. An upgrade can point this proxy at different code later.')));
+  }else if(implNote && implForSrc){
+    powerBits.unshift(chkRow('info','Where this was read', esc(implNote)));
+  }
+  if(!seenKind.size){
+    powerBits.push(chkRow('pass','No listed owner power found', esc((hasSource
+      ? 'Verified source and bytecode did not show mint, pause, blacklist, fee change, trading switch, upgrade, ownership handover, or a withdraw. '
+      : 'No mint, pause, blacklist, fee change, or upgrade from the dictionary was found in the bytecode. That is not a confirmation. ')
+      + implNote)));
+  }
+  const powersHtml = '<div class="sub-h">Owner powers</div>'+powerBits.join('');
   $('d-body').innerHTML = `
+    ${plain ? `<div class="plain-risk${score>=70?' mid':''}">${esc(plain)}</div>` : ''}
     <div class="score-ring">
       <div class="score-num" style="color:${grade[1]}">${score}</div>
       <div><div class="score-grade">Pulse Check™ grade: ${grade[0]}</div>
       <div class="det" style="font-size:12px;color:var(--faint)">Live scan in your browser. Reads Sourcify and PulseScan. Fails on known traps: honeypot transfers, a high measured tax, a wallet list that blocks sells, freeze, hidden mint, and code that can still be swapped. Warns when one wallet holds at least half the supply or half the LP. Not financial advice.</div></div>
     </div>
+    ${powersHtml}
     ${rows.join('')}
     <div class="toolbar"><button class="btn-ghost" onclick="shareLink(event)">🔗 Share this scan</button></div>
-    <div class="small-note"><b>What this will fail:</b> LP cannot send, you cannot send to the LP, a measured buy or sell tax of 10% or more, a one-token sell or a sell of about 5% of the deepest pool that reverts, a verified wallet list that blocks transfers while an admin can still write it, paused / trading-closed right now, a live owner who can mint / pause / blacklist / change tax / upgrade, code that can be swapped later, and verified source that still gates those tricks on a second admin after owner() is zero.<br>
-    <b>What it still cannot see:</b> wallets below PulseScan’s top 50, so many medium wallets can still add up, whether a locker expires, copied-contract reputation, and traps in unverified bytecode under names that are not in the dictionary. Unverified on both Sourcify and PulseScan is capped at 84. A 100 means source from one of those was read and none of the tests above failed. A missing function is skipped — an empty answer is not a live owner and not “trading closed.”</div>`;
+    <div class="small-note"><b>What this will fail:</b> LP cannot send, you cannot send to the LP, a measured buy or sell tax of 10% or more, a round trip of 10% or more, a sell of about 5% of the deepest pool that reverts, a verified wallet list that blocks transfers while an admin can still write it, paused / trading-closed right now, a live owner who can mint / pause / blacklist / change tax / upgrade, code that can be swapped later, and verified source that still gates those tricks on a second admin after owner() is zero. A measured tax of 1% or more warns. "Could not measure" is never a pass.<br>
+    <b>What it still cannot see:</b> wallets below PulseScan’s top 50, so many medium wallets can still add up, the unlock date on a locker this scan does not recognize by name, copied-contract reputation, fee-excluded wallets on unverified code, and traps in unverified bytecode under names that are not in the dictionary. On a proxy, this scan reads the implementation. If that implementation is unverified, custom admin names cannot be confirmed. Unverified on both Sourcify and PulseScan is capped at 84. A 100 means source from one of those was read and none of the tests above failed. A missing function is skipped — an empty answer is not a live owner and not “trading closed.”</div>`;
 }
 
 /* ============ contract source & verification (client-side proof) ============ */
@@ -3036,18 +5104,36 @@ function connectWallet(){ /* header button: menu, or open own address once conne
     if(!m.contains(e.target) && e.target.id!=='walletbtn'){ m.remove(); document.removeEventListener('click',h); }
   }),0);
 }
-async function afterConnect(a){
-  walletAddr = a;
+let walletPls = '';
+function paintWalletBtn(){
   const btn = $('walletbtn');
+  if(!btn) return;
+  if(!walletAddr){ btn.classList.remove('on'); btn.textContent = 'Connect wallet'; return; }
   btn.classList.add('on');
-  try{ const bal = await rpc('eth_getBalance',[a,'latest']); btn.textContent = short(a,4)+' · '+fmtPLS(hexToBig(bal),2)+' PLS'; }
-  catch(e){ btn.textContent = short(a,4); }
+  const who = window.PS ? PS.label(walletAddr) : short(walletAddr,4);
+  btn.textContent = walletPls ? (who+' · '+walletPls) : who;
+  btn.title = btn.textContent;
+}
+async function afterConnect(a, kind){
+  walletAddr = a;
+  if(window.PS){
+    if(kind) PS.remember(kind, a);
+    else if(PS.kind()) PS.remember(PS.kind(), a);
+    PS.want(a);
+  }
+  walletPls = '';
+  try{
+    const bal = await rpc('eth_getBalance',[a,'latest']);
+    walletPls = fmtPLS(hexToBig(bal),2)+' PLS';
+  }catch(e){}
+  paintWalletBtn();
   document.getElementById('wmenu')?.remove();
 }
 function disconnectWallet(){
   try{ wcProvider?.disconnect?.(); }catch(e){}
-  walletAddr = null; activeProvider = null;
-  const btn = $('walletbtn'); btn.classList.remove('on'); btn.textContent = 'Connect wallet';
+  if(window.PS) PS.forget();
+  walletAddr = null; activeProvider = null; walletPls = '';
+  paintWalletBtn();
   document.getElementById('wmenu')?.remove();
 }
 async function connectInjected(){
@@ -3055,33 +5141,36 @@ async function connectInjected(){
   try{
     const [a] = await window.ethereum.request({method:'eth_requestAccounts'});
     activeProvider = window.ethereum;
-    afterConnect(a);
+    await afterConnect(a, 'injected');
     window.ethereum.on?.('accountsChanged', acc => acc.length ? afterConnect(acc[0]) : disconnectWallet());
   }catch(e){}
+}
+async function ensureWc(){
+  if(wcProvider) return wcProvider;
+  const { EthereumProvider } = await import('https://esm.sh/@walletconnect/ethereum-provider@2.21.1');
+  wcProvider = await EthereumProvider.init({
+    projectId: WC_PROJECT_ID,
+    chains: [369],
+    showQrModal: true,
+    rpcMap: {369: RPC},
+    metadata: {
+      name: 'PulseStrategy — PulseVerify',
+      description: 'Trustless PulseChain explorer — verify it yourself',
+      url: (location.origin && location.origin!=='null') ? location.origin : 'https://pulsestrategy369.com',
+      icons: []
+    }
+  });
+  wcProvider.on('disconnect', disconnectWallet);
+  wcProvider.on('accountsChanged', acc => acc.length ? afterConnect(acc[0]) : disconnectWallet());
+  return wcProvider;
 }
 async function connectWC(){
   const btn = $('walletbtn'); const prev = btn.textContent; btn.textContent = 'Loading…';
   try{
-    if(!wcProvider){
-      const { EthereumProvider } = await import('https://esm.sh/@walletconnect/ethereum-provider@2.21.1');
-      wcProvider = await EthereumProvider.init({
-        projectId: WC_PROJECT_ID,
-        chains: [369],
-        showQrModal: true,
-        rpcMap: {369: RPC},
-        metadata: {
-          name: 'PulseStrategy — PulseVerify',
-          description: 'Trustless PulseChain explorer — verify it yourself',
-          url: (location.origin && location.origin!=='null') ? location.origin : 'https://pulsestrategy369.com',
-          icons: []
-        }
-      });
-      wcProvider.on('disconnect', disconnectWallet);
-      wcProvider.on('accountsChanged', acc => acc.length ? afterConnect(acc[0]) : disconnectWallet());
-    }
+    await ensureWc();
     await wcProvider.connect();
     activeProvider = wcProvider;
-    afterConnect(wcProvider.accounts[0]);
+    afterConnect(wcProvider.accounts[0], 'wc');
   }catch(e){
     btn.textContent = walletAddr ? prev : 'Connect wallet';
     if(!/reject|cancel|closed/i.test(String(e && e.message))) alert('WalletConnect failed: '+(e&&e.message)+'\n\nNote: WalletConnect needs the page served over https (GitHub Pages is fine) — it cannot run from a file:// open.');
@@ -3116,7 +5205,7 @@ function showTools(){
     <div class="sub-h" style="margin-top:0">Unit converter</div>
     <div class="frow">
       <div class="field"><label>Wei</label><input id="u-wei" oninput="conv('wei')"></div>
-      <div class="field"><label>Gwei (beats)</label><input id="u-gwei" oninput="conv('gwei')"></div>
+      <div class="field"><label>Beats</label><input id="u-gwei" oninput="conv('gwei')"></div>
       <div class="field"><label>PLS</label><input id="u-pls" oninput="conv('pls')"></div>
     </div>
     <div class="sub-h">Calldata decoder</div>
@@ -3197,16 +5286,21 @@ function drawGas(){
   pts.forEach((p,i)=> i?ctx.lineTo(X(i),Y(p.base)):ctx.moveTo(X(i),Y(p.base)));
   ctx.stroke();
   ctx.fillStyle='#9a8fb8'; ctx.font='12px monospace';
-  ctx.fillText(max.toFixed(0)+' gwei', 12, 14);
-  ctx.fillText(min.toFixed(0)+' gwei', 12, cv.height-4);
+  ctx.fillText(max.toFixed(0)+' beats', 12, 14);
+  ctx.fillText(min.toFixed(0)+' beats', 12, cv.height-4);
 }
 
 /* ================= deep links & sharing ================= */
 function paintBack(){
   const b = $('pvBack');
-  if(!b) return;
+  const h = $('pvHome');
   const depth = history.state && history.state.pvDepth;
-  b.style.display = depth > 0 ? '' : 'none';
+  if(b) b.style.display = depth > 0 ? '' : 'none';
+  if(h){
+    const has = !!(location.hash && location.hash.length>1);
+    const onPath = /\/(address|account|tx|transaction|token|contract|block)\//.test(location.pathname);
+    h.style.display = (detailOpen || has || onPath || (depth > 0)) ? '' : 'none';
+  }
 }
 function setHash(v){
   const next = '#'+v;
@@ -3696,7 +5790,6 @@ try{
     document.querySelectorAll('a.vaultlink').forEach(function(a){ a.href = VAULTS_URL; });
     document.querySelectorAll('a.launchlink').forEach(function(a){ a.href = LAUNCH_URL; });
     document.querySelectorAll('a.paperlink').forEach(function(a){ a.href = WHITEPAPER_URL; });
-    document.querySelectorAll('a.holdlink').forEach(function(a){ a.href = HOLD_URL; });
     var dl = document.getElementById('dlLink'), hashEl = document.getElementById('fileHash');
     var _isLocal = location.protocol === 'file:' ||
       /^(localhost|127\.0\.0\.1|\[::1\])$/.test(location.hostname);
@@ -3722,8 +5815,21 @@ try{
 }catch(e){}
 
 /* explicit globals for inline handlers (defensive for strict environments) */
+if(window.PS){
+  PS.setCaller((to, data) => call(to, data));
+  PS.on(() => { if(walletAddr) paintWalletBtn(); });
+  PS.boot({
+    onInjected: (p, a) => {
+      activeProvider = p;
+      afterConnect(a, 'injected');
+      p.on?.('accountsChanged', acc => acc && acc.length ? afterConnect(acc[0]) : disconnectWallet());
+    },
+    onWc: (p, a) => { activeProvider = p; afterConnect(a, 'wc'); },
+    wcInit: () => ensureWc()
+  });
+}
 Object.assign(window,{$,rpc,renderEvents,renderApprovals,checkOneApproval,revokeApproval,loadBlock,loadTx,loadAddress,routeFromUrl,loadRecentTxs,openTab,showTools,addChain,connectWallet,connectInjected,connectWC,disconnectWallet,showSourcifyVerdict,inspectBytecode,useDiscoveredAbi,autoAbi,shareLink,fillSourcifyBadge,sourcifyStatus,renderHoldings,discoverTokens,refreshPls,refreshHex,watchTx,signMsg,verifyMsg,loadVaultStats,
-  tokBalance,decodeCalldata,openDecoder,execFn,renderFns,runSafety,conv,ERC20_ABI});
+  tokBalance,decodeCalldata,openDecoder,execFn,renderFns,runSafety,conv,ERC20_ABI,renderPortfolio,pfShare,pfIcs});
 </script>
 </body>
 </html>
